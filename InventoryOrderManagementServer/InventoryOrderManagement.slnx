@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="InventoryOrderManagement.Api/InventoryOrderManagement.Api.csproj" />
+  <Project Path="InventoryOrderManagement.Application/InventoryOrderManagement.Application.csproj" />
+  <Project Path="InventoryOrderManagement.Domain/InventoryOrderManagement.Domain.csproj" />
+  <Project Path="InventoryOrderManagement.Infrastructure/InventoryOrderManagement.Infrastructure.csproj" />
+</Solution>
