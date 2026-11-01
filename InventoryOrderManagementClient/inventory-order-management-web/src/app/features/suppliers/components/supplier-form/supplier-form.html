@@ -1,0 +1,131 @@
+<form class="space-y-5" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div class="space-y-1.5 sm:col-span-2">
+      <label class="text-sm font-medium text-ink" for="supplier-name">Name</label>
+      <input
+        id="supplier-name"
+        type="text"
+        formControlName="name"
+        autocomplete="organization"
+        class="field"
+        [class.field-error]="controlInvalid('name')"
+        [attr.aria-invalid]="controlInvalid('name')"
+      />
+      @if (controlInvalid('name')) {
+        <p class="text-sm text-danger" role="alert">
+          @if (form.controls.name.hasError('required')) {
+            Name is required.
+          } @else if (form.controls.name.hasError('maxlength')) {
+            Name cannot exceed 150 characters.
+          }
+        </p>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+      <label class="text-sm font-medium text-ink" for="supplier-tax">Tax Identifier</label>
+      <input
+        id="supplier-tax"
+        type="text"
+        formControlName="taxIdentifier"
+        autocomplete="off"
+        class="field"
+        [class.field-error]="controlInvalid('taxIdentifier')"
+        [attr.aria-invalid]="controlInvalid('taxIdentifier')"
+      />
+      @if (controlInvalid('taxIdentifier')) {
+        <p class="text-sm text-danger" role="alert">Tax identifier cannot exceed 50 characters.</p>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+      <label class="text-sm font-medium text-ink" for="supplier-contact">Contact Name</label>
+      <input
+        id="supplier-contact"
+        type="text"
+        formControlName="contactName"
+        autocomplete="name"
+        class="field"
+        [class.field-error]="controlInvalid('contactName')"
+        [attr.aria-invalid]="controlInvalid('contactName')"
+      />
+      @if (controlInvalid('contactName')) {
+        <p class="text-sm text-danger" role="alert">Contact name cannot exceed 100 characters.</p>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+      <label class="text-sm font-medium text-ink" for="supplier-email">Email</label>
+      <input
+        id="supplier-email"
+        type="email"
+        formControlName="email"
+        autocomplete="email"
+        class="field"
+        [class.field-error]="controlInvalid('email')"
+        [attr.aria-invalid]="controlInvalid('email')"
+      />
+      @if (controlInvalid('email')) {
+        <p class="text-sm text-danger" role="alert">
+          @if (form.controls.email.hasError('email')) {
+            Email format is invalid.
+          } @else if (form.controls.email.hasError('maxlength')) {
+            Email cannot exceed 254 characters.
+          }
+        </p>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+      <label class="text-sm font-medium text-ink" for="supplier-phone">Phone</label>
+      <input
+        id="supplier-phone"
+        type="tel"
+        formControlName="phone"
+        autocomplete="tel"
+        class="field"
+        [class.field-error]="controlInvalid('phone')"
+        [attr.aria-invalid]="controlInvalid('phone')"
+      />
+      @if (controlInvalid('phone')) {
+        <p class="text-sm text-danger" role="alert">Phone cannot exceed 30 characters.</p>
+      }
+    </div>
+  </div>
+
+  <div class="space-y-1.5">
+    <label class="text-sm font-medium text-ink" for="supplier-notes">Notes</label>
+    <textarea
+      id="supplier-notes"
+      rows="3"
+      formControlName="notes"
+      class="field min-h-24 resize-y"
+      [class.field-error]="controlInvalid('notes')"
+      [attr.aria-invalid]="controlInvalid('notes')"
+    ></textarea>
+    @if (controlInvalid('notes')) {
+      <p class="text-sm text-danger" role="alert">Notes cannot exceed 500 characters.</p>
+    }
+  </div>
+
+  @if (submitError()) {
+    <div class="rounded-md border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger" role="alert">
+      {{ submitError() }}
+    </div>
+  }
+
+  <div class="flex flex-wrap gap-3">
+    <button type="submit" class="btn-primary" [disabled]="form.invalid || isSubmitting()">
+      @if (isSubmitting()) {
+        Saving...
+      } @else if (mode() === 'edit') {
+        Save Changes
+      } @else {
+        Save Supplier
+      }
+    </button>
+    <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="cancel()">
+      Cancel
+    </button>
+  </div>
+</form>

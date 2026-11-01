@@ -1,0 +1,36 @@
+<section
+  class="rounded-xl border border-danger/30 bg-panel p-5 shadow-sm sm:p-6"
+  role="dialog"
+  aria-labelledby="supplier-deactivate-title"
+>
+  <h2 id="supplier-deactivate-title" class="text-lg font-semibold text-ink">Deactivate supplier</h2>
+  <p class="mt-2 text-sm text-muted">
+    Supplier <span class="font-medium text-ink">{{ supplier().name }}</span> will be deactivated and will no
+    longer be available for future merchandise receipts. Historical records remain associated with this
+    supplier.
+  </p>
+
+  @if (errorMessage()) {
+    <div class="mt-4 rounded-md border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger" role="alert">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <div class="mt-5 flex flex-wrap gap-3">
+    <button
+      type="button"
+      class="btn-primary bg-danger hover:bg-danger"
+      [disabled]="isSubmitting()"
+      (click)="confirmed.emit()"
+    >
+      @if (isSubmitting()) {
+        Deactivating...
+      } @else {
+        Confirm Deactivate
+      }
+    </button>
+    <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="cancelled.emit()">
+      Cancel
+    </button>
+  </div>
+</section>
