@@ -14,11 +14,25 @@ public class CreateProductUseCaseTests
 
     private readonly IProductRepository _productRepository = Substitute.For<IProductRepository>();
     private readonly ICategoryRepository _categoryRepository = Substitute.For<ICategoryRepository>();
+    private readonly IInventoryRepository _inventoryRepository = Substitute.For<IInventoryRepository>();
+    private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
     private readonly CreateProductUseCase _useCase;
 
     public CreateProductUseCaseTests()
     {
-        _useCase = new CreateProductUseCase(_productRepository, _categoryRepository);
+        _unitOfWork
+            .ExecuteAsync(Arg.Any<Func<CancellationToken, Task>>(), Arg.Any<CancellationToken>())
+            .Returns(call =>
+            {
+                var operation = call.Arg<Func<CancellationToken, Task>>();
+                return operation(call.ArgAt<CancellationToken>(1));
+            });
+
+        _useCase = new CreateProductUseCase(
+            _productRepository,
+            _categoryRepository,
+            _inventoryRepository,
+            _unitOfWork);
         _categoryRepository.GetByIdAsync(CategoryId, Arg.Any<CancellationToken>())
             .Returns(Category.Create("Electronics", null));
     }
@@ -46,6 +60,9 @@ public class CreateProductUseCaseTests
 
         await _productRepository.Received(1).AddAsync(
             Arg.Is<Product>(product => product.Sku == "KB-001" && product.CategoryId == CategoryId),
+            Arg.Any<CancellationToken>());
+        await _inventoryRepository.Received(1).AddAsync(
+            Arg.Is<InventoryBalance>(balance => balance.QuantityOnHand == 0),
             Arg.Any<CancellationToken>());
     }
 

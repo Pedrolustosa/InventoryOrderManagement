@@ -12,13 +12,19 @@ public sealed class CreateProductUseCase
 {
     private readonly IProductRepository _productRepository;
     private readonly ICategoryRepository _categoryRepository;
+    private readonly IInventoryRepository _inventoryRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
     public CreateProductUseCase(
         IProductRepository productRepository,
-        ICategoryRepository categoryRepository)
+        ICategoryRepository categoryRepository,
+        IInventoryRepository inventoryRepository,
+        IUnitOfWork unitOfWork)
     {
         _productRepository = productRepository;
         _categoryRepository = categoryRepository;
+        _inventoryRepository = inventoryRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<ProductResponse> ExecuteAsync(
@@ -47,7 +53,11 @@ public sealed class CreateProductUseCase
             throw new DuplicateSkuException(product.Sku);
         }
 
-        await _productRepository.AddAsync(product, cancellationToken);
+        await _unitOfWork.ExecuteAsync(async ct =>
+        {
+            await _productRepository.AddAsync(product, ct);
+            await _inventoryRepository.AddAsync(InventoryBalance.Create(product.Id), ct);
+        }, cancellationToken);
 
         return ProductResponse.FromEntity(product);
     }

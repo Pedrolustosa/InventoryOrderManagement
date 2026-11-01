@@ -244,7 +244,9 @@ public static class DevelopmentDataSeeder
             return;
         }
 
-        dbContext.Products.Add(Product.Create(sku, name, description, currentPrice, categoryId));
+        var product = Product.Create(sku, name, description, currentPrice, categoryId);
+        dbContext.Products.Add(product);
+        dbContext.InventoryBalances.Add(InventoryBalance.Create(product.Id));
     }
 
     private static async Task<Supplier> EnsureSupplierAsync(

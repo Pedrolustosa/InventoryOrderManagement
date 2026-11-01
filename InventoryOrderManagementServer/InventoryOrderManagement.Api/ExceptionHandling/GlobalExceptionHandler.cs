@@ -100,6 +100,34 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                 StatusCodes.Status409Conflict,
                 "Duplicate tax identifier",
                 duplicateCustomerTaxIdentifierException.Message),
+            ProductNotFoundException productNotFoundException => (
+                StatusCodes.Status404NotFound,
+                "Product not found",
+                productNotFoundException.Message),
+            InventoryBalanceNotFoundException inventoryBalanceNotFoundException => (
+                StatusCodes.Status404NotFound,
+                "Inventory balance not found",
+                inventoryBalanceNotFoundException.Message),
+            InvalidMovementPeriodException invalidMovementPeriodException => (
+                StatusCodes.Status400BadRequest,
+                "Invalid movement period",
+                invalidMovementPeriodException.Message),
+            InactiveProductStockEntryException inactiveProductStockEntryException => (
+                StatusCodes.Status409Conflict,
+                "Inactive product",
+                inactiveProductStockEntryException.Message),
+            InactiveSupplierStockEntryException inactiveSupplierStockEntryException => (
+                StatusCodes.Status409Conflict,
+                "Inactive supplier",
+                inactiveSupplierStockEntryException.Message),
+            InsufficientStockException insufficientStockException => (
+                StatusCodes.Status409Conflict,
+                "Insufficient stock",
+                insufficientStockException.Message),
+            InventoryConcurrencyException inventoryConcurrencyException => (
+                StatusCodes.Status409Conflict,
+                "Inventory concurrency conflict",
+                inventoryConcurrencyException.Message),
             _ => (
                 StatusCodes.Status500InternalServerError,
                 "An unexpected error occurred",

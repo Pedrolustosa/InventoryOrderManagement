@@ -1,0 +1,64 @@
+<form class="space-y-6" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div class="space-y-1.5">
+      <label class="text-sm font-medium text-ink" for="minimum-product">Product</label>
+      <select
+        id="minimum-product"
+        formControlName="productId"
+        class="field"
+        [class.field-error]="controlInvalid('productId')"
+        (change)="onProductChange()"
+      >
+        <option value="">Select a product</option>
+        @for (product of products(); track product.id) {
+          <option [value]="product.id">{{ product.sku }} — {{ product.name }}</option>
+        }
+      </select>
+      @if (controlInvalid('productId')) {
+        <p class="text-sm text-danger" role="alert">Product is required.</p>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+      <p class="text-sm font-medium text-ink">Current Minimum Stock</p>
+      <p class="field bg-surface text-ink" aria-live="polite">
+        @if (isBalanceLoading()) {
+          Loading balance...
+        } @else if (currentMinimum() === null) {
+          Select a product
+        } @else {
+          {{ currentMinimum() }}
+        }
+      </p>
+    </div>
+
+    <div class="space-y-1.5">
+      <label class="text-sm font-medium text-ink" for="minimum-level">New Minimum Stock</label>
+      <input
+        id="minimum-level"
+        type="number"
+        min="0"
+        step="1"
+        formControlName="minimumStockLevel"
+        class="field"
+        [class.field-error]="controlInvalid('minimumStockLevel')"
+      />
+      @if (controlInvalid('minimumStockLevel')) {
+        <p class="text-sm text-danger" role="alert">Minimum stock must be a non-negative integer.</p>
+      }
+    </div>
+  </div>
+
+  @if (submitError()) {
+    <p class="text-sm text-danger" role="alert">{{ submitError() }}</p>
+  }
+
+  <div class="flex flex-wrap gap-2">
+    <button type="submit" class="btn-primary" [disabled]="isSubmitting() || form.invalid">
+      {{ isSubmitting() ? 'Saving...' : 'Confirm minimum stock' }}
+    </button>
+    <button type="button" class="btn-secondary" (click)="cancelled.emit()" [disabled]="isSubmitting()">
+      Cancel
+    </button>
+  </div>
+</form>
