@@ -1,0 +1,155 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">Customers Management</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">
+        Manage your customers and their contact information.
+      </p>
+    </div>
+
+    @if (panelMode() === 'none') {
+      <button type="button" class="btn-primary shrink-0" (click)="openCreate()">New Customer</button>
+    }
+  </div>
+
+  <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+    <div class="rounded-xl border border-line bg-panel px-4 py-3">
+      <p class="text-xs uppercase tracking-wide text-muted">Total Customers</p>
+      <p class="mt-1 text-2xl font-semibold text-ink">{{ totalCount() }}</p>
+    </div>
+    <div class="rounded-xl border border-line bg-panel px-4 py-3">
+      <p class="text-xs uppercase tracking-wide text-muted">Individual</p>
+      <p class="mt-1 text-2xl font-semibold text-ink">{{ individualCount() }}</p>
+    </div>
+    <div class="rounded-xl border border-line bg-panel px-4 py-3">
+      <p class="text-xs uppercase tracking-wide text-muted">Company</p>
+      <p class="mt-1 text-2xl font-semibold text-ink">{{ companyCount() }}</p>
+    </div>
+    <div class="rounded-xl border border-line bg-panel px-4 py-3">
+      <p class="text-xs uppercase tracking-wide text-muted">Active</p>
+      <p class="mt-1 text-2xl font-semibold text-accent-ink">{{ activeCount() }}</p>
+    </div>
+    <div class="rounded-xl border border-line bg-panel px-4 py-3">
+      <p class="text-xs uppercase tracking-wide text-muted">Inactive</p>
+      <p class="mt-1 text-2xl font-semibold text-muted">{{ inactiveCount() }}</p>
+    </div>
+  </div>
+
+  <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+    <div class="flex flex-wrap gap-2">
+      <button
+        type="button"
+        class="btn-secondary"
+        [class.!bg-accent]="statusFilter() === 'all'"
+        [class.!text-white]="statusFilter() === 'all'"
+        (click)="setStatusFilter('all')"
+      >
+        All
+      </button>
+      <button
+        type="button"
+        class="btn-secondary"
+        [class.!bg-accent]="statusFilter() === 'active'"
+        [class.!text-white]="statusFilter() === 'active'"
+        (click)="setStatusFilter('active')"
+      >
+        Active
+      </button>
+      <button
+        type="button"
+        class="btn-secondary"
+        [class.!bg-accent]="statusFilter() === 'inactive'"
+        [class.!text-white]="statusFilter() === 'inactive'"
+        (click)="setStatusFilter('inactive')"
+      >
+        Inactive
+      </button>
+      <button
+        type="button"
+        class="btn-secondary"
+        [class.!bg-accent]="typeFilter() === 'Individual'"
+        [class.!text-white]="typeFilter() === 'Individual'"
+        (click)="setTypeFilter('Individual')"
+      >
+        Individual
+      </button>
+      <button
+        type="button"
+        class="btn-secondary"
+        [class.!bg-accent]="typeFilter() === 'Company'"
+        [class.!text-white]="typeFilter() === 'Company'"
+        (click)="setTypeFilter('Company')"
+      >
+        Company
+      </button>
+      <button type="button" class="btn-secondary" (click)="clearFilters()">Clear</button>
+    </div>
+
+    <input
+      type="search"
+      class="field max-w-sm"
+      placeholder="Search by name or tax ID"
+      [value]="searchTerm()"
+      (input)="onSearch($any($event.target).value)"
+    />
+  </div>
+
+  @if (successMessage()) {
+    <div class="rounded-md border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent-ink" role="status">
+      {{ successMessage() }}
+    </div>
+  }
+
+  @if (panelMode() === 'create' || panelMode() === 'edit') {
+    <section class="rounded-xl border border-line bg-panel p-5 shadow-sm sm:p-6">
+      <div class="mb-5">
+        <h2 class="text-lg font-semibold text-ink">
+          {{ panelMode() === 'edit' ? 'Edit Customer' : 'Create Customer' }}
+        </h2>
+        <p class="mt-1 text-sm text-muted">
+          {{
+            panelMode() === 'edit'
+              ? 'Update customer type, contact, and address details.'
+              : 'Add a new individual or company customer.'
+          }}
+        </p>
+      </div>
+
+      <app-customer-form
+        [mode]="panelMode() === 'edit' ? 'edit' : 'create'"
+        [customer]="selectedCustomer()"
+        [isSubmitting]="isSubmitting()"
+        [submitError]="submitError()"
+        (saved)="onSave($event)"
+        (cancelled)="closePanel()"
+      />
+    </section>
+  }
+
+  @if (panelMode() === 'detail' && selectedCustomer(); as customer) {
+    <app-customer-detail
+      [customer]="customer"
+      [isLoading]="isDetailLoading()"
+      (closed)="closePanel()"
+    />
+  }
+
+  @if (panelMode() === 'deactivate' && selectedCustomer(); as customer) {
+    <app-customer-deactivate-confirm
+      [customer]="customer"
+      [isSubmitting]="isSubmitting()"
+      [errorMessage]="submitError()"
+      (confirmed)="confirmDeactivate()"
+      (cancelled)="closePanel()"
+    />
+  }
+
+  <app-customer-list
+    [customers]="filteredCustomers()"
+    [isLoading]="isLoading()"
+    [errorMessage]="loadError()"
+    (viewRequested)="openDetail($event)"
+    (editRequested)="openEdit($event)"
+    (deactivateRequested)="openDeactivate($event)"
+  />
+</section>

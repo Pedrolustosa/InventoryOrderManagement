@@ -1,0 +1,119 @@
+<section class="rounded-xl border border-line bg-panel p-5 shadow-sm sm:p-6">
+  <div class="mb-5 flex items-start justify-between gap-4">
+    <div>
+      <h2 class="text-lg font-semibold text-ink">Customer Details</h2>
+      <p class="mt-1 text-sm text-muted">Read-only view of the selected customer.</p>
+    </div>
+    <button type="button" class="btn-secondary" (click)="closed.emit()">Close</button>
+  </div>
+
+  @if (isLoading()) {
+    <p class="text-sm text-muted">Loading customer...</p>
+  } @else {
+    <div class="space-y-6">
+      <section>
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-muted">Customer Information</h3>
+        <dl class="mt-3 grid gap-4 sm:grid-cols-2">
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Name</dt>
+            <dd class="mt-1 text-sm font-medium text-ink">{{ customer().name }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Type</dt>
+            <dd class="mt-1 text-sm text-ink">{{ customer().customerType }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Tax Identifier</dt>
+            <dd class="mt-1 text-sm text-ink">{{ displayValue(customer().taxIdentifier) }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Status</dt>
+            <dd class="mt-1">
+              @if (customer().isActive) {
+                <span class="badge-active">Active</span>
+              } @else {
+                <span class="badge-inactive">Inactive</span>
+              }
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <section>
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-muted">Contact Information</h3>
+        <dl class="mt-3 grid gap-4 sm:grid-cols-2">
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Email</dt>
+            <dd class="mt-1 text-sm text-ink">{{ displayValue(customer().email) }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Phone</dt>
+            <dd class="mt-1 text-sm text-ink">{{ displayValue(customer().phone) }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section>
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-muted">Address Information</h3>
+        @if (customer().address; as address) {
+          <dl class="mt-3 grid gap-4 sm:grid-cols-2">
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">Postal Code</dt>
+              <dd class="mt-1 text-sm text-ink">{{ address.postalCode }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">Number</dt>
+              <dd class="mt-1 text-sm text-ink">{{ address.number }}</dd>
+            </div>
+            <div class="sm:col-span-2">
+              <dt class="text-xs uppercase tracking-wide text-muted">Street</dt>
+              <dd class="mt-1 text-sm text-ink">{{ address.street }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">Complement</dt>
+              <dd class="mt-1 text-sm text-ink">{{ displayValue(address.complement) }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">Neighborhood</dt>
+              <dd class="mt-1 text-sm text-ink">{{ displayValue(address.neighborhood) }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">City</dt>
+              <dd class="mt-1 text-sm text-ink">{{ address.city }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">State</dt>
+              <dd class="mt-1 text-sm text-ink">{{ address.state }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">Country</dt>
+              <dd class="mt-1 text-sm text-ink">{{ address.country }}</dd>
+            </div>
+          </dl>
+        } @else {
+          <p class="mt-3 text-sm text-muted">Not informed</p>
+        }
+      </section>
+
+      <section>
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-muted">Registration Information</h3>
+        <dl class="mt-3 grid gap-4 sm:grid-cols-2">
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Created At</dt>
+            <dd class="mt-1 text-sm text-ink">{{ customer().createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Updated At</dt>
+            <dd class="mt-1 text-sm text-ink">
+              @if (customer().updatedAtUtc) {
+                {{ customer().updatedAtUtc | date: 'dd/MM/yyyy HH:mm' }}
+              } @else {
+                Not informed
+              }
+            </dd>
+          </div>
+        </dl>
+      </section>
+    </div>
+  }
+</section>

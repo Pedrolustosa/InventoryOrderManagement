@@ -1,0 +1,188 @@
+<form class="space-y-6" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <section class="space-y-4">
+    <h3 class="text-sm font-semibold uppercase tracking-wide text-muted">Customer Information</h3>
+
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div class="space-y-1.5">
+        <label class="text-sm font-medium text-ink" for="customer-type">Customer Type</label>
+        <select
+          id="customer-type"
+          formControlName="customerType"
+          class="field"
+          [class.field-error]="controlInvalid('customerType')"
+        >
+          @for (type of customerTypes; track type) {
+            <option [value]="type">{{ type }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="space-y-1.5">
+        <label class="text-sm font-medium text-ink" for="customer-tax">
+          {{ isCompany() ? 'CNPJ' : 'CPF' }}
+        </label>
+        <input
+          id="customer-tax"
+          type="text"
+          formControlName="taxIdentifier"
+          autocomplete="off"
+          class="field"
+          [class.field-error]="controlInvalid('taxIdentifier')"
+        />
+      </div>
+
+      <div class="space-y-1.5 sm:col-span-2">
+        <label class="text-sm font-medium text-ink" for="customer-name">
+          {{ isCompany() ? 'Company Name' : 'Name' }}
+        </label>
+        <input
+          id="customer-name"
+          type="text"
+          formControlName="name"
+          autocomplete="organization"
+          class="field"
+          [class.field-error]="controlInvalid('name')"
+          [attr.aria-invalid]="controlInvalid('name')"
+        />
+        @if (controlInvalid('name')) {
+          <p class="text-sm text-danger" role="alert">
+            @if (form.controls.name.hasError('required')) {
+              Name is required.
+            } @else if (form.controls.name.hasError('maxlength')) {
+              Name cannot exceed 150 characters.
+            }
+          </p>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="space-y-4">
+    <h3 class="text-sm font-semibold uppercase tracking-wide text-muted">Contact Information</h3>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div class="space-y-1.5">
+        <label class="text-sm font-medium text-ink" for="customer-email">Email</label>
+        <input
+          id="customer-email"
+          type="email"
+          formControlName="email"
+          class="field"
+          [class.field-error]="controlInvalid('email')"
+        />
+        @if (controlInvalid('email')) {
+          <p class="text-sm text-danger" role="alert">
+            @if (form.controls.email.hasError('email')) {
+              Email format is invalid.
+            } @else {
+              Email cannot exceed 254 characters.
+            }
+          </p>
+        }
+      </div>
+      <div class="space-y-1.5">
+        <label class="text-sm font-medium text-ink" for="customer-phone">Phone</label>
+        <input
+          id="customer-phone"
+          type="tel"
+          formControlName="phone"
+          class="field"
+          [class.field-error]="controlInvalid('phone')"
+        />
+        @if (controlInvalid('phone')) {
+          <p class="text-sm text-danger" role="alert">Phone cannot exceed 30 characters.</p>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="space-y-4">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <h3 class="text-sm font-semibold uppercase tracking-wide text-muted">Address Information</h3>
+      <label class="flex items-center gap-2 text-sm text-ink">
+        <input
+          type="checkbox"
+          class="size-4 accent-[var(--color-accent)]"
+          [checked]="includeAddress()"
+          (change)="toggleAddress($any($event.target).checked)"
+        />
+        Add Address
+      </label>
+    </div>
+
+    @if (includeAddress()) {
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="space-y-1.5">
+          <label class="text-sm font-medium text-ink" for="postal-code">Postal Code</label>
+          <input id="postal-code" type="text" formControlName="postalCode" class="field" [class.field-error]="controlInvalid('postalCode')" />
+          @if (controlInvalid('postalCode')) {
+            <p class="text-sm text-danger" role="alert">Postal code is required.</p>
+          }
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-sm font-medium text-ink" for="number">Number</label>
+          <input id="number" type="text" formControlName="number" class="field" [class.field-error]="controlInvalid('number')" />
+          @if (controlInvalid('number')) {
+            <p class="text-sm text-danger" role="alert">Number is required.</p>
+          }
+        </div>
+        <div class="space-y-1.5 sm:col-span-2">
+          <label class="text-sm font-medium text-ink" for="street">Street</label>
+          <input id="street" type="text" formControlName="street" class="field" [class.field-error]="controlInvalid('street')" />
+          @if (controlInvalid('street')) {
+            <p class="text-sm text-danger" role="alert">Street is required.</p>
+          }
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-sm font-medium text-ink" for="complement">Complement</label>
+          <input id="complement" type="text" formControlName="complement" class="field" />
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-sm font-medium text-ink" for="neighborhood">Neighborhood</label>
+          <input id="neighborhood" type="text" formControlName="neighborhood" class="field" />
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-sm font-medium text-ink" for="city">City</label>
+          <input id="city" type="text" formControlName="city" class="field" [class.field-error]="controlInvalid('city')" />
+          @if (controlInvalid('city')) {
+            <p class="text-sm text-danger" role="alert">City is required.</p>
+          }
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-sm font-medium text-ink" for="state">State</label>
+          <input id="state" type="text" formControlName="state" class="field" [class.field-error]="controlInvalid('state')" />
+          @if (controlInvalid('state')) {
+            <p class="text-sm text-danger" role="alert">State is required.</p>
+          }
+        </div>
+        <div class="space-y-1.5 sm:col-span-2">
+          <label class="text-sm font-medium text-ink" for="country">Country</label>
+          <input id="country" type="text" formControlName="country" class="field" [class.field-error]="controlInvalid('country')" />
+          @if (controlInvalid('country')) {
+            <p class="text-sm text-danger" role="alert">Country is required.</p>
+          }
+        </div>
+      </div>
+    }
+  </section>
+
+  @if (submitError()) {
+    <div class="rounded-md border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger" role="alert">
+      {{ submitError() }}
+    </div>
+  }
+
+  <div class="flex flex-wrap gap-3">
+    <button type="submit" class="btn-primary" [disabled]="form.invalid || isSubmitting()">
+      @if (isSubmitting()) {
+        Saving...
+      } @else if (mode() === 'edit') {
+        Save Changes
+      } @else {
+        Save Customer
+      }
+    </button>
+    <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="cancel()">
+      Cancel
+    </button>
+  </div>
+</form>

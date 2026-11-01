@@ -1,0 +1,96 @@
+<section class="rounded-xl border border-line bg-panel shadow-sm" aria-live="polite">
+  @if (isLoading()) {
+    <div class="flex items-center gap-3 px-5 py-10 text-muted" aria-busy="true">
+      <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
+      <span>Loading customers...</span>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="px-5 py-8 text-sm text-danger" role="alert">{{ errorMessage() }}</div>
+  } @else if (customers().length === 0) {
+    <div class="px-5 py-12 text-center">
+      <p class="text-base font-medium text-ink">No customers found</p>
+      <p class="mt-2 text-sm text-muted">Create a customer or adjust your filters.</p>
+    </div>
+  } @else {
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-left text-sm">
+        <thead class="border-b border-line bg-surface/80 text-xs uppercase tracking-wide text-muted">
+          <tr>
+            <th class="px-4 py-3 font-semibold">Customer</th>
+            <th class="px-4 py-3 font-semibold">Type</th>
+            <th class="px-4 py-3 font-semibold">Tax Identifier</th>
+            <th class="px-4 py-3 font-semibold">Email</th>
+            <th class="px-4 py-3 font-semibold">Phone</th>
+            <th class="px-4 py-3 font-semibold">City</th>
+            <th class="px-4 py-3 font-semibold">Status</th>
+            <th class="px-4 py-3 font-semibold">Created At</th>
+            <th class="px-4 py-3 font-semibold">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (customer of customers(); track customer.id) {
+            <tr class="border-b border-line/70 last:border-0">
+              <td class="px-4 py-3 font-medium text-ink">{{ customer.name }}</td>
+              <td class="px-4 py-3">
+                @if (customer.customerType === 'Company') {
+                  <span class="badge-inactive">Company</span>
+                } @else {
+                  <span class="badge-active">Individual</span>
+                }
+              </td>
+              <td class="whitespace-nowrap px-4 py-3 text-muted">
+                {{ displayValue(customer.taxIdentifier) }}
+              </td>
+              <td class="max-w-[10rem] truncate px-4 py-3 text-muted">
+                {{ displayValue(customer.email) }}
+              </td>
+              <td class="whitespace-nowrap px-4 py-3 text-muted">
+                {{ displayValue(customer.phone) }}
+              </td>
+              <td class="px-4 py-3 text-muted">
+                {{ displayValue(customer.address?.city) }}
+              </td>
+              <td class="px-4 py-3">
+                @if (customer.isActive) {
+                  <span class="badge-active">Active</span>
+                } @else {
+                  <span class="badge-inactive">Inactive</span>
+                }
+              </td>
+              <td class="whitespace-nowrap px-4 py-3 text-muted">
+                {{ customer.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    class="btn-secondary !px-2.5 !py-1 text-xs"
+                    (click)="viewRequested.emit(customer)"
+                  >
+                    View
+                  </button>
+                  @if (customer.isActive) {
+                    <button
+                      type="button"
+                      class="btn-secondary !px-2.5 !py-1 text-xs"
+                      (click)="editRequested.emit(customer)"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      class="btn-secondary !px-2.5 !py-1 text-xs text-danger"
+                      (click)="deactivateRequested.emit(customer)"
+                    >
+                      Deactivate
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

@@ -16,6 +16,8 @@ public class InventoryDbContext : DbContext
 
     public DbSet<Supplier> Suppliers => Set<Supplier>();
 
+    public DbSet<Customer> Customers => Set<Customer>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(InventoryDbContext).Assembly);
