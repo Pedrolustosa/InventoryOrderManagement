@@ -88,10 +88,23 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                 StatusCodes.Status409Conflict,
                 "Duplicate tax identifier",
                 duplicateTaxIdentifierException.Message),
+            InactiveCustomerException inactiveCustomerException => (
+                StatusCodes.Status400BadRequest,
+                "Inactive customer",
+                inactiveCustomerException.Message),
+            CustomerNotFoundException customerNotFoundException => (
+                StatusCodes.Status404NotFound,
+                "Customer not found",
+                customerNotFoundException.Message),
+            DuplicateCustomerTaxIdentifierException duplicateCustomerTaxIdentifierException => (
+                StatusCodes.Status409Conflict,
+                "Duplicate tax identifier",
+                duplicateCustomerTaxIdentifierException.Message),
             _ => (
                 StatusCodes.Status500InternalServerError,
                 "An unexpected error occurred",
                 "An unexpected error occurred while processing the request.")
         };
+
     }
 }

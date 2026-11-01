@@ -1,11 +1,13 @@
 using InventoryOrderManagement.Domain.Entities;
+using InventoryOrderManagement.Domain.Enums;
+using InventoryOrderManagement.Domain.ValueObjects;
 using InventoryOrderManagement.Infrastructure.Persistence.Configurations;
 using Microsoft.EntityFrameworkCore;
 
 namespace InventoryOrderManagement.Infrastructure.Persistence.Seeding;
 
 /// <summary>
-/// Populates a small demo catalog in Development so Categories, Products, and Suppliers flows can be exercised.
+/// Populates a small demo catalog in Development so Categories, Products, Suppliers, and Customers flows can be exercised.
 /// Idempotent: safe to run on every startup.
 /// </summary>
 public static class DevelopmentDataSeeder
@@ -90,7 +92,6 @@ public static class DevelopmentDataSeeder
             categoryId: CategoryConfiguration.UncategorizedCategoryId,
             cancellationToken);
 
-        // housewares intentionally left without products (deactivate without 409).
         _ = housewares;
 
         var techComponents = await EnsureSupplierAsync(
@@ -139,6 +140,66 @@ public static class DevelopmentDataSeeder
 
         _ = techComponents;
         _ = formerPartner;
+
+        await EnsureCustomerAsync(
+            dbContext,
+            customerType: CustomerType.Individual,
+            name: "John Smith",
+            taxIdentifier: "111.222.333-44",
+            email: "john.smith@demo.local",
+            phone: "+55 81 99999-8888",
+            address: CustomerAddress.Create(
+                "50000-000",
+                "Example Street",
+                "100",
+                "Apartment 301",
+                "Boa Viagem",
+                "Recife",
+                "PE",
+                "Brazil"),
+            deactivate: false,
+            cancellationToken);
+
+        await EnsureCustomerAsync(
+            dbContext,
+            customerType: CustomerType.Company,
+            name: "Acme Retail Ltd.",
+            taxIdentifier: "88.888.888/0001-88",
+            email: "purchasing@acmeretail.demo",
+            phone: "+55 11 3003-4004",
+            address: CustomerAddress.Create(
+                "01310-100",
+                "Avenida Paulista",
+                "1000",
+                null,
+                "Bela Vista",
+                "Sao Paulo",
+                "SP",
+                "Brazil"),
+            deactivate: false,
+            cancellationToken);
+
+        await EnsureCustomerAsync(
+            dbContext,
+            customerType: CustomerType.Individual,
+            name: "Walk-in Guest",
+            taxIdentifier: null,
+            email: null,
+            phone: "+55 81 98888-7777",
+            address: null,
+            deactivate: false,
+            cancellationToken);
+
+        await EnsureCustomerAsync(
+            dbContext,
+            customerType: CustomerType.Company,
+            name: "Closed Store SA",
+            taxIdentifier: "99.999.999/0001-99",
+            email: "ops@closedstore.demo",
+            phone: "+55 21 2222-1111",
+            address: null,
+            deactivate: true,
+            cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
     }
@@ -232,5 +293,52 @@ public static class DevelopmentDataSeeder
 
         dbContext.Suppliers.Add(supplier);
         return supplier;
+    }
+
+    private static async Task EnsureCustomerAsync(
+        InventoryDbContext dbContext,
+        CustomerType customerType,
+        string name,
+        string? taxIdentifier,
+        string? email,
+        string? phone,
+        CustomerAddress? address,
+        bool deactivate,
+        CancellationToken cancellationToken)
+    {
+        var normalizedTaxIdentifier = Customer.NormalizeTaxIdentifierForComparison(taxIdentifier);
+
+        Customer? existing = null;
+        if (normalizedTaxIdentifier is not null)
+        {
+            existing = await dbContext.Customers
+                .FirstOrDefaultAsync(
+                    customer => customer.NormalizedTaxIdentifier == normalizedTaxIdentifier,
+                    cancellationToken);
+        }
+        else
+        {
+            existing = await dbContext.Customers
+                .FirstOrDefaultAsync(customer => customer.Name == name.Trim(), cancellationToken);
+        }
+
+        if (existing is not null)
+        {
+            if (deactivate && existing.IsActive)
+            {
+                existing.Deactivate();
+            }
+
+            return;
+        }
+
+        var customer = Customer.Create(customerType, name, taxIdentifier, email, phone, address);
+
+        if (deactivate)
+        {
+            customer.Deactivate();
+        }
+
+        dbContext.Customers.Add(customer);
     }
 }
