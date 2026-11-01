@@ -1,0 +1,254 @@
+<form class="space-y-8" [formGroup]="form" (ngSubmit)="submit()">
+  <section class="space-y-4">
+    <div>
+      <h2 class="text-lg font-semibold text-ink">Customer Information</h2>
+      <p class="mt-1 text-sm text-muted">Only active customers can be selected.</p>
+    </div>
+
+    @if (activeCustomers().length === 0) {
+      <p class="rounded-md border border-line bg-surface px-4 py-3 text-sm text-muted" role="status">
+        There are no active customers available for new orders.
+      </p>
+    } @else {
+      <div class="grid gap-4 sm:grid-cols-2">
+        <label class="block text-sm font-medium text-ink sm:col-span-2">
+          Search customer
+          <input
+            type="search"
+            class="field mt-1"
+            placeholder="Search by name"
+            [value]="customerSearch()"
+            (input)="customerSearch.set($any($event.target).value)"
+          />
+        </label>
+
+        <label class="block text-sm font-medium text-ink sm:col-span-2">
+          Customer
+          <select class="field mt-1" formControlName="customerId">
+            <option value="">Select a customer</option>
+            @for (customer of visibleCustomers(); track customer.id) {
+              <option [value]="customer.id">{{ customer.name }}</option>
+            }
+          </select>
+        </label>
+      </div>
+
+      @if (selectedCustomer(); as customer) {
+        <dl class="grid gap-3 rounded-lg border border-line bg-surface/60 p-4 sm:grid-cols-2">
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Customer Type</dt>
+            <dd class="mt-1 text-sm text-ink">{{ customer.customerType }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Tax Identifier</dt>
+            <dd class="mt-1 text-sm text-ink">{{ displayValue(customer.taxIdentifier) }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Email</dt>
+            <dd class="mt-1 text-sm text-ink">{{ displayValue(customer.email) }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Phone</dt>
+            <dd class="mt-1 text-sm text-ink">{{ displayValue(customer.phone) }}</dd>
+          </div>
+        </dl>
+        @if (!customer.isActive) {
+          <p class="text-sm text-danger" role="alert">Inactive customers cannot place orders.</p>
+        }
+      }
+    }
+  </section>
+
+  <section class="space-y-4">
+    <div>
+      <h2 class="text-lg font-semibold text-ink">Shipping Address</h2>
+      <p class="mt-1 text-sm text-muted">The address is stored on the order and does not change the customer record.</p>
+    </div>
+
+    @if (selectedCustomer()?.address; as address) {
+      <label class="flex items-start gap-2 text-sm text-ink">
+        <input
+          type="checkbox"
+          class="mt-1"
+          [checked]="useRegisteredAddress()"
+          (change)="toggleRegisteredAddress($any($event.target).checked)"
+        />
+        Use the address registered for this customer
+      </label>
+      @if (useRegisteredAddress()) {
+        <p class="text-sm text-muted">
+          {{ address.street }}, {{ address.number }} — {{ address.city }}/{{ address.state }} — {{ address.postalCode }}
+        </p>
+      }
+    } @else if (selectedCustomer()) {
+      <p class="text-sm text-muted">This customer has no registered address. Enter a shipping address to continue.</p>
+    }
+
+    @if (selectedCustomer() && !useRegisteredAddress()) {
+      <div class="grid gap-4 sm:grid-cols-2">
+        <label class="block text-sm font-medium text-ink">
+          Postal code
+          <input formControlName="postalCode" class="field mt-1" [class.field-error]="controlInvalid('postalCode')" />
+        </label>
+        <label class="block text-sm font-medium text-ink">
+          Number
+          <input formControlName="number" class="field mt-1" [class.field-error]="controlInvalid('number')" />
+        </label>
+        <label class="block text-sm font-medium text-ink sm:col-span-2">
+          Street
+          <input formControlName="street" class="field mt-1" [class.field-error]="controlInvalid('street')" />
+        </label>
+        <label class="block text-sm font-medium text-ink">
+          Complement
+          <input formControlName="complement" class="field mt-1" />
+        </label>
+        <label class="block text-sm font-medium text-ink">
+          Neighborhood
+          <input formControlName="neighborhood" class="field mt-1" />
+        </label>
+        <label class="block text-sm font-medium text-ink">
+          City
+          <input formControlName="city" class="field mt-1" [class.field-error]="controlInvalid('city')" />
+        </label>
+        <label class="block text-sm font-medium text-ink">
+          State
+          <input formControlName="state" class="field mt-1" [class.field-error]="controlInvalid('state')" />
+        </label>
+        <label class="block text-sm font-medium text-ink sm:col-span-2">
+          Country
+          <input formControlName="country" class="field mt-1" [class.field-error]="controlInvalid('country')" />
+        </label>
+      </div>
+    }
+  </section>
+
+  <section class="space-y-4">
+    <div>
+      <h2 class="text-lg font-semibold text-ink">Order Items</h2>
+      <p class="mt-1 text-sm text-muted">Prices shown here are the current catalog prices and are not sent to the API.</p>
+    </div>
+
+    @if (activeProducts().length === 0) {
+      <p class="rounded-md border border-line bg-surface px-4 py-3 text-sm text-muted" role="status">
+        There are no active products available to add to the order.
+      </p>
+    } @else {
+      <div class="grid gap-4 lg:grid-cols-4" [formGroup]="itemForm">
+        <label class="block text-sm font-medium text-ink lg:col-span-2">
+          Product
+          <select class="field mt-1" formControlName="productId">
+            <option value="">Select a product</option>
+            @for (product of activeProducts(); track product.id) {
+              <option [value]="product.id">{{ product.name }}</option>
+            }
+          </select>
+        </label>
+        <label class="block text-sm font-medium text-ink">
+          Quantity
+          <input type="number" min="1" step="1" class="field mt-1" formControlName="quantity" />
+        </label>
+        <div class="flex items-end">
+          <button type="button" class="btn-secondary w-full" (click)="addItem()">Add product</button>
+        </div>
+      </div>
+
+      @if (selectedProduct(); as product) {
+        <dl class="grid gap-3 rounded-lg border border-line bg-surface/60 p-4 sm:grid-cols-4">
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">SKU</dt>
+            <dd class="mt-1 text-sm text-ink">{{ product.sku }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Available Stock</dt>
+            <dd class="mt-1 text-sm text-ink">{{ selectedAvailableStock() }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Unit Price</dt>
+            <dd class="mt-1 text-sm text-ink">{{ product.currentPrice | currency: 'BRL' }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Line Total</dt>
+            <dd class="mt-1 text-sm text-ink">{{ pendingLineTotal() | currency: 'BRL' }}</dd>
+          </div>
+        </dl>
+      }
+    }
+
+    @if (itemError()) {
+      <p class="text-sm text-danger" role="alert">{{ itemError() }}</p>
+    }
+
+    @if (items().length === 0) {
+      <p class="text-sm text-muted">Add at least one product to the order.</p>
+    } @else {
+      <div class="overflow-x-auto rounded-lg border border-line">
+        <table class="min-w-full text-left text-sm">
+          <thead class="border-b border-line bg-surface/80 text-xs uppercase tracking-wide text-muted">
+            <tr>
+              <th class="px-4 py-3 font-semibold">SKU</th>
+              <th class="px-4 py-3 font-semibold">Product</th>
+              <th class="px-4 py-3 font-semibold">Available</th>
+              <th class="px-4 py-3 font-semibold">Unit Price</th>
+              <th class="px-4 py-3 font-semibold">Quantity</th>
+              <th class="px-4 py-3 font-semibold">Line Total</th>
+              <th class="px-4 py-3 font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of items(); track item.productId) {
+              <tr class="border-b border-line/70 last:border-0">
+                <td class="px-4 py-3 text-ink">{{ item.productSku }}</td>
+                <td class="px-4 py-3 text-ink">{{ item.productName }}</td>
+                <td class="px-4 py-3 text-muted">{{ availableStock(item.productId) }}</td>
+                <td class="px-4 py-3 text-ink">{{ item.unitPrice | currency: 'BRL' }}</td>
+                <td class="px-4 py-3 text-ink">{{ item.quantity }}</td>
+                <td class="px-4 py-3 text-ink">{{ lineTotal(item) | currency: 'BRL' }}</td>
+                <td class="px-4 py-3">
+                  <button type="button" class="btn-secondary !px-2.5 !py-1 text-xs" (click)="removeItem(item.productId)">
+                    Remove
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <section class="rounded-xl border border-accent/30 bg-accent/5 p-4">
+    <h2 class="text-lg font-semibold text-ink">Order Summary</h2>
+    <p class="mt-1 text-sm text-muted">Estimated from current prices. The API calculates the stored subtotal.</p>
+    <dl class="mt-4 grid gap-3 sm:grid-cols-3">
+      <div>
+        <dt class="text-xs uppercase tracking-wide text-muted">Total Items</dt>
+        <dd class="mt-1 text-xl font-semibold text-ink">{{ totalItems() }}</dd>
+      </div>
+      <div>
+        <dt class="text-xs uppercase tracking-wide text-muted">Subtotal</dt>
+        <dd class="mt-1 text-xl font-semibold text-ink">{{ estimatedSubtotal() | currency: 'BRL' }}</dd>
+      </div>
+      <div>
+        <dt class="text-xs uppercase tracking-wide text-muted">Total Order</dt>
+        <dd class="mt-1 text-xl font-semibold text-ink">{{ estimatedSubtotal() | currency: 'BRL' }}</dd>
+      </div>
+    </dl>
+  </section>
+
+  @if (submitError()) {
+    <div class="rounded-md border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger" role="alert">
+      {{ submitError() }}
+    </div>
+  }
+
+  <div class="flex flex-wrap gap-3">
+    <button type="submit" class="btn-primary" [disabled]="isSubmitting()">
+      @if (isSubmitting()) {
+        Saving...
+      } @else {
+        {{ mode() === 'edit' ? 'Update Draft' : 'Save Draft' }}
+      }
+    </button>
+    <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="cancel()">Back</button>
+  </div>
+</form>

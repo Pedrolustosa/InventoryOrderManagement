@@ -128,6 +128,30 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                 StatusCodes.Status409Conflict,
                 "Inventory concurrency conflict",
                 inventoryConcurrencyException.Message),
+            OrderNotFoundException orderNotFoundException => (
+                StatusCodes.Status404NotFound,
+                "Order not found",
+                orderNotFoundException.Message),
+            InactiveCustomerOrderException inactiveCustomerOrderException => (
+                StatusCodes.Status409Conflict,
+                "Inactive customer",
+                inactiveCustomerOrderException.Message),
+            InactiveProductOrderException inactiveProductOrderException => (
+                StatusCodes.Status409Conflict,
+                "Inactive product",
+                inactiveProductOrderException.Message),
+            OrderInsufficientStockException orderInsufficientStockException => (
+                StatusCodes.Status409Conflict,
+                "Insufficient stock",
+                orderInsufficientStockException.Message),
+            InvalidOrderStatusException invalidOrderStatusException => (
+                StatusCodes.Status409Conflict,
+                "Invalid order status",
+                invalidOrderStatusException.Message),
+            InvalidOrderPeriodException invalidOrderPeriodException => (
+                StatusCodes.Status400BadRequest,
+                "Invalid order period",
+                invalidOrderPeriodException.Message),
             _ => (
                 StatusCodes.Status500InternalServerError,
                 "An unexpected error occurred",

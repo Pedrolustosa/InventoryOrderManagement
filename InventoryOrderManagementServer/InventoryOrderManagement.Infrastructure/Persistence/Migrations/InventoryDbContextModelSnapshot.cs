@@ -138,6 +138,124 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.Order", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CancellationReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("CancelledAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("ConfirmedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CustomerName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeliveredAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OrderNumber")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("ShippedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAtUtc");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("OrderNumber")
+                        .IsUnique();
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("Orders", (string)null);
+                });
+
+            modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.OrderItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("LineTotal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ProductSku")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("OrderId", "ProductId")
+                        .IsUnique();
+
+                    b.ToTable("OrderItems", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_OrderItems_LineTotal", "\"LineTotal\" >= 0");
+
+                            t.HasCheckConstraint("CK_OrderItems_Quantity", "\"Quantity\" > 0");
+
+                            t.HasCheckConstraint("CK_OrderItems_UnitPrice", "\"UnitPrice\" >= 0");
+                        });
+                });
+
             modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.Product", b =>
                 {
                     b.Property<Guid>("Id")
@@ -198,6 +316,9 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                     b.Property<int>("NewQuantity")
                         .HasColumnType("INTEGER");
 
+                    b.Property<Guid?>("OrderId")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("PreviousQuantity")
                         .HasColumnType("INTEGER");
 
@@ -217,6 +338,8 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedAtUtc");
+
+                    b.HasIndex("OrderId");
 
                     b.HasIndex("SupplierId");
 
@@ -357,6 +480,92 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.Order", b =>
+                {
+                    b.HasOne("InventoryOrderManagement.Domain.Entities.Customer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("InventoryOrderManagement.Domain.ValueObjects.OrderShippingAddress", "ShippingAddress", b1 =>
+                        {
+                            b1.Property<Guid>("OrderId")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("City")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("TEXT")
+                                .HasColumnName("ShippingCity");
+
+                            b1.Property<string>("Complement")
+                                .HasMaxLength(100)
+                                .HasColumnType("TEXT")
+                                .HasColumnName("ShippingComplement");
+
+                            b1.Property<string>("Country")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("TEXT")
+                                .HasColumnName("ShippingCountry");
+
+                            b1.Property<string>("Neighborhood")
+                                .HasMaxLength(100)
+                                .HasColumnType("TEXT")
+                                .HasColumnName("ShippingNeighborhood");
+
+                            b1.Property<string>("Number")
+                                .IsRequired()
+                                .HasMaxLength(30)
+                                .HasColumnType("TEXT")
+                                .HasColumnName("ShippingNumber");
+
+                            b1.Property<string>("PostalCode")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("TEXT")
+                                .HasColumnName("ShippingPostalCode");
+
+                            b1.Property<string>("State")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("TEXT")
+                                .HasColumnName("ShippingState");
+
+                            b1.Property<string>("Street")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("TEXT")
+                                .HasColumnName("ShippingStreet");
+
+                            b1.HasKey("OrderId");
+
+                            b1.ToTable("Orders");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrderId");
+                        });
+
+                    b.Navigation("ShippingAddress")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.OrderItem", b =>
+                {
+                    b.HasOne("InventoryOrderManagement.Domain.Entities.Order", null)
+                        .WithMany("Items")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("InventoryOrderManagement.Domain.Entities.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.Product", b =>
                 {
                     b.HasOne("InventoryOrderManagement.Domain.Entities.Category", null)
@@ -368,6 +577,11 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.StockMovement", b =>
                 {
+                    b.HasOne("InventoryOrderManagement.Domain.Entities.Order", null)
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("InventoryOrderManagement.Domain.Entities.Product", null)
                         .WithMany()
                         .HasForeignKey("ProductId")
@@ -378,6 +592,11 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("SupplierId")
                         .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.Order", b =>
+                {
+                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }

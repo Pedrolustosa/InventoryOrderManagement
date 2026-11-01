@@ -1,0 +1,92 @@
+<section class="rounded-xl border border-line bg-panel shadow-sm" aria-live="polite">
+  @if (isLoading()) {
+    <div class="flex items-center gap-3 px-5 py-10 text-muted" aria-busy="true">
+      <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
+      <span>Loading orders...</span>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="px-5 py-8 text-sm text-danger" role="alert">{{ errorMessage() }}</div>
+  } @else if (orders().length === 0) {
+    <div class="px-5 py-12 text-center">
+      <p class="text-base font-medium text-ink">No orders found</p>
+      <p class="mt-2 text-sm text-muted">{{ emptyMessage() }}</p>
+      @if (allowCreate()) {
+        <button type="button" class="btn-primary mt-4" (click)="createRequested.emit()">New Order</button>
+      }
+    </div>
+  } @else {
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-left text-sm">
+        <thead class="border-b border-line bg-surface/80 text-xs uppercase tracking-wide text-muted">
+          <tr>
+            <th class="px-4 py-3 font-semibold">Order Number</th>
+            <th class="px-4 py-3 font-semibold">Customer</th>
+            <th class="px-4 py-3 font-semibold">Subtotal</th>
+            <th class="px-4 py-3 font-semibold">Status</th>
+            <th class="px-4 py-3 font-semibold">Created At</th>
+            <th class="px-4 py-3 font-semibold">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (order of orders(); track order.id) {
+            <tr class="border-b border-line/70 last:border-0">
+              <td class="whitespace-nowrap px-4 py-3 font-medium text-ink">{{ order.orderNumber }}</td>
+              <td class="px-4 py-3 text-ink">{{ order.customerName }}</td>
+              <td class="whitespace-nowrap px-4 py-3 text-ink">{{ order.subtotal | currency: 'BRL' }}</td>
+              <td class="px-4 py-3">
+                <span [class]="statusClass(order.status)">{{ statusLabel(order.status) }}</span>
+              </td>
+              <td class="whitespace-nowrap px-4 py-3 text-muted">
+                {{ order.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex flex-wrap gap-2">
+                  <button type="button" class="btn-secondary !px-2.5 !py-1 text-xs" (click)="viewRequested.emit(order)">
+                    View
+                  </button>
+                  @if (canEdit(order.status)) {
+                    <button type="button" class="btn-secondary !px-2.5 !py-1 text-xs" (click)="editRequested.emit(order)">
+                      Edit
+                    </button>
+                  }
+                  @if (canConfirm(order.status)) {
+                    <button
+                      type="button"
+                      class="btn-secondary !px-2.5 !py-1 text-xs"
+                      (click)="confirmRequested.emit(order)"
+                    >
+                      Confirm
+                    </button>
+                  }
+                  @if (canShip(order.status)) {
+                    <button type="button" class="btn-secondary !px-2.5 !py-1 text-xs" (click)="shipRequested.emit(order)">
+                      Ship
+                    </button>
+                  }
+                  @if (canDeliver(order.status)) {
+                    <button
+                      type="button"
+                      class="btn-secondary !px-2.5 !py-1 text-xs"
+                      (click)="deliverRequested.emit(order)"
+                    >
+                      Deliver
+                    </button>
+                  }
+                  @if (canCancel(order.status)) {
+                    <button
+                      type="button"
+                      class="btn-secondary !px-2.5 !py-1 text-xs text-danger"
+                      (click)="cancelRequested.emit(order)"
+                    >
+                      Cancel
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

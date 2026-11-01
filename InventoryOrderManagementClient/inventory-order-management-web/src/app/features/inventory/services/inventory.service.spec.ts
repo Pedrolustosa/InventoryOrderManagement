@@ -27,6 +27,7 @@ describe('InventoryService', () => {
     productName: balance.productName,
     supplierId: '33333333-3333-3333-3333-333333333333',
     supplierName: 'Tech Components',
+    orderId: null,
     movementType: 'Entry',
     quantity: 20,
     previousQuantity: 5,
