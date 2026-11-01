@@ -71,6 +71,7 @@
                   </button>
                   @if (customer.isActive) {
                     <button
+                      *hasPermission="'Customers.Update'"
                       type="button"
                       class="btn-secondary !px-2.5 !py-1 text-xs"
                       (click)="editRequested.emit(customer)"
@@ -78,6 +79,7 @@
                       Edit
                     </button>
                     <button
+                      *hasPermission="'Customers.Deactivate'"
                       type="button"
                       class="btn-secondary !px-2.5 !py-1 text-xs text-danger"
                       (click)="deactivateRequested.emit(customer)"

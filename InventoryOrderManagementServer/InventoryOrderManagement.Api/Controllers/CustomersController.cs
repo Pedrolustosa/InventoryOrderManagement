@@ -1,12 +1,16 @@
 using InventoryOrderManagement.Application.Customers;
 using InventoryOrderManagement.Application.Customers.Dtos;
+using InventoryOrderManagement.Application.Security;
 using InventoryOrderManagement.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InventoryOrderManagement.Api.Controllers;
 
 [ApiController]
 [Route("api/customers")]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
 public sealed class CustomersController : ControllerBase
 {
     private readonly CreateCustomerUseCase _createCustomerUseCase;
@@ -29,6 +33,7 @@ public sealed class CustomersController : ControllerBase
         _deactivateCustomerUseCase = deactivateCustomerUseCase;
     }
 
+    [Authorize(Policy = Permissions.Customers.Create)]
     [HttpPost]
     [ProducesResponseType(typeof(CustomerResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -45,6 +50,7 @@ public sealed class CustomersController : ControllerBase
             customer);
     }
 
+    [Authorize(Policy = Permissions.Customers.View)]
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<CustomerResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<CustomerResponse>>> GetAll(
@@ -62,6 +68,7 @@ public sealed class CustomersController : ControllerBase
         return Ok(customers);
     }
 
+    [Authorize(Policy = Permissions.Customers.View)]
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(CustomerResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -73,6 +80,7 @@ public sealed class CustomersController : ControllerBase
         return Ok(customer);
     }
 
+    [Authorize(Policy = Permissions.Customers.Update)]
     [HttpPut("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -87,6 +95,7 @@ public sealed class CustomersController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Policy = Permissions.Customers.Deactivate)]
     [HttpPatch("{id:guid}/deactivate")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]

@@ -1,11 +1,15 @@
 using InventoryOrderManagement.Application.Categories;
 using InventoryOrderManagement.Application.Categories.Dtos;
+using InventoryOrderManagement.Application.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InventoryOrderManagement.Api.Controllers;
 
 [ApiController]
 [Route("api/categories")]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
 public sealed class CategoriesController : ControllerBase
 {
     private readonly CreateCategoryUseCase _createCategoryUseCase;
@@ -28,6 +32,7 @@ public sealed class CategoriesController : ControllerBase
         _deactivateCategoryUseCase = deactivateCategoryUseCase;
     }
 
+    [Authorize(Policy = Permissions.Categories.Create)]
     [HttpPost]
     [ProducesResponseType(typeof(CategoryResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -44,6 +49,7 @@ public sealed class CategoriesController : ControllerBase
             category);
     }
 
+    [Authorize(Policy = Permissions.Categories.View)]
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<CategoryResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<CategoryResponse>>> GetAll(
@@ -54,6 +60,7 @@ public sealed class CategoriesController : ControllerBase
         return Ok(categories);
     }
 
+    [Authorize(Policy = Permissions.Categories.View)]
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(CategoryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -65,6 +72,7 @@ public sealed class CategoriesController : ControllerBase
         return Ok(category);
     }
 
+    [Authorize(Policy = Permissions.Categories.Update)]
     [HttpPut("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -79,6 +87,7 @@ public sealed class CategoriesController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Policy = Permissions.Categories.Deactivate)]
     [HttpPatch("{id:guid}/deactivate")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]

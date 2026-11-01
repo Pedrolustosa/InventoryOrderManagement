@@ -1,11 +1,15 @@
+using InventoryOrderManagement.Application.Security;
 using InventoryOrderManagement.Application.Suppliers;
 using InventoryOrderManagement.Application.Suppliers.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InventoryOrderManagement.Api.Controllers;
 
 [ApiController]
 [Route("api/suppliers")]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
 public sealed class SuppliersController : ControllerBase
 {
     private readonly CreateSupplierUseCase _createSupplierUseCase;
@@ -28,6 +32,7 @@ public sealed class SuppliersController : ControllerBase
         _deactivateSupplierUseCase = deactivateSupplierUseCase;
     }
 
+    [Authorize(Policy = Permissions.Suppliers.Create)]
     [HttpPost]
     [ProducesResponseType(typeof(SupplierResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -44,6 +49,7 @@ public sealed class SuppliersController : ControllerBase
             supplier);
     }
 
+    [Authorize(Policy = Permissions.Suppliers.View)]
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<SupplierResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<SupplierResponse>>> GetAll(
@@ -55,6 +61,7 @@ public sealed class SuppliersController : ControllerBase
         return Ok(suppliers);
     }
 
+    [Authorize(Policy = Permissions.Suppliers.View)]
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(SupplierResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -66,6 +73,7 @@ public sealed class SuppliersController : ControllerBase
         return Ok(supplier);
     }
 
+    [Authorize(Policy = Permissions.Suppliers.Update)]
     [HttpPut("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -80,6 +88,7 @@ public sealed class SuppliersController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Policy = Permissions.Suppliers.Deactivate)]
     [HttpPatch("{id:guid}/deactivate")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]

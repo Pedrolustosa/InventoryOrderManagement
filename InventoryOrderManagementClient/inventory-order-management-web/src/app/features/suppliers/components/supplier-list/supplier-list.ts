@@ -1,10 +1,11 @@
 import { DatePipe } from '@angular/common';
+import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { Component, input, output } from '@angular/core';
 import { SupplierResponse } from '../../models/supplier.model';
 
 @Component({
   selector: 'app-supplier-list',
-  imports: [DatePipe],
+  imports: [DatePipe, HasPermissionDirective],
   templateUrl: './supplier-list.html',
 })
 export class SupplierList {

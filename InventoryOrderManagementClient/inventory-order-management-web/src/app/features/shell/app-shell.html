@@ -1,0 +1,31 @@
+<div class="min-h-dvh bg-surface text-ink">
+  <header class="border-b border-line bg-panel">
+    <div class="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:px-6">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-accent">Inventory Order Management</p>
+          <p class="mt-1 text-sm text-muted">{{ currentUser()?.displayName }}</p>
+        </div>
+        <button type="button" class="btn-secondary" (click)="signOut()">Sign out</button>
+      </div>
+
+      <nav class="flex flex-wrap gap-2" aria-label="Main">
+        <a *hasPermission="'Products.View'" routerLink="/products" routerLinkActive="!bg-accent !text-white" class="btn-secondary">Products</a>
+        <a *hasPermission="'Categories.View'" routerLink="/categories" routerLinkActive="!bg-accent !text-white" class="btn-secondary">Categories</a>
+        <a *hasPermission="'Suppliers.View'" routerLink="/suppliers" routerLinkActive="!bg-accent !text-white" class="btn-secondary">Suppliers</a>
+        <a *hasPermission="'Customers.View'" routerLink="/customers" routerLinkActive="!bg-accent !text-white" class="btn-secondary">Customers</a>
+        <a *hasPermission="'Inventory.View'" routerLink="/inventory" routerLinkActive="!bg-accent !text-white" class="btn-secondary">Inventory</a>
+        <a *hasPermission="'Orders.View'" routerLink="/orders" routerLinkActive="!bg-accent !text-white" class="btn-secondary">Orders</a>
+        <a *hasPermission="'Reports.View'" routerLink="/reports" routerLinkActive="!bg-accent !text-white" class="btn-secondary">Reports</a>
+        <a *hasPermission="'Users.View'" routerLink="/users" routerLinkActive="!bg-accent !text-white" class="btn-secondary">Users</a>
+        <a *hasPermission="'Roles.View'" routerLink="/roles" routerLinkActive="!bg-accent !text-white" class="btn-secondary">Roles</a>
+        <a *hasPermission="'Roles.View'" routerLink="/permissions" routerLinkActive="!bg-accent !text-white" class="btn-secondary">Permissions</a>
+        <a *hasPermission="'Security.Audit.View'" routerLink="/audit" routerLinkActive="!bg-accent !text-white" class="btn-secondary">Security Audit</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+    <router-outlet />
+  </main>
+</div>

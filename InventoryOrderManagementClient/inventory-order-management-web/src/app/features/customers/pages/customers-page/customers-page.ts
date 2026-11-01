@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { DeactivateConfirm } from '../../components/deactivate-confirm/deactivate-confirm';
 import { CustomerDetail } from '../../components/customer-detail/customer-detail';
+import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { CustomerForm } from '../../components/customer-form/customer-form';
 import { CustomerList } from '../../components/customer-list/customer-list';
 import { CreateCustomerRequest } from '../../models/create-customer-request.model';
@@ -15,7 +16,7 @@ type PanelMode = 'none' | 'create' | 'edit' | 'detail' | 'deactivate';
 
 @Component({
   selector: 'app-customers-page',
-  imports: [CustomerForm, CustomerList, CustomerDetail, DeactivateConfirm],
+  imports: [CustomerForm, CustomerList, CustomerDetail, DeactivateConfirm, HasPermissionDirective],
   templateUrl: './customers-page.html',
 })
 export class CustomersPage implements OnInit {

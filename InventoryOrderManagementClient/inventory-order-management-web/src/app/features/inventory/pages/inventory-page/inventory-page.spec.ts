@@ -8,6 +8,8 @@ import { ProductsService } from '../../../products/services/products.service';
 import { SuppliersService } from '../../../suppliers/services/suppliers.service';
 import { InventoryBalance } from '../../models/inventory-balance.model';
 import { StockMovement } from '../../models/stock-movement.model';
+import { AuthService } from '../../../../core/auth/services/auth.service';
+import { permittedAuth } from '../../../../core/auth/testing/permitted-auth';
 import { InventoryService } from '../../services/inventory.service';
 import { InventoryPage } from './inventory-page';
 
@@ -90,6 +92,7 @@ describe('InventoryPage', () => {
         { provide: SuppliersService, useValue: { getSuppliers: vi.fn().mockReturnValue(of([])) } },
         { provide: CategoriesService, useValue: { getCategories: vi.fn().mockReturnValue(of([])) } },
         { provide: LOCALE_ID, useValue: 'pt-BR' },
+        { provide: AuthService, useValue: permittedAuth() },
       ],
     }).compileComponents();
 

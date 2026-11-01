@@ -7,6 +7,8 @@ import { of, throwError } from 'rxjs';
 import { InventoryService } from '../../../inventory/services/inventory.service';
 import { Order } from '../../models/order.model';
 import { OrderStatus } from '../../models/order-status.model';
+import { AuthService } from '../../../../core/auth/services/auth.service';
+import { permittedAuth } from '../../../../core/auth/testing/permitted-auth';
 import { OrdersService } from '../../services/orders.service';
 import { OrderDetailsPage } from './order-details-page';
 
@@ -90,6 +92,7 @@ describe('OrderDetailsPage', () => {
           useValue: { snapshot: { paramMap: convertToParamMap({ id: order.id }) } },
         },
         { provide: LOCALE_ID, useValue: 'pt-BR' },
+        { provide: AuthService, useValue: permittedAuth() },
       ],
     }).compileComponents();
 

@@ -1,10 +1,11 @@
 import { DatePipe } from '@angular/common';
+import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { Component, input, output } from '@angular/core';
 import { CategoryResponse } from '../../models/category.model';
 
 @Component({
   selector: 'app-category-list',
-  imports: [DatePipe],
+  imports: [DatePipe, HasPermissionDirective],
   templateUrl: './category-list.html',
 })
 export class CategoryList {

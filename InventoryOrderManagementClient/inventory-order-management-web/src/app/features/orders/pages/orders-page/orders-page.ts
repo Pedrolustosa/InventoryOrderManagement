@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CustomerResponse } from '../../../customers/models/customer.model';
 import { CustomersService } from '../../../customers/services/customers.service';
 import { OrderActionDialog, OrderLifecycleAction } from '../../components/order-action-dialog/order-action-dialog';
+import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { OrderList } from '../../components/order-list/order-list';
 import { OrderFilters, hasOrderFilters } from '../../models/order-filters.model';
 import { OrderSummary } from '../../models/order.model';
@@ -13,7 +14,7 @@ type StatusFilter = 'all' | OrderStatus;
 
 @Component({
   selector: 'app-orders-page',
-  imports: [RouterLink, OrderList, OrderActionDialog],
+  imports: [RouterLink, OrderList, OrderActionDialog, HasPermissionDirective],
   templateUrl: './orders-page.html',
 })
 export class OrdersPage implements OnInit {

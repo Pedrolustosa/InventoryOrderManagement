@@ -1,12 +1,16 @@
 using InventoryOrderManagement.Application.Inventory;
 using InventoryOrderManagement.Application.Inventory.Dtos;
+using InventoryOrderManagement.Application.Security;
 using InventoryOrderManagement.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InventoryOrderManagement.Api.Controllers;
 
 [ApiController]
 [Route("api/inventory")]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
 public sealed class InventoryController : ControllerBase
 {
     private readonly ReceiveStockUseCase _receiveStockUseCase;
@@ -38,6 +42,7 @@ public sealed class InventoryController : ControllerBase
         _getStockMovementsUseCase = getStockMovementsUseCase;
     }
 
+    [Authorize(Policy = Permissions.Inventory.Receive)]
     [HttpPost("entries")]
     [ProducesResponseType(typeof(StockMovementResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -55,6 +60,7 @@ public sealed class InventoryController : ControllerBase
             movement);
     }
 
+    [Authorize(Policy = Permissions.Inventory.Exit)]
     [HttpPost("exits")]
     [ProducesResponseType(typeof(StockMovementResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -72,6 +78,7 @@ public sealed class InventoryController : ControllerBase
             movement);
     }
 
+    [Authorize(Policy = Permissions.Inventory.Adjust)]
     [HttpPost("adjustments")]
     [ProducesResponseType(typeof(StockMovementResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(InventoryBalanceResponse), StatusCodes.Status200OK)]
@@ -95,6 +102,7 @@ public sealed class InventoryController : ControllerBase
             result.Movement);
     }
 
+    [Authorize(Policy = Permissions.Inventory.View)]
     [HttpGet("balances/{productId:guid}")]
     [ProducesResponseType(typeof(InventoryBalanceResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -106,6 +114,7 @@ public sealed class InventoryController : ControllerBase
         return Ok(balance);
     }
 
+    [Authorize(Policy = Permissions.Inventory.View)]
     [HttpGet("balances")]
     [ProducesResponseType(typeof(IReadOnlyList<InventoryBalanceResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<InventoryBalanceResponse>>> GetBalances(
@@ -123,6 +132,7 @@ public sealed class InventoryController : ControllerBase
         return Ok(balances);
     }
 
+    [Authorize(Policy = Permissions.Inventory.View)]
     [HttpGet("low-stock")]
     [ProducesResponseType(typeof(IReadOnlyList<LowStockProductResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<LowStockProductResponse>>> GetLowStock(
@@ -132,6 +142,7 @@ public sealed class InventoryController : ControllerBase
         return Ok(products);
     }
 
+    [Authorize(Policy = Permissions.Inventory.MinimumStockUpdate)]
     [HttpPut("balances/{productId:guid}/minimum-stock")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -146,6 +157,7 @@ public sealed class InventoryController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Policy = Permissions.Inventory.View)]
     [HttpGet("movements")]
     [ProducesResponseType(typeof(IReadOnlyList<StockMovementResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -168,6 +180,7 @@ public sealed class InventoryController : ControllerBase
         return Ok(movements);
     }
 
+    [Authorize(Policy = Permissions.Inventory.View)]
     [HttpGet("products/{productId:guid}/movements")]
     [ProducesResponseType(typeof(IReadOnlyList<StockMovementResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]

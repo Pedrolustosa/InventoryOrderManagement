@@ -6,6 +6,8 @@ import { provideRouter } from '@angular/router';
 import { Subject, of, throwError } from 'rxjs';
 import { CategoriesService } from '../../../categories/services/categories.service';
 import { ProductResponse } from '../../models/product.model';
+import { AuthService } from '../../../../core/auth/services/auth.service';
+import { permittedAuth } from '../../../../core/auth/testing/permitted-auth';
 import { ProductsService } from '../../services/products.service';
 import { ProductsPage } from './products-page';
 
@@ -67,6 +69,7 @@ describe('ProductsPage', () => {
         { provide: ProductsService, useValue: productsService },
         { provide: CategoriesService, useValue: categoriesService },
         { provide: LOCALE_ID, useValue: 'pt-BR' },
+        { provide: AuthService, useValue: permittedAuth() },
       ],
     }).compileComponents();
 

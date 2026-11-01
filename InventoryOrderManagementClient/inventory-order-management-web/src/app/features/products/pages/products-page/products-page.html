@@ -8,7 +8,7 @@
     </div>
 
     @if (!formVisible()) {
-      <button type="button" class="btn-primary shrink-0" (click)="openForm()">
+      <button *hasPermission="'Products.Create'" type="button" class="btn-primary shrink-0" (click)="openForm()">
         New Product
       </button>
     }

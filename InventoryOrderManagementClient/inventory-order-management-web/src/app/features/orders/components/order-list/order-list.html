@@ -11,7 +11,7 @@
       <p class="text-base font-medium text-ink">No orders found</p>
       <p class="mt-2 text-sm text-muted">{{ emptyMessage() }}</p>
       @if (allowCreate()) {
-        <button type="button" class="btn-primary mt-4" (click)="createRequested.emit()">New Order</button>
+        <button *hasPermission="'Orders.Create'" type="button" class="btn-primary mt-4" (click)="createRequested.emit()">New Order</button>
       }
     </div>
   } @else {
@@ -45,12 +45,13 @@
                     View
                   </button>
                   @if (canEdit(order.status)) {
-                    <button type="button" class="btn-secondary !px-2.5 !py-1 text-xs" (click)="editRequested.emit(order)">
+                    <button *hasPermission="'Orders.UpdateDraft'" type="button" class="btn-secondary !px-2.5 !py-1 text-xs" (click)="editRequested.emit(order)">
                       Edit
                     </button>
                   }
                   @if (canConfirm(order.status)) {
                     <button
+                      *hasPermission="'Orders.Confirm'"
                       type="button"
                       class="btn-secondary !px-2.5 !py-1 text-xs"
                       (click)="confirmRequested.emit(order)"
@@ -59,12 +60,13 @@
                     </button>
                   }
                   @if (canShip(order.status)) {
-                    <button type="button" class="btn-secondary !px-2.5 !py-1 text-xs" (click)="shipRequested.emit(order)">
+                    <button *hasPermission="'Orders.Ship'" type="button" class="btn-secondary !px-2.5 !py-1 text-xs" (click)="shipRequested.emit(order)">
                       Ship
                     </button>
                   }
                   @if (canDeliver(order.status)) {
                     <button
+                      *hasPermission="'Orders.Deliver'"
                       type="button"
                       class="btn-secondary !px-2.5 !py-1 text-xs"
                       (click)="deliverRequested.emit(order)"
@@ -74,6 +76,7 @@
                   }
                   @if (canCancel(order.status)) {
                     <button
+                      *hasPermission="'Orders.Cancel'"
                       type="button"
                       class="btn-secondary !px-2.5 !py-1 text-xs text-danger"
                       (click)="cancelRequested.emit(order)"

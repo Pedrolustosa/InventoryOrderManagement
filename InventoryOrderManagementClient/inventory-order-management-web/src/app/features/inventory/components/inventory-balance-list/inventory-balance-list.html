@@ -56,6 +56,7 @@
                     View
                   </button>
                   <button
+                    *hasPermission="'Inventory.MinimumStock.Update'"
                     type="button"
                     class="btn-secondary !px-2.5 !py-1 text-xs"
                     (click)="minimumRequested.emit(balance)"

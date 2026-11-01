@@ -4,6 +4,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LOCALE_ID } from '@angular/core';
 import { Subject, of, throwError } from 'rxjs';
 import { SupplierResponse } from '../../models/supplier.model';
+import { AuthService } from '../../../../core/auth/services/auth.service';
+import { permittedAuth } from '../../../../core/auth/testing/permitted-auth';
 import { SuppliersService } from '../../services/suppliers.service';
 import { SuppliersPage } from './suppliers-page';
 
@@ -64,6 +66,7 @@ describe('SuppliersPage', () => {
       providers: [
         { provide: SuppliersService, useValue: suppliersService },
         { provide: LOCALE_ID, useValue: 'pt-BR' },
+        { provide: AuthService, useValue: permittedAuth() },
       ],
     }).compileComponents();
 

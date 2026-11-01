@@ -1,0 +1,29 @@
+<section class="mx-auto max-w-2xl space-y-6">
+  <div>
+    <h1 class="text-3xl font-semibold text-ink">Assign roles</h1>
+    <p class="mt-2 text-sm text-muted">{{ userName() }}</p>
+  </div>
+  @if (errorMessage()) {
+    <p class="text-sm text-danger" role="alert">{{ errorMessage() }}</p>
+  }
+  <div class="space-y-2 rounded-xl border border-line bg-panel p-5">
+    @for (role of roles(); track role.id) {
+      <label class="flex items-center gap-2 text-sm">
+        <input type="checkbox" [checked]="selected().includes(role.id)" (change)="toggle(role.id)" />
+        <span>{{ role.name }}</span>
+        <span class="text-xs text-muted">{{ role.permissions.length }} permissions</span>
+      </label>
+    }
+  </div>
+  @if (confirming()) {
+    <p class="text-sm text-muted">Save these roles for {{ userName() }}?</p>
+  }
+  <div class="flex gap-2">
+    @if (!confirming()) {
+      <button type="button" class="btn-primary" (click)="confirming.set(true)">Review and save</button>
+    } @else {
+      <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="save()">{{ isSubmitting() ? 'Saving...' : 'Confirm' }}</button>
+    }
+    <a routerLink="/users" class="btn-secondary">Cancel</a>
+  </div>
+</section>

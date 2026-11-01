@@ -6,6 +6,7 @@ import { ProductsService } from '../../../products/services/products.service';
 import { SupplierResponse } from '../../../suppliers/models/supplier.model';
 import { SuppliersService } from '../../../suppliers/services/suppliers.service';
 import { AdjustStockForm } from '../../components/adjust-stock-form/adjust-stock-form';
+import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { InventoryBalanceList } from '../../components/inventory-balance-list/inventory-balance-list';
 import { InventoryDetail } from '../../components/inventory-detail/inventory-detail';
 import { MinimumStockForm } from '../../components/minimum-stock-form/minimum-stock-form';
@@ -35,6 +36,7 @@ type PanelMode = 'none' | 'receive' | 'exit' | 'adjust' | 'minimum' | 'detail';
     AdjustStockForm,
     MinimumStockForm,
     InventoryDetail,
+    HasPermissionDirective,
   ],
   templateUrl: './inventory-page.html',
 })

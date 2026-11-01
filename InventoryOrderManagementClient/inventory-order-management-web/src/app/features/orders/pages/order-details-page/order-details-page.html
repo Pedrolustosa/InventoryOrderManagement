@@ -75,19 +75,19 @@
 
         <div class="flex flex-wrap gap-2">
           @if (canEdit()) {
-            <a class="btn-secondary" [routerLink]="['/orders', current.id, 'edit']">Edit</a>
+            <a *hasPermission="'Orders.UpdateDraft'" class="btn-secondary" [routerLink]="['/orders', current.id, 'edit']">Edit</a>
           }
           @if (canConfirm()) {
-            <button type="button" class="btn-primary" (click)="openAction('confirm')">Confirm Order</button>
+            <button *hasPermission="'Orders.Confirm'" type="button" class="btn-primary" (click)="openAction('confirm')">Confirm Order</button>
           }
           @if (canShip()) {
-            <button type="button" class="btn-primary" (click)="openAction('ship')">Ship Order</button>
+            <button *hasPermission="'Orders.Ship'" type="button" class="btn-primary" (click)="openAction('ship')">Ship Order</button>
           }
           @if (canDeliver()) {
-            <button type="button" class="btn-primary" (click)="openAction('deliver')">Deliver Order</button>
+            <button *hasPermission="'Orders.Deliver'" type="button" class="btn-primary" (click)="openAction('deliver')">Deliver Order</button>
           }
           @if (canCancel()) {
-            <button type="button" class="btn-secondary text-danger" (click)="openAction('cancel')">Cancel Order</button>
+            <button *hasPermission="'Orders.Cancel'" type="button" class="btn-secondary text-danger" (click)="openAction('cancel')">Cancel Order</button>
           }
         </div>
       </div>

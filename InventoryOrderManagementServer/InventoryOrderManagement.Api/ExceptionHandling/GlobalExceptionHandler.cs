@@ -156,6 +156,34 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                 StatusCodes.Status400BadRequest,
                 "Invalid report request",
                 invalidReportRequestException.Message),
+            InvalidCredentialsException => (
+                StatusCodes.Status401Unauthorized,
+                "Invalid credentials",
+                "The email or password is incorrect."),
+            AccountLockedException => (
+                StatusCodes.Status401Unauthorized,
+                "Account locked",
+                "The account is temporarily locked."),
+            UserNotFoundException userNotFoundException => (
+                StatusCodes.Status404NotFound,
+                "User not found",
+                userNotFoundException.Message),
+            RoleNotFoundException roleNotFoundException => (
+                StatusCodes.Status404NotFound,
+                "Role not found",
+                roleNotFoundException.Message),
+            IdentityValidationException identityValidationException => (
+                StatusCodes.Status400BadRequest,
+                "Invalid identity request",
+                identityValidationException.Message),
+            IdentityConflictException identityConflictException => (
+                StatusCodes.Status409Conflict,
+                "Identity conflict",
+                identityConflictException.Message),
+            IdentityForbiddenException identityForbiddenException => (
+                StatusCodes.Status403Forbidden,
+                "Forbidden",
+                identityForbiddenException.Message),
             _ => (
                 StatusCodes.Status500InternalServerError,
                 "An unexpected error occurred",

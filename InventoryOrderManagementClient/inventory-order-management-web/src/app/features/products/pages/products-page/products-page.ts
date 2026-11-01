@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, computed, inject, signal } from '@angular
 import { RouterLink } from '@angular/router';
 import { CategoryResponse } from '../../../categories/models/category.model';
 import { CategoriesService } from '../../../categories/services/categories.service';
+import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { ProductForm } from '../../components/product-form/product-form';
 import { ProductList } from '../../components/product-list/product-list';
 import { CreateProductRequest } from '../../models/create-product-request.model';
@@ -10,7 +11,7 @@ import { ProductsService } from '../../services/products.service';
 
 @Component({
   selector: 'app-products-page',
-  imports: [ProductForm, ProductList, RouterLink],
+  imports: [ProductForm, ProductList, RouterLink, HasPermissionDirective],
   templateUrl: './products-page.html',
 })
 export class ProductsPage implements OnInit {

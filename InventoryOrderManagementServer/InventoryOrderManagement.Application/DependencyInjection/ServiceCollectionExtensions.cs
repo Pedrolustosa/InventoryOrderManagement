@@ -1,5 +1,6 @@
 using InventoryOrderManagement.Application.Categories;
 using InventoryOrderManagement.Application.Customers;
+using InventoryOrderManagement.Application.Identity;
 using InventoryOrderManagement.Application.Inventory;
 using InventoryOrderManagement.Application.Orders;
 using InventoryOrderManagement.Application.Products;
@@ -55,6 +56,25 @@ public static class ServiceCollectionExtensions
         services.AddScoped<GetBestSellingProductsReportUseCase>();
         services.AddScoped<GetSalesByCustomerReportUseCase>();
         services.AddScoped<GetCancellationReportUseCase>();
+        services.AddScoped<LoginUseCase>();
+        services.AddScoped<LogoutUseCase>();
+        services.AddScoped<GetCurrentUserUseCase>();
+        services.AddScoped<ChangePasswordUseCase>();
+        services.AddScoped<CreateUserUseCase>();
+        services.AddScoped<GetAllUsersUseCase>();
+        services.AddScoped<GetUserByIdUseCase>();
+        services.AddScoped<UpdateUserUseCase>();
+        services.AddScoped<DeactivateUserUseCase>();
+        services.AddScoped<AssignUserRolesUseCase>();
+        services.AddScoped<CreateRoleUseCase>();
+        services.AddScoped<GetAllRolesUseCase>();
+        services.AddScoped<GetRoleByIdUseCase>();
+        services.AddScoped<UpdateRoleUseCase>();
+        services.AddScoped<DeleteRoleUseCase>();
+        services.AddScoped<GetAllPermissionsUseCase>();
+        services.AddScoped<GetRolePermissionsUseCase>();
+        services.AddScoped<UpdateRolePermissionsUseCase>();
+        services.AddScoped<GetSecurityAuditLogsUseCase>();
 
         return services;
     }

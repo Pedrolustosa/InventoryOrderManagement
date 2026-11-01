@@ -7,6 +7,8 @@ import { of, throwError } from 'rxjs';
 import { CustomersService } from '../../../customers/services/customers.service';
 import { OrderFilters } from '../../models/order-filters.model';
 import { OrderSummary } from '../../models/order.model';
+import { AuthService } from '../../../../core/auth/services/auth.service';
+import { permittedAuth } from '../../../../core/auth/testing/permitted-auth';
 import { OrdersService } from '../../services/orders.service';
 import { OrdersPage } from './orders-page';
 
@@ -66,6 +68,7 @@ describe('OrdersPage', () => {
         { provide: OrdersService, useValue: ordersService },
         { provide: CustomersService, useValue: { getCustomers: vi.fn().mockReturnValue(of([])) } },
         { provide: LOCALE_ID, useValue: 'pt-BR' },
+        { provide: AuthService, useValue: permittedAuth() },
       ],
     }).compileComponents();
 

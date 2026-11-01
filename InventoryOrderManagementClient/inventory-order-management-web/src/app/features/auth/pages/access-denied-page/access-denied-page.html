@@ -1,0 +1,11 @@
+<section class="mx-auto flex min-h-dvh max-w-lg items-center px-4 py-12">
+  <div class="w-full space-y-4 rounded-2xl border border-line bg-panel p-6 shadow-sm">
+    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-accent">Inventory Order Management</p>
+    <h1 class="text-2xl font-semibold text-ink">Access denied</h1>
+    <p class="text-sm text-muted">You do not have permission to open this page.</p>
+    <div class="flex flex-wrap gap-2">
+      <a class="btn-primary" [routerLink]="home()">Back</a>
+      <button type="button" class="btn-secondary" (click)="signOut()">Sign out</button>
+    </div>
+  </div>
+</section>

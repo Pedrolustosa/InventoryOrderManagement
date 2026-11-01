@@ -1,4 +1,5 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { Component, input, output } from '@angular/core';
 import { canCancel, canConfirm, canDeliver, canEdit, canShip } from '../../models/order-actions';
 import { OrderSummary } from '../../models/order.model';
@@ -6,7 +7,7 @@ import { OrderStatus, orderStatusLabel } from '../../models/order-status.model';
 
 @Component({
   selector: 'app-order-list',
-  imports: [CurrencyPipe, DatePipe],
+  imports: [CurrencyPipe, DatePipe, HasPermissionDirective],
   templateUrl: './order-list.html',
 })
 export class OrderList {

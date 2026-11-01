@@ -4,6 +4,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LOCALE_ID } from '@angular/core';
 import { Subject, of, throwError } from 'rxjs';
 import { CategoryResponse } from '../../models/category.model';
+import { AuthService } from '../../../../core/auth/services/auth.service';
+import { permittedAuth } from '../../../../core/auth/testing/permitted-auth';
 import { CategoriesService } from '../../services/categories.service';
 import { CategoriesPage } from './categories-page';
 
@@ -56,6 +58,7 @@ describe('CategoriesPage', () => {
       providers: [
         { provide: CategoriesService, useValue: categoriesService },
         { provide: LOCALE_ID, useValue: 'pt-BR' },
+        { provide: AuthService, useValue: permittedAuth() },
       ],
     }).compileComponents();
 
