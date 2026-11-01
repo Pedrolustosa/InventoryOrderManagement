@@ -1,0 +1,20 @@
+<section class="space-y-6">
+  <div>
+    <h1 class="text-3xl font-semibold tracking-tight text-ink">Stock & Sales Reports</h1>
+    <p class="mt-2 max-w-2xl text-sm text-muted">Monitor inventory performance, sales activity and operational indicators.</p>
+  </div>
+
+  <app-period-filter />
+
+  <nav class="flex flex-wrap gap-2" aria-label="Reports">
+    <a routerLink="/reports" routerLinkActive="!bg-accent !text-white" [routerLinkActiveOptions]="{ exact: true }" class="btn-secondary">Overview</a>
+    <a routerLink="/reports/inventory" routerLinkActive="!bg-accent !text-white" class="btn-secondary">Inventory Reports</a>
+    <a routerLink="/reports/movements" routerLinkActive="!bg-accent !text-white" class="btn-secondary">Stock Movements</a>
+    <a routerLink="/reports/orders" routerLinkActive="!bg-accent !text-white" class="btn-secondary">Order Reports</a>
+    <a routerLink="/reports/best-sellers" routerLinkActive="!bg-accent !text-white" class="btn-secondary">Best Selling Products</a>
+    <a routerLink="/reports/customers" routerLinkActive="!bg-accent !text-white" class="btn-secondary">Sales by Customer</a>
+    <a routerLink="/reports/cancellations" routerLinkActive="!bg-accent !text-white" class="btn-secondary">Cancellation Reports</a>
+  </nav>
+
+  <router-outlet />
+</section>
