@@ -1,0 +1,108 @@
+<form class="space-y-5" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div class="space-y-1.5">
+      <label class="text-sm font-medium text-ink" for="sku">SKU</label>
+      <input
+        id="sku"
+        type="text"
+        formControlName="sku"
+        autocomplete="off"
+        class="field"
+        [class.field-error]="controlInvalid('sku')"
+        [attr.aria-invalid]="controlInvalid('sku')"
+      />
+      @if (controlInvalid('sku')) {
+        <p class="text-sm text-danger" role="alert">
+          @if (form.controls.sku.hasError('required')) {
+            SKU is required.
+          } @else if (form.controls.sku.hasError('maxlength')) {
+            SKU cannot exceed 50 characters.
+          }
+        </p>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+      <label class="text-sm font-medium text-ink" for="name">Product Name</label>
+      <input
+        id="name"
+        type="text"
+        formControlName="name"
+        autocomplete="off"
+        class="field"
+        [class.field-error]="controlInvalid('name')"
+        [attr.aria-invalid]="controlInvalid('name')"
+      />
+      @if (controlInvalid('name')) {
+        <p class="text-sm text-danger" role="alert">
+          @if (form.controls.name.hasError('required')) {
+            Name is required.
+          } @else if (form.controls.name.hasError('maxlength')) {
+            Name cannot exceed 150 characters.
+          }
+        </p>
+      }
+    </div>
+  </div>
+
+  <div class="space-y-1.5">
+    <label class="text-sm font-medium text-ink" for="description">Description</label>
+    <textarea
+      id="description"
+      rows="3"
+      formControlName="description"
+      class="field min-h-24 resize-y"
+      [class.field-error]="controlInvalid('description')"
+      [attr.aria-invalid]="controlInvalid('description')"
+    ></textarea>
+    @if (controlInvalid('description')) {
+      <p class="text-sm text-danger" role="alert">Description cannot exceed 500 characters.</p>
+    }
+  </div>
+
+  <div class="max-w-xs space-y-1.5">
+    <label class="text-sm font-medium text-ink" for="currentPrice">Current Price</label>
+    <input
+      id="currentPrice"
+      type="number"
+      step="0.01"
+      min="0"
+      formControlName="currentPrice"
+      class="field"
+      [class.field-error]="controlInvalid('currentPrice')"
+      [attr.aria-invalid]="controlInvalid('currentPrice')"
+    />
+    @if (controlInvalid('currentPrice')) {
+      <p class="text-sm text-danger" role="alert">
+        @if (form.controls.currentPrice.hasError('required')) {
+          Current price is required.
+        } @else if (form.controls.currentPrice.hasError('min')) {
+          Current price cannot be negative.
+        }
+      </p>
+    }
+  </div>
+
+  @if (submitError()) {
+    <div class="rounded-md border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger" role="alert">
+      {{ submitError() }}
+    </div>
+  }
+
+  <div class="flex flex-wrap gap-3">
+    <button
+      type="submit"
+      class="btn-primary"
+      [disabled]="form.invalid || isSubmitting()"
+    >
+      @if (isSubmitting()) {
+        Saving...
+      } @else {
+        Save Product
+      }
+    </button>
+    <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="cancel()">
+      Cancel
+    </button>
+  </div>
+</form>
