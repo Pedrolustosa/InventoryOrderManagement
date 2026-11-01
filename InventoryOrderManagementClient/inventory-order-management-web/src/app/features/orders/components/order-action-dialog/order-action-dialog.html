@@ -1,0 +1,41 @@
+<section class="rounded-xl border border-line bg-panel p-5 shadow-sm sm:p-6" role="dialog" aria-labelledby="order-action-title">
+  <h2 id="order-action-title" class="text-lg font-semibold text-ink">{{ title() }}</h2>
+  <p class="mt-2 text-sm text-muted">
+    Order <span class="font-medium text-ink">{{ orderNumber() }}</span>. {{ message() }}
+  </p>
+
+  @if (action() === 'cancel') {
+    <label class="mt-4 block text-sm font-medium text-ink" for="cancellation-reason">Reason</label>
+    <textarea
+      id="cancellation-reason"
+      class="field mt-1 min-h-24"
+      [formControl]="reason"
+      [attr.maxlength]="reasonMaxLength"
+    ></textarea>
+    @if (reasonError()) {
+      <p class="mt-1 text-sm text-danger">{{ reasonError() }}</p>
+    }
+  }
+
+  @if (errorMessage()) {
+    <div class="mt-4 rounded-md border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger" role="alert">
+      {{ errorMessage() }}
+      @if (action() === 'confirm') {
+        <span> Check the available stock and open the order again before retrying.</span>
+      }
+    </div>
+  }
+
+  <div class="mt-5 flex flex-wrap gap-3">
+    <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="submit()">
+      @if (isSubmitting()) {
+        Processing...
+      } @else {
+        {{ title() }}
+      }
+    </button>
+    <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="dismiss()">
+      Keep order
+    </button>
+  </div>
+</section>

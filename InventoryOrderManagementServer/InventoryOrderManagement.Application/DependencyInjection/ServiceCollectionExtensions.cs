@@ -1,6 +1,7 @@
 using InventoryOrderManagement.Application.Categories;
 using InventoryOrderManagement.Application.Customers;
 using InventoryOrderManagement.Application.Inventory;
+using InventoryOrderManagement.Application.Orders;
 using InventoryOrderManagement.Application.Products;
 using InventoryOrderManagement.Application.Suppliers;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,6 +37,14 @@ public static class ServiceCollectionExtensions
         services.AddScoped<GetAllInventoryBalancesUseCase>();
         services.AddScoped<GetLowStockProductsUseCase>();
         services.AddScoped<GetStockMovementsUseCase>();
+        services.AddScoped<CreateOrderUseCase>();
+        services.AddScoped<UpdateDraftOrderUseCase>();
+        services.AddScoped<GetOrderByIdUseCase>();
+        services.AddScoped<GetAllOrdersUseCase>();
+        services.AddScoped<ConfirmOrderUseCase>();
+        services.AddScoped<ShipOrderUseCase>();
+        services.AddScoped<DeliverOrderUseCase>();
+        services.AddScoped<CancelOrderUseCase>();
 
         return services;
     }

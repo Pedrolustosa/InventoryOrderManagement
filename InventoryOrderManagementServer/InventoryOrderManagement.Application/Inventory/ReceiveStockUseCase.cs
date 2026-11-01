@@ -87,6 +87,7 @@ public sealed class ReceiveStockUseCase
             ProductName = productName,
             SupplierId = movement.SupplierId,
             SupplierName = supplierName,
+            OrderId = movement.OrderId,
             MovementType = movement.MovementType,
             Quantity = movement.Quantity,
             PreviousQuantity = movement.PreviousQuantity,

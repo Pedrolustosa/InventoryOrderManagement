@@ -3,6 +3,8 @@ export const STOCK_MOVEMENT_TYPES = [
   'Exit',
   'AdjustmentIncrease',
   'AdjustmentDecrease',
+  'OrderExit',
+  'OrderCancellationReturn',
 ] as const;
 
 export type StockMovementType = (typeof STOCK_MOVEMENT_TYPES)[number];
@@ -17,5 +19,9 @@ export function movementTypeLabel(type: StockMovementType): string {
       return 'Adjustment Increase';
     case 'AdjustmentDecrease':
       return 'Adjustment Decrease';
+    case 'OrderExit':
+      return 'Order Exit';
+    case 'OrderCancellationReturn':
+      return 'Order Cancellation Return';
   }
 }

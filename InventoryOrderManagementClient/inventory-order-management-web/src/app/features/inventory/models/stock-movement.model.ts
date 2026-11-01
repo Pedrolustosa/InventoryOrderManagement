@@ -7,6 +7,7 @@ export interface StockMovement {
   productName: string;
   supplierId: string | null;
   supplierName: string | null;
+  orderId: string | null;
   movementType: StockMovementType;
   quantity: number;
   previousQuantity: number;

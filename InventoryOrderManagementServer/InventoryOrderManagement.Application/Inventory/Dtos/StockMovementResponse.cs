@@ -17,6 +17,8 @@ public sealed class StockMovementResponse
 
     public string? SupplierName { get; init; }
 
+    public Guid? OrderId { get; init; }
+
     public required StockMovementType MovementType { get; init; }
 
     public required int Quantity { get; init; }
@@ -39,6 +41,7 @@ public sealed class StockMovementResponse
             ProductName = details.ProductName,
             SupplierId = details.SupplierId,
             SupplierName = details.SupplierName,
+            OrderId = details.OrderId,
             MovementType = details.MovementType,
             Quantity = details.Quantity,
             PreviousQuantity = details.PreviousQuantity,

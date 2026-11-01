@@ -136,6 +136,7 @@ public class InventoryRepository : IInventoryRepository
                 ProductName = row.product.Name,
                 SupplierId = row.movement.SupplierId,
                 SupplierName = row.supplier != null ? row.supplier.Name : null,
+                OrderId = row.movement.OrderId,
                 MovementType = row.movement.MovementType,
                 Quantity = row.movement.Quantity,
                 PreviousQuantity = row.movement.PreviousQuantity,

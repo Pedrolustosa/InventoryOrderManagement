@@ -1,0 +1,213 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">Order Details</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">Commercial information stored for this order.</p>
+    </div>
+    <a routerLink="/orders" class="btn-secondary">Back to orders</a>
+  </div>
+
+  @if (successMessage()) {
+    <div class="rounded-md border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent-ink" role="status">
+      {{ successMessage() }}
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="flex items-center gap-3 text-muted" aria-busy="true">
+      <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
+      <span>Loading order...</span>
+    </div>
+  } @else if (loadError()) {
+    <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
+      {{ loadError() }}
+    </div>
+  } @else if (order(); as current) {
+    <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <h2 class="text-lg font-semibold text-ink">Order Information</h2>
+          <dl class="mt-4 grid gap-3 sm:grid-cols-2">
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">Order Number</dt>
+              <dd class="mt-1 text-sm font-medium text-ink">{{ current.orderNumber }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">Status</dt>
+              <dd class="mt-1 text-sm font-medium text-ink">{{ statusLabel(current) }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">Created At</dt>
+              <dd class="mt-1 text-sm text-ink">{{ current.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd>
+            </div>
+            @if (current.updatedAtUtc) {
+              <div>
+                <dt class="text-xs uppercase tracking-wide text-muted">Updated At</dt>
+                <dd class="mt-1 text-sm text-ink">{{ current.updatedAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd>
+              </div>
+            }
+            @if (current.confirmedAtUtc) {
+              <div>
+                <dt class="text-xs uppercase tracking-wide text-muted">Confirmed At</dt>
+                <dd class="mt-1 text-sm text-ink">{{ current.confirmedAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd>
+              </div>
+            }
+            @if (current.shippedAtUtc) {
+              <div>
+                <dt class="text-xs uppercase tracking-wide text-muted">Shipped At</dt>
+                <dd class="mt-1 text-sm text-ink">{{ current.shippedAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd>
+              </div>
+            }
+            @if (current.deliveredAtUtc) {
+              <div>
+                <dt class="text-xs uppercase tracking-wide text-muted">Delivered At</dt>
+                <dd class="mt-1 text-sm text-ink">{{ current.deliveredAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd>
+              </div>
+            }
+            @if (current.cancelledAtUtc) {
+              <div>
+                <dt class="text-xs uppercase tracking-wide text-muted">Cancelled At</dt>
+                <dd class="mt-1 text-sm text-ink">{{ current.cancelledAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd>
+              </div>
+            }
+          </dl>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          @if (canEdit()) {
+            <a class="btn-secondary" [routerLink]="['/orders', current.id, 'edit']">Edit</a>
+          }
+          @if (canConfirm()) {
+            <button type="button" class="btn-primary" (click)="openAction('confirm')">Confirm Order</button>
+          }
+          @if (canShip()) {
+            <button type="button" class="btn-primary" (click)="openAction('ship')">Ship Order</button>
+          }
+          @if (canDeliver()) {
+            <button type="button" class="btn-primary" (click)="openAction('deliver')">Deliver Order</button>
+          }
+          @if (canCancel()) {
+            <button type="button" class="btn-secondary text-danger" (click)="openAction('cancel')">Cancel Order</button>
+          }
+        </div>
+      </div>
+    </section>
+
+    @if (pendingAction(); as action) {
+      <app-order-action-dialog
+        [action]="action"
+        [orderNumber]="current.orderNumber"
+        [status]="current.status"
+        [isSubmitting]="isActing()"
+        [errorMessage]="actionError()"
+        (confirmed)="confirmAction($event)"
+        (dismissed)="closeAction()"
+      />
+    }
+
+    <div class="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(16rem,1fr)]">
+      <div class="space-y-6">
+        <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
+          <h2 class="text-lg font-semibold text-ink">Customer Information</h2>
+          <dl class="mt-4 grid gap-3 sm:grid-cols-2">
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">Customer Name</dt>
+              <dd class="mt-1 text-sm text-ink">{{ current.customerName }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">Customer ID</dt>
+              <dd class="mt-1 break-all text-sm text-ink">{{ current.customerId }}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
+          <h2 class="text-lg font-semibold text-ink">Shipping Address</h2>
+          <p class="mt-3 text-sm text-ink">
+            {{ current.shippingAddress.street }}, {{ current.shippingAddress.number }}
+          </p>
+          @if (current.shippingAddress.complement || current.shippingAddress.neighborhood) {
+            <p class="text-sm text-muted">
+              {{ current.shippingAddress.complement }} {{ current.shippingAddress.neighborhood }}
+            </p>
+          }
+          <p class="text-sm text-muted">
+            {{ current.shippingAddress.city }} / {{ current.shippingAddress.state }} —
+            {{ current.shippingAddress.postalCode }}
+          </p>
+          <p class="text-sm text-muted">{{ current.shippingAddress.country }}</p>
+        </section>
+
+        <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
+          <h2 class="text-lg font-semibold text-ink">Order Items</h2>
+          <div class="mt-4 overflow-x-auto">
+            <table class="min-w-full text-left text-sm">
+              <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
+                <tr>
+                  <th class="px-3 py-2 font-semibold">SKU</th>
+                  <th class="px-3 py-2 font-semibold">Product</th>
+                  <th class="px-3 py-2 font-semibold">Unit Price</th>
+                  <th class="px-3 py-2 font-semibold">Quantity</th>
+                  <th class="px-3 py-2 font-semibold">Line Total</th>
+                  <th class="px-3 py-2 font-semibold">Available now</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of current.items; track item.id) {
+                  <tr class="border-b border-line/70 last:border-0">
+                    <td class="px-3 py-2 text-ink">{{ item.productSku }}</td>
+                    <td class="px-3 py-2 text-ink">{{ item.productName }}</td>
+                    <td class="px-3 py-2 text-ink">{{ item.unitPrice | currency: 'BRL' }}</td>
+                    <td class="px-3 py-2 text-ink">{{ item.quantity }}</td>
+                    <td class="px-3 py-2 text-ink">{{ item.lineTotal | currency: 'BRL' }}</td>
+                    <td class="px-3 py-2 text-muted">
+                      {{ availableNow(item.productId) === null ? 'Not loaded' : availableNow(item.productId) }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        @if (current.status === 'Cancelled') {
+          <section class="rounded-xl border border-danger/30 bg-panel p-5 shadow-sm">
+            <h2 class="text-lg font-semibold text-ink">Cancellation Information</h2>
+            <dl class="mt-4 grid gap-3 sm:grid-cols-2">
+              <div>
+                <dt class="text-xs uppercase tracking-wide text-muted">Cancellation Reason</dt>
+                <dd class="mt-1 text-sm text-ink">{{ current.cancellationReason }}</dd>
+              </div>
+              @if (current.cancelledAtUtc) {
+                <div>
+                  <dt class="text-xs uppercase tracking-wide text-muted">Cancelled At</dt>
+                  <dd class="mt-1 text-sm text-ink">{{ current.cancelledAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd>
+                </div>
+              }
+            </dl>
+          </section>
+        }
+      </div>
+
+      <div class="space-y-6">
+        <section class="rounded-xl border border-accent/30 bg-accent/5 p-5">
+          <h2 class="text-lg font-semibold text-ink">Financial Summary</h2>
+          <dl class="mt-4 space-y-3">
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">Total Items</dt>
+              <dd class="mt-1 text-xl font-semibold text-ink">{{ totalItems() }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">Subtotal</dt>
+              <dd class="mt-1 text-xl font-semibold text-ink">{{ current.subtotal | currency: 'BRL' }}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
+          <app-order-timeline [order]="current" />
+        </section>
+      </div>
+    </div>
+  }
+</section>

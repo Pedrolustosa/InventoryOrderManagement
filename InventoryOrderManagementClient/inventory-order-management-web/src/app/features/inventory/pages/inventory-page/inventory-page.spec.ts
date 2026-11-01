@@ -61,6 +61,7 @@ describe('InventoryPage', () => {
     productName: 'Keyboard',
     supplierId: 'supplier-1',
     supplierName: 'Tech Components',
+    orderId: null,
     movementType: 'Entry',
     quantity: 20,
     previousQuantity: 5,
