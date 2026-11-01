@@ -53,11 +53,12 @@
                   <button type="button" class="btn-secondary !px-2.5 !py-1 text-xs" (click)="viewRequested.emit(category)">
                     View
                   </button>
-                  <button type="button" class="btn-secondary !px-2.5 !py-1 text-xs" (click)="editRequested.emit(category)">
+                  <button *hasPermission="'Categories.Update'" type="button" class="btn-secondary !px-2.5 !py-1 text-xs" (click)="editRequested.emit(category)">
                     Edit
                   </button>
                   @if (category.isActive) {
                     <button
+                      *hasPermission="'Categories.Deactivate'"
                       type="button"
                       class="btn-secondary !px-2.5 !py-1 text-xs text-danger"
                       (click)="deactivateRequested.emit(category)"

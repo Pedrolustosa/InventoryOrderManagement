@@ -1,8 +1,10 @@
 import { Component, input, output } from '@angular/core';
+import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { InventoryBalance, stockStatus, stockStatusLabel } from '../../models/inventory-balance.model';
 
 @Component({
   selector: 'app-inventory-balance-list',
+  imports: [HasPermissionDirective],
   templateUrl: './inventory-balance-list.html',
 })
 export class InventoryBalanceList {

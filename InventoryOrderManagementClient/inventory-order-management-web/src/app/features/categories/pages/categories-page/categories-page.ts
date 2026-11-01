@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { CategoryDetail } from '../../components/category-detail/category-detail';
+import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { CategoryForm } from '../../components/category-form/category-form';
 import { CategoryList } from '../../components/category-list/category-list';
 import { DeactivateConfirm } from '../../components/deactivate-confirm/deactivate-confirm';
@@ -13,7 +14,7 @@ type PanelMode = 'none' | 'create' | 'edit' | 'detail' | 'deactivate';
 
 @Component({
   selector: 'app-categories-page',
-  imports: [CategoryForm, CategoryList, CategoryDetail, DeactivateConfirm],
+  imports: [CategoryForm, CategoryList, CategoryDetail, DeactivateConfirm, HasPermissionDirective],
   templateUrl: './categories-page.html',
 })
 export class CategoriesPage implements OnInit {

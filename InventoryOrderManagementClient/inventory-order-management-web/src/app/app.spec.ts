@@ -1,24 +1,30 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { App } from './app';
+import { AuthService } from './core/auth/services/auth.service';
+import { permittedAuth } from './core/auth/testing/permitted-auth';
+import { AppShell } from './features/shell/app-shell';
 
 describe('App', () => {
-  beforeEach(async () => {
+  it('should create the app', async () => {
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [provideRouter([])],
     }).compileComponents();
-  });
 
-  it('should create the app', () => {
     const fixture = TestBed.createComponent(App);
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('should render the application shell', async () => {
-    const fixture = TestBed.createComponent(App);
+  it('should render the application brand in the shell', async () => {
+    await TestBed.configureTestingModule({
+      imports: [AppShell],
+      providers: [provideRouter([]), { provide: AuthService, useValue: permittedAuth() }],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(AppShell);
+    fixture.detectChanges();
     await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain('Inventory Order Management');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Inventory Order Management');
   });
 });

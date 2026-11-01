@@ -1,12 +1,17 @@
 using InventoryOrderManagement.Application.Reports;
 using InventoryOrderManagement.Application.Reports.Dtos;
+using InventoryOrderManagement.Application.Security;
 using InventoryOrderManagement.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InventoryOrderManagement.Api.Controllers;
 
 [ApiController]
 [Route("api/reports")]
+[Authorize(Policy = Permissions.Reports.View)]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
 public sealed class ReportsController : ControllerBase
 {
     private readonly GetDashboardSummaryUseCase _getDashboardSummaryUseCase;

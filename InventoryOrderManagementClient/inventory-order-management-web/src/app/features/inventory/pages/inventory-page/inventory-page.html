@@ -7,9 +7,9 @@
 
     @if (panelMode() === 'none') {
       <div class="flex flex-wrap gap-2">
-        <button type="button" class="btn-primary" (click)="openReceive()">Receive Stock</button>
-        <button type="button" class="btn-secondary" (click)="openExit()">Register Exit</button>
-        <button type="button" class="btn-secondary" (click)="openAdjust()">Adjust Stock</button>
+        <button *hasPermission="'Inventory.Receive'" type="button" class="btn-primary" (click)="openReceive()">Receive Stock</button>
+        <button *hasPermission="'Inventory.Exit'" type="button" class="btn-secondary" (click)="openExit()">Register Exit</button>
+        <button *hasPermission="'Inventory.Adjust'" type="button" class="btn-secondary" (click)="openAdjust()">Adjust Stock</button>
       </div>
     }
   </div>

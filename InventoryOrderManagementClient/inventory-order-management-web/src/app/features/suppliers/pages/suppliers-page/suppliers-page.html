@@ -8,7 +8,7 @@
     </div>
 
     @if (panelMode() === 'none') {
-      <button type="button" class="btn-primary shrink-0" (click)="openCreate()">New Supplier</button>
+      <button *hasPermission="'Suppliers.Create'" type="button" class="btn-primary shrink-0" (click)="openCreate()">New Supplier</button>
     }
   </div>
 

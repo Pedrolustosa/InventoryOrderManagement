@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { DeactivateConfirm } from '../../components/deactivate-confirm/deactivate-confirm';
 import { SupplierDetail } from '../../components/supplier-detail/supplier-detail';
+import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { SupplierForm } from '../../components/supplier-form/supplier-form';
 import { SupplierList } from '../../components/supplier-list/supplier-list';
 import { CreateSupplierRequest } from '../../models/create-supplier-request.model';
@@ -13,7 +14,7 @@ type PanelMode = 'none' | 'create' | 'edit' | 'detail' | 'deactivate';
 
 @Component({
   selector: 'app-suppliers-page',
-  imports: [SupplierForm, SupplierList, SupplierDetail, DeactivateConfirm],
+  imports: [SupplierForm, SupplierList, SupplierDetail, DeactivateConfirm, HasPermissionDirective],
   templateUrl: './suppliers-page.html',
 })
 export class SuppliersPage implements OnInit {

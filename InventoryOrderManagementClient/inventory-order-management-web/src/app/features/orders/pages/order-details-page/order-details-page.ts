@@ -1,6 +1,7 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { InventoryService } from '../../../inventory/services/inventory.service';
 import { OrderActionDialog, OrderLifecycleAction } from '../../components/order-action-dialog/order-action-dialog';
 import { OrderTimeline } from '../../components/order-timeline/order-timeline';
@@ -11,7 +12,7 @@ import { OrdersService } from '../../services/orders.service';
 
 @Component({
   selector: 'app-order-details-page',
-  imports: [RouterLink, CurrencyPipe, DatePipe, OrderTimeline, OrderActionDialog],
+  imports: [RouterLink, CurrencyPipe, DatePipe, OrderTimeline, OrderActionDialog, HasPermissionDirective],
   templateUrl: './order-details-page.html',
 })
 export class OrderDetailsPage implements OnInit {

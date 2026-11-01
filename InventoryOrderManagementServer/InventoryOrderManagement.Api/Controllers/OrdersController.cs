@@ -1,12 +1,16 @@
 using InventoryOrderManagement.Application.Orders;
 using InventoryOrderManagement.Application.Orders.Dtos;
+using InventoryOrderManagement.Application.Security;
 using InventoryOrderManagement.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InventoryOrderManagement.Api.Controllers;
 
 [ApiController]
 [Route("api/orders")]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
 public sealed class OrdersController : ControllerBase
 {
     private readonly CreateOrderUseCase _createOrderUseCase;
@@ -38,6 +42,7 @@ public sealed class OrdersController : ControllerBase
         _cancelOrderUseCase = cancelOrderUseCase;
     }
 
+    [Authorize(Policy = Permissions.Orders.Create)]
     [HttpPost]
     [ProducesResponseType(typeof(OrderCreatedResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -52,6 +57,7 @@ public sealed class OrdersController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = order.Id }, order);
     }
 
+    [Authorize(Policy = Permissions.Orders.View)]
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<OrderSummaryResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -77,6 +83,7 @@ public sealed class OrdersController : ControllerBase
         return Ok(orders);
     }
 
+    [Authorize(Policy = Permissions.Orders.View)]
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(OrderResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -86,6 +93,7 @@ public sealed class OrdersController : ControllerBase
         return Ok(order);
     }
 
+    [Authorize(Policy = Permissions.Orders.UpdateDraft)]
     [HttpPut("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -100,6 +108,7 @@ public sealed class OrdersController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Policy = Permissions.Orders.Confirm)]
     [HttpPost("{id:guid}/confirm")]
     [ProducesResponseType(typeof(OrderResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -110,6 +119,7 @@ public sealed class OrdersController : ControllerBase
         return Ok(order);
     }
 
+    [Authorize(Policy = Permissions.Orders.Ship)]
     [HttpPost("{id:guid}/ship")]
     [ProducesResponseType(typeof(OrderResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -120,6 +130,7 @@ public sealed class OrdersController : ControllerBase
         return Ok(order);
     }
 
+    [Authorize(Policy = Permissions.Orders.Deliver)]
     [HttpPost("{id:guid}/deliver")]
     [ProducesResponseType(typeof(OrderResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -130,6 +141,7 @@ public sealed class OrdersController : ControllerBase
         return Ok(order);
     }
 
+    [Authorize(Policy = Permissions.Orders.Cancel)]
     [HttpPost("{id:guid}/cancel")]
     [ProducesResponseType(typeof(OrderResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]

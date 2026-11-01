@@ -61,6 +61,7 @@
                   </button>
                   @if (supplier.isActive) {
                     <button
+                      *hasPermission="'Suppliers.Update'"
                       type="button"
                       class="btn-secondary !px-2.5 !py-1 text-xs"
                       (click)="editRequested.emit(supplier)"
@@ -68,6 +69,7 @@
                       Edit
                     </button>
                     <button
+                      *hasPermission="'Suppliers.Deactivate'"
                       type="button"
                       class="btn-secondary !px-2.5 !py-1 text-xs text-danger"
                       (click)="deactivateRequested.emit(supplier)"

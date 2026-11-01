@@ -1,0 +1,51 @@
+<section class="mx-auto max-w-2xl space-y-6">
+  <div>
+    <h1 class="text-3xl font-semibold text-ink">{{ userId ? 'Edit User' : 'Create User' }}</h1>
+    <p class="mt-2 text-sm text-muted">
+      @if (!userId) {
+        The temporary password is used once. The user must change it at the first sign-in.
+      } @else {
+        Role changes are saved separately.
+      }
+    </p>
+  </div>
+
+  @if (errorMessage()) {
+    <p class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">{{ errorMessage() }}</p>
+  }
+
+  <form class="space-y-4 rounded-xl border border-line bg-panel p-5" [formGroup]="form" (ngSubmit)="submit()">
+    <label class="block space-y-1 text-sm">
+      <span class="font-medium">Display name</span>
+      <input class="field" formControlName="displayName" maxlength="150" />
+    </label>
+    <label class="block space-y-1 text-sm">
+      <span class="font-medium">Email</span>
+      <input class="field" type="email" formControlName="email" />
+    </label>
+    <label class="block space-y-1 text-sm">
+      <span class="font-medium">Phone number</span>
+      <input class="field" type="tel" formControlName="phoneNumber" maxlength="30" />
+    </label>
+    @if (!userId) {
+      <label class="block space-y-1 text-sm">
+        <span class="font-medium">Temporary password</span>
+        <input class="field" type="password" formControlName="password" autocomplete="new-password" />
+        <span class="text-xs text-muted">At least 12 characters, with upper and lower case letters, a number, and a symbol.</span>
+      </label>
+      <fieldset class="space-y-2">
+        <legend class="text-sm font-medium">Roles</legend>
+        @for (role of roles(); track role.id) {
+          <label class="flex items-center gap-2 text-sm">
+            <input type="checkbox" [checked]="selectedRoleIds().includes(role.id)" (change)="toggleRole(role.id)" />
+            {{ role.name }}
+          </label>
+        }
+      </fieldset>
+    }
+    <div class="flex gap-2">
+      <button type="submit" class="btn-primary" [disabled]="isSubmitting()">{{ isSubmitting() ? 'Saving...' : 'Save' }}</button>
+      <a routerLink="/users" class="btn-secondary">Cancel</a>
+    </div>
+  </form>
+</section>

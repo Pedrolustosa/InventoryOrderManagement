@@ -1,0 +1,97 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">User Management</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">Manage system users and their access to application features.</p>
+    </div>
+    <a *hasPermission="'Users.Create'" routerLink="/users/new" class="btn-primary">New User</a>
+  </div>
+
+  @if (successMessage()) {
+    <p class="rounded-md border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent-ink" role="status">{{ successMessage() }}</p>
+  }
+  @if (errorMessage()) {
+    <p class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">{{ errorMessage() }}</p>
+  }
+
+  <form class="grid gap-3 rounded-xl border border-line bg-panel p-4 sm:grid-cols-4" [formGroup]="filters" (ngSubmit)="load(1)">
+    <input class="field" placeholder="Name" formControlName="name" />
+    <input class="field" placeholder="Email" formControlName="email" />
+    <select class="field" formControlName="isActive">
+      <option value="">Any status</option>
+      <option value="true">Active</option>
+      <option value="false">Inactive</option>
+    </select>
+    <select class="field" formControlName="roleId">
+      <option value="">Any role</option>
+      @for (role of roles(); track role.id) {
+        <option [value]="role.id">{{ role.name }}</option>
+      }
+    </select>
+    <button type="submit" class="btn-primary sm:col-span-4">Apply filters</button>
+  </form>
+
+  @if (isLoading()) {
+    <p class="text-sm text-muted">Loading users...</p>
+  } @else if (users().length === 0) {
+    <p class="rounded-xl border border-line bg-panel p-6 text-sm text-muted">No users match these filters.</p>
+  } @else {
+    <div class="overflow-x-auto rounded-xl border border-line bg-panel">
+      <table class="min-w-full text-left text-sm">
+        <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
+          <tr>
+            <th class="px-4 py-3">User</th>
+            <th class="px-4 py-3">Email</th>
+            <th class="px-4 py-3">Roles</th>
+            <th class="px-4 py-3">Status</th>
+            <th class="px-4 py-3">Created At</th>
+            <th class="px-4 py-3">Last Login</th>
+            <th class="px-4 py-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users(); track user.id) {
+            <tr class="border-b border-line last:border-0">
+              <td class="px-4 py-3 font-medium">{{ user.displayName }}</td>
+              <td class="px-4 py-3">{{ user.email }}</td>
+              <td class="px-4 py-3">{{ user.roles.length ? user.roles.map(role => role.name).join(', ') : 'None' }}</td>
+              <td class="px-4 py-3">
+                <span [class]="user.isActive ? 'badge-active' : 'badge-inactive'">{{ user.isActive ? 'Active' : 'Inactive' }}</span>
+              </td>
+              <td class="px-4 py-3">{{ user.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td class="px-4 py-3">{{ user.lastLoginAtUtc ? (user.lastLoginAtUtc | date: 'dd/MM/yyyy HH:mm') : 'Never' }}</td>
+              <td class="px-4 py-3">
+                <div class="flex flex-wrap gap-2">
+                  <a class="btn-secondary !px-2.5 !py-1 text-xs" [routerLink]="['/users', user.id]">View</a>
+                  <a *hasPermission="'Users.Update'" class="btn-secondary !px-2.5 !py-1 text-xs" [routerLink]="['/users', user.id, 'edit']">Edit</a>
+                  @if (!isSelf(user)) {
+                    <a *hasPermission="'Users.Update'" class="btn-secondary !px-2.5 !py-1 text-xs" [routerLink]="['/users', user.id, 'roles']">Roles</a>
+                    @if (user.isActive) {
+                      <button *hasPermission="'Users.Deactivate'" type="button" class="btn-secondary !px-2.5 !py-1 text-xs text-danger" (click)="pendingDeactivate.set(user)">Deactivate</button>
+                    }
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="flex items-center justify-between text-sm">
+      <button type="button" class="btn-secondary" [disabled]="page() <= 1" (click)="load(page() - 1)">Previous</button>
+      <span class="text-muted">Page {{ page() }} of {{ totalPages() }}</span>
+      <button type="button" class="btn-secondary" [disabled]="page() >= totalPages()" (click)="load(page() + 1)">Next</button>
+    </div>
+  }
+
+  @if (pendingDeactivate(); as user) {
+    <div class="rounded-xl border border-line bg-panel p-5" role="dialog" aria-labelledby="deactivate-user-title">
+      <h2 id="deactivate-user-title" class="text-lg font-semibold">Deactivate user</h2>
+      <p class="mt-2 text-sm text-muted">{{ user.displayName }} will lose access to the system. This does not delete the account.</p>
+      <div class="mt-4 flex gap-2">
+        <button type="button" class="btn-primary bg-danger" (click)="confirmDeactivate()">Confirm deactivate</button>
+        <button type="button" class="btn-secondary" (click)="pendingDeactivate.set(null)">Cancel</button>
+      </div>
+    </div>
+  }
+</section>

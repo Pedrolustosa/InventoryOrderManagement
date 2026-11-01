@@ -1,0 +1,18 @@
+<section class="space-y-6">
+  <a routerLink="/roles" class="btn-secondary">Back to roles</a>
+  @if (errorMessage()) {
+    <p class="text-sm text-danger">{{ errorMessage() }}</p>
+  } @else if (role(); as current) {
+    <div class="rounded-xl border border-line bg-panel p-5">
+      <h1 class="text-3xl font-semibold text-ink">{{ current.name }}</h1>
+      <p class="mt-2 text-sm text-muted">{{ current.description || 'No description' }}</p>
+      <p class="mt-2 text-sm">{{ current.isSystemRole ? 'System role' : 'Custom role' }}</p>
+      <h2 class="mt-6 text-sm font-semibold uppercase tracking-wide text-muted">Permissions</h2>
+      <ul class="mt-2 grid gap-1 text-sm sm:grid-cols-2">
+        @for (permission of current.permissions; track permission) {
+          <li>{{ permission }}</li>
+        }
+      </ul>
+    </div>
+  }
+</section>

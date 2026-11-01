@@ -1,0 +1,59 @@
+<section class="space-y-6">
+  <div>
+    <h1 class="text-3xl font-semibold text-ink">Security Audit</h1>
+    <p class="mt-2 text-sm text-muted">Read-only record of authentication and access changes. Passwords and tokens are never stored here.</p>
+  </div>
+  @if (errorMessage()) {
+    <p class="text-sm text-danger" role="alert">{{ errorMessage() }}</p>
+  }
+  <form class="grid gap-3 rounded-xl border border-line bg-panel p-4 sm:grid-cols-3" [formGroup]="filters" (ngSubmit)="load(1)">
+    <input class="field" placeholder="Actor user id" formControlName="actorUserId" />
+    <input class="field" placeholder="Target user id" formControlName="targetUserId" />
+    <input class="field" placeholder="Action" formControlName="action" />
+    <input class="field" placeholder="Entity type" formControlName="entityType" />
+    <input class="field" type="date" formControlName="startDate" aria-label="Start date" />
+    <input class="field" type="date" formControlName="endDate" aria-label="End date" />
+    <button type="submit" class="btn-primary sm:col-span-3">Apply filters</button>
+  </form>
+  @if (isLoading()) {
+    <p class="text-sm text-muted">Loading audit events...</p>
+  } @else if (logs().length === 0) {
+    <p class="rounded-xl border border-line bg-panel p-6 text-sm text-muted">No audit events match these filters.</p>
+  } @else {
+    <div class="overflow-x-auto rounded-xl border border-line bg-panel">
+      <table class="min-w-full text-left text-sm">
+        <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
+          <tr>
+            <th class="px-4 py-3">When</th>
+            <th class="px-4 py-3">Action</th>
+            <th class="px-4 py-3">Entity</th>
+            <th class="px-4 py-3">Outcome</th>
+            <th class="px-4 py-3">Actor</th>
+            <th class="px-4 py-3">Target</th>
+            <th class="px-4 py-3">Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (log of logs(); track log.id) {
+            <tr class="border-b border-line last:border-0">
+              <td class="px-4 py-3">{{ log.occurredAtUtc | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td class="px-4 py-3">{{ log.action }}</td>
+              <td class="px-4 py-3">{{ log.entityType }} {{ log.entityId }}</td>
+              <td class="px-4 py-3">
+                <span [class]="log.outcome === 'Success' ? 'badge-active' : 'badge-inactive'">{{ log.outcome }}</span>
+              </td>
+              <td class="px-4 py-3">{{ log.actorUserId || 'System' }}</td>
+              <td class="px-4 py-3">{{ log.targetUserId || '—' }}</td>
+              <td class="px-4 py-3">{{ log.details || '—' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="flex items-center justify-between text-sm">
+      <button type="button" class="btn-secondary" [disabled]="page() <= 1" (click)="load(page() - 1)">Previous</button>
+      <span class="text-muted">Page {{ page() }} of {{ totalPages() }}</span>
+      <button type="button" class="btn-secondary" [disabled]="page() >= totalPages()" (click)="load(page() + 1)">Next</button>
+    </div>
+  }
+</section>

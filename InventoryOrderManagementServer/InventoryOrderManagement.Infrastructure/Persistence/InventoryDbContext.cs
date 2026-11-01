@@ -1,14 +1,19 @@
 using InventoryOrderManagement.Domain.Entities;
+using InventoryOrderManagement.Infrastructure.Identity;
+using InventoryOrderManagement.Infrastructure.Identity.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace InventoryOrderManagement.Infrastructure.Persistence;
 
-public class InventoryDbContext : DbContext
+public class InventoryDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
 {
     public InventoryDbContext(DbContextOptions<InventoryDbContext> options)
         : base(options)
     {
     }
+
+    public DbSet<SecurityAuditLog> SecurityAuditLogs => Set<SecurityAuditLog>();
 
     public DbSet<Product> Products => Set<Product>();
 
@@ -28,7 +33,7 @@ public class InventoryDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(InventoryDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(InventoryDbContext).Assembly);
     }
 }

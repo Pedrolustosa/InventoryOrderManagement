@@ -1,0 +1,19 @@
+<section class="space-y-6">
+  <a routerLink="/users" class="btn-secondary">Back to users</a>
+  @if (errorMessage()) {
+    <p class="text-sm text-danger" role="alert">{{ errorMessage() }}</p>
+  } @else if (user(); as current) {
+    <div class="rounded-xl border border-line bg-panel p-5">
+      <h1 class="text-3xl font-semibold text-ink">{{ current.displayName }}</h1>
+      <dl class="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+        <div><dt class="text-xs uppercase text-muted">Email</dt><dd>{{ current.email }}</dd></div>
+        <div><dt class="text-xs uppercase text-muted">Phone</dt><dd>{{ current.phoneNumber || 'Not informed' }}</dd></div>
+        <div><dt class="text-xs uppercase text-muted">Status</dt><dd>{{ current.isActive ? 'Active' : 'Inactive' }}</dd></div>
+        <div><dt class="text-xs uppercase text-muted">Password change</dt><dd>{{ current.mustChangePassword ? 'Required' : 'Not required' }}</dd></div>
+        <div><dt class="text-xs uppercase text-muted">Roles</dt><dd>{{ current.roles.length ? current.roles.map(role => role.name).join(', ') : 'None' }}</dd></div>
+        <div><dt class="text-xs uppercase text-muted">Created</dt><dd>{{ current.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd></div>
+        <div><dt class="text-xs uppercase text-muted">Last login</dt><dd>{{ current.lastLoginAtUtc ? (current.lastLoginAtUtc | date: 'dd/MM/yyyy HH:mm') : 'Never' }}</dd></div>
+      </dl>
+    </div>
+  }
+</section>

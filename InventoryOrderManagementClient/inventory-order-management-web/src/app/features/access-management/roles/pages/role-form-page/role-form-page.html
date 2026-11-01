@@ -1,0 +1,23 @@
+<section class="mx-auto max-w-xl space-y-6">
+  <h1 class="text-3xl font-semibold text-ink">{{ roleId ? 'Edit Role' : 'Create Role' }}</h1>
+  @if (isSystemRole()) {
+    <p class="text-sm text-muted">A system role keeps its name. The description can be updated.</p>
+  }
+  @if (errorMessage()) {
+    <p class="text-sm text-danger" role="alert">{{ errorMessage() }}</p>
+  }
+  <form class="space-y-4 rounded-xl border border-line bg-panel p-5" [formGroup]="form" (ngSubmit)="submit()">
+    <label class="block space-y-1 text-sm">
+      <span class="font-medium">Name</span>
+      <input class="field" formControlName="name" maxlength="80" />
+    </label>
+    <label class="block space-y-1 text-sm">
+      <span class="font-medium">Description</span>
+      <textarea class="field" rows="3" formControlName="description" maxlength="300"></textarea>
+    </label>
+    <div class="flex gap-2">
+      <button type="submit" class="btn-primary" [disabled]="isSubmitting()">Save</button>
+      <a routerLink="/roles" class="btn-secondary">Cancel</a>
+    </div>
+  </form>
+</section>
