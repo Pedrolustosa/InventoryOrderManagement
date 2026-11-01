@@ -1,5 +1,6 @@
 using InventoryOrderManagement.Application.Categories;
 using InventoryOrderManagement.Application.Products;
+using InventoryOrderManagement.Application.Suppliers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace InventoryOrderManagement.Application.DependencyInjection;
@@ -15,6 +16,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<GetCategoryByIdUseCase>();
         services.AddScoped<UpdateCategoryUseCase>();
         services.AddScoped<DeactivateCategoryUseCase>();
+        services.AddScoped<CreateSupplierUseCase>();
+        services.AddScoped<GetAllSuppliersUseCase>();
+        services.AddScoped<GetSupplierByIdUseCase>();
+        services.AddScoped<UpdateSupplierUseCase>();
+        services.AddScoped<DeactivateSupplierUseCase>();
 
         return services;
     }

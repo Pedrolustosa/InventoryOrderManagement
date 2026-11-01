@@ -15,4 +15,10 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./features/categories/categories.routes').then((m) => m.CATEGORIES_ROUTES),
   },
+  {
+    path: 'suppliers',
+    loadChildren: () =>
+      import('./features/suppliers/suppliers.routes').then((m) => m.SUPPLIERS_ROUTES),
+  },
 ];
+

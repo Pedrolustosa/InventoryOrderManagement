@@ -76,6 +76,18 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                 StatusCodes.Status409Conflict,
                 "Category has active products",
                 categoryHasActiveProductsException.Message),
+            InactiveSupplierException inactiveSupplierException => (
+                StatusCodes.Status400BadRequest,
+                "Inactive supplier",
+                inactiveSupplierException.Message),
+            SupplierNotFoundException supplierNotFoundException => (
+                StatusCodes.Status404NotFound,
+                "Supplier not found",
+                supplierNotFoundException.Message),
+            DuplicateTaxIdentifierException duplicateTaxIdentifierException => (
+                StatusCodes.Status409Conflict,
+                "Duplicate tax identifier",
+                duplicateTaxIdentifierException.Message),
             _ => (
                 StatusCodes.Status500InternalServerError,
                 "An unexpected error occurred",

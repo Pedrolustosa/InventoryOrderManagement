@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace InventoryOrderManagement.Infrastructure.Persistence.Seeding;
 
 /// <summary>
-/// Populates a small demo catalog in Development so Categories and Products flows can be exercised.
+/// Populates a small demo catalog in Development so Categories, Products, and Suppliers flows can be exercised.
 /// Idempotent: safe to run on every startup.
 /// </summary>
 public static class DevelopmentDataSeeder
@@ -93,6 +93,53 @@ public static class DevelopmentDataSeeder
         // housewares intentionally left without products (deactivate without 409).
         _ = housewares;
 
+        var techComponents = await EnsureSupplierAsync(
+            dbContext,
+            name: "Tech Components Ltd.",
+            taxIdentifier: "55.555.555/0001-55",
+            contactName: "John Smith",
+            email: "contact@techcomponents.demo",
+            phone: "+55 81 3333-4444",
+            notes: "Primary seed supplier of computer components.",
+            deactivate: false,
+            cancellationToken);
+
+        await EnsureSupplierAsync(
+            dbContext,
+            name: "Office Wholesale Brasil",
+            taxIdentifier: "66.666.666/0001-66",
+            contactName: "Maria Souza",
+            email: "sales@officewholesale.demo",
+            phone: "+55 11 4002-8922",
+            notes: "Stationery and desk materials.",
+            deactivate: false,
+            cancellationToken);
+
+        await EnsureSupplierAsync(
+            dbContext,
+            name: "Neighborhood Hardware",
+            taxIdentifier: null,
+            contactName: "Carlos Lima",
+            email: null,
+            phone: "+55 81 98888-0000",
+            notes: "Local supplier without tax identifier.",
+            deactivate: false,
+            cancellationToken);
+
+        var formerPartner = await EnsureSupplierAsync(
+            dbContext,
+            name: "Former Partner Supply",
+            taxIdentifier: "77.777.777/0001-77",
+            contactName: "Ana Costa",
+            email: "ops@formerpartner.demo",
+            phone: "+55 21 2222-3333",
+            notes: "Inactive supplier for status filter scenarios.",
+            deactivate: true,
+            cancellationToken);
+
+        _ = techComponents;
+        _ = formerPartner;
+
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
@@ -137,5 +184,53 @@ public static class DevelopmentDataSeeder
         }
 
         dbContext.Products.Add(Product.Create(sku, name, description, currentPrice, categoryId));
+    }
+
+    private static async Task<Supplier> EnsureSupplierAsync(
+        InventoryDbContext dbContext,
+        string name,
+        string? taxIdentifier,
+        string? contactName,
+        string? email,
+        string? phone,
+        string? notes,
+        bool deactivate,
+        CancellationToken cancellationToken)
+    {
+        var normalizedTaxIdentifier = Supplier.NormalizeTaxIdentifierForComparison(taxIdentifier);
+
+        Supplier? existing = null;
+        if (normalizedTaxIdentifier is not null)
+        {
+            existing = await dbContext.Suppliers
+                .FirstOrDefaultAsync(
+                    supplier => supplier.NormalizedTaxIdentifier == normalizedTaxIdentifier,
+                    cancellationToken);
+        }
+        else
+        {
+            existing = await dbContext.Suppliers
+                .FirstOrDefaultAsync(supplier => supplier.Name == name.Trim(), cancellationToken);
+        }
+
+        if (existing is not null)
+        {
+            if (deactivate && existing.IsActive)
+            {
+                existing.Deactivate();
+            }
+
+            return existing;
+        }
+
+        var supplier = Supplier.Create(name, taxIdentifier, contactName, email, phone, notes);
+
+        if (deactivate)
+        {
+            supplier.Deactivate();
+        }
+
+        dbContext.Suppliers.Add(supplier);
+        return supplier;
     }
 }
