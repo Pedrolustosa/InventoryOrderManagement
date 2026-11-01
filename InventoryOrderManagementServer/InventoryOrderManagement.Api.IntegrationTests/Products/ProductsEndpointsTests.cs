@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using InventoryOrderManagement.Application.Products.Dtos;
+using InventoryOrderManagement.Infrastructure.Persistence.Configurations;
 
 namespace InventoryOrderManagement.Api.IntegrationTests.Products;
 
@@ -11,6 +12,8 @@ public class ProductsEndpointsTests : IClassFixture<ProductsApiFactory>
     {
         PropertyNameCaseInsensitive = true
     };
+
+    private static readonly Guid CategoryId = CategoryConfiguration.UncategorizedCategoryId;
 
     private readonly HttpClient _client;
 
@@ -27,7 +30,8 @@ public class ProductsEndpointsTests : IClassFixture<ProductsApiFactory>
             Sku = "kb-001",
             Name = "Mechanical Keyboard",
             Description = "RGB",
-            CurrentPrice = 249.90m
+            CurrentPrice = 249.90m,
+            CategoryId = CategoryId
         };
 
         var response = await _client.PostAsJsonAsync("/api/products", payload);
@@ -38,6 +42,7 @@ public class ProductsEndpointsTests : IClassFixture<ProductsApiFactory>
 
         Assert.NotNull(product);
         Assert.Equal("KB-001", product.Sku);
+        Assert.Equal(CategoryId, product.CategoryId);
         Assert.Equal("Mechanical Keyboard", product.Name);
         Assert.True(product.IsActive);
     }
@@ -49,7 +54,8 @@ public class ProductsEndpointsTests : IClassFixture<ProductsApiFactory>
         {
             Sku = "ms-100",
             Name = "Mouse",
-            CurrentPrice = 99.9m
+            CurrentPrice = 99.9m,
+            CategoryId = CategoryId
         });
 
         var response = await _client.GetAsync("/api/products");
@@ -69,13 +75,14 @@ public class ProductsEndpointsTests : IClassFixture<ProductsApiFactory>
         {
             Sku = "",
             Name = "Invalid",
-            CurrentPrice = 10m
+            CurrentPrice = 10m,
+            CategoryId = CategoryId
         });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
         using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-        Assert.Equal("Invalid product data", document.RootElement.GetProperty("title").GetString());
+        Assert.Equal("Invalid request data", document.RootElement.GetProperty("title").GetString());
         Assert.Equal(400, document.RootElement.GetProperty("status").GetInt32());
     }
 
@@ -86,7 +93,8 @@ public class ProductsEndpointsTests : IClassFixture<ProductsApiFactory>
         {
             Sku = "DUP-1",
             Name = "First",
-            CurrentPrice = 10m
+            CurrentPrice = 10m,
+            CategoryId = CategoryId
         };
 
         var first = await _client.PostAsJsonAsync("/api/products", payload);

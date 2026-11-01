@@ -35,5 +35,13 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder.Property(product => product.CreatedAtUtc)
             .IsRequired();
+
+        builder.Property(product => product.CategoryId)
+            .IsRequired();
+
+        builder.HasOne<Category>()
+            .WithMany()
+            .HasForeignKey(product => product.CategoryId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

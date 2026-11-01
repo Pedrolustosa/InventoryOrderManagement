@@ -10,6 +10,7 @@ describe('ProductsService', () => {
   let service: ProductsService;
   let httpMock: HttpTestingController;
   const productsUrl = `${environment.apiUrl}/products`;
+  const categoryId = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -30,10 +31,12 @@ describe('ProductsService', () => {
       name: 'Mechanical Keyboard',
       description: 'RGB',
       currentPrice: 249.9,
+      categoryId,
     };
 
     const response: ProductResponse = {
       id: '11111111-1111-1111-1111-111111111111',
+      categoryId,
       sku: 'KB-001',
       name: 'Mechanical Keyboard',
       description: 'RGB',
@@ -59,6 +62,7 @@ describe('ProductsService', () => {
     const response: ProductResponse[] = [
       {
         id: '11111111-1111-1111-1111-111111111111',
+        categoryId,
         sku: 'KB-001',
         name: 'Mechanical Keyboard',
         description: null,
@@ -88,6 +92,7 @@ describe('ProductsService', () => {
         name: 'Keyboard',
         description: null,
         currentPrice: 10,
+        categoryId,
       })
       .subscribe({
         error: (error: Error) => {

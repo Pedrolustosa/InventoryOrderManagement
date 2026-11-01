@@ -1,3 +1,4 @@
+using InventoryOrderManagement.Application.Categories;
 using InventoryOrderManagement.Application.Products;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -9,6 +10,11 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<CreateProductUseCase>();
         services.AddScoped<GetAllProductsUseCase>();
+        services.AddScoped<CreateCategoryUseCase>();
+        services.AddScoped<GetAllCategoriesUseCase>();
+        services.AddScoped<GetCategoryByIdUseCase>();
+        services.AddScoped<UpdateCategoryUseCase>();
+        services.AddScoped<DeactivateCategoryUseCase>();
 
         return services;
     }

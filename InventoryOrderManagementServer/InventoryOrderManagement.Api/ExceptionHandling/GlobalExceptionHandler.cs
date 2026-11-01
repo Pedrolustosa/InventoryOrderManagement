@@ -54,12 +54,28 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         {
             DomainException domainException => (
                 StatusCodes.Status400BadRequest,
-                "Invalid product data",
+                "Invalid request data",
                 domainException.Message),
+            InactiveCategoryException inactiveCategoryException => (
+                StatusCodes.Status400BadRequest,
+                "Inactive category",
+                inactiveCategoryException.Message),
+            CategoryNotFoundException categoryNotFoundException => (
+                StatusCodes.Status404NotFound,
+                "Category not found",
+                categoryNotFoundException.Message),
             DuplicateSkuException duplicateSkuException => (
                 StatusCodes.Status409Conflict,
                 "Duplicate SKU",
                 duplicateSkuException.Message),
+            DuplicateCategoryNameException duplicateCategoryNameException => (
+                StatusCodes.Status409Conflict,
+                "Duplicate category name",
+                duplicateCategoryNameException.Message),
+            CategoryHasActiveProductsException categoryHasActiveProductsException => (
+                StatusCodes.Status409Conflict,
+                "Category has active products",
+                categoryHasActiveProductsException.Message),
             _ => (
                 StatusCodes.Status500InternalServerError,
                 "An unexpected error occurred",

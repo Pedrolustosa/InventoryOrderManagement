@@ -46,6 +46,25 @@
   </div>
 
   <div class="space-y-1.5">
+    <label class="text-sm font-medium text-ink" for="categoryId">Category</label>
+    <select
+      id="categoryId"
+      formControlName="categoryId"
+      class="field"
+      [class.field-error]="controlInvalid('categoryId')"
+      [attr.aria-invalid]="controlInvalid('categoryId')"
+    >
+      <option value="" disabled>Select a category</option>
+      @for (category of categories(); track category.id) {
+        <option [value]="category.id">{{ category.name }}</option>
+      }
+    </select>
+    @if (controlInvalid('categoryId')) {
+      <p class="text-sm text-danger" role="alert">Category is required.</p>
+    }
+  </div>
+
+  <div class="space-y-1.5">
     <label class="text-sm font-medium text-ink" for="description">Description</label>
     <textarea
       id="description"
@@ -90,11 +109,7 @@
   }
 
   <div class="flex flex-wrap gap-3">
-    <button
-      type="submit"
-      class="btn-primary"
-      [disabled]="form.invalid || isSubmitting()"
-    >
+    <button type="submit" class="btn-primary" [disabled]="form.invalid || isSubmitting()">
       @if (isSubmitting()) {
         Saving...
       } @else {

@@ -5,6 +5,7 @@ import { ProductForm } from './product-form';
 describe('ProductForm', () => {
   let fixture: ComponentFixture<ProductForm>;
   let component: ProductForm;
+  const categoryId = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -13,6 +14,16 @@ describe('ProductForm', () => {
 
     fixture = TestBed.createComponent(ProductForm);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('categories', [
+      {
+        id: categoryId,
+        name: 'Electronics',
+        description: null,
+        isActive: true,
+        createdAtUtc: '2026-01-01T00:00:00Z',
+        updatedAtUtc: null,
+      },
+    ]);
     fixture.detectChanges();
   });
 
@@ -25,6 +36,7 @@ describe('ProductForm', () => {
       name: ' Mechanical Keyboard ',
       description: ' RGB lighting ',
       currentPrice: 0,
+      categoryId,
     });
 
     component.submit();
@@ -35,6 +47,7 @@ describe('ProductForm', () => {
         name: 'Mechanical Keyboard',
         description: 'RGB lighting',
         currentPrice: 0,
+        categoryId,
       },
     ]);
   });
@@ -45,6 +58,7 @@ describe('ProductForm', () => {
       name: 'Keyboard',
       description: '',
       currentPrice: 10,
+      categoryId,
     });
 
     component.submit();
@@ -84,9 +98,15 @@ describe('ProductForm', () => {
       name: 'Sample',
       description: '',
       currentPrice: 0,
+      categoryId,
     });
 
     expect(component.form.valid).toBe(true);
+  });
+
+  it('should require a category', () => {
+    component.form.controls.categoryId.setValue('');
+    expect(component.form.controls.categoryId.hasError('required')).toBe(true);
   });
 
   it('should not emit when submitting while invalid', () => {
@@ -98,6 +118,7 @@ describe('ProductForm', () => {
       name: '',
       description: '',
       currentPrice: -5,
+      categoryId: '',
     });
 
     component.submit();

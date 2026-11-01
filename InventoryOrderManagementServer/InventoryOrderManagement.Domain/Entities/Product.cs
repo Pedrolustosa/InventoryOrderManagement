@@ -18,6 +18,8 @@ public class Product
 
     public Guid Id { get; private set; }
 
+    public Guid CategoryId { get; private set; }
+
     public string Sku { get; private set; } = null!;
 
     public string Name { get; private set; } = null!;
@@ -30,8 +32,18 @@ public class Product
 
     public DateTime CreatedAtUtc { get; private set; }
 
-    public static Product Create(string sku, string name, string? description, decimal currentPrice)
+    public static Product Create(
+        string sku,
+        string name,
+        string? description,
+        decimal currentPrice,
+        Guid categoryId)
     {
+        if (categoryId == Guid.Empty)
+        {
+            throw new DomainException("Category is required.");
+        }
+
         var normalizedSku = NormalizeSku(sku);
         var normalizedName = NormalizeName(name);
         var normalizedDescription = NormalizeDescription(description);
@@ -44,6 +56,7 @@ public class Product
         return new Product
         {
             Id = Guid.NewGuid(),
+            CategoryId = categoryId,
             Sku = normalizedSku,
             Name = normalizedName,
             Description = normalizedDescription,

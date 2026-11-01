@@ -1,0 +1,26 @@
+<section class="rounded-xl border border-danger/30 bg-panel p-5 shadow-sm sm:p-6" role="dialog" aria-labelledby="deactivate-title">
+  <h2 id="deactivate-title" class="text-lg font-semibold text-ink">Deactivate category</h2>
+  <p class="mt-2 text-sm text-muted">
+    Category <span class="font-medium text-ink">{{ category().name }}</span> will be deactivated and will no longer
+    be available for new products. Existing products keep their historical association.
+  </p>
+
+  @if (errorMessage()) {
+    <div class="mt-4 rounded-md border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger" role="alert">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <div class="mt-5 flex flex-wrap gap-3">
+    <button type="button" class="btn-primary bg-danger hover:bg-danger" [disabled]="isSubmitting()" (click)="confirmed.emit()">
+      @if (isSubmitting()) {
+        Deactivating...
+      } @else {
+        Confirm Deactivate
+      }
+    </button>
+    <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="cancelled.emit()">
+      Cancel
+    </button>
+  </div>
+</section>

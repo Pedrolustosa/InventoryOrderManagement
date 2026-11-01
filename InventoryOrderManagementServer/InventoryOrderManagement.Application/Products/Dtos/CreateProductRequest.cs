@@ -9,4 +9,6 @@ public sealed class CreateProductRequest
     public string? Description { get; init; }
 
     public decimal CurrentPrice { get; init; }
+
+    public required Guid CategoryId { get; init; }
 }

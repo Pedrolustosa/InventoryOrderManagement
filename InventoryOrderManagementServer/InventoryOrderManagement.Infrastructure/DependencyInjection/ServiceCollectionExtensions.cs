@@ -21,6 +21,7 @@ public static class ServiceCollectionExtensions
             options.UseSqlite(connectionString));
 
         services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
 
         return services;
     }

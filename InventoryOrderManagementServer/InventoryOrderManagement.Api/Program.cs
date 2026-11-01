@@ -2,6 +2,7 @@ using InventoryOrderManagement.Api.ExceptionHandling;
 using InventoryOrderManagement.Application.DependencyInjection;
 using InventoryOrderManagement.Infrastructure.DependencyInjection;
 using InventoryOrderManagement.Infrastructure.Persistence;
+using InventoryOrderManagement.Infrastructure.Persistence.Seeding;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,6 +42,7 @@ if (app.Environment.IsDevelopment())
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<InventoryDbContext>();
     dbContext.Database.Migrate();
+    await DevelopmentDataSeeder.SeedAsync(dbContext);
 }
 
 app.UseExceptionHandler();

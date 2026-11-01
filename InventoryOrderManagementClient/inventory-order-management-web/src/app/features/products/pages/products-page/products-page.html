@@ -27,9 +27,20 @@
         <p class="mt-1 text-sm text-muted">Fill in the product details and save to the catalog.</p>
       </div>
 
+      @if (categories().length === 0) {
+        <div class="mb-5 rounded-md border border-line bg-surface px-4 py-3 text-sm text-muted" role="status">
+          No active categories available.
+          <a routerLink="/categories" class="ml-1 font-medium text-accent underline">
+            Manage categories
+          </a>
+          before creating a product.
+        </div>
+      }
+
       <app-product-form
         [isSubmitting]="isSubmitting()"
         [submitError]="submitError()"
+        [categories]="categories()"
         (saved)="onSave($event)"
         (cancelled)="closeForm()"
       />
@@ -38,6 +49,7 @@
 
   <app-product-list
     [products]="products()"
+    [categoryNamesById]="categoryNamesById()"
     [isLoading]="isLoading()"
     [errorMessage]="loadError()"
   />
