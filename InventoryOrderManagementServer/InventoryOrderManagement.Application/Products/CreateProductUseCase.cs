@@ -11,10 +11,14 @@ namespace InventoryOrderManagement.Application.Products;
 public sealed class CreateProductUseCase
 {
     private readonly IProductRepository _productRepository;
+    private readonly ICategoryRepository _categoryRepository;
 
-    public CreateProductUseCase(IProductRepository productRepository)
+    public CreateProductUseCase(
+        IProductRepository productRepository,
+        ICategoryRepository categoryRepository)
     {
         _productRepository = productRepository;
+        _categoryRepository = categoryRepository;
     }
 
     public async Task<ProductResponse> ExecuteAsync(
@@ -23,11 +27,20 @@ public sealed class CreateProductUseCase
     {
         ArgumentNullException.ThrowIfNull(request);
 
+        var category = await _categoryRepository.GetByIdAsync(request.CategoryId, cancellationToken)
+            ?? throw new CategoryNotFoundException(request.CategoryId);
+
+        if (!category.IsActive)
+        {
+            throw new InactiveCategoryException(request.CategoryId);
+        }
+
         var product = Product.Create(
             request.Sku,
             request.Name,
             request.Description,
-            request.CurrentPrice);
+            request.CurrentPrice,
+            request.CategoryId);
 
         if (await _productRepository.ExistsBySkuAsync(product.Sku, cancellationToken))
         {

@@ -6,6 +6,8 @@ public sealed class ProductResponse
 {
     public required Guid Id { get; init; }
 
+    public required Guid CategoryId { get; init; }
+
     public required string Sku { get; init; }
 
     public required string Name { get; init; }
@@ -23,6 +25,7 @@ public sealed class ProductResponse
         return new ProductResponse
         {
             Id = product.Id,
+            CategoryId = product.CategoryId,
             Sku = product.Sku,
             Name = product.Name,
             Description = product.Description,

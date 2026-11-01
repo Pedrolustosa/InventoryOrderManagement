@@ -9,6 +9,11 @@ import { ProductResponse } from '../../models/product.model';
 })
 export class ProductList {
   readonly products = input.required<ProductResponse[]>();
+  readonly categoryNamesById = input<ReadonlyMap<string, string>>(new Map());
   readonly isLoading = input(false);
   readonly errorMessage = input<string | null>(null);
+
+  categoryName(categoryId: string): string {
+    return this.categoryNamesById().get(categoryId) ?? '—';
+  }
 }

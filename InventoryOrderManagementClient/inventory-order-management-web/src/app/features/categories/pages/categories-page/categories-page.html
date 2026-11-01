@@ -1,0 +1,124 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">Categories Management</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">
+        Organize and manage your product categories.
+      </p>
+    </div>
+
+    @if (panelMode() === 'none') {
+      <button type="button" class="btn-primary shrink-0" (click)="openCreate()">New Category</button>
+    }
+  </div>
+
+  <div class="grid gap-3 sm:grid-cols-3">
+    <div class="rounded-xl border border-line bg-panel px-4 py-3">
+      <p class="text-xs uppercase tracking-wide text-muted">Total Categories</p>
+      <p class="mt-1 text-2xl font-semibold text-ink">{{ totalCount() }}</p>
+    </div>
+    <div class="rounded-xl border border-line bg-panel px-4 py-3">
+      <p class="text-xs uppercase tracking-wide text-muted">Active Categories</p>
+      <p class="mt-1 text-2xl font-semibold text-accent-ink">{{ activeCount() }}</p>
+    </div>
+    <div class="rounded-xl border border-line bg-panel px-4 py-3">
+      <p class="text-xs uppercase tracking-wide text-muted">Inactive Categories</p>
+      <p class="mt-1 text-2xl font-semibold text-muted">{{ inactiveCount() }}</p>
+    </div>
+  </div>
+
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex flex-wrap gap-2">
+      <button
+        type="button"
+        class="btn-secondary"
+        [class.!bg-accent]="statusFilter() === 'all'"
+        [class.!text-white]="statusFilter() === 'all'"
+        (click)="setStatusFilter('all')"
+      >
+        All
+      </button>
+      <button
+        type="button"
+        class="btn-secondary"
+        [class.!bg-accent]="statusFilter() === 'active'"
+        [class.!text-white]="statusFilter() === 'active'"
+        (click)="setStatusFilter('active')"
+      >
+        Active
+      </button>
+      <button
+        type="button"
+        class="btn-secondary"
+        [class.!bg-accent]="statusFilter() === 'inactive'"
+        [class.!text-white]="statusFilter() === 'inactive'"
+        (click)="setStatusFilter('inactive')"
+      >
+        Inactive
+      </button>
+    </div>
+
+    <input
+      type="search"
+      class="field max-w-sm"
+      placeholder="Search by name"
+      [value]="searchTerm()"
+      (input)="onSearch($any($event.target).value)"
+    />
+  </div>
+
+  @if (successMessage()) {
+    <div class="rounded-md border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent-ink" role="status">
+      {{ successMessage() }}
+    </div>
+  }
+
+  @if (panelMode() === 'create' || panelMode() === 'edit') {
+    <section class="rounded-xl border border-line bg-panel p-5 shadow-sm sm:p-6">
+      <div class="mb-5">
+        <h2 class="text-lg font-semibold text-ink">
+          {{ panelMode() === 'edit' ? 'Edit Category' : 'Create Category' }}
+        </h2>
+        <p class="mt-1 text-sm text-muted">
+          {{ panelMode() === 'edit' ? 'Update name and description.' : 'Add a new category to the catalog.' }}
+        </p>
+      </div>
+
+      <app-category-form
+        [mode]="panelMode() === 'edit' ? 'edit' : 'create'"
+        [category]="selectedCategory()"
+        [isSubmitting]="isSubmitting()"
+        [submitError]="submitError()"
+        (saved)="onSave($event)"
+        (cancelled)="closePanel()"
+      />
+    </section>
+  }
+
+  @if (panelMode() === 'detail' && selectedCategory(); as category) {
+    <app-category-detail
+      [category]="category"
+      [isLoading]="isDetailLoading()"
+      (closed)="closePanel()"
+    />
+  }
+
+  @if (panelMode() === 'deactivate' && selectedCategory(); as category) {
+    <app-deactivate-confirm
+      [category]="category"
+      [isSubmitting]="isSubmitting()"
+      [errorMessage]="submitError()"
+      (confirmed)="confirmDeactivate()"
+      (cancelled)="closePanel()"
+    />
+  }
+
+  <app-category-list
+    [categories]="filteredCategories()"
+    [isLoading]="isLoading()"
+    [errorMessage]="loadError()"
+    (viewRequested)="openDetail($event)"
+    (editRequested)="openEdit($event)"
+    (deactivateRequested)="openDeactivate($event)"
+  />
+</section>

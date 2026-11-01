@@ -1,6 +1,7 @@
 using InventoryOrderManagement.Application.Exceptions;
 using InventoryOrderManagement.Domain.Entities;
 using InventoryOrderManagement.Infrastructure.Persistence;
+using InventoryOrderManagement.Infrastructure.Persistence.Configurations;
 using InventoryOrderManagement.Infrastructure.Persistence.Repositories;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ public class ProductRepositoryTests : IDisposable
     private readonly string _databasePath;
     private readonly InventoryDbContext _dbContext;
     private readonly ProductRepository _repository;
+    private static readonly Guid CategoryId = CategoryConfiguration.UncategorizedCategoryId;
 
     public ProductRepositoryTests()
     {
@@ -46,7 +48,7 @@ public class ProductRepositoryTests : IDisposable
     [Fact]
     public async Task AddAsync_PersistsProduct()
     {
-        var product = Product.Create("kb-001", "Keyboard", "RGB", 249.90m);
+        var product = Product.Create("kb-001", "Keyboard", "RGB", 249.90m, CategoryId);
 
         await _repository.AddAsync(product);
 
@@ -54,6 +56,7 @@ public class ProductRepositoryTests : IDisposable
         var stored = await readContext.Products.SingleAsync(item => item.Sku == "KB-001");
 
         Assert.Equal(product.Id, stored.Id);
+        Assert.Equal(CategoryId, stored.CategoryId);
         Assert.Equal("Keyboard", stored.Name);
         Assert.Equal(249.90m, stored.CurrentPrice);
         Assert.True(stored.IsActive);
@@ -62,8 +65,8 @@ public class ProductRepositoryTests : IDisposable
     [Fact]
     public async Task GetAllAsync_ReturnsPersistedProducts()
     {
-        await _repository.AddAsync(Product.Create("B-2", "Beta", null, 20m));
-        await _repository.AddAsync(Product.Create("A-1", "Alpha", null, 10m));
+        await _repository.AddAsync(Product.Create("B-2", "Beta", null, 20m, CategoryId));
+        await _repository.AddAsync(Product.Create("A-1", "Alpha", null, 10m, CategoryId));
 
         var products = await _repository.GetAllAsync();
 
@@ -75,11 +78,11 @@ public class ProductRepositoryTests : IDisposable
     [Fact]
     public async Task AddAsync_WithDuplicateSku_ThrowsDuplicateSkuException()
     {
-        await _repository.AddAsync(Product.Create("KB-001", "Keyboard", null, 100m));
+        await _repository.AddAsync(Product.Create("KB-001", "Keyboard", null, 100m, CategoryId));
 
         await using var secondContext = CreateContext();
         var secondRepository = new ProductRepository(secondContext);
-        var duplicate = Product.Create("kb-001", "Another Keyboard", null, 50m);
+        var duplicate = Product.Create("kb-001", "Another Keyboard", null, 50m, CategoryId);
 
         await Assert.ThrowsAsync<DuplicateSkuException>(() =>
             secondRepository.AddAsync(duplicate));
