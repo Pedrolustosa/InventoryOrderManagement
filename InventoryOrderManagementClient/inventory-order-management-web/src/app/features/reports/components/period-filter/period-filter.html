@@ -1,0 +1,56 @@
+<section class="rounded-xl border border-line bg-panel p-4 shadow-sm" aria-label="Period">
+  <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+    <div>
+      <h2 class="text-sm font-semibold text-ink">Period</h2>
+      @if (store.range(); as range) {
+        <p class="mt-1 text-sm text-muted">
+          {{ range.startLabel }} to {{ range.endLabel }}
+          <span class="block text-xs">Local days, sent to the API as a UTC interval that excludes the end instant.</span>
+        </p>
+      } @else {
+        <p class="mt-1 text-sm text-muted">Choose a valid period to load the time-based reports.</p>
+      }
+    </div>
+    <div class="flex flex-wrap gap-2">
+      @for (option of options; track option.id) {
+        <button
+          type="button"
+          class="btn-secondary"
+          [class.!bg-accent]="store.preset() === option.id || (option.id === 'Custom' && store.showCustom())"
+          [class.!text-white]="store.preset() === option.id || (option.id === 'Custom' && store.showCustom())"
+          (click)="store.selectPreset(option.id)"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (store.showCustom()) {
+    <form class="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end" (submit)="$event.preventDefault(); store.applyCustom()">
+      <label class="block text-sm font-medium text-ink">
+        Start date
+        <input
+          type="date"
+          class="field mt-1"
+          [value]="store.draftStart()"
+          (input)="store.draftStart.set($any($event.target).value)"
+        />
+      </label>
+      <label class="block text-sm font-medium text-ink">
+        End date
+        <input
+          type="date"
+          class="field mt-1"
+          [value]="store.draftEnd()"
+          (input)="store.draftEnd.set($any($event.target).value)"
+        />
+      </label>
+      <button type="submit" class="btn-primary">Apply period</button>
+    </form>
+  }
+
+  @if (store.validationError()) {
+    <p class="mt-3 text-sm text-danger" role="alert">{{ store.validationError() }}</p>
+  }
+</section>

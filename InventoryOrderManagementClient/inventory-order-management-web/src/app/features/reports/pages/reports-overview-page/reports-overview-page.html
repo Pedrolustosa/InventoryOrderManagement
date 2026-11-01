@@ -1,0 +1,108 @@
+<p class="text-sm text-muted">{{ stockNote }}</p>
+
+@if (dashboardLoading()) {
+  <div class="flex items-center gap-3 py-6 text-muted" aria-busy="true">
+    <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
+    <span>Loading overview...</span>
+  </div>
+} @else if (dashboardError()) {
+  <p class="text-sm text-danger" role="alert">{{ dashboardError() }}</p>
+} @else if (dashboard(); as summary) {
+  <section class="space-y-3">
+    <h2 class="text-lg font-semibold text-ink">Inventory Overview</h2>
+    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">Total Products</p>
+        <p class="mt-1 text-2xl font-semibold text-ink">{{ summary.totalProducts }}</p>
+      </article>
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">Active Products</p>
+        <p class="mt-1 text-2xl font-semibold text-ink">{{ summary.activeProducts }}</p>
+      </article>
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">Inactive Products</p>
+        <p class="mt-1 text-2xl font-semibold text-ink">{{ summary.inactiveProducts }}</p>
+      </article>
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">Total Units in Stock</p>
+        <p class="mt-1 text-2xl font-semibold text-ink">{{ summary.totalUnitsInStock }}</p>
+      </article>
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">Low Stock Products</p>
+        <p class="mt-1 text-2xl font-semibold text-accent-ink">{{ summary.lowStockProducts }}</p>
+      </article>
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">Out of Stock Products</p>
+        <p class="mt-1 text-2xl font-semibold text-danger">{{ summary.outOfStockProducts }}</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="space-y-3">
+    <h2 class="text-lg font-semibold text-ink">Orders Overview</h2>
+    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">Total Orders</p>
+        <p class="mt-1 text-2xl font-semibold text-ink">{{ summary.totalOrdersCreated }}</p>
+      </article>
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">Draft Orders</p>
+        <p class="mt-1 text-2xl font-semibold text-ink">{{ summary.draftOrders }}</p>
+      </article>
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">Confirmed Orders</p>
+        <p class="mt-1 text-2xl font-semibold text-accent-ink">{{ summary.confirmedOrders }}</p>
+      </article>
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">Shipped Orders</p>
+        <p class="mt-1 text-2xl font-semibold text-ink">{{ summary.shippedOrders }}</p>
+      </article>
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">Delivered Orders</p>
+        <p class="mt-1 text-2xl font-semibold text-ink">{{ summary.deliveredOrders }}</p>
+      </article>
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">Cancelled Orders</p>
+        <p class="mt-1 text-2xl font-semibold text-muted">{{ summary.cancelledOrders }}</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="space-y-3">
+    <h2 class="text-lg font-semibold text-ink">Commercial Overview</h2>
+    <div class="grid gap-3 sm:grid-cols-2">
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">Confirmed Order Value</p>
+        <p class="mt-1 text-2xl font-semibold text-ink">{{ summary.totalConfirmedOrderValue | currency: 'BRL' }}</p>
+        <p class="mt-1 text-xs text-muted">{{ summary.totalConfirmedOrders }} confirmed, shipped, or delivered orders</p>
+      </article>
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">Average Confirmed Order Value</p>
+        <p class="mt-1 text-2xl font-semibold text-ink">{{ summary.averageConfirmedOrderValue | currency: 'BRL' }}</p>
+      </article>
+    </div>
+    <p class="text-sm text-muted">{{ valueNote }}</p>
+  </section>
+}
+
+<section class="space-y-3">
+  <h2 class="text-lg font-semibold text-ink">Cancellations</h2>
+  @if (cancellationLoading()) {
+    <p class="text-sm text-muted" aria-busy="true">Loading cancellation indicators...</p>
+  } @else if (cancellationError()) {
+    <p class="text-sm text-danger" role="alert">{{ cancellationError() }}</p>
+  } @else if (cancellation(); as report) {
+    <div class="grid gap-3 sm:grid-cols-2">
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">Cancellation Value</p>
+        <p class="mt-1 text-2xl font-semibold text-ink">{{ report.cancellationValue | currency: 'BRL' }}</p>
+      </article>
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">Cancellation Rate</p>
+        <p class="mt-1 text-2xl font-semibold text-ink">{{ report.cancellationRate | number: '1.2-2' }}%</p>
+        <p class="mt-1 text-xs text-muted">{{ report.totalCancelledOrders }} of {{ report.ordersCreated }} orders created in the period</p>
+      </article>
+    </div>
+    <p class="text-sm text-muted">{{ cancellationNote }}</p>
+  }
+</section>

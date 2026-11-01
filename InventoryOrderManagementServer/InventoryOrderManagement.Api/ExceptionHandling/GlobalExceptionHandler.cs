@@ -152,6 +152,10 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                 StatusCodes.Status400BadRequest,
                 "Invalid order period",
                 invalidOrderPeriodException.Message),
+            InvalidReportRequestException invalidReportRequestException => (
+                StatusCodes.Status400BadRequest,
+                "Invalid report request",
+                invalidReportRequestException.Message),
             _ => (
                 StatusCodes.Status500InternalServerError,
                 "An unexpected error occurred",
