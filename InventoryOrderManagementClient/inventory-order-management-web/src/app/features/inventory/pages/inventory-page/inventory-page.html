@@ -1,0 +1,221 @@
+<section class="space-y-8">
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">Inventory Management</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">Monitor and manage your inventory.</p>
+    </div>
+
+    @if (panelMode() === 'none') {
+      <div class="flex flex-wrap gap-2">
+        <button type="button" class="btn-primary" (click)="openReceive()">Receive Stock</button>
+        <button type="button" class="btn-secondary" (click)="openExit()">Register Exit</button>
+        <button type="button" class="btn-secondary" (click)="openAdjust()">Adjust Stock</button>
+      </div>
+    }
+  </div>
+
+  <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="rounded-xl border border-line bg-panel px-4 py-3">
+      <p class="text-xs uppercase tracking-wide text-muted">Total Products in Inventory</p>
+      <p class="mt-1 text-2xl font-semibold text-ink">{{ totalProducts() }}</p>
+    </div>
+    <div class="rounded-xl border border-line bg-panel px-4 py-3">
+      <p class="text-xs uppercase tracking-wide text-muted">Total Units in Stock</p>
+      <p class="mt-1 text-2xl font-semibold text-ink">{{ totalUnits() }}</p>
+    </div>
+    <div class="rounded-xl border border-line bg-panel px-4 py-3">
+      <p class="text-xs uppercase tracking-wide text-muted">Low Stock Products</p>
+      <p class="mt-1 text-2xl font-semibold text-accent-ink">{{ lowStockCount() }}</p>
+    </div>
+    <div class="rounded-xl border border-line bg-panel px-4 py-3">
+      <p class="text-xs uppercase tracking-wide text-muted">Out of Stock Products</p>
+      <p class="mt-1 text-2xl font-semibold text-danger">{{ outOfStockCount() }}</p>
+    </div>
+  </div>
+
+  @if (successMessage()) {
+    <div class="rounded-md border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent-ink" role="status">
+      {{ successMessage() }}
+    </div>
+  }
+
+  @if (panelMode() === 'receive') {
+    <section class="rounded-xl border border-line bg-panel p-5 shadow-sm sm:p-6">
+      <h2 class="text-lg font-semibold text-ink">Receive Stock</h2>
+      <p class="mt-1 mb-5 text-sm text-muted">Record incoming goods from an active supplier.</p>
+      <app-receive-stock-form
+        [products]="products()"
+        [suppliers]="suppliers()"
+        [isSubmitting]="isSubmitting()"
+        [submitError]="submitError()"
+        (confirmed)="receiveStock($event)"
+        (cancelled)="closePanel()"
+      />
+    </section>
+  }
+
+  @if (panelMode() === 'exit') {
+    <section class="rounded-xl border border-line bg-panel p-5 shadow-sm sm:p-6">
+      <h2 class="text-lg font-semibold text-ink">Register Stock Exit</h2>
+      <p class="mt-1 mb-5 text-sm text-muted">Record a manual withdrawal. A reason is required.</p>
+      <app-register-stock-exit-form
+        [products]="products()"
+        [availableQuantity]="selectedBalance()?.quantityOnHand ?? null"
+        [initialProductId]="selectedProductId()"
+        [isBalanceLoading]="isBalanceLoading()"
+        [isSubmitting]="isSubmitting()"
+        [submitError]="submitError()"
+        (productSelected)="onOperationProductSelected($event)"
+        (confirmed)="registerExit($event)"
+        (cancelled)="closePanel()"
+      />
+    </section>
+  }
+
+  @if (panelMode() === 'adjust') {
+    <section class="rounded-xl border border-line bg-panel p-5 shadow-sm sm:p-6">
+      <h2 class="text-lg font-semibold text-ink">Adjust Stock</h2>
+      <p class="mt-1 mb-5 text-sm text-muted">Set the balance to the physical quantity found.</p>
+      <app-adjust-stock-form
+        [products]="products()"
+        [currentQuantity]="selectedBalance()?.quantityOnHand ?? null"
+        [initialProductId]="selectedProductId()"
+        [isBalanceLoading]="isBalanceLoading()"
+        [isSubmitting]="isSubmitting()"
+        [submitError]="submitError()"
+        (productSelected)="onOperationProductSelected($event)"
+        (confirmed)="adjustStock($event)"
+        (cancelled)="closePanel()"
+      />
+    </section>
+  }
+
+  @if (panelMode() === 'minimum') {
+    <section class="rounded-xl border border-line bg-panel p-5 shadow-sm sm:p-6">
+      <h2 class="text-lg font-semibold text-ink">Update Minimum Stock</h2>
+      <p class="mt-1 mb-5 text-sm text-muted">Change the minimum level. This does not create a movement.</p>
+      <app-minimum-stock-form
+        [products]="products()"
+        [currentMinimum]="selectedBalance()?.minimumStockLevel ?? null"
+        [initialProductId]="selectedProductId()"
+        [isBalanceLoading]="isBalanceLoading()"
+        [isSubmitting]="isSubmitting()"
+        [submitError]="submitError()"
+        (productSelected)="onOperationProductSelected($event)"
+        (confirmed)="updateMinimum($event)"
+        (cancelled)="closePanel()"
+      />
+    </section>
+  }
+
+  @if (panelMode() === 'detail' && detailBalance(); as balance) {
+    <app-inventory-detail
+      [balance]="balance"
+      [categoryName]="detailCategoryName()"
+      [movements]="detailMovements()"
+      [isLoading]="isDetailLoading()"
+      (closed)="closePanel()"
+    />
+  }
+
+  @if (submitError() && panelMode() === 'none') {
+    <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
+      {{ submitError() }}
+    </div>
+  }
+
+  <section class="space-y-4">
+    <div>
+      <h2 class="text-xl font-semibold text-ink">Inventory Overview</h2>
+      <p class="mt-1 text-sm text-muted">Monitor stock levels, manage inventory movements and track product availability.</p>
+    </div>
+
+    <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <div class="flex flex-wrap gap-2">
+        <button type="button" class="btn-secondary" [class.!bg-accent]="stockFilter() === 'all'" [class.!text-white]="stockFilter() === 'all'" (click)="setStockFilter('all')">All Products</button>
+        <button type="button" class="btn-secondary" [class.!bg-accent]="stockFilter() === 'low-stock'" [class.!text-white]="stockFilter() === 'low-stock'" (click)="setStockFilter('low-stock')">Low Stock</button>
+        <button type="button" class="btn-secondary" [class.!bg-accent]="stockFilter() === 'out-of-stock'" [class.!text-white]="stockFilter() === 'out-of-stock'" (click)="setStockFilter('out-of-stock')">Out of Stock</button>
+        <button type="button" class="btn-secondary" (click)="clearBalanceFilters()">Clear</button>
+      </div>
+      <label class="sr-only" for="inventory-search">Search by product name or SKU</label>
+      <input
+        id="inventory-search"
+        type="search"
+        class="field max-w-sm"
+        placeholder="Search by product name or SKU"
+        [value]="searchTerm()"
+        (input)="onSearch($any($event.target).value)"
+      />
+    </div>
+
+    <app-inventory-balance-list
+      [balances]="filteredBalances()"
+      [isLoading]="isLoading()"
+      [errorMessage]="loadError()"
+      [emptyMessage]="balanceEmptyMessage()"
+      (viewRequested)="openDetail($event)"
+      (minimumRequested)="openMinimum($event)"
+    />
+  </section>
+
+  <section class="space-y-4">
+    <div>
+      <h2 class="text-xl font-semibold text-ink">Stock Movements</h2>
+      <p class="mt-1 text-sm text-muted">History is read-only and ordered from the newest movement.</p>
+    </div>
+
+    <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+      <label class="space-y-1.5 text-sm">
+        <span class="font-medium text-ink">Product</span>
+        <select class="field" [value]="movementProductId()" (change)="movementProductId.set($any($event.target).value)">
+          <option value="">All products</option>
+          @for (product of products(); track product.id) {
+            <option [value]="product.id">{{ product.sku }} — {{ product.name }}</option>
+          }
+        </select>
+      </label>
+      <label class="space-y-1.5 text-sm">
+        <span class="font-medium text-ink">Supplier</span>
+        <select class="field" [value]="movementSupplierId()" (change)="movementSupplierId.set($any($event.target).value)">
+          <option value="">All suppliers</option>
+          @for (supplier of suppliers(); track supplier.id) {
+            <option [value]="supplier.id">{{ supplier.name }}</option>
+          }
+        </select>
+      </label>
+      <label class="space-y-1.5 text-sm">
+        <span class="font-medium text-ink">Movement Type</span>
+        <select class="field" [value]="movementType()" (change)="movementType.set($any($event.target).value)">
+          <option value="">All types</option>
+          @for (type of movementTypes; track type) {
+            <option [value]="type">{{ type }}</option>
+          }
+        </select>
+      </label>
+      <label class="space-y-1.5 text-sm">
+        <span class="font-medium text-ink">Start Date</span>
+        <input class="field" type="date" [value]="movementStartDate()" (input)="movementStartDate.set($any($event.target).value)" />
+      </label>
+      <label class="space-y-1.5 text-sm">
+        <span class="font-medium text-ink">End Date</span>
+        <input class="field" type="date" [value]="movementEndDate()" (input)="movementEndDate.set($any($event.target).value)" />
+      </label>
+    </div>
+
+    @if (movementPeriodError()) {
+      <p class="text-sm text-danger" role="alert">{{ movementPeriodError() }}</p>
+    }
+
+    <div class="flex flex-wrap gap-2">
+      <button type="button" class="btn-primary" (click)="applyMovementFilters()">Apply filters</button>
+      <button type="button" class="btn-secondary" (click)="clearMovementFilters()">Clear</button>
+    </div>
+
+    <app-stock-movement-list
+      [movements]="movements()"
+      [isLoading]="isMovementsLoading()"
+      [errorMessage]="movementsError()"
+      [emptyMessage]="movementEmptyMessage()"
+    />
+  </section>
+</section>

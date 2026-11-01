@@ -1,0 +1,128 @@
+<form class="space-y-6" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div class="space-y-1.5 sm:col-span-2">
+      <label class="text-sm font-medium text-ink" for="adjust-product-search">Search product</label>
+      <input
+        id="adjust-product-search"
+        type="search"
+        class="field"
+        placeholder="Name or SKU"
+        [value]="productSearch()"
+        (input)="productSearch.set($any($event.target).value)"
+      />
+    </div>
+
+    <div class="space-y-1.5">
+      <label class="text-sm font-medium text-ink" for="adjust-product">Product</label>
+      <select
+        id="adjust-product"
+        formControlName="productId"
+        class="field"
+        [class.field-error]="controlInvalid('productId')"
+        (change)="onProductChange()"
+      >
+        <option value="">Select a product</option>
+        @for (product of filteredProducts(); track product.id) {
+          <option [value]="product.id">
+            {{ product.sku }} — {{ product.name }}{{ product.isActive ? '' : ' (Inactive)' }}
+          </option>
+        }
+      </select>
+      @if (controlInvalid('productId')) {
+        <p class="text-sm text-danger" role="alert">Product is required.</p>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+      <p class="text-sm font-medium text-ink">Current Quantity</p>
+      <p class="field bg-surface text-ink" aria-live="polite">
+        @if (isBalanceLoading()) {
+          Loading balance...
+        } @else if (currentQuantity() === null) {
+          Select a product
+        } @else {
+          {{ currentQuantity() }}
+        }
+      </p>
+    </div>
+
+    <div class="space-y-1.5">
+      <label class="text-sm font-medium text-ink" for="adjust-quantity">Physical Quantity</label>
+      <input
+        id="adjust-quantity"
+        type="number"
+        min="0"
+        step="1"
+        formControlName="newQuantity"
+        class="field"
+        [class.field-error]="controlInvalid('newQuantity')"
+      />
+      @if (controlInvalid('newQuantity')) {
+        <p class="text-sm text-danger" role="alert">Physical quantity must be a non-negative integer.</p>
+      }
+    </div>
+
+    <div class="space-y-1.5 sm:col-span-2">
+      <label class="text-sm font-medium text-ink" for="adjust-reason">Reason</label>
+      <textarea
+        id="adjust-reason"
+        rows="3"
+        formControlName="reason"
+        class="field"
+        [class.field-error]="controlInvalid('reason')"
+      ></textarea>
+      @if (controlInvalid('reason')) {
+        <p class="text-sm text-danger" role="alert">
+          @if (form.controls.reason.hasError('required')) {
+            Reason is required.
+          } @else {
+            Reason cannot exceed 300 characters.
+          }
+        </p>
+      }
+    </div>
+  </div>
+
+  @if (difference() !== null) {
+    <div class="rounded-lg border border-line bg-surface px-4 py-3 text-sm">
+      <p class="font-medium text-ink">Adjustment preview</p>
+      <dl class="mt-2 grid gap-2 sm:grid-cols-2">
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-muted">Current Quantity</dt>
+          <dd class="text-ink">{{ currentQuantity() }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-muted">Physical Quantity</dt>
+          <dd class="text-ink">{{ physicalQuantity() }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-muted">Difference</dt>
+          <dd class="text-ink">{{ difference() }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-muted">Adjustment Type</dt>
+          <dd class="text-ink">{{ adjustmentLabel() }}</dd>
+        </div>
+      </dl>
+    </div>
+  }
+
+  @if (difference() === 0) {
+    <p class="text-sm text-accent-ink" role="status">
+      The physical quantity matches the current balance. No adjustment is needed.
+    </p>
+  }
+
+  @if (submitError()) {
+    <p class="text-sm text-danger" role="alert">{{ submitError() }}</p>
+  }
+
+  <div class="flex flex-wrap gap-2">
+    <button type="submit" class="btn-primary" [disabled]="isSubmitting() || form.invalid || difference() === 0 || currentQuantity() === null">
+      {{ isSubmitting() ? 'Adjusting...' : 'Confirm adjustment' }}
+    </button>
+    <button type="button" class="btn-secondary" (click)="cancelled.emit()" [disabled]="isSubmitting()">
+      Cancel
+    </button>
+  </div>
+</form>

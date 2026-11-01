@@ -1,0 +1,120 @@
+<form class="space-y-6" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  @if (activeProducts().length === 0) {
+    <p class="text-sm text-muted">There are no active products available to receive stock.</p>
+  }
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div class="space-y-1.5">
+      <label class="text-sm font-medium text-ink" for="receive-product-search">Search product</label>
+      <input
+        id="receive-product-search"
+        type="search"
+        class="field"
+        placeholder="Name or SKU"
+        [value]="productSearch()"
+        (input)="productSearch.set($any($event.target).value)"
+      />
+    </div>
+    <div class="space-y-1.5">
+      <label class="text-sm font-medium text-ink" for="receive-product">Product</label>
+      <select
+        id="receive-product"
+        formControlName="productId"
+        class="field"
+        [class.field-error]="controlInvalid('productId')"
+      >
+        <option value="">Select a product</option>
+        @for (product of filteredProducts(); track product.id) {
+          <option [value]="product.id">{{ product.sku }} — {{ product.name }}</option>
+        }
+      </select>
+      @if (controlInvalid('productId')) {
+        <p class="text-sm text-danger" role="alert">Product is required.</p>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+      <label class="text-sm font-medium text-ink" for="receive-supplier-search">Search supplier</label>
+      <input
+        id="receive-supplier-search"
+        type="search"
+        class="field"
+        placeholder="Supplier name"
+        [value]="supplierSearch()"
+        (input)="supplierSearch.set($any($event.target).value)"
+      />
+    </div>
+    <div class="space-y-1.5">
+      <label class="text-sm font-medium text-ink" for="receive-supplier">Supplier</label>
+      <select
+        id="receive-supplier"
+        formControlName="supplierId"
+        class="field"
+        [class.field-error]="controlInvalid('supplierId')"
+      >
+        <option value="">Select a supplier</option>
+        @for (supplier of filteredSuppliers(); track supplier.id) {
+          <option [value]="supplier.id">{{ supplier.name }}</option>
+        }
+      </select>
+      @if (controlInvalid('supplierId')) {
+        <p class="text-sm text-danger" role="alert">Supplier is required.</p>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+      <label class="text-sm font-medium text-ink" for="receive-quantity">Quantity</label>
+      <input
+        id="receive-quantity"
+        type="number"
+        min="1"
+        step="1"
+        formControlName="quantity"
+        class="field"
+        [class.field-error]="controlInvalid('quantity')"
+      />
+      @if (controlInvalid('quantity')) {
+        <p class="text-sm text-danger" role="alert">Quantity must be a positive integer.</p>
+      }
+    </div>
+
+    <div class="space-y-1.5 sm:col-span-2">
+      <label class="text-sm font-medium text-ink" for="receive-reason">Reason</label>
+      <textarea
+        id="receive-reason"
+        rows="3"
+        formControlName="reason"
+        class="field"
+        [class.field-error]="controlInvalid('reason')"
+      ></textarea>
+      @if (controlInvalid('reason')) {
+        <p class="text-sm text-danger" role="alert">Reason cannot exceed 300 characters.</p>
+      }
+    </div>
+  </div>
+
+  @if (form.valid && selectedProduct(); as product) {
+    @if (selectedSupplier(); as supplier) {
+      <div class="rounded-lg border border-line bg-surface px-4 py-3 text-sm text-ink">
+        <p class="font-medium">Confirm receipt</p>
+        <p class="mt-1 text-muted">
+          Receive {{ form.controls.quantity.value }} unit(s) of {{ product.sku }} — {{ product.name }} from
+          {{ supplier.name }}.
+        </p>
+      </div>
+    }
+  }
+
+  @if (submitError()) {
+    <p class="text-sm text-danger" role="alert">{{ submitError() }}</p>
+  }
+
+  <div class="flex flex-wrap gap-2">
+    <button type="submit" class="btn-primary" [disabled]="isSubmitting() || form.invalid">
+      {{ isSubmitting() ? 'Receiving...' : 'Confirm receipt' }}
+    </button>
+    <button type="button" class="btn-secondary" (click)="cancelled.emit()" [disabled]="isSubmitting()">
+      Cancel
+    </button>
+  </div>
+</form>

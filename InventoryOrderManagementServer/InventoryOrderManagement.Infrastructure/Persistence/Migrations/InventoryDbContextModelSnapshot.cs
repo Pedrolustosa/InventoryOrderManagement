@@ -113,6 +113,31 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                     b.ToTable("Customers", (string)null);
                 });
 
+            modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.InventoryBalance", b =>
+                {
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("MinimumStockLevel")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("QuantityOnHand")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("ProductId");
+
+                    b.ToTable("InventoryBalances", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_InventoryBalances_MinimumStockLevel", "\"MinimumStockLevel\" >= 0");
+
+                            t.HasCheckConstraint("CK_InventoryBalances_QuantityOnHand", "\"QuantityOnHand\" >= 0");
+                        });
+                });
+
             modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.Product", b =>
                 {
                     b.Property<Guid>("Id")
@@ -154,6 +179,57 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("Products", (string)null);
+                });
+
+            modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.StockMovement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("MovementType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("NewQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PreviousQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(300)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SupplierId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAtUtc");
+
+                    b.HasIndex("SupplierId");
+
+                    b.HasIndex("ProductId", "CreatedAtUtc");
+
+                    b.ToTable("StockMovements", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_StockMovements_NewQuantity", "\"NewQuantity\" >= 0");
+
+                            t.HasCheckConstraint("CK_StockMovements_PreviousQuantity", "\"PreviousQuantity\" >= 0");
+
+                            t.HasCheckConstraint("CK_StockMovements_Quantity", "\"Quantity\" > 0");
+                        });
                 });
 
             modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.Supplier", b =>
@@ -272,6 +348,15 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                     b.Navigation("Address");
                 });
 
+            modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.InventoryBalance", b =>
+                {
+                    b.HasOne("InventoryOrderManagement.Domain.Entities.Product", null)
+                        .WithOne()
+                        .HasForeignKey("InventoryOrderManagement.Domain.Entities.InventoryBalance", "ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.Product", b =>
                 {
                     b.HasOne("InventoryOrderManagement.Domain.Entities.Category", null)
@@ -279,6 +364,20 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.StockMovement", b =>
+                {
+                    b.HasOne("InventoryOrderManagement.Domain.Entities.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("InventoryOrderManagement.Domain.Entities.Supplier", null)
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 #pragma warning restore 612, 618
         }

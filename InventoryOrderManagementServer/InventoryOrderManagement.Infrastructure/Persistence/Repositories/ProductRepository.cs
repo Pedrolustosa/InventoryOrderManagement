@@ -22,6 +22,13 @@ public class ProductRepository : IProductRepository
             .AnyAsync(product => product.Sku == sku, cancellationToken);
     }
 
+    public Task<Product?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return _dbContext.Products
+            .AsNoTracking()
+            .FirstOrDefaultAsync(product => product.Id == id, cancellationToken);
+    }
+
     public async Task AddAsync(Product product, CancellationToken cancellationToken = default)
     {
         await _dbContext.Products.AddAsync(product, cancellationToken);

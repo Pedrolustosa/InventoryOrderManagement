@@ -1,0 +1,104 @@
+<form class="space-y-6" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div class="space-y-1.5 sm:col-span-2">
+      <label class="text-sm font-medium text-ink" for="exit-product-search">Search product</label>
+      <input
+        id="exit-product-search"
+        type="search"
+        class="field"
+        placeholder="Name or SKU"
+        [value]="productSearch()"
+        (input)="productSearch.set($any($event.target).value)"
+      />
+    </div>
+
+    <div class="space-y-1.5">
+      <label class="text-sm font-medium text-ink" for="exit-product">Product</label>
+      <select
+        id="exit-product"
+        formControlName="productId"
+        class="field"
+        [class.field-error]="controlInvalid('productId')"
+        (change)="onProductChange()"
+      >
+        <option value="">Select a product</option>
+        @for (product of filteredProducts(); track product.id) {
+          <option [value]="product.id">
+            {{ product.sku }} — {{ product.name }}{{ product.isActive ? '' : ' (Inactive)' }}
+          </option>
+        }
+      </select>
+      @if (controlInvalid('productId')) {
+        <p class="text-sm text-danger" role="alert">Product is required.</p>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+      <p class="text-sm font-medium text-ink">Available Quantity</p>
+      <p class="field bg-surface text-ink" aria-live="polite">
+        @if (isBalanceLoading()) {
+          Loading balance...
+        } @else if (availableQuantity() === null) {
+          Select a product
+        } @else {
+          {{ availableQuantity() }}
+        }
+      </p>
+    </div>
+
+    <div class="space-y-1.5">
+      <label class="text-sm font-medium text-ink" for="exit-quantity">Quantity</label>
+      <input
+        id="exit-quantity"
+        type="number"
+        min="1"
+        step="1"
+        formControlName="quantity"
+        class="field"
+        [class.field-error]="controlInvalid('quantity')"
+      />
+      @if (controlInvalid('quantity')) {
+        <p class="text-sm text-danger" role="alert">
+          @if (form.controls.quantity.hasError('exceedsStock')) {
+            The requested quantity is greater than the available balance.
+          } @else {
+            Quantity must be a positive integer.
+          }
+        </p>
+      }
+    </div>
+
+    <div class="space-y-1.5 sm:col-span-2">
+      <label class="text-sm font-medium text-ink" for="exit-reason">Reason</label>
+      <textarea
+        id="exit-reason"
+        rows="3"
+        formControlName="reason"
+        class="field"
+        [class.field-error]="controlInvalid('reason')"
+      ></textarea>
+      @if (controlInvalid('reason')) {
+        <p class="text-sm text-danger" role="alert">
+          @if (form.controls.reason.hasError('required')) {
+            Reason is required.
+          } @else {
+            Reason cannot exceed 300 characters.
+          }
+        </p>
+      }
+    </div>
+  </div>
+
+  @if (submitError()) {
+    <p class="text-sm text-danger" role="alert">{{ submitError() }}</p>
+  }
+
+  <div class="flex flex-wrap gap-2">
+    <button type="submit" class="btn-primary" [disabled]="isSubmitting() || form.invalid || availableQuantity() === null">
+      {{ isSubmitting() ? 'Registering...' : 'Confirm exit' }}
+    </button>
+    <button type="button" class="btn-secondary" (click)="cancelled.emit()" [disabled]="isSubmitting()">
+      Cancel
+    </button>
+  </div>
+</form>

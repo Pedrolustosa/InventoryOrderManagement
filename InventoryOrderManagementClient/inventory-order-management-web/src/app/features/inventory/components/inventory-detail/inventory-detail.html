@@ -1,0 +1,75 @@
+<section class="rounded-xl border border-line bg-panel p-5 shadow-sm sm:p-6">
+  <div class="mb-5 flex items-start justify-between gap-4">
+    <div>
+      <h2 class="text-lg font-semibold text-ink">Inventory Details</h2>
+      <p class="mt-1 text-sm text-muted">Current balance and recent movements for this product.</p>
+    </div>
+    <button type="button" class="btn-secondary" (click)="closed.emit()">Close</button>
+  </div>
+
+  @if (isLoading()) {
+    <p class="text-sm text-muted">Loading inventory details...</p>
+  } @else {
+    <div class="space-y-6">
+      <section>
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-muted">Product Information</h3>
+        <dl class="mt-3 grid gap-4 sm:grid-cols-3">
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">SKU</dt>
+            <dd class="mt-1 text-sm font-medium text-ink">{{ balance().sku }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Product Name</dt>
+            <dd class="mt-1 text-sm font-medium text-ink">{{ balance().productName }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Category</dt>
+            <dd class="mt-1 text-sm text-ink">{{ displayValue(categoryName()) }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section>
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-muted">Inventory Information</h3>
+        <dl class="mt-3 grid gap-4 sm:grid-cols-3">
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Quantity On Hand</dt>
+            <dd class="mt-1 text-sm font-medium text-ink">{{ balance().quantityOnHand }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Minimum Stock Level</dt>
+            <dd class="mt-1 text-sm text-ink">{{ balance().minimumStockLevel }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Stock Status</dt>
+            <dd class="mt-1 text-sm text-ink">{{ statusLabel() }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section>
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-muted">Recent Stock Movements</h3>
+        @if (movements().length === 0) {
+          <p class="mt-3 text-sm text-muted">There are no stock movements yet.</p>
+        } @else {
+          <ul class="mt-3 divide-y divide-line">
+            @for (movement of movements(); track movement.id) {
+              <li class="flex flex-col gap-1 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p class="font-medium text-ink">{{ typeLabel(movement) }} · {{ movement.quantity }}</p>
+                  <p class="text-muted">
+                    {{ movement.previousQuantity }} → {{ movement.newQuantity }}
+                    @if (movement.reason) {
+                      · {{ movement.reason }}
+                    }
+                  </p>
+                </div>
+                <p class="text-muted">{{ movement.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}</p>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    </div>
+  }
+</section>
