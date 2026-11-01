@@ -1,0 +1,69 @@
+using InventoryOrderManagement.Application.Exceptions;
+using InventoryOrderManagement.Domain.Exceptions;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
+
+namespace InventoryOrderManagement.Api.ExceptionHandling;
+
+/// <summary>
+/// Centralizes exception-to-HTTP mapping using ProblemDetails (RFC 7807).
+/// Controllers stay free of try/catch boilerplate.
+/// </summary>
+public sealed class GlobalExceptionHandler : IExceptionHandler
+{
+    private readonly ILogger<GlobalExceptionHandler> _logger;
+
+    public GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger)
+    {
+        _logger = logger;
+    }
+
+    public async ValueTask<bool> TryHandleAsync(
+        HttpContext httpContext,
+        Exception exception,
+        CancellationToken cancellationToken)
+    {
+        var (statusCode, title, detail) = MapException(exception);
+
+        if (statusCode >= StatusCodes.Status500InternalServerError)
+        {
+            _logger.LogError(exception, "Unhandled exception.");
+        }
+        else
+        {
+            _logger.LogWarning(exception, "Handled application exception: {Title}", title);
+        }
+
+        var problemDetails = new ProblemDetails
+        {
+            Status = statusCode,
+            Title = title,
+            Detail = detail,
+            Instance = httpContext.Request.Path
+        };
+
+        httpContext.Response.StatusCode = statusCode;
+        await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+
+        return true;
+    }
+
+    private static (int StatusCode, string Title, string Detail) MapException(Exception exception)
+    {
+        return exception switch
+        {
+            DomainException domainException => (
+                StatusCodes.Status400BadRequest,
+                "Invalid product data",
+                domainException.Message),
+            DuplicateSkuException duplicateSkuException => (
+                StatusCodes.Status409Conflict,
+                "Duplicate SKU",
+                duplicateSkuException.Message),
+            _ => (
+                StatusCodes.Status500InternalServerError,
+                "An unexpected error occurred",
+                "An unexpected error occurred while processing the request.")
+        };
+    }
+}

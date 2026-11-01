@@ -1,6 +1,18 @@
 @InventoryOrderManagement.Api_HostAddress = http://localhost:5237
 
-GET {{InventoryOrderManagement.Api_HostAddress}}/weatherforecast/
+### Create product
+POST {{InventoryOrderManagement.Api_HostAddress}}/api/products
+Content-Type: application/json
+
+{
+  "sku": "KB-001",
+  "name": "Mechanical Keyboard",
+  "description": "Mechanical keyboard with RGB lighting",
+  "currentPrice": 249.90
+}
+
+### List products
+GET {{InventoryOrderManagement.Api_HostAddress}}/api/products
 Accept: application/json
 
 ###

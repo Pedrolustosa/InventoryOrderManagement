@@ -1,3 +1,57 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
+
+@theme {
+  --color-surface: #f4f7f8;
+  --color-panel: #ffffff;
+  --color-ink: #152025;
+  --color-muted: #5b6b73;
+  --color-line: #d7e0e4;
+  --color-accent: #0f766e;
+  --color-accent-ink: #115e59;
+  --color-danger: #b42318;
+  --font-sans: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-surface);
+    color: var(--color-ink);
+  }
+}
+
+@layer components {
+  .field {
+    @apply w-full rounded-md border border-line bg-panel px-3 py-2 text-sm text-ink outline-none transition;
+    @apply focus:border-accent focus:ring-2 focus:ring-accent/20;
+    @apply disabled:cursor-not-allowed disabled:bg-surface disabled:text-muted;
+  }
+
+  .field-error {
+    @apply border-danger focus:border-danger focus:ring-danger/20;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-md bg-accent px-4 py-2 text-sm font-semibold text-white;
+    @apply transition hover:bg-accent-ink;
+    @apply disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-md border border-line bg-panel px-4 py-2 text-sm font-semibold text-ink;
+    @apply transition hover:bg-surface;
+    @apply disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .badge-active {
+    @apply inline-flex rounded-full bg-accent/15 px-2.5 py-1 text-xs font-semibold text-accent-ink;
+  }
+
+  .badge-inactive {
+    @apply inline-flex rounded-full bg-line px-2.5 py-1 text-xs font-semibold text-muted;
+  }
+}

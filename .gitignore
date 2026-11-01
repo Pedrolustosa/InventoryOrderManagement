@@ -29,6 +29,11 @@ coverage.*
 *.snupkg
 .nuget/
 
+# Local SQLite databases
+*.db
+*.db-shm
+*.db-wal
+
 # Keep source configuration files and project files tracked.
 # Do not ignore *.csproj, *.sln, appsettings.json or migrations.
 

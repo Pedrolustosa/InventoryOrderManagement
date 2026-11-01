@@ -3,4 +3,8 @@
   <Project Path="InventoryOrderManagement.Application/InventoryOrderManagement.Application.csproj" />
   <Project Path="InventoryOrderManagement.Domain/InventoryOrderManagement.Domain.csproj" />
   <Project Path="InventoryOrderManagement.Infrastructure/InventoryOrderManagement.Infrastructure.csproj" />
+  <Project Path="InventoryOrderManagement.Domain.UnitTests/InventoryOrderManagement.Domain.UnitTests.csproj" />
+  <Project Path="InventoryOrderManagement.Application.UnitTests/InventoryOrderManagement.Application.UnitTests.csproj" />
+  <Project Path="InventoryOrderManagement.Infrastructure.IntegrationTests/InventoryOrderManagement.Infrastructure.IntegrationTests.csproj" />
+  <Project Path="InventoryOrderManagement.Api.IntegrationTests/InventoryOrderManagement.Api.IntegrationTests.csproj" />
 </Solution>

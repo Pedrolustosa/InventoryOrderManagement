@@ -1,0 +1,44 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">Products Management</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">
+        Manage your products and inventory catalog.
+      </p>
+    </div>
+
+    @if (!formVisible()) {
+      <button type="button" class="btn-primary shrink-0" (click)="openForm()">
+        New Product
+      </button>
+    }
+  </div>
+
+  @if (successMessage()) {
+    <div class="rounded-md border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent-ink" role="status">
+      {{ successMessage() }}
+    </div>
+  }
+
+  @if (formVisible()) {
+    <section class="rounded-xl border border-line bg-panel p-5 shadow-sm sm:p-6">
+      <div class="mb-5">
+        <h2 class="text-lg font-semibold text-ink">Create Product</h2>
+        <p class="mt-1 text-sm text-muted">Fill in the product details and save to the catalog.</p>
+      </div>
+
+      <app-product-form
+        [isSubmitting]="isSubmitting()"
+        [submitError]="submitError()"
+        (saved)="onSave($event)"
+        (cancelled)="closeForm()"
+      />
+    </section>
+  }
+
+  <app-product-list
+    [products]="products()"
+    [isLoading]="isLoading()"
+    [errorMessage]="loadError()"
+  />
+</section>
