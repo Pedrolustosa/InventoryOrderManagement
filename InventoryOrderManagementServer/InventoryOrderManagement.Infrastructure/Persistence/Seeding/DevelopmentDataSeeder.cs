@@ -483,14 +483,10 @@ public static class DevelopmentDataSeeder
             cancelReason: "The quotation expired.",
             cancellationToken);
 
-        var johnAddress = ShippingAddressFor(johnSmith);
-        var acmeAddress = ShippingAddressFor(acmeRetail);
-
         await EnsureSalesOrderAsync(
             dbContext,
             number: "SEED-SO-DRAFT",
             customer: johnSmith,
-            shippingAddress: johnAddress,
             product: mouse,
             quantity: 2,
             progress: SalesProgress.Draft,
@@ -501,7 +497,6 @@ public static class DevelopmentDataSeeder
             dbContext,
             number: "SEED-SO-CONF",
             customer: acmeRetail,
-            shippingAddress: acmeAddress,
             product: keyboard,
             quantity: 2,
             progress: SalesProgress.Confirmed,
@@ -512,7 +507,6 @@ public static class DevelopmentDataSeeder
             dbContext,
             number: "SEED-SO-SHIP",
             customer: acmeRetail,
-            shippingAddress: acmeAddress,
             product: keyboard,
             quantity: 1,
             progress: SalesProgress.Shipped,
@@ -523,7 +517,6 @@ public static class DevelopmentDataSeeder
             dbContext,
             number: "SEED-SO-DEL",
             customer: johnSmith,
-            shippingAddress: johnAddress,
             product: notebook,
             quantity: 3,
             progress: SalesProgress.Delivered,
@@ -534,7 +527,6 @@ public static class DevelopmentDataSeeder
             dbContext,
             number: "SEED-SO-CANC",
             customer: johnSmith,
-            shippingAddress: johnAddress,
             product: pen,
             quantity: 1,
             progress: SalesProgress.CancelledDraft,
@@ -545,7 +537,6 @@ public static class DevelopmentDataSeeder
             dbContext,
             number: "SEED-SO-CANC-CONF",
             customer: acmeRetail,
-            shippingAddress: acmeAddress,
             product: pen,
             quantity: 4,
             progress: SalesProgress.CancelledConfirmed,
@@ -671,7 +662,6 @@ public static class DevelopmentDataSeeder
         InventoryDbContext dbContext,
         string number,
         Customer customer,
-        OrderShippingAddress shippingAddress,
         Product product,
         int quantity,
         SalesProgress progress,
@@ -687,7 +677,7 @@ public static class DevelopmentDataSeeder
             number,
             customer.Id,
             customer.Name,
-            shippingAddress,
+            ShippingAddressFor(customer),
             [OrderItem.Create(product.Id, product.Sku, product.Name, quantity, product.CurrentPrice)]);
 
         dbContext.Orders.Add(order);
