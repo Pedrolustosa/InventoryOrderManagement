@@ -3,6 +3,7 @@ using InventoryOrderManagement.Application.Categories;
 using InventoryOrderManagement.Application.Customers;
 using InventoryOrderManagement.Application.Identity;
 using InventoryOrderManagement.Application.Inventory;
+using InventoryOrderManagement.Application.Notifications;
 using InventoryOrderManagement.Application.Orders;
 using InventoryOrderManagement.Application.Products;
 using InventoryOrderManagement.Application.Purchases;
@@ -141,6 +142,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<MarkShipmentDeliveredUseCase>();
         services.AddScoped<MarkShipmentFailedUseCase>();
         services.AddScoped<ResumeShipmentUseCase>();
+        services.AddScoped<GetUserNotificationsUseCase>();
+        services.AddScoped<GetUnreadNotificationCountUseCase>();
+        services.AddScoped<MarkNotificationAsReadUseCase>();
+        services.AddScoped<MarkAllNotificationsAsReadUseCase>();
 
         return services;
     }

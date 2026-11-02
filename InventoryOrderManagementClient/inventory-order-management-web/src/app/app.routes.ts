@@ -85,6 +85,13 @@ export const routes: Routes = [
         loadChildren: () => import('./features/returns/returns.routes').then((m) => m.RETURNS_ROUTES),
       },
       {
+        path: 'notifications',
+        canActivate: [permissionGuard('Notifications.View')],
+        data: { title: 'ROUTES.NOTIFICATIONS', breadcrumb: 'ROUTES.NOTIFICATIONS' },
+        loadChildren: () =>
+          import('./features/notifications/notifications.routes').then((m) => m.NOTIFICATIONS_ROUTES),
+      },
+      {
         path: 'finance',
         data: { title: 'ROUTES.FINANCE', breadcrumb: 'ROUTES.FINANCE' },
         loadChildren: () => import('./features/finance/finance.routes').then((m) => m.FINANCE_ROUTES),

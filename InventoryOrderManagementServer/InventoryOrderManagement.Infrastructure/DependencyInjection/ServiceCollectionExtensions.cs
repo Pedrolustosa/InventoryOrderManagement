@@ -1,8 +1,10 @@
 using InventoryOrderManagement.Application.Abstractions.Identity;
+using InventoryOrderManagement.Application.Abstractions.Notifications;
 using InventoryOrderManagement.Application.Abstractions.Persistence;
 using InventoryOrderManagement.Application.Abstractions.Reports;
 using InventoryOrderManagement.Infrastructure.Identity;
 using InventoryOrderManagement.Infrastructure.Identity.Entities;
+using InventoryOrderManagement.Infrastructure.Notifications;
 using InventoryOrderManagement.Infrastructure.Persistence;
 using InventoryOrderManagement.Infrastructure.Persistence.Queries;
 using InventoryOrderManagement.Infrastructure.Persistence.Repositories;
@@ -44,6 +46,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICashMovementRepository, CashMovementRepository>();
         services.AddScoped<IReturnRequestRepository, ReturnRequestRepository>();
         services.AddScoped<IShipmentRepository, ShipmentRepository>();
+        services.AddScoped<IUserNotificationRepository, UserNotificationRepository>();
+        services.AddScoped<INotificationRecipientResolver, NotificationRecipientResolver>();
+        services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
         services.AddScoped<IInventoryReportsQuery, InventoryReportsQuery>();
         services.AddScoped<IStockMovementsReportsQuery, StockMovementsReportsQuery>();
         services.AddScoped<IOrderReportsQuery, OrderReportsQuery>();

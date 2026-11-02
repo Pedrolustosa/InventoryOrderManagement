@@ -1,11 +1,14 @@
 using InventoryOrderManagement.Application.Abstractions.Identity;
+using InventoryOrderManagement.Application.Abstractions.Notifications;
 using InventoryOrderManagement.Application.Abstractions.Persistence;
 using InventoryOrderManagement.Application.Exceptions;
+using InventoryOrderManagement.Application.Notifications;
 using InventoryOrderManagement.Application.Returns.Dtos;
 using InventoryOrderManagement.Application.Security;
 using InventoryOrderManagement.Domain.Entities;
 using InventoryOrderManagement.Domain.Enums;
 using InventoryOrderManagement.Domain.Exceptions;
+using Microsoft.Extensions.Logging;
 
 namespace InventoryOrderManagement.Application.Returns;
 
@@ -15,17 +18,23 @@ public sealed class ReceiveCustomerReturnUseCase
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISecurityAuditWriter _auditWriter;
     private readonly ICurrentUser _currentUser;
+    private readonly INotificationDispatcher _notificationDispatcher;
+    private readonly ILogger<ReceiveCustomerReturnUseCase> _logger;
 
     public ReceiveCustomerReturnUseCase(
         IReturnRequestRepository returnRepository,
         IUnitOfWork unitOfWork,
         ISecurityAuditWriter auditWriter,
-        ICurrentUser currentUser)
+        ICurrentUser currentUser,
+        INotificationDispatcher notificationDispatcher,
+        ILogger<ReceiveCustomerReturnUseCase> logger)
     {
         _returnRepository = returnRepository;
         _unitOfWork = unitOfWork;
         _auditWriter = auditWriter;
         _currentUser = currentUser;
+        _notificationDispatcher = notificationDispatcher;
+        _logger = logger;
     }
 
     public async Task<ReturnResponse> ExecuteAsync(
@@ -53,6 +62,17 @@ public sealed class ReceiveCustomerReturnUseCase
             _currentUser,
             SecurityActions.CustomerReturnReceived,
             updated.Id,
+            cancellationToken);
+
+        await NotificationDispatch.TryAsync(
+            ct => _notificationDispatcher.NotifyReturnAwaitingInspectionAsync(
+                updated.Id,
+                updated.ReturnNumber,
+                updated.CustomerName ?? "Customer",
+                updated.ReceivedAtUtc ?? DateTime.UtcNow,
+                ct),
+            _logger,
+            $"Failed to dispatch return-awaiting-inspection notification for return {updated.Id}.",
             cancellationToken);
 
         return ReturnResponse.FromEntity(updated);
@@ -112,6 +132,8 @@ public sealed class CompleteCustomerReturnInspectionUseCase
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISecurityAuditWriter _auditWriter;
     private readonly ICurrentUser _currentUser;
+    private readonly INotificationDispatcher _notificationDispatcher;
+    private readonly ILogger<CompleteCustomerReturnInspectionUseCase> _logger;
 
     public CompleteCustomerReturnInspectionUseCase(
         IReturnRequestRepository returnRepository,
@@ -119,7 +141,9 @@ public sealed class CompleteCustomerReturnInspectionUseCase
         IInventoryRepository inventoryRepository,
         IUnitOfWork unitOfWork,
         ISecurityAuditWriter auditWriter,
-        ICurrentUser currentUser)
+        ICurrentUser currentUser,
+        INotificationDispatcher notificationDispatcher,
+        ILogger<CompleteCustomerReturnInspectionUseCase> logger)
     {
         _returnRepository = returnRepository;
         _orderRepository = orderRepository;
@@ -127,6 +151,8 @@ public sealed class CompleteCustomerReturnInspectionUseCase
         _unitOfWork = unitOfWork;
         _auditWriter = auditWriter;
         _currentUser = currentUser;
+        _notificationDispatcher = notificationDispatcher;
+        _logger = logger;
     }
 
     public async Task<ReturnResponse> ExecuteAsync(
@@ -135,6 +161,8 @@ public sealed class CompleteCustomerReturnInspectionUseCase
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
+
+        var lowStockChanges = new List<LowStockChange>();
 
         await _unitOfWork.ExecuteAsync(async ct =>
         {
@@ -190,6 +218,14 @@ public sealed class CompleteCustomerReturnInspectionUseCase
                     $"Customer return {entity.ReturnNumber}");
 
                 await _inventoryRepository.AddMovementAsync(movement, ct);
+                lowStockChanges.Add(new LowStockChange(
+                    item.ProductId,
+                    item.ProductName,
+                    item.ProductSku,
+                    previous,
+                    balance.QuantityOnHand,
+                    balance.MinimumStockLevel,
+                    movement.Id));
             }
         }, cancellationToken);
 
@@ -203,6 +239,12 @@ public sealed class CompleteCustomerReturnInspectionUseCase
             updated.Id,
             cancellationToken,
             details: updated.Status.ToString());
+
+        await NotificationDispatch.TryNotifyLowStockAsync(
+            _notificationDispatcher,
+            _logger,
+            lowStockChanges,
+            cancellationToken);
 
         return ReturnResponse.FromEntity(updated);
     }

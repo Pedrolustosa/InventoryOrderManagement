@@ -41,6 +41,8 @@ const ALL_PERMISSIONS = [
   'Shipments.Update',
   'Shipments.Dispatch',
   'Shipments.Advance',
+  'Notifications.View',
+  'Notifications.MarkRead',
   'Returns.View',
   'Returns.Customer.Create',
   'Returns.Customer.Receive',
