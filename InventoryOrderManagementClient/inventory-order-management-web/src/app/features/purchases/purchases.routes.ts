@@ -15,23 +15,28 @@ export const PURCHASES_ROUTES: Routes = [
     path: 'new',
     component: PurchaseFormPage,
     canActivate: [permissionGuard('Purchases.Create')],
+    data: { title: 'New purchase', breadcrumb: 'New purchase' },
   },
   {
     path: 'receipts/:receiptId',
     component: PurchaseReceiptPage,
+    data: { title: 'Receipt', breadcrumb: 'Receipt' },
   },
   {
     path: ':id/edit',
     component: PurchaseFormPage,
     canActivate: [permissionGuard('Purchases.UpdateDraft')],
+    data: { title: 'Edit purchase', breadcrumb: 'Edit purchase' },
   },
   {
     path: ':id/receive',
     component: PurchaseReceivePage,
     canActivate: [permissionGuard('Purchases.Receive')],
+    data: { title: 'Receive', breadcrumb: 'Receive' },
   },
   {
     path: ':id',
     component: PurchaseDetailsPage,
+    data: { title: 'Purchase details', breadcrumb: 'Purchase details' },
   },
 ];
