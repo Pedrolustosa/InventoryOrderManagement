@@ -54,7 +54,12 @@ internal static class RolePermissionDefaults
         Permissions.Returns.SupplierCreate,
         Permissions.Returns.SupplierAuthorize,
         Permissions.Returns.SupplierDispatch,
-        Permissions.Returns.Cancel
+        Permissions.Returns.Cancel,
+        Permissions.Shipments.View,
+        Permissions.Shipments.Create,
+        Permissions.Shipments.Update,
+        Permissions.Shipments.Dispatch,
+        Permissions.Shipments.Advance
     ];
 
     private static readonly string[] InventoryOperator =
@@ -78,7 +83,8 @@ internal static class RolePermissionDefaults
         Permissions.Returns.CustomerInspect,
         Permissions.Returns.SupplierCreate,
         Permissions.Returns.SupplierAuthorize,
-        Permissions.Returns.SupplierDispatch
+        Permissions.Returns.SupplierDispatch,
+        Permissions.Shipments.View
     ];
 
     private static readonly string[] SalesOperator =
@@ -102,7 +108,12 @@ internal static class RolePermissionDefaults
         Permissions.Returns.CustomerCreate,
         Permissions.Returns.CustomerReceive,
         Permissions.Returns.CustomerInspect,
-        Permissions.Returns.Cancel
+        Permissions.Returns.Cancel,
+        Permissions.Shipments.View,
+        Permissions.Shipments.Create,
+        Permissions.Shipments.Update,
+        Permissions.Shipments.Dispatch,
+        Permissions.Shipments.Advance
     ];
 
     private static readonly string[] Viewer =
@@ -119,7 +130,8 @@ internal static class RolePermissionDefaults
         Permissions.Finance.CashAccountsView,
         Permissions.Finance.CashFlowView,
         Permissions.Finance.ReportsView,
-        Permissions.Returns.View
+        Permissions.Returns.View,
+        Permissions.Shipments.View
     ];
 
     public static IReadOnlyList<string> For(string roleName) => roleName switch

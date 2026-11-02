@@ -1,0 +1,79 @@
+<div class="fixed inset-0 z-40 flex items-center justify-center bg-ink/40 p-4" role="dialog" aria-modal="true">
+  <section class="w-full max-w-lg rounded-xl border border-line bg-panel p-5 shadow-sm sm:p-6" aria-labelledby="shipment-action-title">
+    <h2 id="shipment-action-title" class="text-lg font-semibold text-ink">{{ title() }}</h2>
+    <p class="mt-2 text-sm text-muted">{{ message() }}</p>
+
+    <dl class="mt-4 grid gap-2 text-sm">
+      <div class="flex justify-between gap-4">
+        <dt class="text-muted">Order</dt>
+        <dd class="font-medium text-ink">{{ orderNumber() }}</dd>
+      </div>
+      <div class="flex justify-between gap-4">
+        <dt class="text-muted">Customer</dt>
+        <dd class="font-medium text-ink">{{ customerName() }}</dd>
+      </div>
+      @if (carrierName()) {
+        <div class="flex justify-between gap-4">
+          <dt class="text-muted">Carrier</dt>
+          <dd class="font-medium text-ink">{{ carrierName() }}</dd>
+        </div>
+      }
+      @if (trackingCode()) {
+        <div class="flex justify-between gap-4">
+          <dt class="text-muted">Tracking</dt>
+          <dd class="font-medium text-ink">{{ trackingCode() }}</dd>
+        </div>
+      }
+      @if (shippingAddress()) {
+        <div>
+          <dt class="text-muted">Shipping address</dt>
+          <dd class="mt-1 font-medium text-ink">{{ shippingAddress() }}</dd>
+        </div>
+      }
+      @if (action() === 'resume' && failureReason()) {
+        <div>
+          <dt class="text-muted">Previous failure</dt>
+          <dd class="mt-1 font-medium text-ink">{{ failureReason() }}</dd>
+        </div>
+      }
+    </dl>
+
+    @if (action() === 'fail') {
+      <label class="mt-4 block text-sm font-medium text-ink" for="failure-reason">Failure reason</label>
+      <textarea
+        id="failure-reason"
+        class="field mt-1 min-h-24"
+        [formControl]="failureReasonControl"
+        [attr.maxlength]="reasonMaxLength"
+      ></textarea>
+      @if (reasonError()) {
+        <p class="mt-1 text-sm text-danger">{{ reasonError() }}</p>
+      }
+    }
+
+    <label class="mt-4 block text-sm font-medium text-ink" for="shipment-action-notes">Notes (optional)</label>
+    <textarea
+      id="shipment-action-notes"
+      class="field mt-1 min-h-20"
+      [formControl]="notesControl"
+      [attr.maxlength]="notesMaxLength"
+    ></textarea>
+
+    @if (errorMessage()) {
+      <div class="mt-4 rounded-md border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger" role="alert">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <div class="mt-5 flex flex-wrap gap-3">
+      <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="submit()">
+        @if (isSubmitting()) {
+          Processing...
+        } @else {
+          {{ title() }}
+        }
+      </button>
+      <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="dismiss()">Cancel</button>
+    </div>
+  </section>
+</div>

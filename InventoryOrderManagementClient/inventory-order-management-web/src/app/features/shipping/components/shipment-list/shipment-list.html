@@ -1,0 +1,61 @@
+<section class="rounded-xl border border-line bg-panel shadow-sm" aria-live="polite">
+  @if (isLoading()) {
+    <div class="flex items-center gap-3 px-5 py-10 text-muted" aria-busy="true">
+      <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
+      <span>Loading shipments...</span>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="px-5 py-8 text-sm text-danger" role="alert">{{ errorMessage() }}</div>
+  } @else if (shipments().length === 0) {
+    <div class="px-5 py-12 text-center">
+      <p class="text-base font-medium text-ink">No shipments found</p>
+      <p class="mt-2 text-sm text-muted">{{ emptyMessage() }}</p>
+      <button *hasPermission="'Shipments.Create'" type="button" class="btn-primary mt-4" (click)="createRequested.emit()">
+        New shipment
+      </button>
+    </div>
+  } @else {
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-left text-sm">
+        <thead class="border-b border-line bg-surface/80 text-xs uppercase tracking-wide text-muted">
+          <tr>
+            <th class="px-4 py-3 font-semibold">Shipment</th>
+            <th class="px-4 py-3 font-semibold">Order</th>
+            <th class="px-4 py-3 font-semibold">Customer</th>
+            <th class="px-4 py-3 font-semibold">Carrier</th>
+            <th class="px-4 py-3 font-semibold">Tracking</th>
+            <th class="px-4 py-3 font-semibold">Created</th>
+            <th class="px-4 py-3 font-semibold">Shipped</th>
+            <th class="px-4 py-3 font-semibold">Status</th>
+            <th class="px-4 py-3 font-semibold">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of shipments(); track item.id) {
+            <tr class="border-b border-line/70 last:border-0">
+              <td class="whitespace-nowrap px-4 py-3 font-medium text-ink">{{ shortId(item.id) }}</td>
+              <td class="whitespace-nowrap px-4 py-3 text-ink">{{ item.orderNumber }}</td>
+              <td class="px-4 py-3 text-ink">{{ item.customerName }}</td>
+              <td class="px-4 py-3 text-ink">{{ item.carrierName || '—' }}</td>
+              <td class="px-4 py-3 text-ink">{{ item.trackingCode || '—' }}</td>
+              <td class="whitespace-nowrap px-4 py-3 text-muted">
+                {{ item.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}
+              </td>
+              <td class="whitespace-nowrap px-4 py-3 text-muted">
+                {{ item.shippedAtUtc ? (item.shippedAtUtc | date: 'dd/MM/yyyy HH:mm') : '—' }}
+              </td>
+              <td class="px-4 py-3">
+                <span [class]="statusClass(item.status)">{{ statusLabel(item.status) }}</span>
+              </td>
+              <td class="px-4 py-3">
+                <button type="button" class="btn-secondary !px-2.5 !py-1 text-xs" (click)="viewRequested.emit(item)">
+                  View
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

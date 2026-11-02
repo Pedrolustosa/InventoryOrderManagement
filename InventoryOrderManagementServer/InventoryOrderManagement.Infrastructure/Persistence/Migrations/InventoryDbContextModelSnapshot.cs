@@ -1084,6 +1084,119 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                     b.ToTable("ReturnRequests", (string)null);
                 });
 
+            modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.Shipment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CarrierName")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CustomerName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeliveredAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FailureReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OrderNumber")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("ShippedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TrackingCode")
+                        .HasMaxLength(80)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAtUtc");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique();
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("TrackingCode");
+
+                    b.ToTable("Shipments", (string)null);
+                });
+
+            modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.ShipmentStatusHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ChangedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NewStatus")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("OccurredAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PreviousStatus")
+                        .HasMaxLength(30)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ShipmentId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OccurredAtUtc");
+
+                    b.HasIndex("ShipmentId");
+
+                    b.ToTable("ShipmentStatusHistories", (string)null);
+                });
+
             modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.StockMovement", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1793,6 +1906,30 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
+            modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.Shipment", b =>
+                {
+                    b.HasOne("InventoryOrderManagement.Domain.Entities.Customer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("InventoryOrderManagement.Domain.Entities.Order", null)
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.ShipmentStatusHistory", b =>
+                {
+                    b.HasOne("InventoryOrderManagement.Domain.Entities.Shipment", null)
+                        .WithMany("History")
+                        .HasForeignKey("ShipmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.StockMovement", b =>
                 {
                     b.HasOne("InventoryOrderManagement.Domain.Entities.Order", null)
@@ -1908,6 +2045,11 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.ReturnRequest", b =>
                 {
                     b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.Shipment", b =>
+                {
+                    b.Navigation("History");
                 });
 #pragma warning restore 612, 618
         }

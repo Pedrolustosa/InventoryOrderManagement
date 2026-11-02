@@ -1,17 +1,23 @@
 using InventoryOrderManagement.Application.Abstractions.Persistence;
 using InventoryOrderManagement.Application.Exceptions;
 using InventoryOrderManagement.Application.Orders.Dtos;
+using InventoryOrderManagement.Domain.Exceptions;
 
 namespace InventoryOrderManagement.Application.Orders;
 
 public sealed class DeliverOrderUseCase
 {
     private readonly IOrderRepository _orderRepository;
+    private readonly IShipmentRepository _shipmentRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public DeliverOrderUseCase(IOrderRepository orderRepository, IUnitOfWork unitOfWork)
+    public DeliverOrderUseCase(
+        IOrderRepository orderRepository,
+        IShipmentRepository shipmentRepository,
+        IUnitOfWork unitOfWork)
     {
         _orderRepository = orderRepository;
+        _shipmentRepository = shipmentRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -21,6 +27,12 @@ public sealed class DeliverOrderUseCase
 
         await _unitOfWork.ExecuteAsync(async ct =>
         {
+            if (await _shipmentRepository.ExistsForOrderAsync(orderId, ct))
+            {
+                throw new ShipmentConflictException(
+                    "This order has a shipment. Use the shipment deliver workflow instead of the order deliver endpoint.");
+            }
+
             var order = await _orderRepository.GetTrackedByIdAsync(orderId, ct)
                 ?? throw new OrderNotFoundException(orderId);
 
