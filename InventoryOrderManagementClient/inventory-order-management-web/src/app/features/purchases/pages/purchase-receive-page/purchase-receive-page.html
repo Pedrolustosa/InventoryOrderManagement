@@ -1,0 +1,121 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">Receive Purchase</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">
+        Record a partial or full receipt. The server updates stock. This screen does not change inventory by itself.
+      </p>
+    </div>
+    @if (order(); as current) {
+      <a class="btn-secondary" [routerLink]="['/purchases', current.id]">Back to purchase</a>
+    }
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex items-center gap-3 text-muted" aria-busy="true">
+      <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
+      <span>Loading purchase order...</span>
+    </div>
+  } @else if (loadError()) {
+    <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
+      {{ loadError() }}
+    </div>
+  } @else if (order(); as current) {
+    <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
+      <dl class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-muted">Purchase Number</dt>
+          <dd class="mt-1 text-sm font-medium text-ink">{{ current.purchaseOrderNumber }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-muted">Supplier</dt>
+          <dd class="mt-1 text-sm text-ink">{{ current.supplierName }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-muted">Status</dt>
+          <dd class="mt-1 text-sm text-ink">{{ statusLabel() }}</dd>
+        </div>
+        @if (current.sentAtUtc) {
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Sent At</dt>
+            <dd class="mt-1 text-sm text-ink">{{ current.sentAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd>
+          </div>
+        }
+      </dl>
+    </section>
+
+    <section class="overflow-x-auto rounded-xl border border-line bg-panel shadow-sm">
+      <table class="min-w-full text-left text-sm">
+        <thead class="border-b border-line bg-surface/80 text-xs uppercase tracking-wide text-muted">
+          <tr>
+            <th class="px-4 py-3 font-semibold">Product</th>
+            <th class="px-4 py-3 font-semibold">SKU</th>
+            <th class="px-4 py-3 font-semibold">Ordered</th>
+            <th class="px-4 py-3 font-semibold">Received</th>
+            <th class="px-4 py-3 font-semibold">Pending</th>
+            <th class="px-4 py-3 font-semibold">Quantity to receive</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of current.items; track item.id) {
+            <tr class="border-b border-line/70 last:border-0">
+              <td class="px-4 py-3 text-ink">{{ item.productName }}</td>
+              <td class="px-4 py-3 text-ink">{{ item.productSku }}</td>
+              <td class="px-4 py-3 text-ink">{{ item.orderedQuantity }}</td>
+              <td class="px-4 py-3 text-ink">{{ item.receivedQuantity }}</td>
+              <td class="px-4 py-3 text-ink">{{ item.pendingQuantity }}</td>
+              <td class="px-4 py-3">
+                @if (item.pendingQuantity === 0) {
+                  <span class="text-sm text-muted">Fully received</span>
+                } @else {
+                  <input
+                    type="number"
+                    min="1"
+                    [max]="item.pendingQuantity"
+                    step="1"
+                    class="field w-28"
+                    [value]="quantityFor(item.id)"
+                    (input)="setQuantity(item.id, $any($event.target).value)"
+                  />
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <label class="block text-sm font-medium text-ink">
+      Receipt notes
+      <textarea class="field mt-1 min-h-24" [value]="notes()" (input)="notes.set($any($event.target).value)"></textarea>
+    </label>
+
+    @if (formError()) {
+      <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
+        {{ formError() }}
+      </div>
+    }
+
+    @if (pendingLines(); as lines) {
+      <section class="rounded-xl border border-line bg-panel p-5 shadow-sm" role="dialog" aria-labelledby="receive-confirm-title">
+        <h2 id="receive-confirm-title" class="text-lg font-semibold text-ink">Confirm receipt</h2>
+        <p class="mt-2 text-sm text-muted">
+          {{ current.purchaseOrderNumber }} from {{ current.supplierName }}. Stock will be updated by the server.
+        </p>
+        <ul class="mt-3 space-y-1 text-sm text-ink">
+          @for (line of lines; track line.purchaseOrderItemId) {
+            <li>{{ line.productSku }} — {{ line.productName }}: {{ line.quantityReceived }}</li>
+          }
+        </ul>
+        <div class="mt-5 flex flex-wrap gap-3">
+          <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="confirm()">
+            {{ isSubmitting() ? 'Receiving...' : 'Confirm receipt' }}
+          </button>
+          <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="dismissReview()">Back</button>
+        </div>
+      </section>
+    } @else {
+      <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="review()">Review receipt</button>
+    }
+  }
+</section>

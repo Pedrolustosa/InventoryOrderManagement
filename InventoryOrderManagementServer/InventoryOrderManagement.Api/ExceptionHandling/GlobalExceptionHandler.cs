@@ -152,6 +152,34 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                 StatusCodes.Status400BadRequest,
                 "Invalid order period",
                 invalidOrderPeriodException.Message),
+            PurchaseOrderNotFoundException purchaseOrderNotFoundException => (
+                StatusCodes.Status404NotFound,
+                "Purchase order not found",
+                purchaseOrderNotFoundException.Message),
+            PurchaseReceiptNotFoundException purchaseReceiptNotFoundException => (
+                StatusCodes.Status404NotFound,
+                "Purchase receipt not found",
+                purchaseReceiptNotFoundException.Message),
+            InactiveSupplierPurchaseException inactiveSupplierPurchaseException => (
+                StatusCodes.Status409Conflict,
+                "Inactive supplier",
+                inactiveSupplierPurchaseException.Message),
+            InactiveProductPurchaseException inactiveProductPurchaseException => (
+                StatusCodes.Status409Conflict,
+                "Inactive product",
+                inactiveProductPurchaseException.Message),
+            InvalidPurchaseOrderStatusException invalidPurchaseOrderStatusException => (
+                StatusCodes.Status409Conflict,
+                "Invalid purchase order status",
+                invalidPurchaseOrderStatusException.Message),
+            PurchaseOrderConflictException purchaseOrderConflictException => (
+                StatusCodes.Status409Conflict,
+                "Purchase order conflict",
+                purchaseOrderConflictException.Message),
+            InvalidPurchasePeriodException invalidPurchasePeriodException => (
+                StatusCodes.Status400BadRequest,
+                "Invalid purchase period",
+                invalidPurchasePeriodException.Message),
             InvalidReportRequestException invalidReportRequestException => (
                 StatusCodes.Status400BadRequest,
                 "Invalid report request",

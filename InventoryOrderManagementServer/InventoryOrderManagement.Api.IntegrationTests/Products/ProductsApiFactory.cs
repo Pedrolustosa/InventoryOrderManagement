@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace InventoryOrderManagement.Api.IntegrationTests.Products;
 
-public sealed class ProductsApiFactory : WebApplicationFactory<Program>
+public class ProductsApiFactory : WebApplicationFactory<Program>
 {
     private readonly string _databasePath =
         Path.Combine(Path.GetTempPath(), $"iom-api-{Guid.NewGuid():N}.db");
@@ -36,13 +36,10 @@ public sealed class ProductsApiFactory : WebApplicationFactory<Program>
         // and the audit log stores no secret.
         builder.ConfigureTestServices(services =>
         {
-            services.AddAuthentication(options =>
+            if (UseTestAuthentication)
             {
-                options.DefaultAuthenticateScheme = TestAuthenticationHandler.SchemeName;
-                options.DefaultChallengeScheme = TestAuthenticationHandler.SchemeName;
-            }).AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>(
-                TestAuthenticationHandler.SchemeName,
-                _ => { });
+                ConfigureTestAuthentication(services);
+            }
 
             services.PostConfigure<MvcOptions>(options =>
             {
@@ -56,6 +53,19 @@ public sealed class ProductsApiFactory : WebApplicationFactory<Program>
                 }
             });
         });
+    }
+
+    protected virtual bool UseTestAuthentication => true;
+
+    protected virtual void ConfigureTestAuthentication(IServiceCollection services)
+    {
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = TestAuthenticationHandler.SchemeName;
+            options.DefaultChallengeScheme = TestAuthenticationHandler.SchemeName;
+        }).AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>(
+            TestAuthenticationHandler.SchemeName,
+            _ => { });
     }
 
     protected override void Dispose(bool disposing)

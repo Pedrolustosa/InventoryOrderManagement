@@ -84,6 +84,16 @@ public static class Permissions
         public const string View = "Reports.View";
     }
 
+    public static class Purchases
+    {
+        public const string View = "Purchases.View";
+        public const string Create = "Purchases.Create";
+        public const string UpdateDraft = "Purchases.UpdateDraft";
+        public const string Send = "Purchases.Send";
+        public const string Receive = "Purchases.Receive";
+        public const string Cancel = "Purchases.Cancel";
+    }
+
     public static class Security
     {
         public const string AuditView = "Security.Audit.View";
@@ -129,6 +139,12 @@ public static class Permissions
         Orders.Deliver,
         Orders.Cancel,
         Reports.View,
+        Purchases.View,
+        Purchases.Create,
+        Purchases.UpdateDraft,
+        Purchases.Send,
+        Purchases.Receive,
+        Purchases.Cancel,
         Security.AuditView
     ];
 
@@ -168,6 +184,11 @@ public static class SecurityActions
     public const string PermissionsUpdated = "PermissionsUpdated";
     public const string RolesAssigned = "RolesAssigned";
     public const string PasswordChanged = "PasswordChanged";
+    public const string PurchaseOrderCreated = "PurchaseOrderCreated";
+    public const string PurchaseOrderUpdated = "PurchaseOrderUpdated";
+    public const string PurchaseOrderSent = "PurchaseOrderSent";
+    public const string PurchaseReceiptCreated = "PurchaseReceiptCreated";
+    public const string PurchaseOrderCancelled = "PurchaseOrderCancelled";
 }
 
 public static class SecurityEntities

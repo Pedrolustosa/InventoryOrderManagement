@@ -46,13 +46,18 @@ public static class IdentitySeeder
             }
 
             var claims = await roleManager.GetClaimsAsync(role);
-            if (claims.Any(claim => claim.Type == Permissions.ClaimType))
-            {
-                continue;
-            }
+            var granted = claims
+                .Where(claim => claim.Type == Permissions.ClaimType)
+                .Select(claim => claim.Value)
+                .ToHashSet(StringComparer.Ordinal);
 
             foreach (var permission in RolePermissionDefaults.For(roleName))
             {
+                if (granted.Contains(permission))
+                {
+                    continue;
+                }
+
                 var added = await roleManager.AddClaimAsync(role, new Claim(Permissions.ClaimType, permission));
                 if (!added.Succeeded)
                 {

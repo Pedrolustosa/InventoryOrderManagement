@@ -5,6 +5,7 @@ export const APP_MODULES = [
   { path: '/customers', permission: 'Customers.View' },
   { path: '/inventory', permission: 'Inventory.View' },
   { path: '/orders', permission: 'Orders.View' },
+  { path: '/purchases', permission: 'Purchases.View' },
   { path: '/reports', permission: 'Reports.View' },
   { path: '/users', permission: 'Users.View' },
   { path: '/roles', permission: 'Roles.View' },
@@ -34,6 +35,18 @@ export function resolveReturnUrl(permissions: readonly string[], returnUrl: stri
   }
 
   if (/^\/orders\/[^/]+\/edit$/.test(returnUrl) && !permissions.includes('Orders.UpdateDraft')) {
+    return firstAllowedPath(permissions);
+  }
+
+  if (returnUrl === '/purchases/new' && !permissions.includes('Purchases.Create')) {
+    return firstAllowedPath(permissions);
+  }
+
+  if (/^\/purchases\/[^/]+\/edit$/.test(returnUrl) && !permissions.includes('Purchases.UpdateDraft')) {
+    return firstAllowedPath(permissions);
+  }
+
+  if (/^\/purchases\/[^/]+\/receive$/.test(returnUrl) && !permissions.includes('Purchases.Receive')) {
     return firstAllowedPath(permissions);
   }
 

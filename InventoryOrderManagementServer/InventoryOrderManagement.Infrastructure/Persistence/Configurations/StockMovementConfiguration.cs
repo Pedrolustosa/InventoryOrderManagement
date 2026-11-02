@@ -61,9 +61,21 @@ public class StockMovementConfiguration : IEntityTypeConfiguration<StockMovement
             .HasForeignKey(movement => movement.OrderId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasOne<PurchaseOrder>()
+            .WithMany()
+            .HasForeignKey(movement => movement.PurchaseOrderId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<PurchaseReceipt>()
+            .WithMany()
+            .HasForeignKey(movement => movement.PurchaseReceiptId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasIndex(movement => new { movement.ProductId, movement.CreatedAtUtc });
         builder.HasIndex(movement => movement.SupplierId);
         builder.HasIndex(movement => movement.CreatedAtUtc);
         builder.HasIndex(movement => movement.OrderId);
+        builder.HasIndex(movement => movement.PurchaseOrderId);
+        builder.HasIndex(movement => movement.PurchaseReceiptId);
     }
 }

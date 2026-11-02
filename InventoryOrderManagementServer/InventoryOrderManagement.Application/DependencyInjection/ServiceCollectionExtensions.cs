@@ -4,6 +4,7 @@ using InventoryOrderManagement.Application.Identity;
 using InventoryOrderManagement.Application.Inventory;
 using InventoryOrderManagement.Application.Orders;
 using InventoryOrderManagement.Application.Products;
+using InventoryOrderManagement.Application.Purchases;
 using InventoryOrderManagement.Application.Reports;
 using InventoryOrderManagement.Application.Suppliers;
 using Microsoft.Extensions.DependencyInjection;
@@ -75,6 +76,15 @@ public static class ServiceCollectionExtensions
         services.AddScoped<GetRolePermissionsUseCase>();
         services.AddScoped<UpdateRolePermissionsUseCase>();
         services.AddScoped<GetSecurityAuditLogsUseCase>();
+        services.AddScoped<CreatePurchaseOrderUseCase>();
+        services.AddScoped<GetAllPurchaseOrdersUseCase>();
+        services.AddScoped<GetPurchaseOrderByIdUseCase>();
+        services.AddScoped<UpdatePurchaseOrderUseCase>();
+        services.AddScoped<SendPurchaseOrderUseCase>();
+        services.AddScoped<ReceivePurchaseOrderUseCase>();
+        services.AddScoped<GetPurchaseReceiptsUseCase>();
+        services.AddScoped<GetPurchaseReceiptByIdUseCase>();
+        services.AddScoped<CancelPurchaseOrderUseCase>();
 
         return services;
     }
