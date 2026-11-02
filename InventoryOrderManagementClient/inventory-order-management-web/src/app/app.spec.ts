@@ -4,6 +4,7 @@ import { App } from './app';
 import { AuthService } from './core/auth/services/auth.service';
 import { permittedAuth } from './core/auth/testing/permitted-auth';
 import { AppShell } from './features/shell/app-shell';
+import { SIDEBAR_COLLAPSED_KEY } from './features/shell/navigation';
 
 describe('App', () => {
   it('should create the app', async () => {
@@ -17,6 +18,7 @@ describe('App', () => {
   });
 
   it('should render the application brand in the shell', async () => {
+    localStorage.removeItem(SIDEBAR_COLLAPSED_KEY);
     await TestBed.configureTestingModule({
       imports: [AppShell],
       providers: [provideRouter([]), { provide: AuthService, useValue: permittedAuth() }],

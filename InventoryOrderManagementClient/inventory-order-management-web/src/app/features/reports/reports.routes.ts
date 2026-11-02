@@ -15,13 +15,33 @@ export const REPORTS_ROUTES: Routes = [
     component: ReportsShell,
     providers: [ReportPeriodStore],
     children: [
-      { path: '', component: ReportsOverviewPage },
-      { path: 'inventory', component: InventoryReportPage },
-      { path: 'movements', component: MovementsReportPage },
-      { path: 'orders', component: OrdersReportPage },
-      { path: 'best-sellers', component: BestSellersPage },
-      { path: 'customers', component: SalesByCustomerPage },
-      { path: 'cancellations', component: CancellationsPage },
+      { path: '', component: ReportsOverviewPage, data: { breadcrumb: 'Overview' } },
+      {
+        path: 'inventory',
+        component: InventoryReportPage,
+        data: { title: 'Inventory Reports', breadcrumb: 'Inventory' },
+      },
+      {
+        path: 'movements',
+        component: MovementsReportPage,
+        data: { title: 'Stock Movements Analysis', breadcrumb: 'Movements' },
+      },
+      { path: 'orders', component: OrdersReportPage, data: { title: 'Order Reports', breadcrumb: 'Orders' } },
+      {
+        path: 'best-sellers',
+        component: BestSellersPage,
+        data: { title: 'Best Selling Products', breadcrumb: 'Best sellers' },
+      },
+      {
+        path: 'customers',
+        component: SalesByCustomerPage,
+        data: { title: 'Sales by Customer', breadcrumb: 'Customers' },
+      },
+      {
+        path: 'cancellations',
+        component: CancellationsPage,
+        data: { title: 'Cancellation Analysis', breadcrumb: 'Cancellations' },
+      },
     ],
   },
 ];

@@ -13,14 +13,17 @@ export const ORDERS_ROUTES: Routes = [
     path: 'new',
     component: OrderFormPage,
     canActivate: [permissionGuard('Orders.Create')],
+    data: { title: 'New order', breadcrumb: 'New order' },
   },
   {
     path: ':id/edit',
     component: OrderFormPage,
     canActivate: [permissionGuard('Orders.UpdateDraft')],
+    data: { title: 'Edit order', breadcrumb: 'Edit order' },
   },
   {
     path: ':id',
     component: OrderDetailsPage,
+    data: { title: 'Order details', breadcrumb: 'Order details' },
   },
 ];

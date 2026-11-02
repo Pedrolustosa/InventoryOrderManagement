@@ -1,0 +1,62 @@
+<div class="flex items-center gap-3 px-4 py-3 sm:px-6">
+  <button
+    type="button"
+    class="inline-flex size-10 items-center justify-center rounded-md border border-line text-ink transition hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+    [attr.aria-expanded]="menuExpanded()"
+    [attr.aria-label]="menuLabel()"
+    (click)="menuToggled.emit()"
+  >
+    <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+      <path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round" />
+    </svg>
+  </button>
+
+  <div class="min-w-0 flex-1">
+    <app-page-heading />
+  </div>
+
+  <div class="relative">
+    <button
+      type="button"
+      class="inline-flex max-w-56 items-center gap-2 rounded-md border border-line px-3 py-2 text-sm font-semibold text-ink transition hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      [attr.aria-expanded]="accountOpen()"
+      aria-haspopup="menu"
+      aria-label="Account menu"
+      (click)="toggleAccount()"
+    >
+      <span class="truncate">{{ currentUser()?.displayName }}</span>
+      <svg viewBox="0 0 24 24" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+        <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+
+    @if (accountOpen()) {
+      <button type="button" class="fixed inset-0 z-10 cursor-default" aria-label="Close account menu" (click)="closeAccount()"></button>
+      <div class="absolute right-0 z-20 mt-2 w-72 rounded-md border border-line bg-panel p-3 shadow-sm" role="menu">
+        <p class="text-sm font-semibold text-ink">{{ currentUser()?.displayName }}</p>
+        <p class="mt-1 truncate text-sm text-muted">{{ currentUser()?.email }}</p>
+        @if (currentUser()?.roles?.length) {
+          <p class="mt-2 text-xs font-medium uppercase tracking-wide text-muted">{{ currentUser()?.roles?.join(', ') }}</p>
+        }
+        <div class="mt-3 space-y-1 border-t border-line pt-3">
+          <a
+            routerLink="/change-password"
+            role="menuitem"
+            class="block rounded-md px-2 py-2 text-sm font-medium text-ink hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            (click)="closeAccount()"
+          >
+            Change password
+          </a>
+          <button
+            type="button"
+            role="menuitem"
+            class="block w-full rounded-md px-2 py-2 text-left text-sm font-medium text-danger hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            (click)="signOut()"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>
