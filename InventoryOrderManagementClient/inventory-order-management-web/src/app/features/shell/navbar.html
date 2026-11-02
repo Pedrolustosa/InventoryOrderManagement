@@ -44,6 +44,26 @@
     </button>
   </div>
 
+  <button
+    type="button"
+    class="inline-flex size-10 items-center justify-center rounded-md border border-line text-ink transition hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+    [attr.aria-label]="themeToggleLabelKey() | translate"
+    [attr.title]="themeToggleLabelKey() | translate"
+    [attr.aria-pressed]="isDark()"
+    (click)="toggleTheme()"
+  >
+    @if (isDark()) {
+      <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke-linecap="round" />
+      </svg>
+    } @else {
+      <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+        <path d="M21 14.5A8.5 8.5 0 0 1 9.5 3 7 7 0 1 0 21 14.5z" stroke-linejoin="round" />
+      </svg>
+    }
+  </button>
+
   <div class="relative">
     <button
       type="button"

@@ -5,6 +5,7 @@ import { AuthService } from '../../core/auth/services/auth.service';
 import { permittedAuth, permittedUser } from '../../core/auth/testing/permitted-auth';
 import { LANGUAGE_STORAGE_KEY } from '../../core/i18n/language.service';
 import { provideTestTranslate } from '../../core/i18n/testing/provide-test-translate';
+import { THEME_STORAGE_KEY } from '../../core/theme/theme.service';
 import { AppShell, HomeRedirect } from './app-shell';
 import { SIDEBAR_COLLAPSED_KEY } from './navigation';
 
@@ -48,6 +49,8 @@ describe('AppShell', () => {
   afterEach(() => {
     localStorage.removeItem(SIDEBAR_COLLAPSED_KEY);
     localStorage.removeItem(LANGUAGE_STORAGE_KEY);
+    localStorage.removeItem(THEME_STORAGE_KEY);
+    document.documentElement.removeAttribute('data-theme');
     vi.unstubAllGlobals();
   });
 
@@ -135,6 +138,22 @@ describe('AppShell', () => {
 
     expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe('en');
     expect(document.documentElement.lang).toBe('en');
+  });
+
+  it('toggles theme from the navbar control without reload', async () => {
+    const { harness, root } = await render();
+    const themeButton = root.querySelector(
+      'button[aria-label="Switch to dark mode"]',
+    ) as HTMLButtonElement | null;
+
+    expect(themeButton).not.toBeNull();
+    themeButton?.click();
+    harness.fixture.detectChanges();
+
+    expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe('dark');
+    expect(document.documentElement.dataset['theme']).toBe('dark');
+    expect(root.querySelector('button[aria-label="Switch to light mode"]')).not.toBeNull();
+    expect(root.querySelector('button[aria-pressed="true"]')).not.toBeNull();
   });
 
   it('opens the account menu, navigates to change password, and signs out', async () => {

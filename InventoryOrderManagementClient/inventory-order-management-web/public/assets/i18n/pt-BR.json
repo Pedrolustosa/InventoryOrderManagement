@@ -156,6 +156,11 @@
     "LANGUAGE": "Idioma",
     "LANGUAGE_PT": "PT",
     "LANGUAGE_EN": "EN",
+    "THEME": "Tema",
+    "THEME_LIGHT": "Modo claro",
+    "THEME_DARK": "Modo escuro",
+    "THEME_TOGGLE_TO_DARK": "Alternar para modo escuro",
+    "THEME_TOGGLE_TO_LIGHT": "Alternar para modo claro",
     "MAIN_NAV": "Principal"
   },
   "AUTH": {

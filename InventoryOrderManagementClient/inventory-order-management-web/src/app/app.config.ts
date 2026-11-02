@@ -18,6 +18,7 @@ import { errorInterceptor } from './core/auth/interceptors/error.interceptor';
 import { AuthService } from './core/auth/services/auth.service';
 import { DynamicLocaleId } from './core/i18n/dynamic-locale-id';
 import { LanguageService } from './core/i18n/language.service';
+import { ThemeService } from './core/theme/theme.service';
 import { routes } from './app.routes';
 
 registerLocaleData(localePt);
@@ -48,6 +49,7 @@ export const appConfig: ApplicationConfig = {
       }),
     }),
     provideAppInitializer(() => {
+      inject(ThemeService).init();
       inject(LanguageService).init();
     }),
     provideAppInitializer(async () => {
