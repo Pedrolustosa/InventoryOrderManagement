@@ -137,6 +137,12 @@ public static class Permissions
         public const string Advance = "Shipments.Advance";
     }
 
+    public static class Notifications
+    {
+        public const string View = "Notifications.View";
+        public const string MarkRead = "Notifications.MarkRead";
+    }
+
     public static readonly IReadOnlyList<string> All =
     [
         Users.View,
@@ -209,7 +215,9 @@ public static class Permissions
         Shipments.Create,
         Shipments.Update,
         Shipments.Dispatch,
-        Shipments.Advance
+        Shipments.Advance,
+        Notifications.View,
+        Notifications.MarkRead
     ];
 
     public static bool IsKnown(string permission) => All.Contains(permission);

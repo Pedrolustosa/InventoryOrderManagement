@@ -1,3 +1,6 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router, Routes } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
@@ -5,7 +8,10 @@ import { AuthService } from '../../core/auth/services/auth.service';
 import { permittedAuth, permittedUser } from '../../core/auth/testing/permitted-auth';
 import { LANGUAGE_STORAGE_KEY } from '../../core/i18n/language.service';
 import { provideTestTranslate } from '../../core/i18n/testing/provide-test-translate';
+import { ToastService } from '../../core/notifications/toast.service';
+import { createToastServiceSpy } from '../../core/notifications/testing/toast-testing';
 import { THEME_STORAGE_KEY } from '../../core/theme/theme.service';
+import { NotificationsStateService } from '../notifications/services/notifications-state.service';
 import { AppShell, HomeRedirect } from './app-shell';
 import { SIDEBAR_COLLAPSED_KEY } from './navigation';
 
@@ -68,7 +74,25 @@ describe('AppShell', () => {
 
     const auth = options.auth ?? permittedAuth(permittedUser());
     TestBed.configureTestingModule({
-      providers: [provideRouter(routes), provideTestTranslate(), { provide: AuthService, useValue: auth }],
+      providers: [
+        provideRouter(routes),
+        provideTestTranslate(),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: AuthService, useValue: auth },
+        { provide: ToastService, useValue: createToastServiceSpy() },
+        {
+          provide: NotificationsStateService,
+          useValue: {
+            unreadCount: signal(0).asReadonly(),
+            loadingCount: signal(false).asReadonly(),
+            refreshUnreadCount: () => undefined,
+            setUnreadCount: () => undefined,
+            decrementUnread: () => undefined,
+            reset: () => undefined,
+          },
+        },
+      ],
     });
     const harness = await RouterTestingHarness.create(options.url ?? '/products');
     return { harness, auth, root: harness.fixture.nativeElement as HTMLElement };

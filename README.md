@@ -225,6 +225,7 @@ Legend: **Implemented** means Backend and Frontend exist and can be used togethe
 | Finance Management | Implemented | Payables, receivables, cash accounts, cash flow, settlements, aging |
 | Returns & Exchanges | Implemented | Customer/supplier returns and workflows |
 | Shipping & Delivery | Implemented | Shipments, dispatch, in-transit, failure, resume, delivery |
+| Notification & Alert Management | Implemented | In-app bell, unread count, notification center, mark-read (API titles/messages are English) |
 
 ---
 
@@ -414,6 +415,8 @@ Errors follow `ProblemDetails`. Enums are serialized as strings (`JsonStringEnum
 `DevelopmentDataSeeder` creates demo sign-in accounts for local exploration. Details live in:
 
 `InventoryOrderManagement.Infrastructure/Persistence/Seeding/DevelopmentDataSeeder.cs`
+
+It also seeds in-app notifications (low stock, order confirmed, shipment failed, return awaiting inspection) for each active demo user, so the Navbar bell and `/notifications` page can be exercised after login.
 
 Use them only for local Development / portfolio demos — never in production.
 

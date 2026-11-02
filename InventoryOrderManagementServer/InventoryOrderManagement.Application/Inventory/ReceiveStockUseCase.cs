@@ -1,8 +1,11 @@
+using InventoryOrderManagement.Application.Abstractions.Notifications;
 using InventoryOrderManagement.Application.Abstractions.Persistence;
 using InventoryOrderManagement.Application.Exceptions;
 using InventoryOrderManagement.Application.Inventory.Dtos;
+using InventoryOrderManagement.Application.Notifications;
 using InventoryOrderManagement.Domain.Entities;
 using InventoryOrderManagement.Domain.Enums;
+using Microsoft.Extensions.Logging;
 
 namespace InventoryOrderManagement.Application.Inventory;
 
@@ -12,17 +15,23 @@ public sealed class ReceiveStockUseCase
     private readonly ISupplierRepository _supplierRepository;
     private readonly IInventoryRepository _inventoryRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly INotificationDispatcher _notificationDispatcher;
+    private readonly ILogger<ReceiveStockUseCase> _logger;
 
     public ReceiveStockUseCase(
         IProductRepository productRepository,
         ISupplierRepository supplierRepository,
         IInventoryRepository inventoryRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        INotificationDispatcher notificationDispatcher,
+        ILogger<ReceiveStockUseCase> logger)
     {
         _productRepository = productRepository;
         _supplierRepository = supplierRepository;
         _inventoryRepository = inventoryRepository;
         _unitOfWork = unitOfWork;
+        _notificationDispatcher = notificationDispatcher;
+        _logger = logger;
     }
 
     public async Task<StockMovementResponse> ExecuteAsync(
@@ -48,6 +57,7 @@ public sealed class ReceiveStockUseCase
         }
 
         StockMovementResponse? response = null;
+        LowStockChange? lowStockChange = null;
 
         await _unitOfWork.ExecuteAsync(async ct =>
         {
@@ -68,7 +78,24 @@ public sealed class ReceiveStockUseCase
 
             await _inventoryRepository.AddMovementAsync(movement, ct);
             response = ToResponse(movement, product.Sku, product.Name, supplier.Name);
+            lowStockChange = new LowStockChange(
+                product.Id,
+                product.Name,
+                product.Sku,
+                previousQuantity,
+                balance.QuantityOnHand,
+                balance.MinimumStockLevel,
+                movement.Id);
         }, cancellationToken);
+
+        if (lowStockChange is not null)
+        {
+            await NotificationDispatch.TryNotifyLowStockAsync(
+                _notificationDispatcher,
+                _logger,
+                [lowStockChange],
+                cancellationToken);
+        }
 
         return response ?? throw new InvalidOperationException("Stock entry was not recorded.");
     }

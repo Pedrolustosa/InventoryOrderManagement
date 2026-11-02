@@ -57,6 +57,8 @@ public class InventoryDbContext : IdentityDbContext<ApplicationUser, Application
 
     public DbSet<ShipmentStatusHistory> ShipmentStatusHistories => Set<ShipmentStatusHistory>();
 
+    public DbSet<UserNotification> UserNotifications => Set<UserNotification>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

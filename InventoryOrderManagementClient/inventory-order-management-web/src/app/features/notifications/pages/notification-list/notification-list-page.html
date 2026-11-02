@@ -1,0 +1,123 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">{{ 'NOTIFICATIONS.TITLE' | translate }}</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">{{ 'NOTIFICATIONS.SUBTITLE' | translate }}</p>
+      <p class="mt-2 text-sm font-medium text-ink">
+        {{ 'NOTIFICATIONS.UNREAD_COUNT' | translate: { count: unreadCount() } }}
+      </p>
+    </div>
+    <button
+      *hasPermission="'Notifications.MarkRead'"
+      type="button"
+      class="btn-primary shrink-0"
+      [disabled]="unreadCount() <= 0 || markingAll()"
+      (click)="markAllAsRead()"
+    >
+      {{ (markingAll() ? 'NOTIFICATIONS.MARKING_ALL' : 'NOTIFICATIONS.MARK_ALL') | translate }}
+    </button>
+  </div>
+
+  <div class="space-y-3 rounded-xl border border-line bg-panel p-4">
+    <div class="flex flex-wrap gap-2">
+      <button
+        type="button"
+        class="btn-secondary"
+        [class.!bg-accent]="readFilter() === 'all'"
+        [class.!text-white]="readFilter() === 'all'"
+        (click)="setReadFilter('all')"
+      >
+        {{ 'COMMON.ALL' | translate }}
+      </button>
+      <button
+        type="button"
+        class="btn-secondary"
+        [class.!bg-accent]="readFilter() === 'unread'"
+        [class.!text-white]="readFilter() === 'unread'"
+        (click)="setReadFilter('unread')"
+      >
+        {{ 'NOTIFICATIONS.UNREAD' | translate }}
+      </button>
+      <button
+        type="button"
+        class="btn-secondary"
+        [class.!bg-accent]="readFilter() === 'read'"
+        [class.!text-white]="readFilter() === 'read'"
+        (click)="setReadFilter('read')"
+      >
+        {{ 'NOTIFICATIONS.READ' | translate }}
+      </button>
+      <button type="button" class="btn-secondary" (click)="clearFilters()">{{ 'COMMON.CLEAR' | translate }}</button>
+    </div>
+
+    <div class="grid gap-3 md:grid-cols-2">
+      <label class="block text-sm font-medium text-ink">
+        {{ 'NOTIFICATIONS.FILTERS.TYPE' | translate }}
+        <select class="field mt-1" [value]="typeFilter()" (change)="typeFilter.set($any($event.target).value); applyFilters()">
+          <option value="">{{ 'COMMON.ALL' | translate }}</option>
+          @for (type of types; track type) {
+            <option [value]="type">{{ typeLabel(type) | translate }}</option>
+          }
+        </select>
+      </label>
+      <label class="block text-sm font-medium text-ink">
+        {{ 'NOTIFICATIONS.FILTERS.SEVERITY' | translate }}
+        <select
+          class="field mt-1"
+          [value]="severityFilter()"
+          (change)="severityFilter.set($any($event.target).value); applyFilters()"
+        >
+          <option value="">{{ 'COMMON.ALL' | translate }}</option>
+          @for (severity of severities; track severity) {
+            <option [value]="severity">{{ severityLabel(severity) | translate }}</option>
+          }
+        </select>
+      </label>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="rounded-xl border border-line bg-panel px-5 py-12 text-center text-sm text-muted">
+      {{ 'COMMON.LOADING' | translate }}
+    </div>
+  } @else if (loadError()) {
+    <div class="rounded-xl border border-danger/40 bg-danger/5 px-5 py-12 text-center text-sm text-danger">
+      {{ loadError() }}
+    </div>
+  } @else if (items().length === 0) {
+    <div class="rounded-xl border border-line bg-panel px-5 py-12 text-center">
+      <p class="text-base font-medium text-ink">{{ 'NOTIFICATIONS.EMPTY_TITLE' | translate }}</p>
+      <p class="mt-2 text-sm text-muted">{{ emptyMessage() | translate }}</p>
+    </div>
+  } @else {
+    <div class="space-y-3">
+      @for (item of items(); track item.id) {
+        <app-notification-item
+          [notification]="item"
+          [marking]="isMarking(item.id)"
+          (openRequested)="openNotification($event)"
+          (markReadRequested)="markAsRead($event)"
+        />
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <div class="flex items-center justify-between gap-3">
+        <button type="button" class="btn-secondary" [disabled]="page() <= 1" (click)="goToPage(page() - 1)">
+          {{ 'COMMON.PREVIOUS' | translate }}
+        </button>
+        <p class="text-sm text-muted">
+          {{ 'COMMON.PAGE_OF' | translate: { page: page(), totalPages: totalPages() } }}
+        </p>
+        <button
+          type="button"
+          class="btn-secondary"
+          [disabled]="page() >= totalPages()"
+          (click)="goToPage(page() + 1)"
+        >
+          {{ 'COMMON.NEXT' | translate }}
+        </button>
+      </div>
+    }
+  }
+</section>

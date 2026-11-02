@@ -12,7 +12,8 @@ using Microsoft.Extensions.DependencyInjection;
 namespace InventoryOrderManagement.Infrastructure.Persistence.Seeding;
 
 /// <summary>
-/// Populates Development data for every screen: catalog, stock, orders, purchases, shipping, reports, audit, and sign-in.
+/// Populates Development data for every screen: catalog, stock, orders, purchases, shipping,
+/// notifications, reports, audit, and sign-in.
 /// Idempotent: safe to run on every startup. Existing rows are left in place.
 /// Demo passwords are development-only and are not applied again once the account exists.
 /// </summary>
@@ -240,6 +241,7 @@ public static class DevelopmentDataSeeder
         if (services is not null)
         {
             await SeedDemoAccessAsync(services, dbContext, cancellationToken);
+            await SeedNotificationsAsync(services, dbContext, pen, cancellationToken);
         }
     }
 
@@ -921,6 +923,159 @@ public static class DevelopmentDataSeeder
             "Recife",
             "PE",
             "Brazil");
+    }
+
+    private static async Task SeedNotificationsAsync(
+        IServiceProvider services,
+        InventoryDbContext dbContext,
+        Product lowStockProduct,
+        CancellationToken cancellationToken)
+    {
+        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+        var recipients = new List<ApplicationUser>();
+
+        foreach (var account in DemoAccounts.Where(account => account.IsActive))
+        {
+            var user = await userManager.FindByEmailAsync(account.Email);
+            if (user is not null)
+            {
+                recipients.Add(user);
+            }
+        }
+
+        if (recipients.Count == 0)
+        {
+            return;
+        }
+
+        var confirmedOrder = await dbContext.Orders
+            .AsNoTracking()
+            .FirstOrDefaultAsync(order => order.OrderNumber == "SEED-SO-CONF", cancellationToken);
+
+        var failedShipment = await dbContext.Shipments
+            .AsNoTracking()
+            .FirstOrDefaultAsync(shipment => shipment.TrackingCode == "SEED-TRK-FAIL", cancellationToken);
+
+        var failedOrder = failedShipment is null
+            ? null
+            : await dbContext.Orders
+                .AsNoTracking()
+                .FirstOrDefaultAsync(order => order.Id == failedShipment.OrderId, cancellationToken);
+
+        var now = DateTime.UtcNow;
+
+        foreach (var recipient in recipients)
+        {
+            await EnsureNotificationAsync(
+                dbContext,
+                recipient.Id,
+                NotificationType.LowStockDetected,
+                NotificationSeverity.Warning,
+                "Low stock detected",
+                $"Product '{lowStockProduct.Name}' ({lowStockProduct.Sku}) is at or below the minimum stock level. Current quantity may require replenishment.",
+                $"seed:LowStockDetected:{lowStockProduct.Id}:{recipient.Id}",
+                "Product",
+                lowStockProduct.Id,
+                "/inventory",
+                now.AddMinutes(-45),
+                markAsRead: false,
+                cancellationToken);
+
+            if (confirmedOrder is not null)
+            {
+                await EnsureNotificationAsync(
+                    dbContext,
+                    recipient.Id,
+                    NotificationType.OrderConfirmed,
+                    NotificationSeverity.Info,
+                    "Sales order confirmed",
+                    $"Order {confirmedOrder.OrderNumber} for customer '{confirmedOrder.CustomerName}' was confirmed and is ready for shipping.",
+                    $"seed:OrderConfirmed:{confirmedOrder.Id}:{recipient.Id}",
+                    "Order",
+                    confirmedOrder.Id,
+                    $"/orders/{confirmedOrder.Id}",
+                    now.AddMinutes(-30),
+                    markAsRead: true,
+                    cancellationToken);
+            }
+
+            if (failedShipment is not null && failedOrder is not null)
+            {
+                await EnsureNotificationAsync(
+                    dbContext,
+                    recipient.Id,
+                    NotificationType.ShipmentFailed,
+                    NotificationSeverity.Critical,
+                    "Shipment failed",
+                    $"Shipment for order {failedOrder.OrderNumber} failed. Reason: {failedShipment.FailureReason ?? "Delivery failure."}",
+                    $"seed:ShipmentFailed:{failedShipment.Id}:{recipient.Id}",
+                    "Shipment",
+                    failedShipment.Id,
+                    $"/shipping/{failedShipment.Id}",
+                    now.AddMinutes(-15),
+                    markAsRead: false,
+                    cancellationToken);
+            }
+
+            await EnsureNotificationAsync(
+                dbContext,
+                recipient.Id,
+                NotificationType.ReturnAwaitingInspection,
+                NotificationSeverity.Warning,
+                "Return awaiting inspection",
+                "A customer return was received and awaits inspection in Returns & Exchanges.",
+                $"seed:ReturnAwaitingInspection:{recipient.Id}",
+                "ReturnRequest",
+                relatedEntityId: null,
+                "/returns",
+                now.AddMinutes(-5),
+                markAsRead: false,
+                cancellationToken);
+        }
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    private static async Task EnsureNotificationAsync(
+        InventoryDbContext dbContext,
+        Guid recipientUserId,
+        NotificationType type,
+        NotificationSeverity severity,
+        string title,
+        string message,
+        string eventKey,
+        string? relatedEntityType,
+        Guid? relatedEntityId,
+        string? targetRoute,
+        DateTime createdAtUtc,
+        bool markAsRead,
+        CancellationToken cancellationToken)
+    {
+        if (await dbContext.UserNotifications.AnyAsync(
+                notification => notification.EventKey == eventKey,
+                cancellationToken))
+        {
+            return;
+        }
+
+        var notification = UserNotification.Create(
+            recipientUserId,
+            type,
+            severity,
+            title,
+            message,
+            eventKey,
+            relatedEntityType,
+            relatedEntityId,
+            targetRoute,
+            createdAtUtc);
+
+        if (markAsRead)
+        {
+            notification.MarkAsRead(createdAtUtc.AddMinutes(2));
+        }
+
+        await dbContext.UserNotifications.AddAsync(notification, cancellationToken);
     }
 
     private static async Task SeedDemoAccessAsync(

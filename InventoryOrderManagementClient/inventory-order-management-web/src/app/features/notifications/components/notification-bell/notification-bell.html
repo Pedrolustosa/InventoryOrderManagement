@@ -1,0 +1,50 @@
+<div class="relative" *hasPermission="'Notifications.View'">
+  <button
+    type="button"
+    class="relative inline-flex size-10 items-center justify-center rounded-md border border-line text-ink transition hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+    [class.border-accent]="unreadCount() > 0"
+    [attr.aria-expanded]="panelOpen()"
+    aria-haspopup="dialog"
+    [attr.aria-label]="'NOTIFICATIONS.BELL_TOOLTIP' | translate"
+    [attr.title]="'NOTIFICATIONS.BELL_TOOLTIP' | translate"
+    (click)="toggle()"
+  >
+    <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+      <path
+        d="M6 9a6 6 0 1 1 12 0c0 4 2 5 2 5H4s2-1 2-5zm4 9a2 2 0 0 0 4 0"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+    @if (badgeLabel(); as badge) {
+      <span
+        class="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold leading-5 text-white"
+        aria-hidden="true"
+      >
+        {{ badge }}
+      </span>
+    }
+  </button>
+
+  @if (panelOpen()) {
+    <button
+      type="button"
+      class="fixed inset-0 z-20 cursor-default"
+      [attr.aria-label]="'NOTIFICATIONS.CLOSE_PANEL' | translate"
+      (click)="close()"
+    ></button>
+    <app-notification-dropdown
+      class="relative z-30"
+      [items]="items()"
+      [unreadCount]="unreadCount()"
+      [loading]="loading()"
+      [loadError]="loadError()"
+      [markingAll]="markingAll()"
+      [markingIds]="markingIds()"
+      (closeRequested)="close()"
+      (markAllRequested)="markAllAsRead()"
+      (openRequested)="openNotification($event)"
+      (markReadRequested)="markAsRead($event)"
+    />
+  }
+</div>

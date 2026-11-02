@@ -244,6 +244,14 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                 StatusCodes.Status400BadRequest,
                 "Invalid shipment period",
                 invalidShipmentPeriodException.Message),
+            NotificationNotFoundException notificationNotFoundException => (
+                StatusCodes.Status404NotFound,
+                "Notification not found",
+                notificationNotFoundException.Message),
+            NotificationUserRequiredException notificationUserRequiredException => (
+                StatusCodes.Status401Unauthorized,
+                "Authentication required",
+                notificationUserRequiredException.Message),
             InvalidReportRequestException invalidReportRequestException => (
                 StatusCodes.Status400BadRequest,
                 "Invalid report request",

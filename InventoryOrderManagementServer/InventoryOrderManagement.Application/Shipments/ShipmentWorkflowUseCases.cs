@@ -1,10 +1,13 @@
 using InventoryOrderManagement.Application.Abstractions.Identity;
+using InventoryOrderManagement.Application.Abstractions.Notifications;
 using InventoryOrderManagement.Application.Abstractions.Persistence;
 using InventoryOrderManagement.Application.Exceptions;
+using InventoryOrderManagement.Application.Notifications;
 using InventoryOrderManagement.Application.Security;
 using InventoryOrderManagement.Application.Shipments.Dtos;
 using InventoryOrderManagement.Domain.Entities;
 using InventoryOrderManagement.Domain.Exceptions;
+using Microsoft.Extensions.Logging;
 
 namespace InventoryOrderManagement.Application.Shipments;
 
@@ -212,19 +215,25 @@ public sealed class MarkShipmentFailedUseCase
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISecurityAuditWriter _auditWriter;
     private readonly ICurrentUser _currentUser;
+    private readonly INotificationDispatcher _notificationDispatcher;
+    private readonly ILogger<MarkShipmentFailedUseCase> _logger;
 
     public MarkShipmentFailedUseCase(
         IShipmentRepository shipmentRepository,
         IOrderRepository orderRepository,
         IUnitOfWork unitOfWork,
         ISecurityAuditWriter auditWriter,
-        ICurrentUser currentUser)
+        ICurrentUser currentUser,
+        INotificationDispatcher notificationDispatcher,
+        ILogger<MarkShipmentFailedUseCase> logger)
     {
         _shipmentRepository = shipmentRepository;
         _orderRepository = orderRepository;
         _unitOfWork = unitOfWork;
         _auditWriter = auditWriter;
         _currentUser = currentUser;
+        _notificationDispatcher = notificationDispatcher;
+        _logger = logger;
     }
 
     public async Task<ShipmentResponse> ExecuteAsync(
@@ -236,6 +245,8 @@ public sealed class MarkShipmentFailedUseCase
 
         Shipment? updated = null;
         Order? order = null;
+        Guid? historyId = null;
+        DateTime failedAtUtc = DateTime.UtcNow;
 
         await _unitOfWork.ExecuteAsync(async ct =>
         {
@@ -252,6 +263,9 @@ public sealed class MarkShipmentFailedUseCase
             }
 
             shipment.MarkAsFailed(request.FailureReason, request.Notes, _currentUser.UserId);
+            var newestHistory = shipment.History.OrderByDescending(entry => entry.OccurredAtUtc).First();
+            historyId = newestHistory.Id;
+            failedAtUtc = newestHistory.OccurredAtUtc;
             updated = shipment;
         }, cancellationToken);
 
@@ -263,6 +277,21 @@ public sealed class MarkShipmentFailedUseCase
             entity.Id,
             cancellationToken,
             request.FailureReason);
+
+        if (historyId is { } shipmentStatusHistoryId)
+        {
+            await NotificationDispatch.TryAsync(
+                ct => _notificationDispatcher.NotifyShipmentFailedAsync(
+                    entity.Id,
+                    order?.OrderNumber ?? entity.OrderId.ToString(),
+                    shipmentStatusHistoryId,
+                    request.FailureReason,
+                    failedAtUtc,
+                    ct),
+                _logger,
+                $"Failed to dispatch shipment-failed notification for shipment {entity.Id}.",
+                cancellationToken);
+        }
 
         return ShipmentResponse.FromEntity(entity, order);
     }

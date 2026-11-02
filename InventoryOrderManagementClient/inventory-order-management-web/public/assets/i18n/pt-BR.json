@@ -239,6 +239,7 @@
     "RETURNS_AUTHORIZE": "Autorizar devolução",
     "RETURNS_DISPATCH": "Despachar devolução",
     "RETURNS_DETAILS": "Detalhes da devolução",
+    "NOTIFICATIONS": "Notificações",
     "FINANCE": "Financeiro",
     "FINANCE_DASHBOARD": "Painel financeiro",
     "FINANCE_PAYABLES": "Contas a pagar",
@@ -1015,6 +1016,47 @@
       "NUMBER_PLACEHOLDER": "Número completo da compra",
       "SUPPLIER": "Fornecedor",
       "ALL_SUPPLIERS": "Todos os fornecedores"
+    }
+  },
+  "NOTIFICATIONS": {
+    "TITLE": "Notificações",
+    "SUBTITLE": "Consulte alertas gerados por estoque, pedidos, expedição e devoluções.",
+    "BELL_TOOLTIP": "Notificações",
+    "CLOSE_PANEL": "Fechar notificações",
+    "UNREAD": "Não lida",
+    "READ": "Lida",
+    "UNREAD_COUNT": "{{count}} não lidas",
+    "OPEN": "Abrir",
+    "MARK_READ": "Marcar como lida",
+    "MARKING_READ": "Marcando...",
+    "MARK_ALL": "Marcar todas como lidas",
+    "MARKING_ALL": "Marcando todas...",
+    "MARK_ALL_SUCCESS": "Todas as notificações foram marcadas como lidas.",
+    "VIEW_ALL": "Ver todas",
+    "EMPTY_TITLE": "Nenhuma notificação encontrada",
+    "EMPTY_HINT": "Você ainda não possui notificações.",
+    "EMPTY_FILTERED": "Nenhuma notificação corresponde aos filtros atuais.",
+    "FILTERS": {
+      "TYPE": "Tipo",
+      "SEVERITY": "Prioridade"
+    },
+    "TYPES": {
+      "LowStockDetected": "Estoque baixo",
+      "OrderConfirmed": "Pedido confirmado",
+      "ShipmentFailed": "Falha na entrega",
+      "ReturnAwaitingInspection": "Devolução aguardando inspeção"
+    },
+    "SEVERITY": {
+      "Info": "Informativo",
+      "Warning": "Atenção",
+      "Critical": "Crítico"
+    },
+    "ERRORS": {
+      "LOAD": "Não foi possível carregar as notificações.",
+      "MARK_READ": "Não foi possível marcar a notificação como lida.",
+      "MARK_ALL": "Não foi possível marcar todas as notificações como lidas.",
+      "FORBIDDEN": "Você não tem permissão para atualizar notificações.",
+      "INVALID_ROUTE": "O destino desta notificação não está disponível."
     }
   },
   "SHIPPING": {
