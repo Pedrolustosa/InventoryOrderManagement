@@ -53,6 +53,10 @@ public class InventoryDbContext : IdentityDbContext<ApplicationUser, Application
 
     public DbSet<ReturnItem> ReturnItems => Set<ReturnItem>();
 
+    public DbSet<Shipment> Shipments => Set<Shipment>();
+
+    public DbSet<ShipmentStatusHistory> ShipmentStatusHistories => Set<ShipmentStatusHistory>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

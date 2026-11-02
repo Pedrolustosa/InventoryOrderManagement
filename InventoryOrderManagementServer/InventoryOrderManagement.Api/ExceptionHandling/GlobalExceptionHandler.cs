@@ -228,6 +228,22 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                 StatusCodes.Status400BadRequest,
                 "Invalid return period",
                 invalidReturnPeriodException.Message),
+            ShipmentNotFoundException shipmentNotFoundException => (
+                StatusCodes.Status404NotFound,
+                "Shipment not found",
+                shipmentNotFoundException.Message),
+            ShipmentConflictException shipmentConflictException => (
+                StatusCodes.Status409Conflict,
+                "Shipment conflict",
+                shipmentConflictException.Message),
+            InvalidShipmentStatusException invalidShipmentStatusException => (
+                StatusCodes.Status409Conflict,
+                "Invalid shipment status",
+                invalidShipmentStatusException.Message),
+            InvalidShipmentPeriodException invalidShipmentPeriodException => (
+                StatusCodes.Status400BadRequest,
+                "Invalid shipment period",
+                invalidShipmentPeriodException.Message),
             InvalidReportRequestException invalidReportRequestException => (
                 StatusCodes.Status400BadRequest,
                 "Invalid report request",

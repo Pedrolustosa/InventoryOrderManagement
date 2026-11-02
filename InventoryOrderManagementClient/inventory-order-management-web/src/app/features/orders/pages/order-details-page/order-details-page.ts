@@ -3,6 +3,8 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { InventoryService } from '../../../inventory/services/inventory.service';
+import { ShipmentSummary } from '../../../shipping/models/shipment.model';
+import { ShipmentsService } from '../../../shipping/services/shipments.service';
 import { OrderActionDialog, OrderLifecycleAction } from '../../components/order-action-dialog/order-action-dialog';
 import { OrderTimeline } from '../../components/order-timeline/order-timeline';
 import { canCancel, canConfirm, canDeliver, canEdit, canShip } from '../../models/order-actions';
@@ -20,8 +22,10 @@ export class OrderDetailsPage implements OnInit {
   private readonly router = inject(Router);
   private readonly ordersService = inject(OrdersService);
   private readonly inventoryService = inject(InventoryService);
+  private readonly shipmentsService = inject(ShipmentsService);
 
   readonly order = signal<Order | null>(null);
+  readonly linkedShipment = signal<ShipmentSummary | null>(null);
   readonly availability = signal<ReadonlyMap<string, number>>(new Map());
   readonly isLoading = signal(true);
   readonly isActing = signal(false);
@@ -41,11 +45,11 @@ export class OrderDetailsPage implements OnInit {
   });
   readonly canShip = computed(() => {
     const order = this.order();
-    return order ? canShip(order.status) : false;
+    return order ? canShip(order.status) && !this.linkedShipment() : false;
   });
   readonly canDeliver = computed(() => {
     const order = this.order();
-    return order ? canDeliver(order.status) : false;
+    return order ? canDeliver(order.status) && !this.linkedShipment() : false;
   });
   readonly canCancel = computed(() => {
     const order = this.order();
@@ -126,11 +130,19 @@ export class OrderDetailsPage implements OnInit {
         this.order.set(order);
         this.isLoading.set(false);
         this.loadAvailability(order);
+        this.loadLinkedShipment(order.id);
       },
       error: (error: Error) => {
         this.loadError.set(error.message);
         this.isLoading.set(false);
       },
+    });
+  }
+
+  private loadLinkedShipment(orderId: string): void {
+    this.shipmentsService.getByOrderId(orderId).subscribe({
+      next: (shipment) => this.linkedShipment.set(shipment),
+      error: () => this.linkedShipment.set(null),
     });
   }
 

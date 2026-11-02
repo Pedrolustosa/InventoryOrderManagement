@@ -1,0 +1,122 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">New shipment</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">
+        Select a confirmed sales order and register carrier information. Status starts as Preparing.
+      </p>
+    </div>
+    <a routerLink="/shipping" class="btn-secondary shrink-0">Back to list</a>
+  </div>
+
+  @if (loadError()) {
+    <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
+      {{ loadError() }}
+    </div>
+  }
+
+  <form class="space-y-6" [formGroup]="form" (ngSubmit)="submit()">
+    <section class="rounded-xl border border-line bg-panel p-5 shadow-sm sm:p-6">
+      <h2 class="text-lg font-semibold text-ink">Sales order</h2>
+      <div class="mt-4 grid gap-3 md:grid-cols-2">
+        <label class="block text-sm font-medium text-ink">
+          Search
+          <input
+            type="search"
+            class="field mt-1"
+            placeholder="Order number or customer"
+            [value]="sourceSearch()"
+            (input)="sourceSearch.set($any($event.target).value)"
+          />
+        </label>
+        <label class="block text-sm font-medium text-ink">
+          Confirmed order
+          <select
+            class="field mt-1"
+            [value]="selectedOrderId()"
+            (change)="selectOrder($any($event.target).value)"
+            [disabled]="isLoadingOrders()"
+          >
+            <option value="">Select an order</option>
+            @for (order of filteredOrders(); track order.id) {
+              <option [value]="order.id">{{ order.orderNumber }} · {{ order.customerName }}</option>
+            }
+          </select>
+        </label>
+      </div>
+
+      @if (isLoadingOrder()) {
+        <p class="mt-4 text-sm text-muted">Loading order details...</p>
+      } @else if (selectedOrder(); as order) {
+        <dl class="mt-4 grid gap-3 sm:grid-cols-2 text-sm">
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Order</dt>
+            <dd class="mt-1 font-medium text-ink">{{ order.orderNumber }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Customer</dt>
+            <dd class="mt-1 font-medium text-ink">{{ order.customerName }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Created</dt>
+            <dd class="mt-1 font-medium text-ink">{{ order.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Total</dt>
+            <dd class="mt-1 font-medium text-ink">{{ order.subtotal | currency: 'BRL' }}</dd>
+          </div>
+          <div class="sm:col-span-2">
+            <dt class="text-xs uppercase tracking-wide text-muted">Shipping address</dt>
+            <dd class="mt-1 font-medium text-ink">{{ formatAddress(order) }}</dd>
+          </div>
+        </dl>
+      }
+
+      @if (hasExistingShipment()) {
+        <div class="mt-4 rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
+          This order already has a shipment.
+          <a class="ml-1 underline" [routerLink]="['/shipping', existingShipmentId()]">Open existing shipment</a>
+        </div>
+      }
+    </section>
+
+    <section class="rounded-xl border border-line bg-panel p-5 shadow-sm sm:p-6">
+      <h2 class="text-lg font-semibold text-ink">Transport</h2>
+      <div class="mt-4 grid gap-3 md:grid-cols-2">
+        <label class="block text-sm font-medium text-ink md:col-span-2">
+          Carrier
+          <input class="field mt-1" formControlName="carrierName" [attr.maxlength]="carrierMax" />
+        </label>
+        <label class="block text-sm font-medium text-ink">
+          Tracking code
+          <input class="field mt-1" formControlName="trackingCode" [attr.maxlength]="trackingMax" />
+        </label>
+        <label class="block text-sm font-medium text-ink md:col-span-2">
+          Notes
+          <textarea class="field mt-1 min-h-24" formControlName="notes" [attr.maxlength]="notesMax"></textarea>
+        </label>
+      </div>
+    </section>
+
+    @if (formError()) {
+      <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
+        {{ formError() }}
+      </div>
+    }
+
+    <div class="flex flex-wrap gap-3">
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="isSubmitting() || hasExistingShipment() || !selectedOrder()"
+      >
+        @if (isSubmitting()) {
+          Saving...
+        } @else {
+          Save shipment
+        }
+      </button>
+      <a routerLink="/shipping" class="btn-secondary">Cancel</a>
+    </div>
+  </form>
+</section>

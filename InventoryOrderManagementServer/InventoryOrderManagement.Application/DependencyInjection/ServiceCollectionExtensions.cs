@@ -8,6 +8,7 @@ using InventoryOrderManagement.Application.Products;
 using InventoryOrderManagement.Application.Purchases;
 using InventoryOrderManagement.Application.Reports;
 using InventoryOrderManagement.Application.Returns;
+using InventoryOrderManagement.Application.Shipments;
 using InventoryOrderManagement.Application.Suppliers;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -130,6 +131,16 @@ public static class ServiceCollectionExtensions
         services.AddScoped<CancelReturnUseCase>();
         services.AddScoped<GetReturnHistoryUseCase>();
         services.AddScoped<GetReturnStockMovementsUseCase>();
+        services.AddScoped<CreateShipmentUseCase>();
+        services.AddScoped<UpdateShipmentUseCase>();
+        services.AddScoped<GetAllShipmentsUseCase>();
+        services.AddScoped<GetShipmentByIdUseCase>();
+        services.AddScoped<GetShipmentHistoryUseCase>();
+        services.AddScoped<DispatchShipmentUseCase>();
+        services.AddScoped<SetShipmentInTransitUseCase>();
+        services.AddScoped<MarkShipmentDeliveredUseCase>();
+        services.AddScoped<MarkShipmentFailedUseCase>();
+        services.AddScoped<ResumeShipmentUseCase>();
 
         return services;
     }

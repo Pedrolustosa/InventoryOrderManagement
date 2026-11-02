@@ -86,6 +86,11 @@
           @if (canDeliver()) {
             <button *hasPermission="'Orders.Deliver'" type="button" class="btn-primary" (click)="openAction('deliver')">Deliver Order</button>
           }
+          @if (linkedShipment(); as shipment) {
+            <a *hasPermission="'Shipments.View'" class="btn-secondary" [routerLink]="['/shipping', shipment.id]">
+              Open shipment
+            </a>
+          }
           @if (canCancel()) {
             <button *hasPermission="'Orders.Cancel'" type="button" class="btn-secondary text-danger" (click)="openAction('cancel')">Cancel Order</button>
           }

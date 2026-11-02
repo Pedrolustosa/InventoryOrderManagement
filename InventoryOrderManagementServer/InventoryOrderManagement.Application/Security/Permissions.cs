@@ -128,6 +128,15 @@ public static class Permissions
         public const string Cancel = "Returns.Cancel";
     }
 
+    public static class Shipments
+    {
+        public const string View = "Shipments.View";
+        public const string Create = "Shipments.Create";
+        public const string Update = "Shipments.Update";
+        public const string Dispatch = "Shipments.Dispatch";
+        public const string Advance = "Shipments.Advance";
+    }
+
     public static readonly IReadOnlyList<string> All =
     [
         Users.View,
@@ -195,7 +204,12 @@ public static class Permissions
         Returns.SupplierCreate,
         Returns.SupplierAuthorize,
         Returns.SupplierDispatch,
-        Returns.Cancel
+        Returns.Cancel,
+        Shipments.View,
+        Shipments.Create,
+        Shipments.Update,
+        Shipments.Dispatch,
+        Shipments.Advance
     ];
 
     public static bool IsKnown(string permission) => All.Contains(permission);
@@ -255,6 +269,13 @@ public static class SecurityActions
     public const string SupplierReturnAuthorized = "SupplierReturnAuthorized";
     public const string SupplierReturnDispatched = "SupplierReturnDispatched";
     public const string ReturnCancelled = "ReturnCancelled";
+    public const string ShipmentCreated = "ShipmentCreated";
+    public const string ShipmentUpdated = "ShipmentUpdated";
+    public const string ShipmentDispatched = "ShipmentDispatched";
+    public const string ShipmentInTransit = "ShipmentInTransit";
+    public const string ShipmentDelivered = "ShipmentDelivered";
+    public const string ShipmentFailed = "ShipmentFailed";
+    public const string ShipmentResumed = "ShipmentResumed";
 }
 
 public static class SecurityEntities
@@ -263,6 +284,7 @@ public static class SecurityEntities
     public const string Role = "Role";
     public const string Session = "Session";
     public const string ReturnRequest = "ReturnRequest";
+    public const string Shipment = "Shipment";
 }
 
 public static class SecurityOutcomes

@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace InventoryOrderManagement.Infrastructure.Persistence.Seeding;
 
 /// <summary>
-/// Populates Development data for every screen: catalog, stock, orders, purchases, reports, audit, and sign-in.
+/// Populates Development data for every screen: catalog, stock, orders, purchases, shipping, reports, audit, and sign-in.
 /// Idempotent: safe to run on every startup. Existing rows are left in place.
 /// Demo passwords are development-only and are not applied again once the account exists.
 /// </summary>
@@ -542,6 +542,87 @@ public static class DevelopmentDataSeeder
             progress: SalesProgress.CancelledConfirmed,
             cancelReason: "Payment was not approved.",
             cancellationToken);
+
+        // SEED-SO-CONF stays Confirmed without a shipment so the Shipping UI can create one.
+        await EnsureSalesOrderAsync(
+            dbContext,
+            number: "SEED-SO-PREP",
+            customer: johnSmith,
+            product: mouse,
+            quantity: 1,
+            progress: SalesProgress.Confirmed,
+            cancelReason: null,
+            cancellationToken);
+
+        await EnsureSalesOrderAsync(
+            dbContext,
+            number: "SEED-SO-TRANS",
+            customer: acmeRetail,
+            product: notebook,
+            quantity: 2,
+            progress: SalesProgress.Shipped,
+            cancelReason: null,
+            cancellationToken);
+
+        await EnsureSalesOrderAsync(
+            dbContext,
+            number: "SEED-SO-FAIL",
+            customer: johnSmith,
+            product: keyboard,
+            quantity: 1,
+            progress: SalesProgress.Shipped,
+            cancelReason: null,
+            cancellationToken);
+
+        await EnsureShipmentAsync(
+            dbContext,
+            orderNumber: "SEED-SO-PREP",
+            carrierName: "Rapid Express",
+            trackingCode: "SEED-TRK-PREP",
+            notes: "Awaiting warehouse dispatch.",
+            progress: ShipmentSeedProgress.Preparing,
+            failureReason: null,
+            cancellationToken);
+
+        await EnsureShipmentAsync(
+            dbContext,
+            orderNumber: "SEED-SO-SHIP",
+            carrierName: "Acme Logistics",
+            trackingCode: "SEED-TRK-SHIP",
+            notes: "Left the distribution center.",
+            progress: ShipmentSeedProgress.Shipped,
+            failureReason: null,
+            cancellationToken);
+
+        await EnsureShipmentAsync(
+            dbContext,
+            orderNumber: "SEED-SO-TRANS",
+            carrierName: "South Cargo",
+            trackingCode: "SEED-TRK-TRANS",
+            notes: "Hub departure confirmed.",
+            progress: ShipmentSeedProgress.InTransit,
+            failureReason: null,
+            cancellationToken);
+
+        await EnsureShipmentAsync(
+            dbContext,
+            orderNumber: "SEED-SO-FAIL",
+            carrierName: "City Couriers",
+            trackingCode: "SEED-TRK-FAIL",
+            notes: "Delivery attempt logged.",
+            progress: ShipmentSeedProgress.Failed,
+            failureReason: "Customer was absent at the delivery address.",
+            cancellationToken);
+
+        await EnsureShipmentAsync(
+            dbContext,
+            orderNumber: "SEED-SO-DEL",
+            carrierName: "Brasil Correios",
+            trackingCode: "SEED-TRK-DEL",
+            notes: "Signed by the recipient.",
+            progress: ShipmentSeedProgress.Delivered,
+            failureReason: null,
+            cancellationToken);
     }
 
     private static async Task EnsureStockEntryAsync(
@@ -755,6 +836,66 @@ public static class DevelopmentDataSeeder
         }
     }
 
+    private static async Task EnsureShipmentAsync(
+        InventoryDbContext dbContext,
+        string orderNumber,
+        string carrierName,
+        string trackingCode,
+        string notes,
+        ShipmentSeedProgress progress,
+        string? failureReason,
+        CancellationToken cancellationToken)
+    {
+        var order = await dbContext.Orders
+            .AsNoTracking()
+            .FirstOrDefaultAsync(entity => entity.OrderNumber == orderNumber, cancellationToken);
+
+        if (order is null)
+        {
+            return;
+        }
+
+        if (await dbContext.Shipments.AnyAsync(entity => entity.OrderId == order.Id, cancellationToken))
+        {
+            return;
+        }
+
+        var shipment = Shipment.Create(
+            order.Id,
+            order.OrderNumber,
+            order.CustomerId,
+            order.CustomerName,
+            carrierName,
+            trackingCode,
+            notes,
+            createdByUserId: null);
+
+        if (progress is not ShipmentSeedProgress.Preparing)
+        {
+            shipment.Dispatch("Seed dispatch.", changedByUserId: null);
+        }
+
+        if (progress is ShipmentSeedProgress.InTransit or ShipmentSeedProgress.Delivered)
+        {
+            shipment.SetInTransit("Seed transit update.", changedByUserId: null);
+        }
+
+        if (progress == ShipmentSeedProgress.Failed)
+        {
+            shipment.MarkAsFailed(
+                failureReason ?? throw new InvalidOperationException("A failed shipment seed requires a reason."),
+                "Seed delivery failure.",
+                changedByUserId: null);
+        }
+
+        if (progress == ShipmentSeedProgress.Delivered)
+        {
+            shipment.MarkAsDelivered("Seed delivery confirmation.", changedByUserId: null);
+        }
+
+        dbContext.Shipments.Add(shipment);
+    }
+
     private static async Task<InventoryBalance> TrackedBalanceAsync(
         InventoryDbContext dbContext,
         Guid productId,
@@ -902,5 +1043,14 @@ public static class DevelopmentDataSeeder
         Delivered,
         CancelledDraft,
         CancelledConfirmed
+    }
+
+    private enum ShipmentSeedProgress
+    {
+        Preparing,
+        Shipped,
+        InTransit,
+        Delivered,
+        Failed
     }
 }

@@ -73,6 +73,7 @@ describe('Sidebar', () => {
       'Inventory',
       'Purchases',
       'Orders',
+      'Shipping',
       'Returns',
       'Customer returns',
       'Supplier returns',

@@ -5,6 +5,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { InventoryService } from '../../../inventory/services/inventory.service';
+import { ShipmentsService } from '../../../shipping/services/shipments.service';
 import { Order } from '../../models/order.model';
 import { OrderStatus } from '../../models/order-status.model';
 import { AuthService } from '../../../../core/auth/services/auth.service';
@@ -23,6 +24,9 @@ describe('OrderDetailsPage', () => {
     shipOrder: ReturnType<typeof vi.fn>;
     deliverOrder: ReturnType<typeof vi.fn>;
     cancelOrder: ReturnType<typeof vi.fn>;
+  };
+  let shipmentsService: {
+    getByOrderId: ReturnType<typeof vi.fn>;
   };
 
   afterEach(() => {
@@ -69,7 +73,10 @@ describe('OrderDetailsPage', () => {
     };
   }
 
-  async function setup(order: Order): Promise<void> {
+  async function setup(
+    order: Order,
+    linkedShipment: { id: string; orderId: string } | null = null,
+  ): Promise<void> {
     ordersService = {
       getOrderById: vi.fn().mockReturnValue(of(order)),
       confirmOrder: vi.fn(),
@@ -77,12 +84,16 @@ describe('OrderDetailsPage', () => {
       deliverOrder: vi.fn(),
       cancelOrder: vi.fn(),
     };
+    shipmentsService = {
+      getByOrderId: vi.fn().mockReturnValue(of(linkedShipment)),
+    };
 
     await TestBed.configureTestingModule({
       imports: [OrderDetailsPage],
       providers: [
         provideRouter([]),
         { provide: OrdersService, useValue: ordersService },
+        { provide: ShipmentsService, useValue: shipmentsService },
         {
           provide: InventoryService,
           useValue: { getInventoryBalances: vi.fn().mockReturnValue(of([])) },
@@ -209,6 +220,19 @@ describe('OrderDetailsPage', () => {
     expect(text).not.toContain('Cancel Order');
     expect(text).not.toContain('Edit');
     expect(component.canCancel()).toBe(false);
+  });
+
+  it('should hide ship and deliver when a shipment already exists', async () => {
+    await setup(buildOrder('Confirmed'), {
+      id: 'shipment-1',
+      orderId: 'order-1',
+    });
+    const text = fixture.nativeElement.textContent as string;
+
+    expect(component.canShip()).toBe(false);
+    expect(component.canDeliver()).toBe(false);
+    expect(text).not.toContain('Ship Order');
+    expect(text).toContain('Open shipment');
   });
 
   it('should hide editing and cancellation after delivery', async () => {
