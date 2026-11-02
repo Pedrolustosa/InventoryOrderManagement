@@ -1,4 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -27,7 +28,7 @@ import { AuthService } from '../../../../core/auth/services/auth.service';
 
 @Component({
   selector: 'app-return-form-page',
-  imports: [RouterLink, ReactiveFormsModule, CurrencyPipe],
+  imports: [TranslatePipe, RouterLink, ReactiveFormsModule, CurrencyPipe],
   templateUrl: './return-form-page.html',
 })
 export class ReturnFormPage implements OnInit {
@@ -55,6 +56,7 @@ export class ReturnFormPage implements OnInit {
   readonly isSubmitting = signal(false);
   readonly loadError = signal<string | null>(null);
   readonly formError = signal<string | null>(null);
+  readonly formErrorParams = signal<Record<string, unknown>>({});
   readonly sourceSearch = signal('');
 
   readonly form = this.formBuilder.nonNullable.group({
@@ -67,9 +69,9 @@ export class ReturnFormPage implements OnInit {
 
   readonly title = computed(() => {
     if (this.isEdit()) {
-      return this.returnType() === 'CustomerReturn' ? 'Edit customer return' : 'Edit supplier return';
+      return this.returnType() === 'CustomerReturn' ? 'RETURNS.FORM.EDIT_CUSTOMER' : 'RETURNS.FORM.EDIT_SUPPLIER';
     }
-    return this.returnType() === 'CustomerReturn' ? 'New customer return' : 'New supplier return';
+    return this.returnType() === 'CustomerReturn' ? 'RETURNS.FORM.NEW_CUSTOMER' : 'RETURNS.FORM.NEW_SUPPLIER';
   });
 
   readonly financialTreatments = computed(() =>
@@ -160,7 +162,7 @@ export class ReturnFormPage implements OnInit {
     const reason = this.form.controls.reason.value;
     const reasonDescription = this.form.controls.reasonDescription.value.trim();
     if (reason === 'Other' && !reasonDescription) {
-      this.formError.set('A reason description is required when the reason is Other.');
+      this.formError.set('RETURNS.FORM.ERR_OTHER_REASON');
       return;
     }
 
@@ -207,7 +209,7 @@ export class ReturnFormPage implements OnInit {
 
     const sourceId = this.selectedSourceId();
     if (!sourceId) {
-      this.formError.set('Select a source order before submitting.');
+      this.formError.set('RETURNS.FORM.ERR_SELECT_SOURCE');
       this.isSubmitting.set(false);
       return;
     }
@@ -436,14 +438,13 @@ export class ReturnFormPage implements OnInit {
 
       const quantity = Number(raw);
       if (!Number.isInteger(quantity) || quantity < 1) {
-        this.formError.set(`Quantity for ${item.productSku} must be a positive whole number.`);
+        this.formError.set('RETURNS.FORM.ERR_QTY'); this.formErrorParams.set({ sku: item.productSku });
         return null;
       }
 
       if (quantity > item.availableToReturn) {
-        this.formError.set(
-          `Quantity for ${item.productSku} cannot exceed the available quantity of ${item.availableToReturn}.`,
-        );
+        this.formError.set('RETURNS.FORM.ERR_EXCEED');
+        this.formErrorParams.set({ sku: item.productSku, available: item.availableToReturn });
         return null;
       }
 
@@ -451,7 +452,7 @@ export class ReturnFormPage implements OnInit {
     }
 
     if (selected.length === 0) {
-      this.formError.set('Enter a quantity for at least one eligible item.');
+      this.formError.set('RETURNS.FORM.ERR_EMPTY');
       return null;
     }
 
@@ -461,7 +462,7 @@ export class ReturnFormPage implements OnInit {
   private navigateSuccess(ret: ReturnRequest, verb: 'created' | 'updated'): void {
     this.isSubmitting.set(false);
     void this.router.navigate(['/returns', ret.id], {
-      state: { successMessage: `Return ${ret.returnNumber} was ${verb}.` },
+      state: { successMessage: { key: verb === 'created' ? 'RETURNS.FORM.SUCCESS_CREATED' : 'RETURNS.FORM.SUCCESS_UPDATED', params: { number: ret.returnNumber } } },
     });
   }
 

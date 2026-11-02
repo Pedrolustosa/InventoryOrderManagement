@@ -1,6 +1,8 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ToastService } from '../../../../core/notifications/toast.service';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { SecurityAuditLog } from '../../../access-management/audit/models/audit.model';
 import { movementTypeLabel } from '../../../inventory/models/stock-movement-type.model';
@@ -28,12 +30,13 @@ import { ReturnsRequestError, ReturnsService } from '../../services/returns.serv
 
 @Component({
   selector: 'app-return-details-page',
-  imports: [RouterLink, CurrencyPipe, DatePipe, ReturnCancelDialog, HasPermissionDirective],
+  imports: [RouterLink, CurrencyPipe, DatePipe, ReturnCancelDialog, HasPermissionDirective, TranslatePipe],
   templateUrl: './return-details-page.html',
 })
 export class ReturnDetailsPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
   private readonly returnsService = inject(ReturnsService);
 
   readonly ret = signal<ReturnRequest | null>(null);
@@ -47,7 +50,6 @@ export class ReturnDetailsPage implements OnInit {
   readonly historyError = signal<string | null>(null);
   readonly movementsError = signal<string | null>(null);
   readonly actionError = signal<string | null>(null);
-  readonly successMessage = signal<string | null>(null);
   readonly showCancel = signal(false);
 
   readonly canEdit = computed(() => {
@@ -81,9 +83,11 @@ export class ReturnDetailsPage implements OnInit {
   readonly isCustomer = computed(() => this.ret()?.type === 'CustomerReturn');
 
   constructor() {
-    const state = this.router.getCurrentNavigation()?.extras.state as { successMessage?: string } | undefined;
+    const state = this.router.getCurrentNavigation()?.extras.state as
+      | { successMessage?: { key: string; params?: Record<string, unknown> } }
+      | undefined;
     if (state?.successMessage) {
-      this.successMessage.set(state.successMessage);
+      this.toast.successKey(state.successMessage.key, state.successMessage.params);
     }
   }
 
@@ -98,12 +102,11 @@ export class ReturnDetailsPage implements OnInit {
   conditionLabel = returnItemConditionLabel;
   financialTreatmentLabel = returnFinancialTreatmentLabel;
   financialStatusLabel = returnFinancialStatusLabel;
-  movementLabel = movementTypeLabel;
+  movementLabel = (type: string) => `STATUS.STOCK_MOVEMENT.${type}`;
   counterpart = returnCounterpartName;
 
   openCancel(): void {
     this.actionError.set(null);
-    this.successMessage.set(null);
     this.showCancel.set(true);
   }
 
@@ -128,7 +131,7 @@ export class ReturnDetailsPage implements OnInit {
         this.isActing.set(false);
         this.showCancel.set(false);
         this.ret.set(updated);
-        this.successMessage.set(`Return ${updated.returnNumber} was cancelled.`);
+        this.toast.successKey('RETURNS.DETAILS.SUCCESS_CANCELLED', { number: updated.returnNumber });
         this.loadHistory(updated.id);
       },
       error: (error: ReturnsRequestError) => {
@@ -144,7 +147,7 @@ export class ReturnDetailsPage implements OnInit {
   private loadReturn(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
-      this.loadError.set('Return was not found.');
+      this.loadError.set('RETURNS.DETAILS.NOT_FOUND');
       this.isLoading.set(false);
       return;
     }

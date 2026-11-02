@@ -1,13 +1,13 @@
 export const FINANCE_PRESETS = ['Today', 'Last7Days', 'Last30Days', 'CurrentMonth', 'PreviousMonth', 'Custom'] as const;
 export type FinancePreset = (typeof FINANCE_PRESETS)[number];
 
-export const FINANCE_PRESET_OPTIONS: { id: FinancePreset; label: string }[] = [
-  { id: 'Today', label: 'Today' },
-  { id: 'Last7Days', label: 'Last 7 days' },
-  { id: 'Last30Days', label: 'Last 30 days' },
-  { id: 'CurrentMonth', label: 'Current month' },
-  { id: 'PreviousMonth', label: 'Previous month' },
-  { id: 'Custom', label: 'Custom' },
+export const FINANCE_PRESET_OPTIONS: { id: FinancePreset; labelKey: string }[] = [
+  { id: 'Today', labelKey: 'FINANCE.FILTERS.TODAY' },
+  { id: 'Last7Days', labelKey: 'FINANCE.FILTERS.LAST_7_DAYS' },
+  { id: 'Last30Days', labelKey: 'FINANCE.FILTERS.LAST_30_DAYS' },
+  { id: 'CurrentMonth', labelKey: 'FINANCE.FILTERS.CURRENT_MONTH' },
+  { id: 'PreviousMonth', labelKey: 'FINANCE.FILTERS.PREVIOUS_MONTH' },
+  { id: 'Custom', labelKey: 'FINANCE.FILTERS.CUSTOM' },
 ];
 
 export interface FinanceRange {
@@ -59,11 +59,11 @@ function customRange(customStart: string, customEnd: string): FinanceRangeResult
   const start = parseLocalDate(customStart);
   const endDay = parseLocalDate(customEnd);
   if (!start || !endDay) {
-    return { error: 'Choose a start date and an end date.' };
+    return { error: 'FINANCE.FILTERS.CHOOSE_DATES' };
   }
 
   if (start.getTime() > endDay.getTime()) {
-    return { error: 'The start date cannot be later than the end date.' };
+    return { error: 'FINANCE.FILTERS.PERIOD_ERROR' };
   }
 
   return { range: toRange(start, addDays(endDay, 1)) };

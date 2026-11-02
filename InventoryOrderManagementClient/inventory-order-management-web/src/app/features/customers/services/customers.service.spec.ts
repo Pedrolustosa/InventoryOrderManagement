@@ -6,6 +6,8 @@ import { CreateCustomerRequest } from '../models/create-customer-request.model';
 import { CustomerResponse } from '../models/customer.model';
 import { UpdateCustomerRequest } from '../models/update-customer-request.model';
 import { CustomersService } from './customers.service';
+import { provideTestTranslate } from '../../../core/i18n/testing/provide-test-translate';
+
 
 describe('CustomersService', () => {
   let service: CustomersService;
@@ -36,7 +38,7 @@ describe('CustomersService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), CustomersService],
+      providers: [...provideTestTranslate(), provideHttpClient(), provideHttpClientTesting(), CustomersService],
     });
 
     service = TestBed.inject(CustomersService);

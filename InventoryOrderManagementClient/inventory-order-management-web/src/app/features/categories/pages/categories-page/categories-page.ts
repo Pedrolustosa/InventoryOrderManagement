@@ -1,4 +1,7 @@
 import { Component, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
+
+import { ToastService } from '../../../../core/notifications/toast.service';
 import { CategoryDetail } from '../../components/category-detail/category-detail';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { CategoryForm } from '../../components/category-form/category-form';
@@ -14,11 +17,12 @@ type PanelMode = 'none' | 'create' | 'edit' | 'detail' | 'deactivate';
 
 @Component({
   selector: 'app-categories-page',
-  imports: [CategoryForm, CategoryList, CategoryDetail, DeactivateConfirm, HasPermissionDirective],
+  imports: [CategoryForm, CategoryList, CategoryDetail, DeactivateConfirm, HasPermissionDirective, TranslatePipe],
   templateUrl: './categories-page.html',
 })
 export class CategoriesPage implements OnInit {
   private readonly categoriesService = inject(CategoriesService);
+  private readonly toast = inject(ToastService);
 
   @ViewChild(CategoryForm) private categoryForm?: CategoryForm;
 
@@ -28,7 +32,6 @@ export class CategoriesPage implements OnInit {
   readonly isDetailLoading = signal(false);
   readonly loadError = signal<string | null>(null);
   readonly submitError = signal<string | null>(null);
-  readonly successMessage = signal<string | null>(null);
   readonly statusFilter = signal<StatusFilter>('all');
   readonly searchTerm = signal('');
   readonly panelMode = signal<PanelMode>('none');
@@ -61,21 +64,18 @@ export class CategoriesPage implements OnInit {
   }
 
   openCreate(): void {
-    this.successMessage.set(null);
     this.submitError.set(null);
     this.selectedCategory.set(null);
     this.panelMode.set('create');
   }
 
   openEdit(category: CategoryResponse): void {
-    this.successMessage.set(null);
     this.submitError.set(null);
     this.selectedCategory.set(category);
     this.panelMode.set('edit');
   }
 
   openDetail(category: CategoryResponse): void {
-    this.successMessage.set(null);
     this.submitError.set(null);
     this.panelMode.set('detail');
     this.isDetailLoading.set(true);
@@ -94,7 +94,6 @@ export class CategoriesPage implements OnInit {
   }
 
   openDeactivate(category: CategoryResponse): void {
-    this.successMessage.set(null);
     this.submitError.set(null);
     this.selectedCategory.set(category);
     this.panelMode.set('deactivate');
@@ -133,7 +132,6 @@ export class CategoriesPage implements OnInit {
 
     this.isSubmitting.set(true);
     this.submitError.set(null);
-    this.successMessage.set(null);
 
     if (this.panelMode() === 'edit') {
       const current = this.selectedCategory();
@@ -145,7 +143,7 @@ export class CategoriesPage implements OnInit {
       this.categoriesService.updateCategory(current.id, request).subscribe({
         next: () => {
           this.isSubmitting.set(false);
-          this.successMessage.set(`Category "${request.name}" was updated successfully.`);
+          this.toast.successKey('CATEGORIES.FORM.SUCCESS_UPDATED', { name: request.name });
           this.closePanel();
           this.loadCategories();
         },
@@ -160,7 +158,7 @@ export class CategoriesPage implements OnInit {
     this.categoriesService.createCategory(request).subscribe({
       next: (created) => {
         this.isSubmitting.set(false);
-        this.successMessage.set(`Category "${created.name}" was created successfully.`);
+        this.toast.successKey('CATEGORIES.FORM.SUCCESS_CREATED', { name: created.name });
         this.closePanel();
         this.loadCategories();
       },
@@ -183,7 +181,7 @@ export class CategoriesPage implements OnInit {
     this.categoriesService.deactivateCategory(current.id).subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        this.successMessage.set(`Category "${current.name}" was deactivated.`);
+        this.toast.successKey('CATEGORIES.FORM.SUCCESS_DEACTIVATED', { name: current.name });
         this.closePanel();
         this.loadCategories();
       },

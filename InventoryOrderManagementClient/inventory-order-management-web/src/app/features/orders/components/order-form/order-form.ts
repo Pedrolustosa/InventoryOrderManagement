@@ -1,4 +1,6 @@
 import { CurrencyPipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
+
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
@@ -19,7 +21,7 @@ interface DraftLine {
 
 @Component({
   selector: 'app-order-form',
-  imports: [ReactiveFormsModule, CurrencyPipe],
+  imports: [ReactiveFormsModule, CurrencyPipe, TranslatePipe],
   templateUrl: './order-form.html',
 })
 export class OrderForm {
@@ -152,7 +154,7 @@ export class OrderForm {
   }
 
   displayValue(value: string | null | undefined): string {
-    return value && value.trim().length > 0 ? value : 'Not informed';
+    return value && value.trim().length > 0 ? value : 'COMMON.NOT_INFORMED';
   }
 
   toggleRegisteredAddress(enabled: boolean): void {
@@ -177,19 +179,19 @@ export class OrderForm {
     this.itemError.set(null);
     if (this.itemForm.invalid) {
       this.itemForm.markAllAsTouched();
-      this.itemError.set('Select a product and a positive whole quantity.');
+      this.itemError.set('ORDERS.FORM.ERR_SELECT_PRODUCT_QTY');
       return;
     }
 
     const product = this.selectedProduct();
     const quantity = this.itemForm.controls.quantity.value;
     if (!product || !product.isActive) {
-      this.itemError.set('Inactive products cannot be added to an order.');
+      this.itemError.set('ORDERS.FORM.ERR_INACTIVE_PRODUCT');
       return;
     }
 
     if (this.items().some((item) => item.productId === product.id)) {
-      this.itemError.set('The same product cannot be added more than once.');
+      this.itemError.set('ORDERS.FORM.ERR_DUPLICATE_PRODUCT');
       return;
     }
 
@@ -223,7 +225,7 @@ export class OrderForm {
     }
 
     if (!customer.isActive) {
-      this.itemError.set('Inactive customers cannot place orders.');
+      this.itemError.set('ORDERS.FORM.INACTIVE_CUSTOMER');
       return;
     }
 
@@ -234,13 +236,13 @@ export class OrderForm {
     }
 
     if (this.items().length === 0) {
-      this.itemError.set('Add at least one product to the order.');
+      this.itemError.set('ORDERS.FORM.EMPTY_ITEMS');
       return;
     }
 
     const productIds = this.items().map((item) => item.productId);
     if (new Set(productIds).size !== productIds.length) {
-      this.itemError.set('The same product cannot be added more than once.');
+      this.itemError.set('ORDERS.FORM.ERR_DUPLICATE_PRODUCT');
       return;
     }
 

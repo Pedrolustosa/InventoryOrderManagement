@@ -1,8 +1,10 @@
 import { DatePipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../../../core/auth/services/auth.service';
+import { ToastService } from '../../../../../core/notifications/toast.service';
 import { HasPermissionDirective } from '../../../../../shared/directives/has-permission.directive';
 import { Role } from '../../../roles/models/role.model';
 import { RolesService } from '../../../roles/services/roles.service';
@@ -11,13 +13,14 @@ import { UsersService } from '../../services/users.service';
 
 @Component({
   selector: 'app-users-page',
-  imports: [DatePipe, ReactiveFormsModule, RouterLink, HasPermissionDirective],
+  imports: [TranslatePipe, DatePipe, ReactiveFormsModule, RouterLink, HasPermissionDirective],
   templateUrl: './users-page.html',
 })
 export class UsersPage implements OnInit {
   private readonly usersService = inject(UsersService);
   private readonly rolesService = inject(RolesService);
   private readonly auth = inject(AuthService);
+  private readonly toast = inject(ToastService);
   private readonly formBuilder = inject(FormBuilder);
 
   readonly users = signal<UserAccount[]>([]);
@@ -27,7 +30,6 @@ export class UsersPage implements OnInit {
   readonly totalPages = signal(1);
   readonly isLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);
-  readonly successMessage = signal<string | null>(null);
   readonly pendingDeactivate = signal<UserAccount | null>(null);
 
   readonly filters = this.formBuilder.nonNullable.group({
@@ -85,12 +87,12 @@ export class UsersPage implements OnInit {
     this.usersService.deactivateUser(user.id).subscribe({
       next: () => {
         this.pendingDeactivate.set(null);
-        this.successMessage.set(`${user.displayName} was deactivated.`);
+        this.toast.successKey('USERS.LIST.SUCCESS_DEACTIVATED', { displayName: user.displayName });
         this.load();
       },
       error: (error: Error) => {
         this.pendingDeactivate.set(null);
-        this.errorMessage.set(error.message);
+        this.toast.error(error.message);
       },
     });
   }

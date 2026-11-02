@@ -8,6 +8,8 @@ import { PurchaseOrder } from '../../models/purchase-order.model';
 import { PurchaseReceipt } from '../../models/purchase-receipt.model';
 import { PurchaseRequestError, PurchasesService } from '../../services/purchases.service';
 import { PurchaseReceivePage } from './purchase-receive-page';
+import { provideTestTranslate } from '../../../../core/i18n/testing/provide-test-translate';
+
 
 registerLocaleData(localePt);
 
@@ -66,7 +68,7 @@ describe('PurchaseReceivePage', () => {
 
     await TestBed.configureTestingModule({
       imports: [PurchaseReceivePage],
-      providers: [
+      providers: [...provideTestTranslate(), 
         provideRouter([]),
         { provide: PurchasesService, useValue: purchasesService },
         { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: current.id }) } } },
@@ -117,7 +119,8 @@ describe('PurchaseReceivePage', () => {
     component.setQuantity('item-1', '21');
     component.review();
 
-    expect(component.formError()).toContain('pending');
+    expect(component.formError()).toContain('SKU-1');
+    expect(component.formError()).toContain('20');
     expect(component.pendingLines()).toBeNull();
     expect(purchasesService.receive).not.toHaveBeenCalled();
   });
@@ -133,7 +136,7 @@ describe('PurchaseReceivePage', () => {
     await fixture.whenStable();
 
     expect(purchasesService.getById).toHaveBeenCalledTimes(2);
-    expect(component.formError()).toContain('pending');
+    expect(component.formError()).toContain('pending quantity');
   });
 
   it('should leave the screen when the purchase cannot be received', async () => {

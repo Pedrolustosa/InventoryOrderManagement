@@ -1,4 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
@@ -9,7 +10,7 @@ import { FinanceRequestError, FinanceService } from '../../services/finance.serv
 
 @Component({
   selector: 'app-cash-account-list-page',
-  imports: [RouterLink, CurrencyPipe, DateOnlyPipe, HasPermissionDirective],
+  imports: [TranslatePipe, RouterLink, CurrencyPipe, DateOnlyPipe, HasPermissionDirective],
   templateUrl: './cash-account-list-page.html',
 })
 export class CashAccountListPage implements OnInit {

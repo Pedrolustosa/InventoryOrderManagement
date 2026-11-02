@@ -7,10 +7,14 @@ import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/route
 import { of, throwError } from 'rxjs';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { permittedAuth, permittedUser } from '../../../../core/auth/testing/permitted-auth';
+import { ToastService } from '../../../../core/notifications/toast.service';
+import { createToastServiceSpy } from '../../../../core/notifications/testing/toast-testing';
 import { PurchaseOrder } from '../../models/purchase-order.model';
 import { PurchaseActionDialog } from '../../components/purchase-action-dialog/purchase-action-dialog';
 import { PurchaseRequestError, PurchasesService } from '../../services/purchases.service';
 import { PurchaseDetailsPage } from './purchase-details-page';
+import { provideTestTranslate } from '../../../../core/i18n/testing/provide-test-translate';
+
 
 registerLocaleData(localePt);
 
@@ -64,10 +68,11 @@ describe('PurchaseDetailsPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [PurchaseDetailsPage],
-      providers: [
+      providers: [...provideTestTranslate(), 
         provideRouter([]),
         { provide: PurchasesService, useValue: purchasesService },
         { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: order.id }) } } },
+        { provide: ToastService, useValue: createToastServiceSpy() },
         { provide: LOCALE_ID, useValue: 'pt-BR' },
         {
           provide: AuthService,
@@ -125,7 +130,7 @@ describe('PurchaseDetailsPage', () => {
     const dialog = fixture.debugElement.query(By.directive(PurchaseActionDialog)).componentInstance as PurchaseActionDialog;
 
     dialog.submit();
-    expect(dialog.reasonError()).toContain('required');
+    expect(dialog.reasonError()).toBe('PURCHASES.DIALOGS.REASON_REQUIRED');
     expect(purchasesService.cancel).not.toHaveBeenCalled();
   });
 

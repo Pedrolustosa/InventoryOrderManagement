@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideTranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { AuditService } from '../../services/audit.service';
 import { AuditPage } from './audit-page';
@@ -13,7 +14,7 @@ describe('AuditPage', () => {
     };
     await TestBed.configureTestingModule({
       imports: [AuditPage],
-      providers: [{ provide: AuditService, useValue: auditService }],
+      providers: [provideTranslateService(), { provide: AuditService, useValue: auditService }],
     }).compileComponents();
     fixture = TestBed.createComponent(AuditPage);
     fixture.detectChanges();

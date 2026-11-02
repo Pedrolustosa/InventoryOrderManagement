@@ -2,29 +2,29 @@
   @if (isLoading()) {
     <div class="flex items-center gap-3 px-5 py-10 text-muted" aria-busy="true">
       <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
-      <span>Loading movements...</span>
+      <span>{{ 'INVENTORY.MOVEMENTS.LOADING' | translate }}</span>
     </div>
   } @else if (errorMessage()) {
     <div class="px-5 py-8 text-sm text-danger" role="alert">{{ errorMessage() }}</div>
   } @else if (movements().length === 0) {
     <div class="px-5 py-12 text-center">
-      <p class="text-base font-medium text-ink">No movements found</p>
-      <p class="mt-2 text-sm text-muted">{{ emptyMessage() }}</p>
+      <p class="text-base font-medium text-ink">{{ 'INVENTORY.MOVEMENTS.EMPTY_TITLE' | translate }}</p>
+      <p class="mt-2 text-sm text-muted">{{ emptyMessage() | translate }}</p>
     </div>
   } @else {
     <div class="overflow-x-auto">
       <table class="min-w-full text-left text-sm">
         <thead class="border-b border-line bg-surface/80 text-xs uppercase tracking-wide text-muted">
           <tr>
-            <th class="px-4 py-3 font-semibold">Date</th>
-            <th class="px-4 py-3 font-semibold">Product</th>
-            <th class="px-4 py-3 font-semibold">SKU</th>
-            <th class="px-4 py-3 font-semibold">Movement Type</th>
-            <th class="px-4 py-3 font-semibold">Quantity</th>
-            <th class="px-4 py-3 font-semibold">Previous Quantity</th>
-            <th class="px-4 py-3 font-semibold">New Quantity</th>
-            <th class="px-4 py-3 font-semibold">Supplier</th>
-            <th class="px-4 py-3 font-semibold">Reason</th>
+            <th class="px-4 py-3 font-semibold">{{ 'INVENTORY.MOVEMENTS.COL_DATE' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'INVENTORY.LIST.COL_PRODUCT' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'INVENTORY.LIST.COL_SKU' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'INVENTORY.MOVEMENTS.FILTER_TYPE' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'INVENTORY.MOVEMENTS.COL_QTY' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'INVENTORY.MOVEMENTS.COL_PREVIOUS' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'INVENTORY.MOVEMENTS.COL_NEW' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'INVENTORY.MOVEMENTS.FILTER_SUPPLIER' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'INVENTORY.MOVEMENTS.COL_REASON' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -36,13 +36,13 @@
               <td class="px-4 py-3 font-medium text-ink">{{ movement.productName }}</td>
               <td class="whitespace-nowrap px-4 py-3 text-ink">{{ movement.sku }}</td>
               <td class="px-4 py-3">
-                <span class="badge-inactive">{{ typeLabel(movement) }}</span>
+                <span class="badge-inactive">{{ typeLabel(movement) | translate }}</span>
               </td>
               <td class="px-4 py-3 text-ink">{{ movement.quantity }}</td>
               <td class="px-4 py-3 text-muted">{{ movement.previousQuantity }}</td>
               <td class="px-4 py-3 text-ink">{{ movement.newQuantity }}</td>
-              <td class="px-4 py-3 text-muted">{{ displayValue(movement.supplierName) }}</td>
-              <td class="max-w-[16rem] px-4 py-3 text-muted">{{ displayValue(movement.reason) }}</td>
+              <td class="px-4 py-3 text-muted">{{ displayValue(movement.supplierName) | translate }}</td>
+              <td class="max-w-[16rem] px-4 py-3 text-muted">{{ displayValue(movement.reason) | translate }}</td>
             </tr>
           }
         </tbody>

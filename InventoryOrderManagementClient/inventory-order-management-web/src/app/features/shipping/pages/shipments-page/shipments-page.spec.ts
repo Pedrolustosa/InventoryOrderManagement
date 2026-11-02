@@ -12,6 +12,8 @@ import { PagedResult } from '../../models/shipment-requests.model';
 import { ShipmentSummary } from '../../models/shipment.model';
 import { ShipmentsService } from '../../services/shipments.service';
 import { ShipmentsPage } from './shipments-page';
+import { provideTestTranslate } from '../../../../core/i18n/testing/provide-test-translate';
+
 
 registerLocaleData(localePt);
 
@@ -68,7 +70,7 @@ describe('ShipmentsPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [ShipmentsPage],
-      providers: [
+      providers: [...provideTestTranslate(), 
         provideRouter([]),
         { provide: ShipmentsService, useValue: shipmentsService },
         { provide: CustomersService, useValue: { getCustomers: vi.fn().mockReturnValue(of([])) } },

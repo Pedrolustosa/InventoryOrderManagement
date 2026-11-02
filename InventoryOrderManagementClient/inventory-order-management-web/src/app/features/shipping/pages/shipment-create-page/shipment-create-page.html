@@ -1,12 +1,12 @@
 <section class="space-y-6">
   <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
     <div>
-      <h1 class="text-3xl font-semibold tracking-tight text-ink">New shipment</h1>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">{{ 'SHIPPING.LIST.NEW' | translate }}</h1>
       <p class="mt-2 max-w-2xl text-sm text-muted">
-        Select a confirmed sales order and register carrier information. Status starts as Preparing.
+        {{ 'SHIPPING.FORM.SUBTITLE' | translate }}
       </p>
     </div>
-    <a routerLink="/shipping" class="btn-secondary shrink-0">Back to list</a>
+    <a routerLink="/shipping" class="btn-secondary shrink-0">{{ 'COMMON.BACK_TO_LIST' | translate }}</a>
   </div>
 
   @if (loadError()) {
@@ -17,27 +17,27 @@
 
   <form class="space-y-6" [formGroup]="form" (ngSubmit)="submit()">
     <section class="rounded-xl border border-line bg-panel p-5 shadow-sm sm:p-6">
-      <h2 class="text-lg font-semibold text-ink">Sales order</h2>
+      <h2 class="text-lg font-semibold text-ink">{{ 'SHIPPING.FORM.SECTION_ORDER' | translate }}</h2>
       <div class="mt-4 grid gap-3 md:grid-cols-2">
         <label class="block text-sm font-medium text-ink">
-          Search
+          {{ 'SHIPPING.FORM.SEARCH' | translate }}
           <input
             type="search"
             class="field mt-1"
-            placeholder="Order number or customer"
+            [placeholder]="'SHIPPING.FORM.SEARCH_PLACEHOLDER' | translate"
             [value]="sourceSearch()"
             (input)="sourceSearch.set($any($event.target).value)"
           />
         </label>
         <label class="block text-sm font-medium text-ink">
-          Confirmed order
+          {{ 'SHIPPING.FORM.CONFIRMED_ORDER' | translate }}
           <select
             class="field mt-1"
             [value]="selectedOrderId()"
             (change)="selectOrder($any($event.target).value)"
             [disabled]="isLoadingOrders()"
           >
-            <option value="">Select an order</option>
+            <option value="">{{ 'SHIPPING.FORM.SELECT_ORDER' | translate }}</option>
             @for (order of filteredOrders(); track order.id) {
               <option [value]="order.id">{{ order.orderNumber }} · {{ order.customerName }}</option>
             }
@@ -46,27 +46,27 @@
       </div>
 
       @if (isLoadingOrder()) {
-        <p class="mt-4 text-sm text-muted">Loading order details...</p>
+        <p class="mt-4 text-sm text-muted">{{ 'SHIPPING.FORM.LOADING_ORDER' | translate }}</p>
       } @else if (selectedOrder(); as order) {
         <dl class="mt-4 grid gap-3 sm:grid-cols-2 text-sm">
           <div>
-            <dt class="text-xs uppercase tracking-wide text-muted">Order</dt>
+            <dt class="text-xs uppercase tracking-wide text-muted">{{ 'SHIPPING.LIST.COL_ORDER' | translate }}</dt>
             <dd class="mt-1 font-medium text-ink">{{ order.orderNumber }}</dd>
           </div>
           <div>
-            <dt class="text-xs uppercase tracking-wide text-muted">Customer</dt>
+            <dt class="text-xs uppercase tracking-wide text-muted">{{ 'SHIPPING.LIST.COL_CUSTOMER' | translate }}</dt>
             <dd class="mt-1 font-medium text-ink">{{ order.customerName }}</dd>
           </div>
           <div>
-            <dt class="text-xs uppercase tracking-wide text-muted">Created</dt>
+            <dt class="text-xs uppercase tracking-wide text-muted">{{ 'SHIPPING.LIST.COL_CREATED' | translate }}</dt>
             <dd class="mt-1 font-medium text-ink">{{ order.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd>
           </div>
           <div>
-            <dt class="text-xs uppercase tracking-wide text-muted">Total</dt>
+            <dt class="text-xs uppercase tracking-wide text-muted">{{ 'SHIPPING.FORM.TOTAL' | translate }}</dt>
             <dd class="mt-1 font-medium text-ink">{{ order.subtotal | currency: 'BRL' }}</dd>
           </div>
           <div class="sm:col-span-2">
-            <dt class="text-xs uppercase tracking-wide text-muted">Shipping address</dt>
+            <dt class="text-xs uppercase tracking-wide text-muted">{{ 'SHIPPING.FORM.SHIPPING_ADDRESS' | translate }}</dt>
             <dd class="mt-1 font-medium text-ink">{{ formatAddress(order) }}</dd>
           </div>
         </dl>
@@ -74,25 +74,25 @@
 
       @if (hasExistingShipment()) {
         <div class="mt-4 rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
-          This order already has a shipment.
-          <a class="ml-1 underline" [routerLink]="['/shipping', existingShipmentId()]">Open existing shipment</a>
+          {{ 'SHIPPING.FORM.ALREADY_HAS_SHIPMENT' | translate }}
+          <a class="ml-1 underline" [routerLink]="['/shipping', existingShipmentId()]">{{ 'SHIPPING.FORM.OPEN_EXISTING' | translate }}</a>
         </div>
       }
     </section>
 
     <section class="rounded-xl border border-line bg-panel p-5 shadow-sm sm:p-6">
-      <h2 class="text-lg font-semibold text-ink">Transport</h2>
+      <h2 class="text-lg font-semibold text-ink">{{ 'SHIPPING.FORM.SECTION_TRANSPORT' | translate }}</h2>
       <div class="mt-4 grid gap-3 md:grid-cols-2">
         <label class="block text-sm font-medium text-ink md:col-span-2">
-          Carrier
+          {{ 'SHIPPING.LIST.COL_CARRIER' | translate }}
           <input class="field mt-1" formControlName="carrierName" [attr.maxlength]="carrierMax" />
         </label>
         <label class="block text-sm font-medium text-ink">
-          Tracking code
+          {{ 'SHIPPING.FORM.TRACKING_CODE' | translate }}
           <input class="field mt-1" formControlName="trackingCode" [attr.maxlength]="trackingMax" />
         </label>
         <label class="block text-sm font-medium text-ink md:col-span-2">
-          Notes
+          {{ 'SHIPPING.FORM.NOTES' | translate }}
           <textarea class="field mt-1 min-h-24" formControlName="notes" [attr.maxlength]="notesMax"></textarea>
         </label>
       </div>
@@ -100,7 +100,7 @@
 
     @if (formError()) {
       <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
-        {{ formError() }}
+        {{ formError() | translate }}
       </div>
     }
 
@@ -111,12 +111,12 @@
         [disabled]="isSubmitting() || hasExistingShipment() || !selectedOrder()"
       >
         @if (isSubmitting()) {
-          Saving...
+          {{ 'COMMON.SAVING' | translate }}
         } @else {
-          Save shipment
+          {{ 'SHIPPING.FORM.SAVE' | translate }}
         }
       </button>
-      <a routerLink="/shipping" class="btn-secondary">Cancel</a>
+      <a routerLink="/shipping" class="btn-secondary">{{ 'SHIPPING.DETAILS.CANCEL_EDIT' | translate }}</a>
     </div>
   </form>
 </section>

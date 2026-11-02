@@ -1,7 +1,10 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ToastService } from '../../../../core/notifications/toast.service';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { Order } from '../../../orders/models/order.model';
 import { OrdersService } from '../../../orders/services/orders.service';
@@ -30,20 +33,20 @@ import { ShipmentsRequestError, ShipmentsService } from '../../services/shipment
 
 @Component({
   selector: 'app-shipment-details-page',
-  imports: [
-    RouterLink,
+  imports: [RouterLink,
     DatePipe,
     CurrencyPipe,
     ReactiveFormsModule,
     ShipmentTimeline,
     ShipmentActionDialog,
-    HasPermissionDirective,
-  ],
+    HasPermissionDirective, TranslatePipe],
   templateUrl: './shipment-details-page.html',
 })
 export class ShipmentDetailsPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly shipmentsService = inject(ShipmentsService);
   private readonly ordersService = inject(OrdersService);
@@ -57,7 +60,6 @@ export class ShipmentDetailsPage implements OnInit {
   readonly isSavingEdit = signal(false);
   readonly loadError = signal<string | null>(null);
   readonly actionError = signal<string | null>(null);
-  readonly successMessage = signal<string | null>(null);
   readonly copyMessage = signal<string | null>(null);
   readonly pendingAction = signal<ShipmentLifecycleAction | null>(null);
 
@@ -99,7 +101,7 @@ export class ShipmentDetailsPage implements OnInit {
   constructor() {
     const state = this.router.getCurrentNavigation()?.extras.state as { successMessage?: string } | undefined;
     if (state?.successMessage) {
-      this.successMessage.set(state.successMessage);
+      this.toast.success(state.successMessage);
     }
   }
 
@@ -162,7 +164,7 @@ export class ShipmentDetailsPage implements OnInit {
 
     this.editForm.markAllAsTouched();
     if (this.editForm.invalid) {
-      this.actionError.set('Carrier is required while the shipment is preparing.');
+      this.actionError.set(this.translate.instant('SHIPPING.FORM.ERR_CARRIER_REQUIRED'));
       return;
     }
 
@@ -181,7 +183,7 @@ export class ShipmentDetailsPage implements OnInit {
           this.applyShipment(updated);
           this.isSavingEdit.set(false);
           this.isEditing.set(false);
-          this.successMessage.set('Transport information was updated.');
+          this.toast.successKey('SHIPPING.DETAILS.SUCCESS_UPDATED');
         },
         error: (error: ShipmentsRequestError | Error) => {
           this.isSavingEdit.set(false);
@@ -201,15 +203,14 @@ export class ShipmentDetailsPage implements OnInit {
 
     try {
       await navigator.clipboard.writeText(code);
-      this.copyMessage.set('Tracking code copied.');
+      this.copyMessage.set(this.translate.instant('SHIPPING.DETAILS.COPIED'));
     } catch {
-      this.copyMessage.set('Unable to copy tracking code.');
+      this.copyMessage.set(this.translate.instant('SHIPPING.DETAILS.COPY_FAILED'));
     }
   }
 
   openAction(action: ShipmentLifecycleAction): void {
     this.actionError.set(null);
-    this.successMessage.set(null);
     this.pendingAction.set(action);
   }
 
@@ -256,7 +257,7 @@ export class ShipmentDetailsPage implements OnInit {
         this.applyShipment(updated);
         this.isActing.set(false);
         this.pendingAction.set(null);
-        this.successMessage.set(this.successText(action, updated.orderNumber));
+        this.toast.success(this.successText(action, updated.orderNumber));
         this.loadHistory(updated.id);
         if (action === 'dispatch' || action === 'deliver') {
           this.loadOrder(updated.orderId);
@@ -275,7 +276,7 @@ export class ShipmentDetailsPage implements OnInit {
   private loadShipment(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
-      this.loadError.set('Shipment was not found.');
+      this.loadError.set(this.translate.instant('SHIPPING.DETAILS.NOT_FOUND'));
       this.isLoading.set(false);
       return;
     }
@@ -320,15 +321,15 @@ export class ShipmentDetailsPage implements OnInit {
   private successText(action: ShipmentLifecycleAction, orderNumber: string): string {
     switch (action) {
       case 'dispatch':
-        return `Shipment for order ${orderNumber} was dispatched.`;
+        return this.translate.instant('SHIPPING.DETAILS.SUCCESS_DISPATCHED', { orderNumber });
       case 'inTransit':
-        return `Shipment for order ${orderNumber} is now in transit.`;
+        return this.translate.instant('SHIPPING.DETAILS.SUCCESS_IN_TRANSIT', { orderNumber });
       case 'deliver':
-        return `Shipment for order ${orderNumber} was delivered.`;
+        return this.translate.instant('SHIPPING.DETAILS.SUCCESS_DELIVERED', { orderNumber });
       case 'fail':
-        return `Delivery failure was registered for order ${orderNumber}.`;
+        return this.translate.instant('SHIPPING.DETAILS.SUCCESS_FAILED', { orderNumber });
       case 'resume':
-        return `Delivery for order ${orderNumber} was resumed.`;
+        return this.translate.instant('SHIPPING.DETAILS.SUCCESS_RESUMED', { orderNumber });
     }
   }
 }

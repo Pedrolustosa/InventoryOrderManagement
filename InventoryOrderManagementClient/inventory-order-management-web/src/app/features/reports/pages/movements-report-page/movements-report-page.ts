@@ -1,8 +1,9 @@
 import { DatePipe } from '@angular/common';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Component, DestroyRef, OnInit, computed, effect, inject, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { STOCK_MOVEMENT_TYPES, StockMovementType, movementTypeLabel } from '../../../inventory/models/stock-movement-type.model';
+import { STOCK_MOVEMENT_TYPES, StockMovementType } from '../../../inventory/models/stock-movement-type.model';
 import { ProductResponse } from '../../../products/models/product.model';
 import { ProductsService } from '../../../products/services/products.service';
 import { SupplierResponse } from '../../../suppliers/models/supplier.model';
@@ -27,7 +28,7 @@ interface MovementFilters {
 
 @Component({
   selector: 'app-movements-report-page',
-  imports: [DatePipe, RouterLink, ReportChart, ReportPager],
+  imports: [TranslatePipe, DatePipe, RouterLink, ReportChart, ReportPager],
   templateUrl: './movements-report-page.html',
 })
 export class MovementsReportPage implements OnInit {
@@ -36,6 +37,7 @@ export class MovementsReportPage implements OnInit {
   private readonly productsService = inject(ProductsService);
   private readonly suppliersService = inject(SuppliersService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly translate = inject(TranslateService);
   private requestId = 0;
 
   readonly movementTypes = STOCK_MOVEMENT_TYPES;
@@ -106,7 +108,7 @@ export class MovementsReportPage implements OnInit {
   }
 
   typeLabel(type: StockMovementType): string {
-    return movementTypeLabel(type);
+    return `STATUS.STOCK_MOVEMENT.${type}`;
   }
 
   goToPage(page: number): void {
@@ -130,7 +132,7 @@ export class MovementsReportPage implements OnInit {
         item.createdAtUtc,
         item.productName,
         item.productSku,
-        movementTypeLabel(item.movementType),
+        this.translate.instant(`STATUS.STOCK_MOVEMENT.${item.movementType}`),
         String(item.quantity),
         String(item.previousQuantity),
         String(item.newQuantity),

@@ -1,7 +1,10 @@
 import { Component, input, output } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
+
 import { SupplierResponse } from '../../models/supplier.model';
 
 @Component({
+  imports: [TranslatePipe],
   selector: 'app-supplier-deactivate-confirm',
   templateUrl: './deactivate-confirm.html',
 })

@@ -1,13 +1,13 @@
 <section class="space-y-6">
   <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <h2 class="text-lg font-semibold text-ink">Best Selling Products</h2>
+      <h2 class="text-lg font-semibold text-ink">{{ 'REPORTS.BEST_SELLERS.TITLE' | translate }}</h2>
       <p class="mt-1 max-w-3xl text-sm text-muted">
-        Ranking by historical quantity sold on confirmed, shipped, and delivered orders. Prices are the values stored on each order line.
+        {{ 'REPORTS.BEST_SELLERS.INTRO' | translate }}
       </p>
-      <p class="mt-2 text-sm text-muted">{{ valueNote }}</p>
+      <p class="mt-2 text-sm text-muted">{{ valueNote | translate }}</p>
     </div>
-    <div class="flex flex-wrap gap-2" aria-label="Ranking size">
+    <div class="flex flex-wrap gap-2" [attr.aria-label]="'REPORTS.FILTERS.RANKING_ARIA' | translate">
       @for (option of limits; track option) {
         <button type="button" class="btn-secondary" [class.!bg-accent]="limit() === option" [class.!text-white]="limit() === option" (click)="setLimit(option)">
           Top {{ option }}
@@ -17,32 +17,32 @@
   </div>
 
   @if (loading()) {
-    <p class="text-sm text-muted" aria-busy="true">Loading best sellers...</p>
+    <p class="text-sm text-muted" aria-busy="true">{{ 'REPORTS.BEST_SELLERS.LOADING' | translate }}</p>
   } @else if (errorMessage()) {
     <p class="text-sm text-danger" role="alert">{{ errorMessage() }}</p>
   } @else if (products(); as ranking) {
     <section class="rounded-xl border border-line bg-panel p-4 shadow-sm">
-      <h3 class="font-semibold text-ink">Quantity sold</h3>
+      <h3 class="font-semibold text-ink">{{ 'REPORTS.CHARTS.QTY_SOLD' | translate }}</h3>
       <app-report-chart [model]="chartModel()" />
     </section>
     <section class="rounded-xl border border-line bg-panel shadow-sm">
       <div class="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
-        <h3 class="font-semibold text-ink">Ranking</h3>
-        <button type="button" class="btn-secondary" (click)="exportRanking()">Export this ranking</button>
+        <h3 class="font-semibold text-ink">{{ 'REPORTS.BEST_SELLERS.RANKING' | translate }}</h3>
+        <button type="button" class="btn-secondary" (click)="exportRanking()">{{ 'REPORTS.BEST_SELLERS.EXPORT' | translate }}</button>
       </div>
-      <p class="px-4 pt-3 text-xs text-muted">Exports the ranking currently shown for the selected limit.</p>
+      <p class="px-4 pt-3 text-xs text-muted">{{ 'REPORTS.BEST_SELLERS.EXPORT_HINT' | translate }}</p>
       @if (ranking.length === 0) {
-        <p class="px-4 py-10 text-center text-sm text-muted">No confirmed sales in this period.</p>
+        <p class="px-4 py-10 text-center text-sm text-muted">{{ 'REPORTS.BEST_SELLERS.EMPTY' | translate }}</p>
       } @else {
         <div class="overflow-x-auto">
           <table class="min-w-full text-left text-sm">
             <thead class="border-b border-line bg-surface/80 text-xs uppercase tracking-wide text-muted">
               <tr>
-                <th class="px-4 py-3 font-semibold">Product</th>
-                <th class="px-4 py-3 font-semibold">SKU</th>
-                <th class="px-4 py-3 font-semibold">Total Quantity Sold</th>
-                <th class="px-4 py-3 font-semibold">Total Confirmed Order Value</th>
-                <th class="px-4 py-3 font-semibold">Total Orders</th>
+                <th class="px-4 py-3 font-semibold">{{ 'REPORTS.CHARTS.AXIS_PRODUCT' | translate }}</th>
+                <th class="px-4 py-3 font-semibold">{{ 'REPORTS.BEST_SELLERS.COL_SKU' | translate }}</th>
+                <th class="px-4 py-3 font-semibold">{{ 'REPORTS.BEST_SELLERS.COL_QTY_SOLD' | translate }}</th>
+                <th class="px-4 py-3 font-semibold">{{ 'REPORTS.CUSTOMERS.COL_VALUE' | translate }}</th>
+                <th class="px-4 py-3 font-semibold">{{ 'REPORTS.CUSTOMERS.COL_ORDERS' | translate }}</th>
               </tr>
             </thead>
             <tbody>

@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CreateCustomerRequest } from '../../models/create-customer-request.model';
 import { CustomerForm } from './customer-form';
+import { provideTestTranslate } from '../../../../core/i18n/testing/provide-test-translate';
+
 
 describe('CustomerForm', () => {
   let fixture: ComponentFixture<CustomerForm>;
@@ -8,6 +10,7 @@ describe('CustomerForm', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [...provideTestTranslate()],
       imports: [CustomerForm],
     }).compileComponents();
 

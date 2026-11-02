@@ -55,7 +55,7 @@ describe('report period', () => {
     }
 
     const inverted = resolveReportRange('Custom', '2026-11-02', '2026-11-01', now);
-    expect('error' in inverted && inverted.error).toContain('later');
+    expect('error' in inverted && inverted.error).toBe('REPORTS.FILTERS.PERIOD_ERROR');
   });
 });
 

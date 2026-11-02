@@ -1,5 +1,8 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
 import { Router, RouterLink } from '@angular/router';
+import { ToastService } from '../../../../core/notifications/toast.service';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { SupplierResponse } from '../../../suppliers/models/supplier.model';
 import { SuppliersService } from '../../../suppliers/services/suppliers.service';
@@ -18,13 +21,15 @@ type StatusFilter = 'all' | PurchaseOrderStatus;
 
 @Component({
   selector: 'app-purchases-page',
-  imports: [RouterLink, PurchaseOrderList, PurchaseActionDialog, HasPermissionDirective],
+  imports: [RouterLink, PurchaseOrderList, PurchaseActionDialog, HasPermissionDirective, TranslatePipe],
   templateUrl: './purchases-page.html',
 })
 export class PurchasesPage implements OnInit {
   private readonly purchasesService = inject(PurchasesService);
   private readonly suppliersService = inject(SuppliersService);
   private readonly router = inject(Router);
+  private readonly translate = inject(TranslateService);
+  private readonly toast = inject(ToastService);
 
   readonly statuses = PURCHASE_ORDER_STATUSES;
   readonly orders = signal<PurchaseOrderSummary[]>([]);
@@ -32,7 +37,6 @@ export class PurchasesPage implements OnInit {
   readonly isLoading = signal(false);
   readonly isActing = signal(false);
   readonly loadError = signal<string | null>(null);
-  readonly successMessage = signal<string | null>(null);
   readonly actionError = signal<string | null>(null);
   readonly statusFilter = signal<StatusFilter>('all');
   readonly supplierId = signal('');
@@ -48,8 +52,8 @@ export class PurchasesPage implements OnInit {
 
   readonly emptyMessage = computed(() =>
     hasPurchaseFilters(this.appliedFilters())
-      ? 'No purchase orders match the current filters.'
-      : 'There are no purchase orders yet.',
+      ? 'PURCHASES.LIST.EMPTY_FILTERED'
+      : 'PURCHASES.LIST.EMPTY_NO_DATA',
   );
   readonly allowCreate = computed(() => !hasPurchaseFilters(this.appliedFilters()));
 
@@ -110,7 +114,6 @@ export class PurchasesPage implements OnInit {
   }
 
   openAction(action: PurchaseLifecycleAction, order: PurchaseOrderSummary): void {
-    this.successMessage.set(null);
     this.actionError.set(null);
     this.pendingAction.set(action);
     this.pendingOrder.set(order);
@@ -145,7 +148,7 @@ export class PurchasesPage implements OnInit {
         this.isActing.set(false);
         this.pendingAction.set(null);
         this.pendingOrder.set(null);
-        this.successMessage.set(this.successText(action, updated.purchaseOrderNumber));
+        this.toast.success(this.successText(action, updated.purchaseOrderNumber));
         this.loadOrders();
       },
       error: (error: PurchaseRequestError) => {
@@ -192,8 +195,8 @@ export class PurchasesPage implements OnInit {
 
   private successText(action: PurchaseLifecycleAction, number: string): string {
     return action === 'send'
-      ? `Purchase order ${number} was sent.`
-      : `Purchase order ${number} was cancelled.`;
+      ? this.translate.instant('PURCHASES.DETAILS.SUCCESS_SENT', { number })
+      : this.translate.instant('PURCHASES.DETAILS.SUCCESS_CANCELLED', { number });
   }
 }
 

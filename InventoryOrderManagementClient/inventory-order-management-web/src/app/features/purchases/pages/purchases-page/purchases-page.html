@@ -1,10 +1,10 @@
 <section class="space-y-6">
   <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <h1 class="text-3xl font-semibold tracking-tight text-ink">Purchase Management</h1>
-      <p class="mt-2 max-w-2xl text-sm text-muted">Manage supplier purchase orders, receipts and cancellations.</p>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">{{ 'PURCHASES.LIST.TITLE' | translate }}</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">{{ 'PURCHASES.LIST.SUBTITLE' | translate }}</p>
     </div>
-    <a *hasPermission="'Purchases.Create'" routerLink="/purchases/new" class="btn-primary shrink-0">New Purchase</a>
+    <a *hasPermission="'Purchases.Create'" routerLink="/purchases/new" class="btn-primary shrink-0">{{ 'PURCHASES.LIST.NEW' | translate }}</a>
   </div>
 
   <div class="space-y-3">
@@ -16,7 +16,7 @@
         [class.!text-white]="statusFilter() === 'all'"
         (click)="setStatus('all')"
       >
-        All
+        {{ 'PURCHASES.FILTERS.ALL' | translate }}
       </button>
       @for (status of statuses; track status) {
         <button
@@ -26,50 +26,44 @@
           [class.!text-white]="statusFilter() === status"
           (click)="setStatus(status)"
         >
-          {{ status === 'PartiallyReceived' ? 'Partially received' : status }}
+          {{ (status === 'PartiallyReceived' ? 'PURCHASES.FILTERS.PARTIALLY_RECEIVED' : ('STATUS.PURCHASE.' + status)) | translate }}
         </button>
       }
-      <button type="button" class="btn-secondary" (click)="clearFilters()">Clear</button>
+      <button type="button" class="btn-secondary" (click)="clearFilters()">{{ 'COMMON.CLEAR' | translate }}</button>
     </div>
 
     <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
       <label class="block text-sm font-medium text-ink">
-        Purchase number
+        {{ 'PURCHASES.FILTERS.NUMBER' | translate }}
         <input
           type="search"
           class="field mt-1"
-          placeholder="Full purchase number"
+          [placeholder]="'PURCHASES.FILTERS.NUMBER_PLACEHOLDER' | translate"
           [value]="purchaseOrderNumber()"
           (input)="purchaseOrderNumber.set($any($event.target).value)"
           (keydown.enter)="applyFilters()"
         />
       </label>
       <label class="block text-sm font-medium text-ink">
-        Supplier
+        {{ 'PURCHASES.LIST.COL_SUPPLIER' | translate }}
         <select class="field mt-1" [value]="supplierId()" (change)="supplierId.set($any($event.target).value)">
-          <option value="">All suppliers</option>
+          <option value="">{{ 'PURCHASES.FILTERS.ALL_SUPPLIERS' | translate }}</option>
           @for (supplier of suppliers(); track supplier.id) {
             <option [value]="supplier.id">{{ supplier.name }}</option>
           }
         </select>
       </label>
       <label class="block text-sm font-medium text-ink">
-        Start date
+        {{ 'COMMON.START_DATE' | translate }}
         <input type="date" class="field mt-1" [value]="startDate()" (input)="startDate.set($any($event.target).value)" />
       </label>
       <label class="block text-sm font-medium text-ink">
-        End date
+        {{ 'COMMON.END_DATE' | translate }}
         <input type="date" class="field mt-1" [value]="endDate()" (input)="endDate.set($any($event.target).value)" />
       </label>
     </div>
-    <button type="button" class="btn-secondary" (click)="applyFilters()">Apply filters</button>
+    <button type="button" class="btn-secondary" (click)="applyFilters()">{{ 'COMMON.APPLY_FILTERS' | translate }}</button>
   </div>
-
-  @if (successMessage()) {
-    <div class="rounded-md border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent-ink" role="status">
-      {{ successMessage() }}
-    </div>
-  }
 
   <p class="text-sm text-muted">{{ totalItems() }} purchase orders</p>
 
@@ -104,10 +98,10 @@
 
   @if (!isLoading() && !loadError() && orders().length > 0) {
     <div class="flex flex-wrap items-center gap-3">
-      <button type="button" class="btn-secondary" [disabled]="page() <= 1" (click)="goToPage(page() - 1)">Previous</button>
-      <span class="text-sm text-muted">Page {{ page() }} of {{ totalPages() }}</span>
+      <button type="button" class="btn-secondary" [disabled]="page() <= 1" (click)="goToPage(page() - 1)">{{ 'COMMON.PREVIOUS' | translate }}</button>
+      <span class="text-sm text-muted">{{ 'COMMON.PAGE_OF' | translate:{ page: page(), totalPages: totalPages() } }}</span>
       <button type="button" class="btn-secondary" [disabled]="page() >= totalPages()" (click)="goToPage(page() + 1)">
-        Next
+        {{ 'COMMON.NEXT' | translate }}
       </button>
     </div>
   }

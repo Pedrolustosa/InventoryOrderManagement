@@ -1,121 +1,115 @@
 <section class="space-y-6">
   <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <h1 class="text-3xl font-semibold tracking-tight text-ink">Return details</h1>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">{{ 'RETURNS.DETAILS.TITLE' | translate }}</h1>
       <p class="mt-2 max-w-2xl text-sm text-muted">
-        Header, items, financial intent, history and stock movements returned by the API.
+        {{ 'RETURNS.DETAILS.SUBTITLE' | translate }}
       </p>
     </div>
-    <a routerLink="/returns" class="btn-secondary">Back to returns</a>
+    <a routerLink="/returns" class="btn-secondary">{{ 'RETURNS.DETAILS.BACK' | translate }}</a>
   </div>
-
-  @if (successMessage()) {
-    <div class="rounded-md border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent-ink" role="status">
-      {{ successMessage() }}
-    </div>
-  }
 
   @if (isLoading()) {
     <div class="flex items-center gap-3 text-muted" aria-busy="true">
       <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
-      <span>Loading return...</span>
+      <span>{{ 'RETURNS.DETAILS.LOADING' | translate }}</span>
     </div>
   } @else if (loadError()) {
     <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
-      {{ loadError() }}
+      {{ loadError() | translate }}
     </div>
   } @else if (ret(); as current) {
     <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
       <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h2 class="text-lg font-semibold text-ink">Return information</h2>
+          <h2 class="text-lg font-semibold text-ink">{{ 'RETURNS.DETAILS.SECTION_INFO' | translate }}</h2>
           <dl class="mt-4 grid gap-3 sm:grid-cols-2">
             <div>
-              <dt class="text-xs uppercase tracking-wide text-muted">Number</dt>
+              <dt class="text-xs uppercase tracking-wide text-muted">{{ 'RETURNS.DETAILS.NUMBER' | translate }}</dt>
               <dd class="mt-1 text-sm font-medium text-ink">{{ current.returnNumber }}</dd>
             </div>
             <div>
-              <dt class="text-xs uppercase tracking-wide text-muted">Type</dt>
-              <dd class="mt-1 text-sm font-medium text-ink">{{ typeLabel(current.type) }}</dd>
+              <dt class="text-xs uppercase tracking-wide text-muted">{{ 'RETURNS.DETAILS.TYPE' | translate }}</dt>
+              <dd class="mt-1 text-sm font-medium text-ink">{{ typeLabel(current.type) | translate }}</dd>
             </div>
             <div>
-              <dt class="text-xs uppercase tracking-wide text-muted">Status</dt>
-              <dd class="mt-1"><span [class]="statusClass(current.status)">{{ statusLabel(current.status) }}</span></dd>
+              <dt class="text-xs uppercase tracking-wide text-muted">{{ 'RETURNS.DETAILS.STATUS' | translate }}</dt>
+              <dd class="mt-1"><span [class]="statusClass(current.status)">{{ statusLabel(current.status) | translate }}</span></dd>
             </div>
             <div>
-              <dt class="text-xs uppercase tracking-wide text-muted">Counterpart</dt>
+              <dt class="text-xs uppercase tracking-wide text-muted">{{ 'RETURNS.DETAILS.COUNTERPART' | translate }}</dt>
               <dd class="mt-1 text-sm font-medium text-ink">{{ counterpart(current) }}</dd>
             </div>
             <div>
-              <dt class="text-xs uppercase tracking-wide text-muted">Source</dt>
-              <dd class="mt-1 text-sm font-medium text-ink">{{ current.sourceReference || '—' }}</dd>
+              <dt class="text-xs uppercase tracking-wide text-muted">{{ 'RETURNS.DETAILS.SOURCE' | translate }}</dt>
+              <dd class="mt-1 text-sm font-medium text-ink">{{ current.sourceReference || ('COMMON.EMPTY' | translate) }}</dd>
             </div>
             <div>
-              <dt class="text-xs uppercase tracking-wide text-muted">Reason</dt>
-              <dd class="mt-1 text-sm font-medium text-ink">{{ reasonLabel(current.reason) }}</dd>
+              <dt class="text-xs uppercase tracking-wide text-muted">{{ 'RETURNS.DETAILS.REASON' | translate }}</dt>
+              <dd class="mt-1 text-sm font-medium text-ink">{{ reasonLabel(current.reason) | translate }}</dd>
             </div>
             <div>
-              <dt class="text-xs uppercase tracking-wide text-muted">Estimated amount</dt>
+              <dt class="text-xs uppercase tracking-wide text-muted">{{ 'RETURNS.DETAILS.ESTIMATED_AMOUNT' | translate }}</dt>
               <dd class="mt-1 text-sm font-medium text-ink">{{ current.estimatedAmount | currency: 'BRL' }}</dd>
             </div>
             <div>
-              <dt class="text-xs uppercase tracking-wide text-muted">Created</dt>
+              <dt class="text-xs uppercase tracking-wide text-muted">{{ 'RETURNS.DETAILS.CREATED' | translate }}</dt>
               <dd class="mt-1 text-sm text-ink">{{ current.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd>
             </div>
             @if (current.authorizationReference) {
               <div>
-                <dt class="text-xs uppercase tracking-wide text-muted">Authorization ref.</dt>
+                <dt class="text-xs uppercase tracking-wide text-muted">{{ 'RETURNS.DETAILS.AUTH_REF' | translate }}</dt>
                 <dd class="mt-1 text-sm text-ink">{{ current.authorizationReference }}</dd>
               </div>
             }
             @if (current.dispatchReference) {
               <div>
-                <dt class="text-xs uppercase tracking-wide text-muted">Dispatch ref.</dt>
+                <dt class="text-xs uppercase tracking-wide text-muted">{{ 'RETURNS.DETAILS.DISPATCH_REF' | translate }}</dt>
                 <dd class="mt-1 text-sm text-ink">{{ current.dispatchReference }}</dd>
               </div>
             }
             @if (current.cancellationReason) {
               <div class="sm:col-span-2">
-                <dt class="text-xs uppercase tracking-wide text-muted">Cancellation reason</dt>
+                <dt class="text-xs uppercase tracking-wide text-muted">{{ 'RETURNS.DETAILS.CANCELLATION_REASON' | translate }}</dt>
                 <dd class="mt-1 text-sm text-ink">{{ current.cancellationReason }}</dd>
               </div>
             }
           </dl>
           @if (current.reasonDescription) {
-            <p class="mt-4 text-sm text-ink"><span class="text-muted">Reason details:</span> {{ current.reasonDescription }}</p>
+            <p class="mt-4 text-sm text-ink"><span class="text-muted">{{ 'RETURNS.DETAILS.REASON_DETAILS' | translate }}</span> {{ current.reasonDescription }}</p>
           }
           @if (current.notes) {
-            <p class="mt-2 text-sm text-ink"><span class="text-muted">Notes:</span> {{ current.notes }}</p>
+            <p class="mt-2 text-sm text-ink"><span class="text-muted">{{ 'RETURNS.DETAILS.NOTES' | translate }}</span> {{ current.notes }}</p>
           }
         </div>
 
         <div class="flex flex-wrap gap-2">
           @if (canEdit()) {
-            <a *hasPermission="editPermission()" class="btn-secondary" [routerLink]="['/returns', current.id, 'edit']">Edit</a>
+            <a *hasPermission="editPermission()" class="btn-secondary" [routerLink]="['/returns', current.id, 'edit']">{{ 'COMMON.EDIT' | translate }}</a>
           }
           @if (canReceive()) {
             <a *hasPermission="'Returns.Customer.Receive'" class="btn-primary" [routerLink]="['/returns', current.id, 'receive']">
-              Receive
+              {{ 'RETURNS.ACTIONS.RECEIVE' | translate }}
             </a>
           }
           @if (canInspect()) {
             <a *hasPermission="'Returns.Customer.Inspect'" class="btn-primary" [routerLink]="['/returns', current.id, 'inspection']">
-              Inspect
+              {{ 'RETURNS.ACTIONS.INSPECT' | translate }}
             </a>
           }
           @if (canAuthorize()) {
             <a *hasPermission="'Returns.Supplier.Authorize'" class="btn-primary" [routerLink]="['/returns', current.id, 'authorize']">
-              Authorize
+              {{ 'RETURNS.ACTIONS.AUTHORIZE' | translate }}
             </a>
           }
           @if (canDispatch()) {
             <a *hasPermission="'Returns.Supplier.Dispatch'" class="btn-primary" [routerLink]="['/returns', current.id, 'dispatch']">
-              Dispatch
+              {{ 'RETURNS.ACTIONS.DISPATCH' | translate }}
             </a>
           }
           @if (canCancel()) {
             <button *hasPermission="'Returns.Cancel'" type="button" class="btn-secondary text-danger" (click)="openCancel()">
-              Cancel
+              {{ 'RETURNS.ACTIONS.CANCEL' | translate }}
             </button>
           }
         </div>
@@ -133,27 +127,27 @@
     }
 
     <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
-      <h2 class="text-lg font-semibold text-ink">Items</h2>
+      <h2 class="text-lg font-semibold text-ink">{{ 'RETURNS.DETAILS.SECTION_ITEMS' | translate }}</h2>
       <div class="mt-4 overflow-x-auto">
         <table class="min-w-full text-left text-sm">
           <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
             <tr>
-              <th class="px-3 py-2">Product</th>
-              <th class="px-3 py-2">SKU</th>
-              <th class="px-3 py-2">Source qty</th>
-              <th class="px-3 py-2">Requested</th>
+              <th class="px-3 py-2">{{ 'RETURNS.FORM.COL_PRODUCT' | translate }}</th>
+              <th class="px-3 py-2">{{ 'RETURNS.FORM.COL_SKU' | translate }}</th>
+              <th class="px-3 py-2">{{ 'RETURNS.FORM.COL_SOURCE_QTY' | translate }}</th>
+              <th class="px-3 py-2">{{ 'RETURNS.FORM.COL_REQUESTED' | translate }}</th>
               @if (isCustomer()) {
-                <th class="px-3 py-2">Received</th>
-                <th class="px-3 py-2">Restocked</th>
-                <th class="px-3 py-2">Quarantine</th>
-                <th class="px-3 py-2">Discarded</th>
-                <th class="px-3 py-2">Rejected</th>
-                <th class="px-3 py-2">Condition</th>
+                <th class="px-3 py-2">{{ 'RETURNS.RECEIVE.COL_RECEIVED' | translate }}</th>
+                <th class="px-3 py-2">{{ 'RETURNS.DETAILS.COL_RESTOCKED' | translate }}</th>
+                <th class="px-3 py-2">{{ 'RETURNS.DETAILS.COL_QUARANTINE' | translate }}</th>
+                <th class="px-3 py-2">{{ 'RETURNS.DETAILS.COL_DISCARDED' | translate }}</th>
+                <th class="px-3 py-2">{{ 'RETURNS.DETAILS.COL_REJECTED' | translate }}</th>
+                <th class="px-3 py-2">{{ 'RETURNS.DETAILS.COL_CONDITION' | translate }}</th>
               } @else {
-                <th class="px-3 py-2">Dispatched</th>
+                <th class="px-3 py-2">{{ 'RETURNS.DETAILS.COL_DISPATCHED' | translate }}</th>
               }
-              <th class="px-3 py-2">Unit value</th>
-              <th class="px-3 py-2">Line total</th>
+              <th class="px-3 py-2">{{ 'RETURNS.FORM.COL_UNIT_VALUE' | translate }}</th>
+              <th class="px-3 py-2">{{ 'RETURNS.FORM.COL_LINE_TOTAL' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -169,7 +163,7 @@
                   <td class="px-3 py-2">{{ item.quarantinedQuantity }}</td>
                   <td class="px-3 py-2">{{ item.discardedQuantity }}</td>
                   <td class="px-3 py-2">{{ item.rejectedQuantity }}</td>
-                  <td class="px-3 py-2">{{ item.condition ? conditionLabel(item.condition) : '—' }}</td>
+                  <td class="px-3 py-2">{{ item.condition ? (conditionLabel(item.condition) | translate) : ('COMMON.EMPTY' | translate) }}</td>
                 } @else {
                   <td class="px-3 py-2">{{ item.dispatchedQuantity }}</td>
                 }
@@ -183,43 +177,43 @@
     </section>
 
     <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
-      <h2 class="text-lg font-semibold text-ink">Financial intent</h2>
+      <h2 class="text-lg font-semibold text-ink">{{ 'RETURNS.DETAILS.SECTION_FINANCIAL' | translate }}</h2>
       <p class="mt-1 text-sm text-muted">
-        Display only. Returns do not create settlements here; finance titles stay pending until linked by the server.
+        {{ 'RETURNS.DETAILS.FINANCIAL_HINT' | translate }}
       </p>
       <dl class="mt-4 grid gap-3 sm:grid-cols-2">
         <div>
-          <dt class="text-xs uppercase tracking-wide text-muted">Treatment</dt>
-          <dd class="mt-1 text-sm text-ink">{{ financialTreatmentLabel(current.financialTreatment) }}</dd>
+          <dt class="text-xs uppercase tracking-wide text-muted">{{ 'RETURNS.DETAILS.TREATMENT' | translate }}</dt>
+          <dd class="mt-1 text-sm text-ink">{{ financialTreatmentLabel(current.financialTreatment) | translate }}</dd>
         </div>
         <div>
-          <dt class="text-xs uppercase tracking-wide text-muted">Status</dt>
-          <dd class="mt-1 text-sm text-ink">{{ financialStatusLabel(current.financialStatus) }}</dd>
+          <dt class="text-xs uppercase tracking-wide text-muted">{{ 'RETURNS.DETAILS.FINANCIAL_STATUS' | translate }}</dt>
+          <dd class="mt-1 text-sm text-ink">{{ financialStatusLabel(current.financialStatus) | translate }}</dd>
         </div>
         <div>
-          <dt class="text-xs uppercase tracking-wide text-muted">Estimated financial amount</dt>
+          <dt class="text-xs uppercase tracking-wide text-muted">{{ 'RETURNS.DETAILS.ESTIMATED_FINANCIAL' | translate }}</dt>
           <dd class="mt-1 text-sm text-ink">{{ current.estimatedFinancialAmount | currency: 'BRL' }}</dd>
         </div>
         <div>
-          <dt class="text-xs uppercase tracking-wide text-muted">Linked title</dt>
+          <dt class="text-xs uppercase tracking-wide text-muted">{{ 'RETURNS.DETAILS.LINKED_TITLE' | translate }}</dt>
           <dd class="mt-1 text-sm text-ink">
-            {{ current.financialTitleId || 'Not linked' }}
+            {{ current.financialTitleId || ('RETURNS.DETAILS.NOT_LINKED' | translate) }}
           </dd>
         </div>
       </dl>
       @if (current.financialNotes) {
-        <p class="mt-3 text-sm text-ink"><span class="text-muted">Notes:</span> {{ current.financialNotes }}</p>
+        <p class="mt-3 text-sm text-ink"><span class="text-muted">{{ 'RETURNS.DETAILS.NOTES' | translate }}</span> {{ current.financialNotes }}</p>
       }
     </section>
 
     <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
-      <h2 class="text-lg font-semibold text-ink">History</h2>
+      <h2 class="text-lg font-semibold text-ink">{{ 'RETURNS.DETAILS.SECTION_HISTORY' | translate }}</h2>
       @if (historyLoading()) {
-        <p class="mt-3 text-sm text-muted">Loading history...</p>
+        <p class="mt-3 text-sm text-muted">{{ 'RETURNS.DETAILS.LOADING_HISTORY' | translate }}</p>
       } @else if (historyError()) {
         <p class="mt-3 text-sm text-danger" role="alert">{{ historyError() }}</p>
       } @else if (history().length === 0) {
-        <p class="mt-3 text-sm text-muted">No history events yet.</p>
+        <p class="mt-3 text-sm text-muted">{{ 'RETURNS.DETAILS.NO_HISTORY' | translate }}</p>
       } @else {
         <ol class="mt-4 space-y-3 border-l border-line pl-4">
           @for (entry of history(); track entry.id) {
@@ -236,32 +230,32 @@
     </section>
 
     <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
-      <h2 class="text-lg font-semibold text-ink">Stock movements</h2>
-      <p class="mt-1 text-sm text-muted">Read-only. Stock is updated only by the backend.</p>
+      <h2 class="text-lg font-semibold text-ink">{{ 'RETURNS.DETAILS.SECTION_MOVEMENTS' | translate }}</h2>
+      <p class="mt-1 text-sm text-muted">{{ 'RETURNS.DETAILS.MOVEMENTS_HINT' | translate }}</p>
       @if (movementsLoading()) {
-        <p class="mt-3 text-sm text-muted">Loading movements...</p>
+        <p class="mt-3 text-sm text-muted">{{ 'RETURNS.DETAILS.LOADING_MOVEMENTS' | translate }}</p>
       } @else if (movementsError()) {
         <p class="mt-3 text-sm text-danger" role="alert">{{ movementsError() }}</p>
       } @else if (movements().length === 0) {
-        <p class="mt-3 text-sm text-muted">No stock movements for this return yet.</p>
+        <p class="mt-3 text-sm text-muted">{{ 'RETURNS.DETAILS.NO_MOVEMENTS' | translate }}</p>
       } @else {
         <div class="mt-4 overflow-x-auto">
           <table class="min-w-full text-left text-sm">
             <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
               <tr>
-                <th class="px-3 py-2">Product</th>
-                <th class="px-3 py-2">Type</th>
-                <th class="px-3 py-2">Qty</th>
-                <th class="px-3 py-2">Previous</th>
-                <th class="px-3 py-2">New</th>
-                <th class="px-3 py-2">Date</th>
+                <th class="px-3 py-2">{{ 'RETURNS.FORM.COL_PRODUCT' | translate }}</th>
+                <th class="px-3 py-2">{{ 'RETURNS.DETAILS.COL_MOVEMENT_TYPE' | translate }}</th>
+                <th class="px-3 py-2">{{ 'RETURNS.DETAILS.COL_QTY' | translate }}</th>
+                <th class="px-3 py-2">{{ 'RETURNS.DETAILS.COL_PREVIOUS' | translate }}</th>
+                <th class="px-3 py-2">{{ 'RETURNS.DETAILS.COL_NEW' | translate }}</th>
+                <th class="px-3 py-2">{{ 'RETURNS.DETAILS.COL_DATE' | translate }}</th>
               </tr>
             </thead>
             <tbody>
               @for (movement of movements(); track movement.id) {
                 <tr class="border-b border-line/70 last:border-0">
                   <td class="px-3 py-2">{{ movement.productName }} ({{ movement.sku }})</td>
-                  <td class="px-3 py-2">{{ movementLabel(movement.movementType) }}</td>
+                  <td class="px-3 py-2">{{ movementLabel(movement.movementType) | translate }}</td>
                   <td class="px-3 py-2">{{ movement.quantity }}</td>
                   <td class="px-3 py-2">{{ movement.previousQuantity }}</td>
                   <td class="px-3 py-2">{{ movement.newQuantity }}</td>

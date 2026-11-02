@@ -1,4 +1,5 @@
 import { registerLocaleData } from '@angular/common';
+import { provideTranslateService } from '@ngx-translate/core';
 import localePt from '@angular/common/locales/pt';
 import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -28,7 +29,7 @@ describe('CancellationsPage', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [CancellationsPage],
-      providers: [
+      providers: [provideTranslateService(), 
         { provide: ReportsService, useValue: { getCancellationReport: () => of(report) } },
         { provide: ReportPeriodStore, useValue: new ReportPeriodStore() },
         { provide: LOCALE_ID, useValue: 'pt-BR' },
@@ -47,8 +48,8 @@ describe('CancellationsPage', () => {
     const table = [...fixture.nativeElement.querySelectorAll('table')].at(-1) as HTMLElement;
     expect(text).toContain('33,33%');
     expect(text).toContain('349,80');
-    expect(text).toContain('created in the period');
-    expect(text).toContain('not a realized financial loss');
+    expect(text).toContain('REPORTS.CANCELLATIONS.CREATED_SHARE');
+    expect(text).toContain('REPORTS.OVERVIEW.NOTE_CANCELLATION');
     expect(table.textContent).toContain('01/11/2026');
     expect(table.textContent).not.toContain('02/11/2026');
   });
@@ -57,7 +58,7 @@ describe('CancellationsPage', () => {
     TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
       imports: [CancellationsPage],
-      providers: [
+      providers: [provideTranslateService(), 
         {
           provide: ReportsService,
           useValue: {
@@ -74,6 +75,6 @@ describe('CancellationsPage', () => {
     emptyFixture.detectChanges();
     await emptyFixture.whenStable();
     emptyFixture.detectChanges();
-    expect(emptyFixture.nativeElement.textContent).toContain('No cancellations in this period.');
+    expect(emptyFixture.nativeElement.textContent).toContain('REPORTS.CANCELLATIONS.EMPTY');
   });
 });

@@ -1,4 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
@@ -28,7 +29,7 @@ interface PartyOption {
 
 @Component({
   selector: 'app-financial-title-list-page',
-  imports: [RouterLink, CurrencyPipe, DateOnlyPipe, FinancialStatus, HasPermissionDirective],
+  imports: [TranslatePipe, RouterLink, CurrencyPipe, DateOnlyPipe, FinancialStatus, HasPermissionDirective],
   templateUrl: './financial-title-list-page.html',
 })
 export class FinancialTitleListPage implements OnInit {
@@ -61,9 +62,9 @@ export class FinancialTitleListPage implements OnInit {
     this.kind() === 'payable' ? 'Finance.Payables.Create' : 'Finance.Receivables.Create',
   );
   readonly collectionPath = computed(() => titleCollectionPath(this.kind()));
-  readonly heading = computed(() => (this.kind() === 'payable' ? 'Accounts payable' : 'Accounts receivable'));
+  readonly heading = computed(() => (this.kind() === 'payable' ? 'FINANCE.LIST.PAYABLES_TITLE' : 'FINANCE.LIST.RECEIVABLES_TITLE'));
   readonly emptyMessage = computed(() =>
-    this.hasFilters() ? 'No titles match the current filters.' : 'There are no titles yet.',
+    this.hasFilters() ? 'FINANCE.LIST.EMPTY_TITLES_FILTERED' : 'FINANCE.LIST.EMPTY_TITLES',
   );
 
   ngOnInit(): void {
@@ -78,7 +79,7 @@ export class FinancialTitleListPage implements OnInit {
 
   applyFilters(): void {
     if (!this.datesAreOrdered(this.issueFrom(), this.issueTo()) || !this.datesAreOrdered(this.dueFrom(), this.dueTo())) {
-      this.filterError.set('The start date cannot be later than the end date.');
+      this.filterError.set('FINANCE.FILTERS.PERIOD_ERROR');
       return;
     }
 

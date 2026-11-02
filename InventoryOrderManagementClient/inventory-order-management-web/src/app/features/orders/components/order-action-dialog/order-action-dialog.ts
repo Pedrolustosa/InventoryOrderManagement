@@ -1,4 +1,6 @@
 import { Component, inject, input, output, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
+
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CANCELLATION_REASON_MAX_LENGTH } from '../../models/cancel-order-request.model';
 import { OrderStatus } from '../../models/order-status.model';
@@ -7,7 +9,7 @@ export type OrderLifecycleAction = 'confirm' | 'ship' | 'deliver' | 'cancel';
 
 @Component({
   selector: 'app-order-action-dialog',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TranslatePipe],
   templateUrl: './order-action-dialog.html',
 })
 export class OrderActionDialog {
@@ -32,28 +34,28 @@ export class OrderActionDialog {
   title(): string {
     switch (this.action()) {
       case 'confirm':
-        return 'Confirm Order';
+        return 'ORDERS.DIALOGS.CONFIRM_TITLE';
       case 'ship':
-        return 'Ship Order';
+        return 'ORDERS.DIALOGS.SHIP_TITLE';
       case 'deliver':
-        return 'Deliver Order';
+        return 'ORDERS.DIALOGS.DELIVER_TITLE';
       case 'cancel':
-        return 'Cancel Order';
+        return 'ORDERS.DIALOGS.CANCEL_TITLE';
     }
   }
 
   message(): string {
     switch (this.action()) {
       case 'confirm':
-        return 'This will issue stock for the order. Items and prices will be locked for editing.';
+        return 'ORDERS.DIALOGS.CONFIRM_MSG';
       case 'ship':
-        return 'The order will move to Shipped. Stock was already issued and will not change again.';
+        return 'ORDERS.DIALOGS.SHIP_MSG';
       case 'deliver':
-        return 'The order will be marked as Delivered. Stock will not change.';
+        return 'ORDERS.DIALOGS.DELIVER_MSG';
       case 'cancel':
         return this.status() === 'Confirmed'
-          ? 'Cancelling a confirmed order returns the issued stock. A reason is required.'
-          : 'The draft will be cancelled. Stock will not change. A reason is required.';
+          ? 'ORDERS.DIALOGS.CANCEL_CONFIRMED_MSG'
+          : 'ORDERS.DIALOGS.CANCEL_DRAFT_MSG';
     }
   }
 
@@ -69,13 +71,13 @@ export class OrderActionDialog {
 
     const value = this.reason.value.trim();
     if (!value) {
-      this.reasonError.set('A cancellation reason is required.');
+      this.reasonError.set('ORDERS.DIALOGS.REASON_REQUIRED');
       this.reason.markAsTouched();
       return;
     }
 
     if (value.length > CANCELLATION_REASON_MAX_LENGTH) {
-      this.reasonError.set(`The reason cannot exceed ${CANCELLATION_REASON_MAX_LENGTH} characters.`);
+      this.reasonError.set('ORDERS.DIALOGS.REASON_TOO_LONG');
       return;
     }
 

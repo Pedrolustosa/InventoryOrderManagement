@@ -1,4 +1,5 @@
 import { registerLocaleData } from '@angular/common';
+import { provideTranslateService } from '@ngx-translate/core';
 import localePt from '@angular/common/locales/pt';
 import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -42,7 +43,7 @@ describe('OrdersReportPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [OrdersReportPage],
-      providers: [
+      providers: [provideTranslateService(), 
         { provide: ReportsService, useValue: reports },
         { provide: ReportPeriodStore, useValue: new ReportPeriodStore() },
         { provide: LOCALE_ID, useValue: 'pt-BR' },
@@ -59,14 +60,14 @@ describe('OrdersReportPage', () => {
     fixture.detectChanges();
 
     const text = fixture.nativeElement.textContent as string;
-    expect(text).toContain('Total Confirmed Order Value');
+    expect(text).toContain('REPORTS.CUSTOMERS.COL_VALUE');
     expect(text).toContain('999,30');
     expect(text).toContain('333,10');
     expect(text).toContain('Draft');
-    expect(text).toContain('Delivered');
+    expect(text).toContain('STATUS.ORDER.Delivered');
     expect(text).toContain('01/11/2026');
-    expect(text).toContain('not cash received');
-    expect(text).toContain('do not have to add up');
+    expect(text).toContain('REPORTS.OVERVIEW.NOTE_CONFIRMED_VALUE');
+    expect(text).toContain('REPORTS.OVERVIEW.NOTE_STATUS');
   });
 
   it('should request another grouping without mixing draft value into the trend', async () => {

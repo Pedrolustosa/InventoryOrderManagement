@@ -1,9 +1,11 @@
 import { Component, input } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FinancialTitleStatus, financialStatusClass, financialStatusLabel } from '../../models/finance.enums';
 
 @Component({
   selector: 'app-financial-status',
-  template: `<span [class]="financialStatusClass(status())">{{ financialStatusLabel(status()) }}</span>`,
+  imports: [TranslatePipe],
+  template: `<span [class]="financialStatusClass(status())">{{ financialStatusLabel(status()) | translate }}</span>`,
 })
 export class FinancialStatus {
   readonly status = input.required<FinancialTitleStatus>();

@@ -1,8 +1,7 @@
 <section class="rounded-xl border border-danger/30 bg-panel p-5 shadow-sm sm:p-6" role="dialog" aria-labelledby="deactivate-title">
-  <h2 id="deactivate-title" class="text-lg font-semibold text-ink">Deactivate category</h2>
+  <h2 id="deactivate-title" class="text-lg font-semibold text-ink">{{ 'CATEGORIES.DIALOGS.DEACTIVATE_TITLE' | translate }}</h2>
   <p class="mt-2 text-sm text-muted">
-    Category <span class="font-medium text-ink">{{ category().name }}</span> will be deactivated and will no longer
-    be available for new products. Existing products keep their historical association.
+    {{ 'CATEGORIES.DIALOGS.DEACTIVATE_BODY' | translate:{ name: category().name } }}
   </p>
 
   @if (errorMessage()) {
@@ -14,13 +13,13 @@
   <div class="mt-5 flex flex-wrap gap-3">
     <button type="button" class="btn-primary bg-danger hover:bg-danger" [disabled]="isSubmitting()" (click)="confirmed.emit()">
       @if (isSubmitting()) {
-        Deactivating...
+        {{ 'COMMON.DEACTIVATING' | translate }}
       } @else {
-        Confirm Deactivate
+        {{ 'COMMON.CONFIRM_DEACTIVATE' | translate }}
       }
     </button>
     <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="cancelled.emit()">
-      Cancel
+      {{ 'COMMON.CANCEL' | translate }}
     </button>
   </div>
 </section>

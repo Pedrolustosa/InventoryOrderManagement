@@ -9,18 +9,7 @@ export const PURCHASE_ORDER_STATUSES = [
 export type PurchaseOrderStatus = (typeof PURCHASE_ORDER_STATUSES)[number];
 
 export function purchaseStatusLabel(status: PurchaseOrderStatus): string {
-  switch (status) {
-    case 'Draft':
-      return 'Draft';
-    case 'Sent':
-      return 'Sent';
-    case 'PartiallyReceived':
-      return 'Partially received';
-    case 'Received':
-      return 'Received';
-    case 'Cancelled':
-      return 'Cancelled';
-  }
+  return `STATUS.PURCHASE.${status}`;
 }
 
 export function purchaseStatusClass(status: PurchaseOrderStatus): string {

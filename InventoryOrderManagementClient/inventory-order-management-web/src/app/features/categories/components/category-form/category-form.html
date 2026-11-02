@@ -1,6 +1,6 @@
 <form class="space-y-5" [formGroup]="form" (ngSubmit)="submit()" novalidate>
   <div class="space-y-1.5">
-    <label class="text-sm font-medium text-ink" for="category-name">Name</label>
+    <label class="text-sm font-medium text-ink" for="category-name">{{ 'CATEGORIES.LIST.COL_NAME' | translate }}</label>
     <input
       id="category-name"
       type="text"
@@ -13,16 +13,16 @@
     @if (controlInvalid('name')) {
       <p class="text-sm text-danger" role="alert">
         @if (form.controls.name.hasError('required')) {
-          Name is required.
+          {{ 'CATEGORIES.FORM.NAME_REQUIRED' | translate }}
         } @else if (form.controls.name.hasError('maxlength')) {
-          Name cannot exceed 100 characters.
+          {{ 'CATEGORIES.FORM.NAME_MAX' | translate }}
         }
       </p>
     }
   </div>
 
   <div class="space-y-1.5">
-    <label class="text-sm font-medium text-ink" for="category-description">Description</label>
+    <label class="text-sm font-medium text-ink" for="category-description">{{ 'CATEGORIES.LIST.COL_DESCRIPTION' | translate }}</label>
     <textarea
       id="category-description"
       rows="3"
@@ -32,7 +32,7 @@
       [attr.aria-invalid]="controlInvalid('description')"
     ></textarea>
     @if (controlInvalid('description')) {
-      <p class="text-sm text-danger" role="alert">Description cannot exceed 300 characters.</p>
+      <p class="text-sm text-danger" role="alert">{{ 'CATEGORIES.FORM.DESCRIPTION_MAX' | translate }}</p>
     }
   </div>
 
@@ -45,15 +45,15 @@
   <div class="flex flex-wrap gap-3">
     <button type="submit" class="btn-primary" [disabled]="form.invalid || isSubmitting()">
       @if (isSubmitting()) {
-        Saving...
+        {{ 'COMMON.SAVING' | translate }}
       } @else if (mode() === 'edit') {
-        Save Changes
+        {{ 'COMMON.SAVE_CHANGES' | translate }}
       } @else {
-        Save Category
+        {{ 'CATEGORIES.FORM.SAVE' | translate }}
       }
     </button>
     <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="cancel()">
-      Cancel
+      {{ 'COMMON.CANCEL' | translate }}
     </button>
   </div>
 </form>

@@ -3,6 +3,7 @@ import { provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { permittedAuth, permittedUser } from '../../../../core/auth/testing/permitted-auth';
+import { provideTestTranslate } from '../../../../core/i18n/testing/provide-test-translate';
 import { LoginPage } from './login-page';
 
 describe('LoginPage', () => {
@@ -13,7 +14,7 @@ describe('LoginPage', () => {
     auth = permittedAuth();
     await TestBed.configureTestingModule({
       imports: [LoginPage],
-      providers: [provideRouter([]), { provide: AuthService, useValue: auth }],
+      providers: [provideRouter([]), provideTestTranslate(), { provide: AuthService, useValue: auth }],
     }).compileComponents();
     fixture = TestBed.createComponent(LoginPage);
     fixture.detectChanges();

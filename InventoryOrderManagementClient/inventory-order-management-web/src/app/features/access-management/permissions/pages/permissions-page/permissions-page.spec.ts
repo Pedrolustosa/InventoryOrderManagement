@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideTranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
+import { ToastService } from '../../../../../core/notifications/toast.service';
+import { createToastServiceSpy } from '../../../../../core/notifications/testing/toast-testing';
 import { RolesService } from '../../../roles/services/roles.service';
 import { PermissionsService } from '../../services/permissions.service';
 import { PermissionsPage } from './permissions-page';
@@ -22,10 +25,11 @@ describe('PermissionsPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [PermissionsPage],
-      providers: [
+      providers: [provideTranslateService(), 
         provideRouter([]),
         { provide: PermissionsService, useValue: { getCatalog: () => of([{ module: 'Users', permissions: ['Users.View'] }]), getByRole: () => of(['Users.View']) } },
         { provide: RolesService, useValue: rolesService },
+        { provide: ToastService, useValue: createToastServiceSpy() },
         { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({}) } } },
       ],
     }).compileComponents();
@@ -37,7 +41,7 @@ describe('PermissionsPage', () => {
   it('keeps the Administrator matrix read-only', () => {
     fixture.componentInstance.choose(fixture.componentInstance.roles()[0]);
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('Administrator permissions are fixed');
+    expect(fixture.nativeElement.textContent).toContain('PERMISSIONS.FORM.ADMIN_FIXED');
     expect(fixture.nativeElement.querySelector('input[type="checkbox"]').disabled).toBe(true);
   });
 

@@ -10,6 +10,8 @@ import { Order, OrderSummary } from '../../../orders/models/order.model';
 import { OrdersService } from '../../../orders/services/orders.service';
 import { ShipmentsService } from '../../services/shipments.service';
 import { ShipmentCreatePage } from './shipment-create-page';
+import { provideTestTranslate } from '../../../../core/i18n/testing/provide-test-translate';
+
 
 registerLocaleData(localePt);
 
@@ -68,7 +70,7 @@ describe('ShipmentCreatePage', () => {
 
     await TestBed.configureTestingModule({
       imports: [ShipmentCreatePage],
-      providers: [
+      providers: [...provideTestTranslate(), 
         provideRouter([]),
         { provide: OrdersService, useValue: ordersService },
         { provide: ShipmentsService, useValue: shipmentsService },
@@ -99,7 +101,7 @@ describe('ShipmentCreatePage', () => {
     component.form.patchValue({ carrierName: '' });
     component.submit();
     expect(shipmentsService.create).not.toHaveBeenCalled();
-    expect(component.formError()).toContain('required transport');
+    expect(component.formError()).toBe('SHIPPING.FORM.ERR_REQUIRED_TRANSPORT');
   });
 
   it('should block create when the order already has a shipment', async () => {

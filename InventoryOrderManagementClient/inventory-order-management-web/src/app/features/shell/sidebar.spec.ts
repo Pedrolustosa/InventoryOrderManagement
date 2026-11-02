@@ -4,6 +4,7 @@ import { provideRouter, RouterOutlet, Routes } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { AuthService } from '../../core/auth/services/auth.service';
 import { permittedAuth, permittedUser } from '../../core/auth/testing/permitted-auth';
+import { provideTestTranslate } from '../../core/i18n/testing/provide-test-translate';
 import { HomeRedirect } from './app-shell';
 import { Sidebar } from './sidebar';
 
@@ -42,6 +43,7 @@ describe('Sidebar', () => {
     TestBed.configureTestingModule({
       providers: [
         provideRouter(routes),
+        provideTestTranslate(),
         {
           provide: AuthService,
           useValue: permittedAuth(permissions ? permittedUser({ permissions }) : permittedUser()),
@@ -91,6 +93,14 @@ describe('Sidebar', () => {
       'Permissions',
       'Security Audit',
     ]);
+  });
+
+  it('renders the brand logo mark', async () => {
+    const root = await render();
+    const logo = root.querySelector('img[src="/assets/branding/logo-mark.png"]') as HTMLImageElement | null;
+
+    expect(logo).not.toBeNull();
+    expect(logo?.getAttribute('alt')).toBe('Inventory Order Management');
   });
 
   it('highlights the module for a nested route', async () => {

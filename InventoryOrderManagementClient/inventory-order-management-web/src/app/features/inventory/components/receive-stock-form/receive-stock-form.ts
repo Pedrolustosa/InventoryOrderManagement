@@ -1,4 +1,6 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
+
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProductResponse } from '../../../products/models/product.model';
 import { SupplierResponse } from '../../../suppliers/models/supplier.model';
@@ -7,7 +9,7 @@ import { ReceiveStockRequest } from '../../models/receive-stock-request.model';
 
 @Component({
   selector: 'app-receive-stock-form',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TranslatePipe],
   templateUrl: './receive-stock-form.html',
 })
 export class ReceiveStockForm {

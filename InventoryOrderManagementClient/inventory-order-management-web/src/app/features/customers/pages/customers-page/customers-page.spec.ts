@@ -6,14 +6,19 @@ import { Subject, of, throwError } from 'rxjs';
 import { CustomerResponse } from '../../models/customer.model';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { permittedAuth } from '../../../../core/auth/testing/permitted-auth';
+import { ToastService } from '../../../../core/notifications/toast.service';
+import { createToastServiceSpy, ToastServiceSpy } from '../../../../core/notifications/testing/toast-testing';
 import { CustomersService } from '../../services/customers.service';
 import { CustomersPage } from './customers-page';
+import { provideTestTranslate } from '../../../../core/i18n/testing/provide-test-translate';
+
 
 registerLocaleData(localePt);
 
 describe('CustomersPage', () => {
   let fixture: ComponentFixture<CustomersPage>;
   let component: CustomersPage;
+  let toast: ToastServiceSpy;
   let customersService: {
     getCustomers: ReturnType<typeof vi.fn>;
     getCustomerById: ReturnType<typeof vi.fn>;
@@ -59,6 +64,7 @@ describe('CustomersPage', () => {
   ];
 
   beforeEach(async () => {
+    toast = createToastServiceSpy();
     customersService = {
       getCustomers: vi.fn(),
       getCustomerById: vi.fn(),
@@ -72,8 +78,9 @@ describe('CustomersPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [CustomersPage],
-      providers: [
+      providers: [...provideTestTranslate(), 
         { provide: CustomersService, useValue: customersService },
+        { provide: ToastService, useValue: toast },
         { provide: LOCALE_ID, useValue: 'pt-BR' },
         { provide: AuthService, useValue: permittedAuth() },
       ],
@@ -151,7 +158,7 @@ describe('CustomersPage', () => {
     await fixture.whenStable();
 
     expect(customersService.createCustomer).toHaveBeenCalledTimes(1);
-    expect(component.successMessage()).toContain('John Smith');
+    expect(toast.successKey).toHaveBeenCalledWith('CUSTOMERS.FORM.SUCCESS_CREATED', { name: 'John Smith' });
     expect(component.panelMode()).toBe('none');
   });
 
@@ -169,7 +176,7 @@ describe('CustomersPage', () => {
     await fixture.whenStable();
 
     expect(customersService.deactivateCustomer).toHaveBeenCalledWith(customers[0].id);
-    expect(component.successMessage()).toContain('deactivated');
+    expect(toast.successKey).toHaveBeenCalledWith('CUSTOMERS.FORM.SUCCESS_DEACTIVATED', { name: 'John Smith' });
   });
 
   it('should show empty state', async () => {

@@ -1,4 +1,6 @@
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
+
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ProductResponse } from '../../../products/models/product.model';
 import { integerAtLeast } from '../../models/integer-validator';
@@ -6,7 +8,7 @@ import { RegisterStockExitRequest } from '../../models/register-stock-exit-reque
 
 @Component({
   selector: 'app-register-stock-exit-form',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TranslatePipe],
   templateUrl: './register-stock-exit-form.html',
 })
 export class RegisterStockExitForm {

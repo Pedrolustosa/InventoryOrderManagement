@@ -3,11 +3,9 @@
   role="dialog"
   aria-labelledby="supplier-deactivate-title"
 >
-  <h2 id="supplier-deactivate-title" class="text-lg font-semibold text-ink">Deactivate supplier</h2>
+  <h2 id="supplier-deactivate-title" class="text-lg font-semibold text-ink">{{ 'SUPPLIERS.DIALOGS.DEACTIVATE_TITLE' | translate }}</h2>
   <p class="mt-2 text-sm text-muted">
-    Supplier <span class="font-medium text-ink">{{ supplier().name }}</span> will be deactivated and will no
-    longer be available for future merchandise receipts. Historical records remain associated with this
-    supplier.
+    {{ 'SUPPLIERS.DIALOGS.DEACTIVATE_BODY' | translate:{ name: supplier().name } }}
   </p>
 
   @if (errorMessage()) {
@@ -24,13 +22,13 @@
       (click)="confirmed.emit()"
     >
       @if (isSubmitting()) {
-        Deactivating...
+        {{ 'COMMON.DEACTIVATING' | translate }}
       } @else {
-        Confirm Deactivate
+        {{ 'COMMON.CONFIRM_DEACTIVATE' | translate }}
       }
     </button>
     <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="cancelled.emit()">
-      Cancel
+      {{ 'COMMON.CANCEL' | translate }}
     </button>
   </div>
 </section>

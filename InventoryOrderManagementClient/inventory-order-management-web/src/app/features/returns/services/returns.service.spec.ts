@@ -1,4 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
+import { provideTranslateService } from '@ngx-translate/core';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../../environments/environment';
@@ -88,7 +89,7 @@ describe('ReturnsService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), ReturnsService],
+      providers: [provideTranslateService(), provideHttpClient(), provideHttpClientTesting(), ReturnsService],
     });
     service = TestBed.inject(ReturnsService);
     httpMock = TestBed.inject(HttpTestingController);

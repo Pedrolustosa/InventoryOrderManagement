@@ -1,4 +1,5 @@
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { CategoryResponse } from '../../../categories/models/category.model';
@@ -16,7 +17,7 @@ import { ReportsService } from '../../services/reports.service';
 
 @Component({
   selector: 'app-inventory-report-page',
-  imports: [RouterLink, ReportPager],
+  imports: [TranslatePipe, RouterLink, ReportPager],
   templateUrl: './inventory-report-page.html',
 })
 export class InventoryReportPage implements OnInit {
@@ -24,6 +25,7 @@ export class InventoryReportPage implements OnInit {
   private readonly categoriesService = inject(CategoriesService);
   private readonly productsService = inject(ProductsService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly translate = inject(TranslateService);
   private inventoryRequest = 0;
   private lowStockRequest = 0;
 
@@ -173,7 +175,7 @@ export class InventoryReportPage implements OnInit {
         textOrDash(item.categoryName),
         String(item.quantityOnHand),
         String(item.minimumStockLevel),
-        stockStatusLabel(item.stockStatus),
+        this.translate.instant(stockStatusLabel(item.stockStatus)),
       ]),
     ]);
   }

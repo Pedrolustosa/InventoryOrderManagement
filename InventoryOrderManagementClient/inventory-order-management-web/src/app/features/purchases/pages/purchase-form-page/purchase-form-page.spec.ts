@@ -6,6 +6,8 @@ import { SuppliersService } from '../../../suppliers/services/suppliers.service'
 import { PurchaseOrder } from '../../models/purchase-order.model';
 import { PurchasesService } from '../../services/purchases.service';
 import { PurchaseFormPage } from './purchase-form-page';
+import { provideTestTranslate } from '../../../../core/i18n/testing/provide-test-translate';
+
 
 describe('PurchaseFormPage', () => {
   const sent: PurchaseOrder = {
@@ -33,7 +35,7 @@ describe('PurchaseFormPage', () => {
   it('should leave the editor when the purchase is no longer a draft', async () => {
     await TestBed.configureTestingModule({
       imports: [PurchaseFormPage],
-      providers: [
+      providers: [...provideTestTranslate(), 
         provideRouter([]),
         { provide: PurchasesService, useValue: { getById: vi.fn().mockReturnValue(of(sent)) } },
         { provide: SuppliersService, useValue: { getSuppliers: vi.fn().mockReturnValue(of([])) } },

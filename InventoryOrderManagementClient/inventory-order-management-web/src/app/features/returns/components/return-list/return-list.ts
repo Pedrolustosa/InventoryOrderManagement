@@ -1,5 +1,6 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, input, output } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import {
   canAuthorizeReturn,
@@ -15,17 +16,17 @@ import { ReturnSummary, returnCounterpartName } from '../../models/return.model'
 
 @Component({
   selector: 'app-return-list',
-  imports: [CurrencyPipe, DatePipe, HasPermissionDirective],
+  imports: [CurrencyPipe, DatePipe, HasPermissionDirective, TranslatePipe],
   templateUrl: './return-list.html',
 })
 export class ReturnList {
   readonly returns = input.required<ReturnSummary[]>();
   readonly isLoading = input(false);
   readonly errorMessage = input<string | null>(null);
-  readonly emptyMessage = input('There are no returns yet.');
+  readonly emptyMessage = input('RETURNS.LIST.EMPTY_NO_DATA');
   readonly createPath = input<string | null>(null);
   readonly createPermission = input<string | null>(null);
-  readonly createLabel = input('New return');
+  readonly createLabel = input('RETURNS.ACTIONS.NEW_CUSTOMER');
 
   readonly viewRequested = output<ReturnSummary>();
   readonly editRequested = output<ReturnSummary>();

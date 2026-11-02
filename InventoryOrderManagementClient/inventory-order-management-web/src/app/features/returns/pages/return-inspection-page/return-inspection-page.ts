@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { canCompleteInspection, canStartInspection } from '../../models/return-actions';
 import {
@@ -20,7 +21,7 @@ interface InspectionDraft {
 
 @Component({
   selector: 'app-return-inspection-page',
-  imports: [RouterLink],
+  imports: [TranslatePipe, RouterLink],
   templateUrl: './return-inspection-page.html',
 })
 export class ReturnInspectionPage implements OnInit {
@@ -36,6 +37,7 @@ export class ReturnInspectionPage implements OnInit {
   readonly isSubmitting = signal(false);
   readonly loadError = signal<string | null>(null);
   readonly formError = signal<string | null>(null);
+  readonly formErrorParams = signal<Record<string, unknown>>({});
   readonly showConfirm = signal(false);
 
   conditionLabel = returnItemConditionLabel;
@@ -136,7 +138,7 @@ export class ReturnInspectionPage implements OnInit {
           this.isSubmitting.set(false);
           void this.router.navigate(['/returns', updated.id], {
             state: {
-              successMessage: `Inspection for ${updated.returnNumber} was completed. Restocked quantities were applied by the server.`,
+              successMessage: { key: 'RETURNS.INSPECT.SUCCESS', params: { number: updated.returnNumber } },
             },
           });
         },
@@ -214,7 +216,7 @@ export class ReturnInspectionPage implements OnInit {
     for (const item of items) {
       const draft = this.draftFor(item.id);
       if (draft.condition === 'Other' && !draft.inspectionNotes.trim()) {
-        this.formError.set(`Inspection notes are required for ${item.productSku} when condition is Other.`);
+        this.formError.set('RETURNS.INSPECT.ERR_OTHER_NOTES'); this.formErrorParams.set({ sku: item.productSku });
         return false;
       }
 
@@ -228,16 +230,15 @@ export class ReturnInspectionPage implements OnInit {
       for (const raw of values) {
         const qty = Number(raw);
         if (!Number.isInteger(qty) || qty < 0) {
-          this.formError.set(`Disposition quantities for ${item.productSku} must be whole numbers greater than or equal to zero.`);
+          this.formError.set('RETURNS.INSPECT.ERR_WHOLE'); this.formErrorParams.set({ sku: item.productSku });
           return false;
         }
       }
 
       const sum = this.dispositionSum(item.id);
       if (sum !== item.receivedQuantity) {
-        this.formError.set(
-          `Disposition quantities for ${item.productSku} must sum to the received quantity of ${item.receivedQuantity}. Current sum: ${sum}.`,
-        );
+        this.formError.set('RETURNS.INSPECT.ERR_SUM');
+        this.formErrorParams.set({ sku: item.productSku, received: item.receivedQuantity, sum });
         return false;
       }
     }

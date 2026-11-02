@@ -3,6 +3,8 @@ import { ProductResponse } from '../../../products/models/product.model';
 import { SupplierResponse } from '../../../suppliers/models/supplier.model';
 import { ReceiveStockRequest } from '../../models/receive-stock-request.model';
 import { ReceiveStockForm } from './receive-stock-form';
+import { provideTestTranslate } from '../../../../core/i18n/testing/provide-test-translate';
+
 
 describe('ReceiveStockForm', () => {
   let fixture: ComponentFixture<ReceiveStockForm>;
@@ -60,6 +62,7 @@ describe('ReceiveStockForm', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [...provideTestTranslate()],
       imports: [ReceiveStockForm],
     }).compileComponents();
 

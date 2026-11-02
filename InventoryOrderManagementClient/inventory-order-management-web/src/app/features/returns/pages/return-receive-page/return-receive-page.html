@@ -1,18 +1,18 @@
 <section class="space-y-6">
   <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <h1 class="text-3xl font-semibold tracking-tight text-ink">Receive customer return</h1>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">{{ 'RETURNS.RECEIVE.TITLE' | translate }}</h1>
       <p class="mt-2 max-w-2xl text-sm text-muted">
-        Record physical receipt. Products are not restocked until inspection completes.
+        {{ 'RETURNS.RECEIVE.SUBTITLE' | translate }}
       </p>
     </div>
-    <a routerLink="/returns" class="btn-secondary">Back to returns</a>
+    <a routerLink="/returns" class="btn-secondary">{{ 'RETURNS.DETAILS.BACK' | translate }}</a>
   </div>
 
   @if (isLoading()) {
     <div class="flex items-center gap-3 text-muted" aria-busy="true">
       <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
-      <span>Loading return...</span>
+      <span>{{ 'RETURNS.DETAILS.LOADING' | translate }}</span>
     </div>
   } @else if (loadError()) {
     <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
@@ -22,21 +22,24 @@
     <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
       <h2 class="text-lg font-semibold text-ink">{{ current.returnNumber }}</h2>
       <p class="mt-2 text-sm text-muted">
-        Customer: {{ current.customerName || '—' }} · Source: {{ current.sourceReference || '—' }}
+        {{ 'RETURNS.RECEIVE.CUSTOMER_SOURCE' | translate: {
+          name: current.customerName || ('COMMON.EMPTY' | translate),
+          ref: current.sourceReference || ('COMMON.EMPTY' | translate)
+        } }}
       </p>
     </section>
 
     <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
-      <h2 class="text-lg font-semibold text-ink">Items</h2>
+      <h2 class="text-lg font-semibold text-ink">{{ 'RETURNS.RECEIVE.SECTION_ITEMS' | translate }}</h2>
       <div class="mt-4 overflow-x-auto">
         <table class="min-w-full text-left text-sm">
           <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
             <tr>
-              <th class="px-3 py-2">Product</th>
-              <th class="px-3 py-2">SKU</th>
-              <th class="px-3 py-2">Requested</th>
-              <th class="px-3 py-2">Received</th>
-              <th class="px-3 py-2">Unit value</th>
+              <th class="px-3 py-2">{{ 'RETURNS.FORM.COL_PRODUCT' | translate }}</th>
+              <th class="px-3 py-2">{{ 'RETURNS.FORM.COL_SKU' | translate }}</th>
+              <th class="px-3 py-2">{{ 'RETURNS.RECEIVE.COL_REQUESTED' | translate }}</th>
+              <th class="px-3 py-2">{{ 'RETURNS.RECEIVE.COL_RECEIVED' | translate }}</th>
+              <th class="px-3 py-2">{{ 'RETURNS.FORM.COL_UNIT_VALUE' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -62,39 +65,43 @@
       </div>
 
       <label class="mt-4 block text-sm font-medium text-ink">
-        Notes
+        {{ 'RETURNS.RECEIVE.NOTES' | translate }}
         <textarea class="field mt-1 min-h-20" [value]="notes()" (input)="notes.set($any($event.target).value)"></textarea>
       </label>
     </section>
 
-    @if (formError()) {
+    @if (formError(); as err) {
       <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
-        {{ formError() }}
+        {{ err | translate: formErrorParams() }}
       </div>
     }
 
     <div class="flex justify-end gap-2">
-      <a [routerLink]="['/returns', current.id]" class="btn-secondary">Cancel</a>
-      <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="review()">Review receipt</button>
+      <a [routerLink]="['/returns', current.id]" class="btn-secondary">{{ 'COMMON.CANCEL' | translate }}</a>
+      <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="review()">
+        {{ 'RETURNS.RECEIVE.REVIEW' | translate }}
+      </button>
     </div>
 
     @if (pendingLines(); as lines) {
       <div class="fixed inset-0 z-40 flex items-center justify-center bg-ink/40 p-4" role="dialog" aria-modal="true">
         <div class="w-full max-w-lg rounded-xl border border-line bg-panel p-5 shadow-lg">
-          <h2 class="text-lg font-semibold text-ink">Confirm receipt</h2>
-          <p class="mt-2 text-sm text-muted">Receipt does not restock inventory yet.</p>
+          <h2 class="text-lg font-semibold text-ink">{{ 'RETURNS.DIALOGS.CONFIRM_RECEIPT_TITLE' | translate }}</h2>
+          <p class="mt-2 text-sm text-muted">{{ 'RETURNS.DIALOGS.CONFIRM_RECEIPT_MSG' | translate }}</p>
           <ul class="mt-4 space-y-2 text-sm text-ink">
             @for (line of lines; track line.returnItemId) {
-              <li>{{ line.productSku }} · {{ line.productName }} · qty {{ line.receivedQuantity }}</li>
+              <li>{{ 'RETURNS.RECEIVE.LINE' | translate: { sku: line.productSku, name: line.productName, qty: line.receivedQuantity } }}</li>
             }
           </ul>
           <div class="mt-5 flex justify-end gap-2">
-            <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="dismissReview()">Back</button>
+            <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="dismissReview()">
+              {{ 'COMMON.BACK' | translate }}
+            </button>
             <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="confirm()">
               @if (isSubmitting()) {
-                Saving...
+                {{ 'COMMON.SAVING' | translate }}
               } @else {
-                Confirm receive
+                {{ 'RETURNS.DIALOGS.CONFIRM_RECEIVE' | translate }}
               }
             </button>
           </div>

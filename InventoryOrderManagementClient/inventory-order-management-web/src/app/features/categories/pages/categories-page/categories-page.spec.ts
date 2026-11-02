@@ -6,14 +6,19 @@ import { Subject, of, throwError } from 'rxjs';
 import { CategoryResponse } from '../../models/category.model';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { permittedAuth } from '../../../../core/auth/testing/permitted-auth';
+import { ToastService } from '../../../../core/notifications/toast.service';
+import { createToastServiceSpy, ToastServiceSpy } from '../../../../core/notifications/testing/toast-testing';
 import { CategoriesService } from '../../services/categories.service';
 import { CategoriesPage } from './categories-page';
+import { provideTestTranslate } from '../../../../core/i18n/testing/provide-test-translate';
+
 
 registerLocaleData(localePt);
 
 describe('CategoriesPage', () => {
   let fixture: ComponentFixture<CategoriesPage>;
   let component: CategoriesPage;
+  let toast: ToastServiceSpy;
   let categoriesService: {
     getCategories: ReturnType<typeof vi.fn>;
     getCategoryById: ReturnType<typeof vi.fn>;
@@ -42,6 +47,7 @@ describe('CategoriesPage', () => {
   ];
 
   beforeEach(async () => {
+    toast = createToastServiceSpy();
     categoriesService = {
       getCategories: vi.fn(),
       getCategoryById: vi.fn(),
@@ -55,8 +61,9 @@ describe('CategoriesPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [CategoriesPage],
-      providers: [
+      providers: [...provideTestTranslate(), 
         { provide: CategoriesService, useValue: categoriesService },
+        { provide: ToastService, useValue: toast },
         { provide: LOCALE_ID, useValue: 'pt-BR' },
         { provide: AuthService, useValue: permittedAuth() },
       ],
@@ -127,7 +134,7 @@ describe('CategoriesPage', () => {
     fixture.detectChanges();
 
     expect(categoriesService.createCategory).toHaveBeenCalledTimes(1);
-    expect(component.successMessage()).toContain('Electronics');
+    expect(toast.successKey).toHaveBeenCalledWith('CATEGORIES.FORM.SUCCESS_CREATED', { name: 'Electronics' });
     expect(component.panelMode()).toBe('none');
     expect(component.categories()).toEqual([created]);
   });
@@ -149,7 +156,9 @@ describe('CategoriesPage', () => {
       name: 'Updated Electronics',
       description: 'Devices',
     });
-    expect(component.successMessage()).toContain('Updated Electronics');
+    expect(toast.successKey).toHaveBeenCalledWith('CATEGORIES.FORM.SUCCESS_UPDATED', {
+      name: 'Updated Electronics',
+    });
   });
 
   it('should show conflict message when deactivate fails with 409', async () => {
@@ -183,7 +192,9 @@ describe('CategoriesPage', () => {
     await fixture.whenStable();
 
     expect(categoriesService.deactivateCategory).toHaveBeenCalledWith(categories[0].id);
-    expect(component.successMessage()).toContain('deactivated');
+    expect(toast.successKey).toHaveBeenCalledWith('CATEGORIES.FORM.SUCCESS_DEACTIVATED', {
+      name: 'Electronics',
+    });
     expect(component.panelMode()).toBe('none');
   });
 });

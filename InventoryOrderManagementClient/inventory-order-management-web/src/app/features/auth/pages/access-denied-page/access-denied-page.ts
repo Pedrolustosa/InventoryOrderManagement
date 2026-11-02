@@ -1,11 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { firstAllowedPath } from '../../../../core/auth/landing';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 
 @Component({
   selector: 'app-access-denied-page',
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   templateUrl: './access-denied-page.html',
 })
 export class AccessDeniedPage {

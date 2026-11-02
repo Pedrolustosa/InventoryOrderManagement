@@ -5,6 +5,8 @@ import { environment } from '../../../../environments/environment';
 import { CreateProductRequest } from '../models/create-product-request.model';
 import { ProductResponse } from '../models/product.model';
 import { ProductsService } from './products.service';
+import { provideTestTranslate } from '../../../core/i18n/testing/provide-test-translate';
+
 
 describe('ProductsService', () => {
   let service: ProductsService;
@@ -14,7 +16,7 @@ describe('ProductsService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), ProductsService],
+      providers: [...provideTestTranslate(), provideHttpClient(), provideHttpClientTesting(), ProductsService],
     });
 
     service = TestBed.inject(ProductsService);

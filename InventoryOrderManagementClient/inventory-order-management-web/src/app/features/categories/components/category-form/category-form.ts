@@ -1,4 +1,6 @@
 import { Component, effect, inject, input, output } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
+
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CategoryResponse } from '../../models/category.model';
 import { CreateCategoryRequest } from '../../models/create-category-request.model';
@@ -6,7 +8,7 @@ import { UpdateCategoryRequest } from '../../models/update-category-request.mode
 
 @Component({
   selector: 'app-category-form',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TranslatePipe],
   templateUrl: './category-form.html',
 })
 export class CategoryForm {

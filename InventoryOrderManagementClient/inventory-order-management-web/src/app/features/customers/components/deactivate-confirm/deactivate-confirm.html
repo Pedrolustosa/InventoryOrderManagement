@@ -3,10 +3,9 @@
   role="dialog"
   aria-labelledby="customer-deactivate-title"
 >
-  <h2 id="customer-deactivate-title" class="text-lg font-semibold text-ink">Deactivate customer</h2>
+  <h2 id="customer-deactivate-title" class="text-lg font-semibold text-ink">{{ 'CUSTOMERS.DIALOGS.DEACTIVATE_TITLE' | translate }}</h2>
   <p class="mt-2 text-sm text-muted">
-    Customer <span class="font-medium text-ink">{{ customer().name }}</span> will be deactivated and will no
-    longer be available for new orders. Historical records remain associated with this customer.
+    {{ 'CUSTOMERS.DIALOGS.DEACTIVATE_BODY' | translate:{ name: customer().name } }}
   </p>
 
   @if (errorMessage()) {
@@ -23,13 +22,13 @@
       (click)="confirmed.emit()"
     >
       @if (isSubmitting()) {
-        Deactivating...
+        {{ 'COMMON.DEACTIVATING' | translate }}
       } @else {
-        Confirm Deactivate
+        {{ 'COMMON.CONFIRM_DEACTIVATE' | translate }}
       }
     </button>
     <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="cancelled.emit()">
-      Cancel
+      {{ 'COMMON.CANCEL' | translate }}
     </button>
   </div>
 </section>

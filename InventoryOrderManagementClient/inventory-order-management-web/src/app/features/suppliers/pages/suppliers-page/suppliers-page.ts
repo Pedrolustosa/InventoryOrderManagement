@@ -1,4 +1,7 @@
 import { Component, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
+
+import { ToastService } from '../../../../core/notifications/toast.service';
 import { DeactivateConfirm } from '../../components/deactivate-confirm/deactivate-confirm';
 import { SupplierDetail } from '../../components/supplier-detail/supplier-detail';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
@@ -14,11 +17,12 @@ type PanelMode = 'none' | 'create' | 'edit' | 'detail' | 'deactivate';
 
 @Component({
   selector: 'app-suppliers-page',
-  imports: [SupplierForm, SupplierList, SupplierDetail, DeactivateConfirm, HasPermissionDirective],
+  imports: [SupplierForm, SupplierList, SupplierDetail, DeactivateConfirm, HasPermissionDirective, TranslatePipe],
   templateUrl: './suppliers-page.html',
 })
 export class SuppliersPage implements OnInit {
   private readonly suppliersService = inject(SuppliersService);
+  private readonly toast = inject(ToastService);
 
   @ViewChild(SupplierForm) private supplierForm?: SupplierForm;
 
@@ -28,7 +32,6 @@ export class SuppliersPage implements OnInit {
   readonly isDetailLoading = signal(false);
   readonly loadError = signal<string | null>(null);
   readonly submitError = signal<string | null>(null);
-  readonly successMessage = signal<string | null>(null);
   readonly statusFilter = signal<StatusFilter>('all');
   readonly searchTerm = signal('');
   readonly panelMode = signal<PanelMode>('none');
@@ -74,7 +77,6 @@ export class SuppliersPage implements OnInit {
   }
 
   openCreate(): void {
-    this.successMessage.set(null);
     this.submitError.set(null);
     this.selectedSupplier.set(null);
     this.panelMode.set('create');
@@ -85,14 +87,12 @@ export class SuppliersPage implements OnInit {
       return;
     }
 
-    this.successMessage.set(null);
     this.submitError.set(null);
     this.selectedSupplier.set(supplier);
     this.panelMode.set('edit');
   }
 
   openDetail(supplier: SupplierResponse): void {
-    this.successMessage.set(null);
     this.submitError.set(null);
     this.panelMode.set('detail');
     this.isDetailLoading.set(true);
@@ -115,7 +115,6 @@ export class SuppliersPage implements OnInit {
       return;
     }
 
-    this.successMessage.set(null);
     this.submitError.set(null);
     this.selectedSupplier.set(supplier);
     this.panelMode.set('deactivate');
@@ -155,7 +154,6 @@ export class SuppliersPage implements OnInit {
 
     this.isSubmitting.set(true);
     this.submitError.set(null);
-    this.successMessage.set(null);
 
     if (this.panelMode() === 'edit') {
       const current = this.selectedSupplier();
@@ -167,7 +165,7 @@ export class SuppliersPage implements OnInit {
       this.suppliersService.updateSupplier(current.id, request).subscribe({
         next: () => {
           this.isSubmitting.set(false);
-          this.successMessage.set(`Supplier "${request.name}" was updated successfully.`);
+          this.toast.successKey('SUPPLIERS.FORM.SUCCESS_UPDATED', { name: request.name });
           this.closePanel();
           this.loadSuppliers();
         },
@@ -182,7 +180,7 @@ export class SuppliersPage implements OnInit {
     this.suppliersService.createSupplier(request).subscribe({
       next: (created) => {
         this.isSubmitting.set(false);
-        this.successMessage.set(`Supplier "${created.name}" was created successfully.`);
+        this.toast.successKey('SUPPLIERS.FORM.SUCCESS_CREATED', { name: created.name });
         this.closePanel();
         this.loadSuppliers();
       },
@@ -205,7 +203,7 @@ export class SuppliersPage implements OnInit {
     this.suppliersService.deactivateSupplier(current.id).subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        this.successMessage.set(`Supplier "${current.name}" was deactivated.`);
+        this.toast.successKey('SUPPLIERS.FORM.SUCCESS_DEACTIVATED', { name: current.name });
         this.closePanel();
         this.loadSuppliers();
       },

@@ -1,4 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FinancePeriodFilter } from '../../components/finance-period-filter/finance-period-filter';
 import { ReportChart } from '../../../reports/components/report-chart/report-chart';
@@ -12,7 +13,7 @@ import { FinanceRequestError, FinanceService } from '../../services/finance.serv
 
 @Component({
   selector: 'app-cash-flow-page',
-  imports: [CurrencyPipe, DateOnlyPipe, FinancePeriodFilter, ReportChart],
+  imports: [TranslatePipe, CurrencyPipe, DateOnlyPipe, FinancePeriodFilter, ReportChart],
   templateUrl: './cash-flow-page.html',
 })
 export class CashFlowPage implements OnInit {
@@ -27,8 +28,8 @@ export class CashFlowPage implements OnInit {
   readonly projected = signal<CashFlow | null>(null);
   readonly isLoading = signal(false);
   readonly loadError = signal<string | null>(null);
-  readonly realizedChart = () => (this.realized() ? cashFlowChart(this.realized()!.buckets, 'Realized cash flow') : null);
-  readonly projectedChart = () => (this.projected() ? cashFlowChart(this.projected()!.buckets, 'Projected cash flow') : null);
+  readonly realizedChart = () => (this.realized() ? cashFlowChart(this.realized()!.buckets, 'FINANCE.DASHBOARD.REALIZED_CASH_FLOW') : null);
+  readonly projectedChart = () => (this.projected() ? cashFlowChart(this.projected()!.buckets, 'FINANCE.DASHBOARD.CHART_PROJECTED') : null);
 
   private range: FinanceRange | null = null;
 

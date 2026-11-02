@@ -1,4 +1,6 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
+
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { Component, input, output } from '@angular/core';
 import { canCancel, canConfirm, canDeliver, canEdit, canShip } from '../../models/order-actions';
@@ -7,14 +9,14 @@ import { OrderStatus, orderStatusLabel } from '../../models/order-status.model';
 
 @Component({
   selector: 'app-order-list',
-  imports: [CurrencyPipe, DatePipe, HasPermissionDirective],
+  imports: [CurrencyPipe, DatePipe, HasPermissionDirective, TranslatePipe],
   templateUrl: './order-list.html',
 })
 export class OrderList {
   readonly orders = input.required<OrderSummary[]>();
   readonly isLoading = input(false);
   readonly errorMessage = input<string | null>(null);
-  readonly emptyMessage = input('There are no orders yet.');
+  readonly emptyMessage = input('ORDERS.LIST.EMPTY_NO_DATA');
   readonly allowCreate = input(false);
 
   readonly viewRequested = output<OrderSummary>();

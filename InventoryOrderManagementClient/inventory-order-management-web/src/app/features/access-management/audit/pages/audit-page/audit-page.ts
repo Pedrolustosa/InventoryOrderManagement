@@ -1,4 +1,5 @@
 import { DatePipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { PagedResult } from '../../../users/models/user.model';
@@ -7,7 +8,7 @@ import { AuditService } from '../../services/audit.service';
 
 @Component({
   selector: 'app-audit-page',
-  imports: [DatePipe, ReactiveFormsModule],
+  imports: [TranslatePipe, DatePipe, ReactiveFormsModule],
   templateUrl: './audit-page.html',
 })
 export class AuditPage implements OnInit {

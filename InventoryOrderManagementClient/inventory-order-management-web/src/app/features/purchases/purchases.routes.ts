@@ -15,28 +15,28 @@ export const PURCHASES_ROUTES: Routes = [
     path: 'new',
     component: PurchaseFormPage,
     canActivate: [permissionGuard('Purchases.Create')],
-    data: { title: 'New purchase', breadcrumb: 'New purchase' },
+    data: { title: 'ROUTES.PURCHASES_NEW', breadcrumb: 'ROUTES.PURCHASES_NEW' },
   },
   {
     path: 'receipts/:receiptId',
     component: PurchaseReceiptPage,
-    data: { title: 'Receipt', breadcrumb: 'Receipt' },
+    data: { title: 'ROUTES.PURCHASES_RECEIPT', breadcrumb: 'ROUTES.PURCHASES_RECEIPT' },
   },
   {
     path: ':id/edit',
     component: PurchaseFormPage,
     canActivate: [permissionGuard('Purchases.UpdateDraft')],
-    data: { title: 'Edit purchase', breadcrumb: 'Edit purchase' },
+    data: { title: 'ROUTES.PURCHASES_EDIT', breadcrumb: 'ROUTES.PURCHASES_EDIT' },
   },
   {
     path: ':id/receive',
     component: PurchaseReceivePage,
     canActivate: [permissionGuard('Purchases.Receive')],
-    data: { title: 'Receive', breadcrumb: 'Receive' },
+    data: { title: 'ROUTES.PURCHASES_RECEIVE', breadcrumb: 'ROUTES.PURCHASES_RECEIVE' },
   },
   {
     path: ':id',
     component: PurchaseDetailsPage,
-    data: { title: 'Purchase details', breadcrumb: 'Purchase details' },
+    data: { title: 'ROUTES.PURCHASES_DETAILS', breadcrumb: 'ROUTES.PURCHASES_DETAILS' },
   },
 ];

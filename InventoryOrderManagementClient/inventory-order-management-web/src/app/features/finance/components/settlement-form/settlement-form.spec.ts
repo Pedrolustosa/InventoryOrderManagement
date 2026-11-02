@@ -1,4 +1,5 @@
 import { registerLocaleData } from '@angular/common';
+import { provideTranslateService } from '@ngx-translate/core';
 import localePt from '@angular/common/locales/pt';
 import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -45,7 +46,7 @@ describe('SettlementForm', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [SettlementForm],
-      providers: [{ provide: LOCALE_ID, useValue: 'pt-BR' }],
+      providers: [provideTranslateService(), { provide: LOCALE_ID, useValue: 'pt-BR' }],
     }).compileComponents();
     fixture = TestBed.createComponent(SettlementForm);
     fixture.componentRef.setInput('kind', 'payable');

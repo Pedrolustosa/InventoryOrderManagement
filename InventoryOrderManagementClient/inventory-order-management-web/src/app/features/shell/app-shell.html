@@ -3,13 +3,13 @@
     <button
       type="button"
       class="fixed inset-0 z-30 bg-ink/40"
-      aria-label="Close menu"
+      [attr.aria-label]="'SHELL.CLOSE_MENU' | translate"
       (click)="closeMobile()"
     ></button>
   }
 
   <app-sidebar
-    class="fixed top-0 left-0 z-40 h-dvh border-r border-line bg-panel transition-transform duration-200 lg:sticky lg:z-0 lg:translate-x-0"
+    class="fixed top-0 left-0 z-40 h-dvh border-r border-[var(--iom-primary-dark)] transition-transform duration-200 lg:sticky lg:z-0 lg:translate-x-0"
     [class.-translate-x-full]="!desktop() && !mobileOpen()"
     [class.translate-x-0]="desktop() || mobileOpen()"
     [class.w-64]="!desktop() || !collapsed()"
@@ -28,8 +28,10 @@
       (menuToggled)="toggleMenu()"
       (signedOut)="signOut()"
     />
-    <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      <router-outlet />
-    </main>
+    @for (_ of [localeEpoch()]; track localeEpoch()) {
+      <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+        <router-outlet />
+      </main>
+    }
   </div>
 </div>

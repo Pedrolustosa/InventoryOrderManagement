@@ -7,6 +7,8 @@ import { InventoryBalance } from '../../../inventory/models/inventory-balance.mo
 import { ProductResponse } from '../../../products/models/product.model';
 import { CreateOrderRequest } from '../../models/create-order-request.model';
 import { OrderForm } from './order-form';
+import { provideTestTranslate } from '../../../../core/i18n/testing/provide-test-translate';
+
 
 registerLocaleData(localePt);
 
@@ -86,7 +88,7 @@ describe('OrderForm', () => {
     saved.length = 0;
     await TestBed.configureTestingModule({
       imports: [OrderForm],
-      providers: [{ provide: LOCALE_ID, useValue: 'pt-BR' }],
+      providers: [...provideTestTranslate(), { provide: LOCALE_ID, useValue: 'pt-BR' }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OrderForm);
@@ -131,7 +133,7 @@ describe('OrderForm', () => {
 
     component.form.controls.customerId.setValue(activeCustomer.id);
     component.submit();
-    expect(component.itemError()).toBe('Add at least one product to the order.');
+    expect(component.itemError()).toBe('ORDERS.FORM.EMPTY_ITEMS');
     expect(saved).toEqual([]);
   });
 
@@ -141,7 +143,7 @@ describe('OrderForm', () => {
     component.addItem();
     component.submit();
 
-    expect(component.itemError()).toBe('Inactive customers cannot place orders.');
+    expect(component.itemError()).toBe('ORDERS.FORM.INACTIVE_CUSTOMER');
     expect(saved).toEqual([]);
   });
 
@@ -156,7 +158,7 @@ describe('OrderForm', () => {
     component.addItem();
 
     expect(component.items()).toHaveLength(1);
-    expect(component.itemError()).toBe('The same product cannot be added more than once.');
+    expect(component.itemError()).toBe('ORDERS.FORM.ERR_DUPLICATE_PRODUCT');
   });
 
   it('should require a shipping address when the customer has none', () => {

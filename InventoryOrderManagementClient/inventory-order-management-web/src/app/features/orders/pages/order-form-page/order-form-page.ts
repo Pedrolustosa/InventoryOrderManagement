@@ -1,4 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { CustomerResponse } from '../../../customers/models/customer.model';
@@ -14,11 +16,12 @@ import { OrdersService } from '../../services/orders.service';
 
 @Component({
   selector: 'app-order-form-page',
-  imports: [RouterLink, OrderForm],
+  imports: [RouterLink, OrderForm, TranslatePipe],
   templateUrl: './order-form-page.html',
 })
 export class OrderFormPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
   private readonly ordersService = inject(OrdersService);
   private readonly customersService = inject(CustomersService);
@@ -69,7 +72,7 @@ export class OrderFormPage implements OnInit {
           this.isSubmitting.set(false);
           void this.router.navigate(['/orders', created.id], {
             state: {
-              successMessage: `Order ${created.orderNumber} was saved as ${created.status}.`,
+              successMessage: this.translate.instant('ORDERS.DETAILS.SUCCESS_SAVED', { orderNumber: created.orderNumber, status: this.translate.instant('STATUS.ORDER.' + created.status) }),
             },
           });
         },
@@ -86,7 +89,7 @@ export class OrderFormPage implements OnInit {
         this.isSubmitting.set(false);
         const orderNumber = this.order()?.orderNumber ?? 'Draft';
         void this.router.navigate(['/orders', orderId], {
-          state: { successMessage: `Order ${orderNumber} was updated.` },
+          state: { successMessage: this.translate.instant('ORDERS.DETAILS.SUCCESS_UPDATED', { orderNumber }) },
         });
       },
       error: (error: Error) => {

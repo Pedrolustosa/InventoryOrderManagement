@@ -1,4 +1,5 @@
 import { CurrencyPipe, PercentPipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReportChart } from '../../components/report-chart/report-chart';
@@ -12,7 +13,7 @@ import { ReportsService } from '../../services/reports.service';
 
 @Component({
   selector: 'app-orders-report-page',
-  imports: [CurrencyPipe, PercentPipe, ReportChart],
+  imports: [TranslatePipe, CurrencyPipe, PercentPipe, ReportChart],
   templateUrl: './orders-report-page.html',
 })
 export class OrdersReportPage {
@@ -40,11 +41,11 @@ export class OrdersReportPage {
     }
 
     const rows = [
-      { label: 'Draft', count: summary.draftOrders },
-      { label: 'Confirmed', count: summary.confirmedOrders },
-      { label: 'Shipped', count: summary.shippedOrders },
-      { label: 'Delivered', count: summary.deliveredOrders },
-      { label: 'Cancelled', count: summary.cancelledOrders },
+      { label: 'STATUS.ORDER.Draft', count: summary.draftOrders },
+      { label: 'STATUS.ORDER.Confirmed', count: summary.confirmedOrders },
+      { label: 'STATUS.ORDER.Shipped', count: summary.shippedOrders },
+      { label: 'STATUS.ORDER.Delivered', count: summary.deliveredOrders },
+      { label: 'STATUS.ORDER.Cancelled', count: summary.cancelledOrders },
     ];
     const total = rows.reduce((sum, row) => sum + row.count, 0);
     return rows.map((row) => ({ ...row, share: total === 0 ? 0 : row.count / total }));

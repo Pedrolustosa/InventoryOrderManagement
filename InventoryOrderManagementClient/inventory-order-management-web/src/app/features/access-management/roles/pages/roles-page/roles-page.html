@@ -1,14 +1,11 @@
 <section class="space-y-6">
   <div class="flex items-end justify-between gap-4">
     <div>
-      <h1 class="text-3xl font-semibold text-ink">Role Management</h1>
-      <p class="mt-2 text-sm text-muted">Roles group permissions that are assigned to users.</p>
+      <h1 class="text-3xl font-semibold text-ink">{{ 'ROLES.LIST.TITLE' | translate }}</h1>
+      <p class="mt-2 text-sm text-muted">{{ 'ROLES.LIST.SUBTITLE' | translate }}</p>
     </div>
-    <a *hasPermission="'Roles.Create'" routerLink="/roles/new" class="btn-primary">New Role</a>
+    <a *hasPermission="'Roles.Create'" routerLink="/roles/new" class="btn-primary">{{ 'ROLES.LIST.NEW' | translate }}</a>
   </div>
-  @if (successMessage()) {
-    <p class="text-sm text-accent" role="status">{{ successMessage() }}</p>
-  }
   @if (errorMessage()) {
     <p class="text-sm text-danger" role="alert">{{ errorMessage() }}</p>
   }
@@ -16,27 +13,27 @@
     <table class="min-w-full text-left text-sm">
       <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
         <tr>
-          <th class="px-4 py-3">Name</th>
-          <th class="px-4 py-3">Description</th>
-          <th class="px-4 py-3">Type</th>
-          <th class="px-4 py-3">Permissions</th>
-          <th class="px-4 py-3">Actions</th>
+          <th class="px-4 py-3">{{ 'ROLES.FORM.NAME' | translate }}</th>
+          <th class="px-4 py-3">{{ 'ROLES.FORM.DESCRIPTION' | translate }}</th>
+          <th class="px-4 py-3">{{ 'ROLES.LIST.COL_TYPE' | translate }}</th>
+          <th class="px-4 py-3">{{ 'ROLES.DETAILS.PERMISSIONS' | translate }}</th>
+          <th class="px-4 py-3">{{ 'ROLES.LIST.COL_ACTIONS' | translate }}</th>
         </tr>
       </thead>
       <tbody>
         @for (role of roles(); track role.id) {
           <tr class="border-b border-line last:border-0">
             <td class="px-4 py-3 font-medium">{{ role.name }}</td>
-            <td class="px-4 py-3">{{ role.description || 'No description' }}</td>
-            <td class="px-4 py-3">{{ role.isSystemRole ? 'System' : 'Custom' }}</td>
+            <td class="px-4 py-3">{{ role.description || ('ROLES.LIST.NO_DESCRIPTION' | translate) }}</td>
+            <td class="px-4 py-3">{{ (role.isSystemRole ? 'ROLES.LIST.SYSTEM' : 'ROLES.LIST.CUSTOM') | translate }}</td>
             <td class="px-4 py-3">{{ role.permissions.length }}</td>
             <td class="px-4 py-3">
               <div class="flex gap-2">
-                <a class="btn-secondary !px-2.5 !py-1 text-xs" [routerLink]="['/roles', role.id]">View</a>
-                <a *hasPermission="'Roles.Update'" class="btn-secondary !px-2.5 !py-1 text-xs" [routerLink]="['/roles', role.id, 'edit']">Edit</a>
-                <a *hasPermission="'Roles.Update'" class="btn-secondary !px-2.5 !py-1 text-xs" [routerLink]="['/permissions']" [queryParams]="{ roleId: role.id }">Permissions</a>
+                <a class="btn-secondary !px-2.5 !py-1 text-xs" [routerLink]="['/roles', role.id]">{{ 'COMMON.VIEW' | translate }}</a>
+                <a *hasPermission="'Roles.Update'" class="btn-secondary !px-2.5 !py-1 text-xs" [routerLink]="['/roles', role.id, 'edit']">{{ 'COMMON.EDIT' | translate }}</a>
+                <a *hasPermission="'Roles.Update'" class="btn-secondary !px-2.5 !py-1 text-xs" [routerLink]="['/permissions']" [queryParams]="{ roleId: role.id }">{{ 'ROLES.DETAILS.PERMISSIONS' | translate }}</a>
                 @if (!role.isSystemRole) {
-                  <button *hasPermission="'Roles.Delete'" type="button" class="btn-secondary !px-2.5 !py-1 text-xs text-danger" (click)="pendingDelete.set(role)">Delete</button>
+                  <button *hasPermission="'Roles.Delete'" type="button" class="btn-secondary !px-2.5 !py-1 text-xs text-danger" (click)="pendingDelete.set(role)">{{ 'ROLES.LIST.DELETE' | translate }}</button>
                 }
               </div>
             </td>
@@ -47,11 +44,11 @@
   </div>
   @if (pendingDelete(); as role) {
     <div class="rounded-xl border border-line bg-panel p-5" role="dialog">
-      <h2 class="text-lg font-semibold">Delete {{ role.name }}</h2>
-      <p class="mt-2 text-sm text-muted">The role is removed only when no user is assigned to it.</p>
+      <h2 class="text-lg font-semibold">{{ 'ROLES.DIALOGS.DELETE_TITLE' | translate: { roleName: role.name } }}</h2>
+      <p class="mt-2 text-sm text-muted">{{ 'ROLES.DIALOGS.DELETE_BODY' | translate }}</p>
       <div class="mt-4 flex gap-2">
-        <button type="button" class="btn-primary bg-danger" (click)="confirmDelete()">Confirm delete</button>
-        <button type="button" class="btn-secondary" (click)="pendingDelete.set(null)">Cancel</button>
+        <button type="button" class="btn-primary bg-danger" (click)="confirmDelete()">{{ 'ROLES.DIALOGS.CONFIRM_DELETE' | translate }}</button>
+        <button type="button" class="btn-secondary" (click)="pendingDelete.set(null)">{{ 'COMMON.CANCEL' | translate }}</button>
       </div>
     </div>
   }

@@ -8,6 +8,8 @@ import { CreateOrderRequest } from '../../models/create-order-request.model';
 import { Order, OrderCreated } from '../../models/order.model';
 import { OrdersService } from '../../services/orders.service';
 import { OrderFormPage } from './order-form-page';
+import { provideTestTranslate } from '../../../../core/i18n/testing/provide-test-translate';
+
 
 describe('OrderFormPage', () => {
   const request: CreateOrderRequest = {
@@ -67,7 +69,7 @@ describe('OrderFormPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [OrderFormPage],
-      providers: [
+      providers: [...provideTestTranslate(), 
         provideRouter([]),
         { provide: OrdersService, useValue: ordersService },
         { provide: CustomersService, useValue: { getCustomers: vi.fn().mockReturnValue(of([])) } },

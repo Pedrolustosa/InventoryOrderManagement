@@ -3,7 +3,7 @@ import { resolveReturnUrl } from './landing';
 
 describe('shipping landing and navigation', () => {
   it('should include shipping in the operations navigation group', () => {
-    const operations = NAVIGATION_GROUPS.find((group) => group.label === 'Operations');
+    const operations = NAVIGATION_GROUPS.find((group) => group.labelKey === 'NAVIGATION.OPERATIONS');
     const routes = operations?.items.map((item) => item.route) ?? [];
     expect(routes).toContain('/shipping');
   });

@@ -1,32 +1,48 @@
-<div class="flex h-full flex-col">
-  <div class="flex h-16 items-center border-b border-line px-4">
-    <p class="truncate text-sm font-semibold tracking-wide text-accent">
-      {{ collapsed() ? 'IOM' : 'Inventory Order Management' }}
-    </p>
+<div class="flex h-full flex-col bg-[var(--iom-primary-dark)] text-white">
+  <div
+    class="flex h-16 items-center border-b border-white/10 px-3"
+    [class.justify-center]="collapsed()"
+    [class.gap-3]="!collapsed()"
+  >
+    <img
+      src="/assets/branding/logo-mark.png"
+      width="40"
+      height="40"
+      class="size-10 shrink-0 object-contain"
+      [attr.alt]="'AUTH.LOGO_ALT' | translate"
+    />
+    @if (!collapsed()) {
+      <p class="min-w-0 truncate text-sm font-semibold tracking-wide text-white">
+        {{ 'COMMON.APP_NAME' | translate }}
+      </p>
+    }
   </div>
 
-  <nav class="flex-1 space-y-6 overflow-y-auto px-3 py-4" aria-label="Main">
-    @for (group of groups(); track group.label) {
+  <nav class="flex-1 space-y-6 overflow-y-auto px-3 py-4" [attr.aria-label]="'SHELL.MAIN_NAV' | translate">
+    @for (group of groups(); track group.labelKey) {
       <section>
         @if (!collapsed()) {
-          <h2 class="px-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted">{{ group.label }}</h2>
+          <h2 class="px-3 text-xs font-semibold uppercase tracking-[0.14em] text-white/55">
+            {{ group.labelKey | translate }}
+          </h2>
         }
         <ul class="mt-2 space-y-1" [class.mt-0]="collapsed()">
           @for (item of group.items; track item.route) {
             <li>
               <a
                 [routerLink]="item.route"
-                routerLinkActive="bg-accent/10 text-accent-ink"
+                routerLinkActive="bg-[var(--iom-primary-light)] text-[var(--iom-primary-dark)]"
                 [routerLinkActiveOptions]="{ exact: false }"
                 ariaCurrentWhenActive="page"
-                class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-ink transition hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                [attr.aria-label]="item.label"
-                [attr.title]="collapsed() ? item.label : null"
+                class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+                [class.justify-center]="collapsed()"
+                [attr.aria-label]="item.labelKey | translate"
+                [attr.title]="collapsed() ? (item.labelKey | translate) : null"
                 (click)="navigated.emit()"
               >
                 <app-nav-icon [name]="item.icon" />
                 @if (!collapsed()) {
-                  <span>{{ item.label }}</span>
+                  <span>{{ item.labelKey | translate }}</span>
                 }
               </a>
             </li>

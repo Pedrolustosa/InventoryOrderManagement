@@ -15,32 +15,36 @@ export const REPORTS_ROUTES: Routes = [
     component: ReportsShell,
     providers: [ReportPeriodStore],
     children: [
-      { path: '', component: ReportsOverviewPage, data: { breadcrumb: 'Overview' } },
+      { path: '', component: ReportsOverviewPage, data: { breadcrumb: 'ROUTES.REPORTS_OVERVIEW' } },
       {
         path: 'inventory',
         component: InventoryReportPage,
-        data: { title: 'Inventory Reports', breadcrumb: 'Inventory' },
+        data: { title: 'ROUTES.REPORTS_INVENTORY', breadcrumb: 'ROUTES.REPORTS_INVENTORY' },
       },
       {
         path: 'movements',
         component: MovementsReportPage,
-        data: { title: 'Stock Movements Analysis', breadcrumb: 'Movements' },
+        data: { title: 'ROUTES.REPORTS_MOVEMENTS', breadcrumb: 'ROUTES.REPORTS_MOVEMENTS' },
       },
-      { path: 'orders', component: OrdersReportPage, data: { title: 'Order Reports', breadcrumb: 'Orders' } },
+      {
+        path: 'orders',
+        component: OrdersReportPage,
+        data: { title: 'ROUTES.REPORTS_ORDERS', breadcrumb: 'ROUTES.REPORTS_ORDERS' },
+      },
       {
         path: 'best-sellers',
         component: BestSellersPage,
-        data: { title: 'Best Selling Products', breadcrumb: 'Best sellers' },
+        data: { title: 'ROUTES.REPORTS_BEST_SELLERS', breadcrumb: 'ROUTES.REPORTS_BEST_SELLERS' },
       },
       {
         path: 'customers',
         component: SalesByCustomerPage,
-        data: { title: 'Sales by Customer', breadcrumb: 'Customers' },
+        data: { title: 'ROUTES.REPORTS_CUSTOMERS', breadcrumb: 'ROUTES.REPORTS_CUSTOMERS' },
       },
       {
         path: 'cancellations',
         component: CancellationsPage,
-        data: { title: 'Cancellation Analysis', breadcrumb: 'Cancellations' },
+        data: { title: 'ROUTES.REPORTS_CANCELLATIONS', breadcrumb: 'ROUTES.REPORTS_CANCELLATIONS' },
       },
     ],
   },

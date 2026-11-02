@@ -64,10 +64,10 @@ describe('order timeline', () => {
     const steps = buildOrderTimeline({ ...base, status: 'Draft' });
 
     expect(steps.map((step) => [step.label, step.state, step.occurredAtUtc])).toEqual([
-      ['Order Created', 'current', base.createdAtUtc],
-      ['Order Confirmed', 'upcoming', null],
-      ['Order Shipped', 'upcoming', null],
-      ['Order Delivered', 'upcoming', null],
+      ['ORDERS.DETAILS.TIMELINE_CREATED', 'current', base.createdAtUtc],
+      ['ORDERS.DETAILS.TIMELINE_CONFIRMED', 'upcoming', null],
+      ['ORDERS.DETAILS.TIMELINE_SHIPPED', 'upcoming', null],
+      ['ORDERS.DETAILS.TIMELINE_DELIVERED', 'upcoming', null],
     ]);
   });
 
@@ -81,8 +81,8 @@ describe('order timeline', () => {
       cancelledAtUtc: null,
     });
 
-    expect(steps.find((step) => step.label === 'Order Delivered')).toEqual({
-      label: 'Order Delivered',
+    expect(steps.find((step) => step.label === 'ORDERS.DETAILS.TIMELINE_DELIVERED')).toEqual({
+      label: 'ORDERS.DETAILS.TIMELINE_DELIVERED',
       occurredAtUtc: '2026-11-02T12:00:00Z',
       state: 'current',
     });
@@ -100,9 +100,9 @@ describe('order timeline', () => {
     });
 
     expect(steps.map((step) => step.label)).toEqual([
-      'Order Created',
-      'Order Confirmed',
-      'Order Cancelled',
+      'ORDERS.DETAILS.TIMELINE_CREATED',
+      'ORDERS.DETAILS.TIMELINE_CONFIRMED',
+      'ORDERS.DETAILS.TIMELINE_CANCELLED',
     ]);
     expect(steps.at(-1)?.occurredAtUtc).toBe('2026-11-01T12:00:00Z');
   });

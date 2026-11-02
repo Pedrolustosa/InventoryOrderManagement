@@ -11,11 +11,17 @@ const BLUE = '#1d4e89';
 export function orderStatusChart(summary: OrderSummaryReport): ReportChartModel {
   return {
     type: 'doughnut',
-    title: 'Orders by status',
-    labels: ['Draft', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'],
+    title: 'REPORTS.CHARTS.ORDERS_BY_STATUS',
+    labels: [
+      'STATUS.ORDER.Draft',
+      'STATUS.ORDER.Confirmed',
+      'STATUS.ORDER.Shipped',
+      'STATUS.ORDER.Delivered',
+      'STATUS.ORDER.Cancelled',
+    ],
     series: [
       {
-        label: 'Orders',
+        label: 'REPORTS.CHARTS.AXIS_ORDERS',
         data: [
           summary.draftOrders,
           summary.confirmedOrders,
@@ -29,140 +35,140 @@ export function orderStatusChart(summary: OrderSummaryReport): ReportChartModel 
     ],
     format: 'integer',
     horizontal: false,
-    categoryAxisLabel: 'Status',
-    valueAxisLabel: 'Orders',
+    categoryAxisLabel: 'REPORTS.CHARTS.AXIS_STATUS',
+    valueAxisLabel: 'REPORTS.CHARTS.AXIS_ORDERS',
   };
 }
 
 export function orderTrendValueChart(points: OrderTrendPoint[]): ReportChartModel {
   return {
     type: 'line',
-    title: 'Confirmed order value',
+    title: 'REPORTS.CHARTS.CONFIRMED_VALUE',
     labels: periodLabels(points.map((point) => point.period)),
     series: [
       {
-        label: 'Confirmed order value',
+        label: 'REPORTS.CHARTS.CONFIRMED_VALUE',
         data: points.map((point) => point.totalConfirmedOrderValue),
         color: ACCENT,
       },
     ],
     format: 'currency',
     horizontal: false,
-    categoryAxisLabel: 'Period',
-    valueAxisLabel: 'Confirmed order value (BRL)',
+    categoryAxisLabel: 'REPORTS.CHARTS.AXIS_PERIOD',
+    valueAxisLabel: 'REPORTS.CHARTS.AXIS_VALUE_BRL',
   };
 }
 
 export function orderTrendCountChart(points: OrderTrendPoint[]): ReportChartModel {
   return {
     type: 'bar',
-    title: 'Confirmed orders',
+    title: 'REPORTS.CHARTS.CONFIRMED_ORDERS',
     labels: periodLabels(points.map((point) => point.period)),
     series: [
       {
-        label: 'Confirmed orders',
+        label: 'REPORTS.CHARTS.CONFIRMED_ORDERS',
         data: points.map((point) => point.totalOrders),
         color: BLUE,
       },
     ],
     format: 'integer',
     horizontal: false,
-    categoryAxisLabel: 'Period',
-    valueAxisLabel: 'Orders',
+    categoryAxisLabel: 'REPORTS.CHARTS.AXIS_PERIOD',
+    valueAxisLabel: 'REPORTS.CHARTS.AXIS_ORDERS',
   };
 }
 
 export function bestSellersChart(products: BestSellingProduct[]): ReportChartModel {
   return {
     type: 'bar',
-    title: 'Quantity sold',
+    title: 'REPORTS.CHARTS.QTY_SOLD',
     labels: products.map((product) => product.productName),
     series: [
       {
-        label: 'Quantity sold',
+        label: 'REPORTS.CHARTS.QTY_SOLD',
         data: products.map((product) => product.totalQuantitySold),
         color: ACCENT,
       },
     ],
     format: 'integer',
     horizontal: true,
-    categoryAxisLabel: 'Product',
-    valueAxisLabel: 'Quantity sold',
+    categoryAxisLabel: 'REPORTS.CHARTS.AXIS_PRODUCT',
+    valueAxisLabel: 'REPORTS.CHARTS.QTY_SOLD',
   };
 }
 
 export function salesByCustomerChart(customers: SalesByCustomer[]): ReportChartModel {
   return {
     type: 'bar',
-    title: 'Confirmed order value by customer',
+    title: 'REPORTS.CHARTS.VALUE_BY_CUSTOMER',
     labels: customers.map((customer) => customer.customerName),
     series: [
       {
-        label: 'Confirmed order value',
+        label: 'REPORTS.CHARTS.CONFIRMED_VALUE',
         data: customers.map((customer) => customer.totalConfirmedOrderValue),
         color: ACCENT,
       },
     ],
     format: 'currency',
     horizontal: true,
-    categoryAxisLabel: 'Customer',
-    valueAxisLabel: 'Confirmed order value (BRL)',
+    categoryAxisLabel: 'REPORTS.CHARTS.AXIS_CUSTOMER',
+    valueAxisLabel: 'REPORTS.CHARTS.AXIS_VALUE_BRL',
   };
 }
 
 export function movementQuantityChart(periods: StockMovementPeriod[]): ReportChartModel {
   return {
     type: 'bar',
-    title: 'Quantity moved',
+    title: 'REPORTS.CHARTS.QTY_MOVED',
     labels: periodLabels(periods.map((period) => period.period)),
     series: [
       {
-        label: 'Quantity moved',
+        label: 'REPORTS.CHARTS.QTY_MOVED',
         data: periods.map((period) => period.totalQuantity),
         color: ACCENT,
       },
     ],
     format: 'integer',
     horizontal: false,
-    categoryAxisLabel: 'Period',
-    valueAxisLabel: 'Quantity',
+    categoryAxisLabel: 'REPORTS.CHARTS.AXIS_PERIOD',
+    valueAxisLabel: 'REPORTS.CHARTS.AXIS_QUANTITY',
   };
 }
 
 export function cancellationCountChart(periods: CancellationPeriod[]): ReportChartModel {
   return {
     type: 'line',
-    title: 'Cancellations',
+    title: 'REPORTS.CHARTS.CANCELLATIONS',
     labels: periodLabels(periods.map((period) => period.period)),
     series: [
       {
-        label: 'Cancelled orders',
+        label: 'REPORTS.CHARTS.AXIS_CANCELLED',
         data: periods.map((period) => period.totalCancelledOrders),
         color: DANGER,
       },
     ],
     format: 'integer',
     horizontal: false,
-    categoryAxisLabel: 'Period',
-    valueAxisLabel: 'Cancelled orders',
+    categoryAxisLabel: 'REPORTS.CHARTS.AXIS_PERIOD',
+    valueAxisLabel: 'REPORTS.CHARTS.AXIS_CANCELLED',
   };
 }
 
 export function cancellationValueChart(periods: CancellationPeriod[]): ReportChartModel {
   return {
     type: 'line',
-    title: 'Cancellation value',
+    title: 'REPORTS.CHARTS.CANCELLATION_VALUE',
     labels: periodLabels(periods.map((period) => period.period)),
     series: [
       {
-        label: 'Cancellation value',
+        label: 'REPORTS.CHARTS.CANCELLATION_VALUE',
         data: periods.map((period) => period.cancellationValue),
         color: DANGER,
       },
     ],
     format: 'currency',
     horizontal: false,
-    categoryAxisLabel: 'Period',
-    valueAxisLabel: 'Cancellation value (BRL)',
+    categoryAxisLabel: 'REPORTS.CHARTS.AXIS_PERIOD',
+    valueAxisLabel: 'REPORTS.CHARTS.AXIS_CANCELLATION_VALUE_BRL',
   };
 }

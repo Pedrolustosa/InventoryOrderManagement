@@ -1,8 +1,10 @@
 import { Component, inject } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { REPORT_PRESET_OPTIONS } from '../../models/report-period';
 import { ReportPeriodStore } from '../../services/report-period-store';
 
 @Component({
+  imports: [TranslatePipe],
   selector: 'app-period-filter',
   templateUrl: './period-filter.html',
 })

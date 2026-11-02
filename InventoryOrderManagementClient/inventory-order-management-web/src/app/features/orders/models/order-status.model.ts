@@ -3,5 +3,5 @@ export const ORDER_STATUSES = ['Draft', 'Confirmed', 'Shipped', 'Delivered', 'Ca
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
 export function orderStatusLabel(status: OrderStatus): string {
-  return status;
+  return `STATUS.ORDER.${status}`;
 }

@@ -1,4 +1,6 @@
 import { DatePipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
+
 import { Component, input, output } from '@angular/core';
 import { InventoryBalance, stockStatus, stockStatusLabel } from '../../models/inventory-balance.model';
 import { StockMovement } from '../../models/stock-movement.model';
@@ -6,7 +8,7 @@ import { movementTypeLabel } from '../../models/stock-movement-type.model';
 
 @Component({
   selector: 'app-inventory-detail',
-  imports: [DatePipe],
+  imports: [DatePipe, TranslatePipe],
   templateUrl: './inventory-detail.html',
 })
 export class InventoryDetail {
@@ -26,6 +28,6 @@ export class InventoryDetail {
   }
 
   displayValue(value: string | null | undefined): string {
-    return value && value.trim().length > 0 ? value : 'Not informed';
+    return value && value.trim().length > 0 ? value : 'COMMON.NOT_INFORMED';
   }
 }

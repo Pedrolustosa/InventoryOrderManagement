@@ -1,6 +1,6 @@
 <section class="mx-auto max-w-2xl space-y-6">
   <div>
-    <h1 class="text-3xl font-semibold text-ink">Assign roles</h1>
+    <h1 class="text-3xl font-semibold text-ink">{{ 'USERS.DIALOGS.ASSIGN_ROLES_TITLE' | translate }}</h1>
     <p class="mt-2 text-sm text-muted">{{ userName() }}</p>
   </div>
   @if (errorMessage()) {
@@ -16,14 +16,14 @@
     }
   </div>
   @if (confirming()) {
-    <p class="text-sm text-muted">Save these roles for {{ userName() }}?</p>
+    <p class="text-sm text-muted">{{ 'USERS.DIALOGS.CONFIRM_ROLES' | translate: { userName: userName() } }}</p>
   }
   <div class="flex gap-2">
     @if (!confirming()) {
-      <button type="button" class="btn-primary" (click)="confirming.set(true)">Review and save</button>
+      <button type="button" class="btn-primary" (click)="confirming.set(true)">{{ 'USERS.DIALOGS.REVIEW_SAVE' | translate }}</button>
     } @else {
-      <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="save()">{{ isSubmitting() ? 'Saving...' : 'Confirm' }}</button>
+      <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="save()">{{ (isSubmitting() ? 'COMMON.SAVING' : 'COMMON.CONFIRM') | translate }}</button>
     }
-    <a routerLink="/users" class="btn-secondary">Cancel</a>
+    <a routerLink="/users" class="btn-secondary">{{ 'COMMON.CANCEL' | translate }}</a>
   </div>
 </section>

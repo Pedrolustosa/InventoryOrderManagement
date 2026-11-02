@@ -10,14 +10,19 @@ import { InventoryBalance } from '../../models/inventory-balance.model';
 import { StockMovement } from '../../models/stock-movement.model';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { permittedAuth } from '../../../../core/auth/testing/permitted-auth';
+import { ToastService } from '../../../../core/notifications/toast.service';
+import { createToastServiceSpy, ToastServiceSpy } from '../../../../core/notifications/testing/toast-testing';
 import { InventoryService } from '../../services/inventory.service';
 import { InventoryPage } from './inventory-page';
+import { provideTestTranslate } from '../../../../core/i18n/testing/provide-test-translate';
+
 
 registerLocaleData(localePt);
 
 describe('InventoryPage', () => {
   let fixture: ComponentFixture<InventoryPage>;
   let component: InventoryPage;
+  let toast: ToastServiceSpy;
   let inventoryService: {
     getInventoryBalances: ReturnType<typeof vi.fn>;
     getInventoryBalanceByProduct: ReturnType<typeof vi.fn>;
@@ -73,6 +78,7 @@ describe('InventoryPage', () => {
   };
 
   beforeEach(async () => {
+    toast = createToastServiceSpy();
     inventoryService = {
       getInventoryBalances: vi.fn().mockReturnValue(of(balances)),
       getInventoryBalanceByProduct: vi.fn().mockReturnValue(of(balances[0])),
@@ -86,11 +92,12 @@ describe('InventoryPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [InventoryPage],
-      providers: [
+      providers: [...provideTestTranslate(), 
         { provide: InventoryService, useValue: inventoryService },
         { provide: ProductsService, useValue: { getProducts: vi.fn().mockReturnValue(of([])) } },
         { provide: SuppliersService, useValue: { getSuppliers: vi.fn().mockReturnValue(of([])) } },
         { provide: CategoriesService, useValue: { getCategories: vi.fn().mockReturnValue(of([])) } },
+        { provide: ToastService, useValue: toast },
         { provide: LOCALE_ID, useValue: 'pt-BR' },
         { provide: AuthService, useValue: permittedAuth() },
       ],
@@ -171,7 +178,7 @@ describe('InventoryPage', () => {
     expect(inventoryService.receiveStock).toHaveBeenCalled();
     expect(inventoryService.getInventoryBalances).toHaveBeenCalled();
     expect(inventoryService.getStockMovements).toHaveBeenCalled();
-    expect(component.successMessage()).toBe('Stock entry recorded.');
+    expect(toast.success).toHaveBeenCalledWith('Stock entry recorded.');
   });
 
   it('should reject a movement period that starts after it ends', () => {
@@ -182,7 +189,7 @@ describe('InventoryPage', () => {
 
     component.applyMovementFilters();
 
-    expect(component.movementPeriodError()).toContain('start date cannot be later');
+    expect(component.movementPeriodError()).toBe('INVENTORY.MOVEMENTS.PERIOD_ERROR');
     expect(inventoryService.getStockMovements).not.toHaveBeenCalled();
   });
 });

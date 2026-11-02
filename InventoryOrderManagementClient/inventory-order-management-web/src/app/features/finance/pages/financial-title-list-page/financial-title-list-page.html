@@ -1,34 +1,34 @@
 <section class="space-y-6">
   <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <h1 class="text-3xl font-semibold tracking-tight text-ink">{{ heading() }}</h1>
-      <p class="mt-2 max-w-2xl text-sm text-muted">Each row is one title. Installments and settlements are on the details page.</p>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">{{ heading() | translate }}</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">{{ 'FINANCE.LIST.TITLES_INTRO' | translate }}</p>
     </div>
-    <a *hasPermission="createPermission()" [routerLink]="[collectionPath(), 'new']" class="btn-primary shrink-0">New title</a>
+    <a *hasPermission="createPermission()" [routerLink]="[collectionPath(), 'new']" class="btn-primary shrink-0">{{ 'FINANCE.LIST.NEW_TITLE' | translate }}</a>
   </div>
 
   <div class="space-y-3">
     <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
       <label class="block text-sm font-medium text-ink">
-        Status
+        {{ 'USERS.DETAILS.STATUS' | translate }}
         <select class="field mt-1" [value]="statusFilter()" (change)="statusFilter.set($any($event.target).value)">
-          <option value="all">All statuses</option>
+          <option value="all">{{ 'FINANCE.FILTERS.ALL_STATUSES' | translate }}</option>
           @for (status of statuses; track status) {
-            <option [value]="status">{{ financialStatusLabel(status) }}</option>
+            <option [value]="status">{{ financialStatusLabel(status) | translate }}</option>
           }
         </select>
       </label>
       <label class="block text-sm font-medium text-ink">
-        {{ partyLabel() }}
+        {{ partyLabel() | translate }}
         <select class="field mt-1" [value]="counterpartyId()" (change)="counterpartyId.set($any($event.target).value)">
-          <option value="">All</option>
+          <option value="">{{ 'FINANCE.FILTERS.ALL' | translate }}</option>
           @for (party of parties(); track party.id) {
             <option [value]="party.id">{{ party.name }}</option>
           }
         </select>
       </label>
       <label class="block text-sm font-medium text-ink">
-        Document number
+        {{ 'FINANCE.FILTERS.DOCUMENT_NUMBER' | translate }}
         <input
           type="search"
           class="field mt-1"
@@ -38,28 +38,28 @@
         />
       </label>
       <label class="block text-sm font-medium text-ink">
-        Issue from
+        {{ 'FINANCE.FILTERS.ISSUE_FROM' | translate }}
         <input type="date" class="field mt-1" [value]="issueFrom()" (input)="issueFrom.set($any($event.target).value)" />
       </label>
       <label class="block text-sm font-medium text-ink">
-        Issue to
+        {{ 'FINANCE.FILTERS.ISSUE_TO' | translate }}
         <input type="date" class="field mt-1" [value]="issueTo()" (input)="issueTo.set($any($event.target).value)" />
       </label>
       <label class="block text-sm font-medium text-ink">
-        Due from
+        {{ 'FINANCE.FILTERS.DUE_FROM' | translate }}
         <input type="date" class="field mt-1" [value]="dueFrom()" (input)="dueFrom.set($any($event.target).value)" />
       </label>
       <label class="block text-sm font-medium text-ink">
-        Due to
+        {{ 'FINANCE.FILTERS.DUE_TO' | translate }}
         <input type="date" class="field mt-1" [value]="dueTo()" (input)="dueTo.set($any($event.target).value)" />
       </label>
     </div>
     <div class="flex flex-wrap gap-2">
-      <button type="button" class="btn-secondary" (click)="applyFilters()">Apply filters</button>
-      <button type="button" class="btn-secondary" (click)="clearFilters()">Clear</button>
+      <button type="button" class="btn-secondary" (click)="applyFilters()">{{ 'COMMON.APPLY_FILTERS' | translate }}</button>
+      <button type="button" class="btn-secondary" (click)="clearFilters()">{{ 'COMMON.CLEAR' | translate }}</button>
     </div>
     @if (filterError()) {
-      <p class="text-sm text-danger" role="alert">{{ filterError() }}</p>
+      <p class="text-sm text-danger" role="alert">{{ filterError() | translate }}</p>
     }
   </div>
 
@@ -68,26 +68,26 @@
   @if (isLoading()) {
     <div class="flex items-center gap-3 text-muted" aria-busy="true">
       <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
-      <span>Loading titles...</span>
+      <span>{{ 'FINANCE.LIST.LOADING_TITLES' | translate }}</span>
     </div>
   } @else if (loadError()) {
     <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">{{ loadError() }}</div>
   } @else if (titles().length === 0) {
-    <p class="rounded-md border border-line bg-surface px-4 py-3 text-sm text-muted" role="status">{{ emptyMessage() }}</p>
+    <p class="rounded-md border border-line bg-surface px-4 py-3 text-sm text-muted" role="status">{{ emptyMessage() | translate }}</p>
   } @else {
     <div class="overflow-x-auto rounded-xl border border-line bg-panel">
       <table class="min-w-full text-left text-sm">
         <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
           <tr>
-            <th class="px-4 py-3 font-medium">Number</th>
-            <th class="px-4 py-3 font-medium">Description</th>
-            <th class="px-4 py-3 font-medium">{{ partyLabel() }}</th>
-            <th class="px-4 py-3 font-medium">Issue date</th>
-            <th class="px-4 py-3 font-medium">Original</th>
-            <th class="px-4 py-3 font-medium">Outstanding</th>
-            <th class="px-4 py-3 font-medium">Installments</th>
-            <th class="px-4 py-3 font-medium">Status</th>
-            <th class="px-4 py-3 font-medium">Actions</th>
+            <th class="px-4 py-3 font-medium">{{ 'FINANCE.DETAILS.NUMBER' | translate }}</th>
+            <th class="px-4 py-3 font-medium">{{ 'ROLES.FORM.DESCRIPTION' | translate }}</th>
+            <th class="px-4 py-3 font-medium">{{ partyLabel() | translate }}</th>
+            <th class="px-4 py-3 font-medium">{{ 'FINANCE.DETAILS.ISSUE_DATE' | translate }}</th>
+            <th class="px-4 py-3 font-medium">{{ 'FINANCE.DETAILS.ORIGINAL' | translate }}</th>
+            <th class="px-4 py-3 font-medium">{{ 'FINANCE.DASHBOARD.AXIS_OUTSTANDING' | translate }}</th>
+            <th class="px-4 py-3 font-medium">{{ 'FINANCE.DETAILS.SECTION_INSTALLMENTS' | translate }}</th>
+            <th class="px-4 py-3 font-medium">{{ 'USERS.DETAILS.STATUS' | translate }}</th>
+            <th class="px-4 py-3 font-medium">{{ 'ROLES.LIST.COL_ACTIONS' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -102,7 +102,7 @@
               <td class="px-4 py-3 text-ink">{{ title.installmentCount }}</td>
               <td class="px-4 py-3"><app-financial-status [status]="title.status" /></td>
               <td class="px-4 py-3">
-                <a class="text-sm font-medium text-accent" [routerLink]="[collectionPath(), title.id]">View</a>
+                <a class="text-sm font-medium text-accent" [routerLink]="[collectionPath(), title.id]">{{ 'COMMON.VIEW' | translate }}</a>
               </td>
             </tr>
           }
@@ -110,9 +110,9 @@
       </table>
     </div>
     <div class="flex flex-wrap items-center gap-3">
-      <button type="button" class="btn-secondary" [disabled]="page() <= 1" (click)="goToPage(page() - 1)">Previous</button>
-      <span class="text-sm text-muted">Page {{ page() }} of {{ totalPages() }}</span>
-      <button type="button" class="btn-secondary" [disabled]="page() >= totalPages()" (click)="goToPage(page() + 1)">Next</button>
+      <button type="button" class="btn-secondary" [disabled]="page() <= 1" (click)="goToPage(page() - 1)">{{ 'COMMON.PREVIOUS' | translate }}</button>
+      <span class="text-sm text-muted">{{ 'COMMON.PAGE_OF' | translate: { page: page(), totalPages: totalPages() } }}</span>
+      <button type="button" class="btn-secondary" [disabled]="page() >= totalPages()" (click)="goToPage(page() + 1)">{{ 'COMMON.NEXT' | translate }}</button>
     </div>
   }
 </section>

@@ -1,5 +1,5 @@
 <section aria-labelledby="order-timeline-title">
-  <h2 id="order-timeline-title" class="text-lg font-semibold text-ink">Order Timeline</h2>
+  <h2 id="order-timeline-title" class="text-lg font-semibold text-ink">{{ 'ORDERS.DETAILS.TIMELINE_TITLE' | translate }}</h2>
   <ol class="mt-4 space-y-3">
     @for (step of steps(); track step.label) {
       <li class="flex gap-3">
@@ -11,8 +11,8 @@
         ></span>
         <div>
           <p class="text-sm font-medium text-ink">
-            {{ step.label }}
-            <span class="ml-2 text-xs font-semibold uppercase tracking-wide text-muted">{{ step.state }}</span>
+            {{ step.label | translate }}
+            <span class="ml-2 text-xs font-semibold uppercase tracking-wide text-muted">{{ ('ORDERS.DETAILS.TIMELINE_STATE_' + step.state.toUpperCase()) | translate }}</span>
           </p>
           @if (step.occurredAtUtc) {
             <p class="text-sm text-muted">{{ step.occurredAtUtc | date: 'dd/MM/yyyy HH:mm' }}</p>

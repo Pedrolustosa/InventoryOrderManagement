@@ -1,8 +1,10 @@
 import { Component, output, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FINANCE_PRESET_OPTIONS, FinancePreset, FinanceRange, resolveFinanceRange } from '../../models/finance-period';
 
 @Component({
   selector: 'app-finance-period-filter',
+  imports: [TranslatePipe],
   templateUrl: './finance-period-filter.html',
 })
 export class FinancePeriodFilter {

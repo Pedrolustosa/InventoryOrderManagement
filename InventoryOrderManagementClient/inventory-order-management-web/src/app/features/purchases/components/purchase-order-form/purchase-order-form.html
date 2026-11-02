@@ -1,28 +1,28 @@
 <form class="space-y-8" [formGroup]="form" (ngSubmit)="submit()">
   <section class="space-y-4">
     <div>
-      <h2 class="text-lg font-semibold text-ink">Supplier</h2>
+      <h2 class="text-lg font-semibold text-ink">{{ 'PURCHASES.LIST.COL_SUPPLIER' | translate }}</h2>
       <p class="mt-1 text-sm text-muted">
         @if (mode() === 'edit') {
-          The supplier is fixed after the draft is created.
+          {{ 'PURCHASES.FORM.SUPPLIER_HINT_EDIT' | translate }}
         } @else {
-          Only active suppliers can be selected.
+          {{ 'PURCHASES.FORM.SUPPLIER_HINT_CREATE' | translate }}
         }
       </p>
     </div>
 
     @if (mode() === 'create' && activeSuppliers().length === 0) {
       <p class="rounded-md border border-line bg-surface px-4 py-3 text-sm text-muted" role="status">
-        There are no active suppliers available for a purchase order.
+        {{ 'PURCHASES.FORM.NO_ACTIVE_SUPPLIERS' | translate }}
       </p>
     } @else {
       @if (mode() === 'create') {
         <label class="block text-sm font-medium text-ink">
-          Search supplier
+          {{ 'PURCHASES.FORM.SEARCH_SUPPLIER' | translate }}
           <input
             type="search"
             class="field mt-1"
-            placeholder="Search by name or tax identifier"
+            [placeholder]="'PURCHASES.FORM.SEARCH_SUPPLIER_PLACEHOLDER' | translate"
             [value]="supplierSearch()"
             (input)="supplierSearch.set($any($event.target).value)"
           />
@@ -30,9 +30,9 @@
       }
 
       <label class="block text-sm font-medium text-ink">
-        Supplier
+        {{ 'PURCHASES.LIST.COL_SUPPLIER' | translate }}
         <select class="field mt-1" formControlName="supplierId">
-          <option value="">Select a supplier</option>
+          <option value="">{{ 'PURCHASES.FORM.SELECT_SUPPLIER' | translate }}</option>
           @for (supplier of visibleSuppliers(); track supplier.id) {
             <option [value]="supplier.id">{{ supplier.name }}</option>
           }
@@ -45,12 +45,12 @@
       @if (selectedSupplier(); as supplier) {
         <dl class="grid gap-3 rounded-lg border border-line bg-surface/60 p-4 sm:grid-cols-2">
           <div>
-            <dt class="text-xs uppercase tracking-wide text-muted">Tax Identifier</dt>
-            <dd class="mt-1 text-sm text-ink">{{ displayValue(supplier.taxIdentifier) }}</dd>
+            <dt class="text-xs uppercase tracking-wide text-muted">{{ 'COMMON.TAX_IDENTIFIER' | translate }}</dt>
+            <dd class="mt-1 text-sm text-ink">{{ displayValue(supplier.taxIdentifier) | translate }}</dd>
           </div>
           <div>
-            <dt class="text-xs uppercase tracking-wide text-muted">Email</dt>
-            <dd class="mt-1 text-sm text-ink">{{ displayValue(supplier.email) }}</dd>
+            <dt class="text-xs uppercase tracking-wide text-muted">{{ 'COMMON.EMAIL' | translate }}</dt>
+            <dd class="mt-1 text-sm text-ink">{{ displayValue(supplier.email) | translate }}</dd>
           </div>
         </dl>
       } @else if (mode() === 'edit' && order(); as current) {
@@ -61,71 +61,71 @@
 
   <section class="space-y-4">
     <div>
-      <h2 class="text-lg font-semibold text-ink">Items</h2>
+      <h2 class="text-lg font-semibold text-ink">{{ 'PURCHASES.FORM.SECTION_ITEMS' | translate }}</h2>
       <p class="mt-1 text-sm text-muted">
-        Enter the acquisition cost. The product sale price is not used as the unit cost. Totals shown here are a preview.
+        {{ 'PURCHASES.FORM.ITEMS_HINT' | translate }}
       </p>
     </div>
 
     @if (activeProducts().length === 0) {
       <p class="rounded-md border border-line bg-surface px-4 py-3 text-sm text-muted" role="status">
-        There are no active products available to add.
+        {{ 'PURCHASES.FORM.NO_ACTIVE_PRODUCTS' | translate }}
       </p>
     } @else {
       <div class="grid gap-4 lg:grid-cols-4" [formGroup]="itemForm">
         <label class="block text-sm font-medium text-ink lg:col-span-4">
-          Search product
+          {{ 'PURCHASES.FORM.SEARCH_PRODUCT' | translate }}
           <input
             type="search"
             class="field mt-1"
-            placeholder="Search by name or SKU"
+            [placeholder]="'PURCHASES.FORM.SEARCH_PRODUCT_PLACEHOLDER' | translate"
             [value]="productSearch()"
             (input)="productSearch.set($any($event.target).value)"
           />
         </label>
         <label class="block text-sm font-medium text-ink lg:col-span-2">
-          Product
+          {{ 'PURCHASES.FORM.PRODUCT' | translate }}
           <select class="field mt-1" formControlName="productId">
-            <option value="">Select a product</option>
+            <option value="">{{ 'PURCHASES.FORM.SELECT_PRODUCT' | translate }}</option>
             @for (product of visibleProducts(); track product.id) {
               <option [value]="product.id">{{ product.sku }} — {{ product.name }}</option>
             }
           </select>
         </label>
         <label class="block text-sm font-medium text-ink">
-          Quantity
+          {{ 'COMMON.QUANTITY' | translate }}
           <input type="number" min="1" step="1" class="field mt-1" formControlName="orderedQuantity" />
         </label>
         <label class="block text-sm font-medium text-ink">
-          Unit cost
+          {{ 'PURCHASES.FORM.UNIT_COST' | translate }}
           <input type="number" min="0" step="0.01" class="field mt-1" formControlName="unitCost" />
         </label>
         <div class="lg:col-span-4">
-          <button type="button" class="btn-secondary" (click)="addItem()">Add product</button>
+          <button type="button" class="btn-secondary" (click)="addItem()">{{ 'PURCHASES.FORM.ADD_PRODUCT' | translate }}</button>
           @if (selectedProduct()) {
-            <span class="ml-3 text-sm text-muted">Line preview {{ pendingLineTotal() | currency: 'BRL' }}</span>
+            <span class="ml-3 text-sm text-muted">{{ 'PURCHASES.FORM.LINE_PREVIEW' | translate:{ amount: (pendingLineTotal() | currency: 'BRL') } }}</span>
           }
         </div>
       </div>
     }
 
     @if (itemError()) {
-      <p class="text-sm text-danger" role="alert">{{ itemError() }}</p>
+      <p class="text-sm text-danger" role="alert">{{ itemError() | translate }}</p>
     }
 
     @if (items().length === 0) {
-      <p class="text-sm text-muted">Add at least one product.</p>
+      <p class="text-sm text-muted">{{ 'PURCHASES.FORM.EMPTY_ITEMS' | translate }}</p>
     } @else {
       <div class="overflow-x-auto rounded-lg border border-line">
         <table class="min-w-full text-left text-sm">
           <thead class="border-b border-line bg-surface/80 text-xs uppercase tracking-wide text-muted">
             <tr>
-              <th class="px-4 py-3 font-semibold">SKU</th>
-              <th class="px-4 py-3 font-semibold">Product</th>
-              <th class="px-4 py-3 font-semibold">Quantity</th>
-              <th class="px-4 py-3 font-semibold">Unit Cost</th>
-              <th class="px-4 py-3 font-semibold">Line Total</th>
-              <th class="px-4 py-3 font-semibold">Actions</th>
+              <th class="px-4 py-3 font-semibold">{{ 'COMMON.SKU' | translate }}</th>
+              <th class="px-4 py-3 font-semibold">{{ 'PURCHASES.FORM.PRODUCT' | translate }}</th>
+              <th class="px-4 py-3 font-semibold">{{ 'COMMON.QUANTITY' | translate }}</th>
+              <th class="px-4 py-3 font-semibold">{{ 'PURCHASES.DETAILS.COL_UNIT_COST' | translate }}</th>
+              <th class="px-4 py-3 font-semibold">{{ 'COMMON.LINE_TOTAL' | translate }}</th>
+              <th class="px-4 py-3 font-semibold">{{ 'PURCHASES.LIST.COL_ACTIONS' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -156,7 +156,7 @@
                 <td class="px-4 py-3 text-ink">{{ lineTotal(item) | currency: 'BRL' }}</td>
                 <td class="px-4 py-3">
                   <button type="button" class="btn-secondary !px-2.5 !py-1 text-xs" (click)="removeItem(item.productId)">
-                    Remove
+                    {{ 'COMMON.REMOVE' | translate }}
                   </button>
                 </td>
               </tr>
@@ -169,21 +169,21 @@
 
   <section class="space-y-4">
     <label class="block text-sm font-medium text-ink">
-      Notes
+      {{ 'COMMON.NOTES' | translate }}
       <textarea class="field mt-1 min-h-24" formControlName="notes" [attr.maxlength]="notesMaxLength"></textarea>
     </label>
   </section>
 
   <section class="rounded-xl border border-accent/30 bg-accent/5 p-4">
-    <h2 class="text-lg font-semibold text-ink">Preview</h2>
-    <p class="mt-1 text-sm text-muted">The API calculates the stored subtotal.</p>
+    <h2 class="text-lg font-semibold text-ink">{{ 'PURCHASES.FORM.SECTION_PREVIEW' | translate }}</h2>
+    <p class="mt-1 text-sm text-muted">{{ 'PURCHASES.FORM.PREVIEW_HINT' | translate }}</p>
     <dl class="mt-4 grid gap-3 sm:grid-cols-2">
       <div>
-        <dt class="text-xs uppercase tracking-wide text-muted">Total Items</dt>
+        <dt class="text-xs uppercase tracking-wide text-muted">{{ 'PURCHASES.FORM.TOTAL_ITEMS' | translate }}</dt>
         <dd class="mt-1 text-xl font-semibold text-ink">{{ totalItems() }}</dd>
       </div>
       <div>
-        <dt class="text-xs uppercase tracking-wide text-muted">Subtotal</dt>
+        <dt class="text-xs uppercase tracking-wide text-muted">{{ 'PURCHASES.LIST.COL_SUBTOTAL' | translate }}</dt>
         <dd class="mt-1 text-xl font-semibold text-ink">{{ estimatedSubtotal() | currency: 'BRL' }}</dd>
       </div>
     </dl>
@@ -198,11 +198,11 @@
   <div class="flex flex-wrap gap-3">
     <button type="submit" class="btn-primary" [disabled]="isSubmitting()">
       @if (isSubmitting()) {
-        Saving...
+        {{ 'COMMON.SAVING' | translate }}
       } @else {
-        {{ mode() === 'edit' ? 'Update Draft' : 'Save Draft' }}
+        {{ (mode() === 'edit' ? 'PURCHASES.FORM.UPDATE_DRAFT' : 'PURCHASES.FORM.SAVE_DRAFT') | translate }}
       }
     </button>
-    <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="cancel()">Back</button>
+    <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="cancel()">{{ 'COMMON.BACK' | translate }}</button>
   </div>
 </form>

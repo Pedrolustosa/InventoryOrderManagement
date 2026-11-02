@@ -1,4 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -9,7 +10,7 @@ import { ReturnsRequestError, ReturnsService } from '../../services/returns.serv
 
 @Component({
   selector: 'app-return-dispatch-page',
-  imports: [RouterLink, ReactiveFormsModule, CurrencyPipe],
+  imports: [TranslatePipe, RouterLink, ReactiveFormsModule, CurrencyPipe],
   templateUrl: './return-dispatch-page.html',
 })
 export class ReturnDispatchPage implements OnInit {
@@ -24,6 +25,7 @@ export class ReturnDispatchPage implements OnInit {
   readonly isSubmitting = signal(false);
   readonly loadError = signal<string | null>(null);
   readonly formError = signal<string | null>(null);
+  readonly formErrorParams = signal<Record<string, unknown>>({});
   readonly showConfirm = signal(false);
 
   readonly form = this.formBuilder.nonNullable.group({
@@ -40,6 +42,7 @@ export class ReturnDispatchPage implements OnInit {
       return;
     }
     this.formError.set(null);
+    this.formErrorParams.set({});
     this.showConfirm.set(true);
   }
 
@@ -58,6 +61,7 @@ export class ReturnDispatchPage implements OnInit {
 
     this.isSubmitting.set(true);
     this.formError.set(null);
+    this.formErrorParams.set({});
     const notes = this.form.controls.notes.value.trim();
     const dispatchReference = this.form.controls.dispatchReference.value.trim();
 
@@ -71,7 +75,7 @@ export class ReturnDispatchPage implements OnInit {
           this.isSubmitting.set(false);
           void this.router.navigate(['/returns', updated.id], {
             state: {
-              successMessage: `Return ${updated.returnNumber} was dispatched. Available stock was reduced by the server.`,
+              successMessage: { key: 'RETURNS.DISPATCH.SUCCESS', params: { number: updated.returnNumber } },
             },
           });
         },

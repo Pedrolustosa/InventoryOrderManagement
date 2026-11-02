@@ -20,19 +20,19 @@ export interface OrderTimelineSource {
 export function buildOrderTimeline(order: OrderTimelineSource): OrderTimelineStep[] {
   if (order.status === 'Cancelled') {
     const steps: OrderTimelineStep[] = [
-      { label: 'Order Created', occurredAtUtc: order.createdAtUtc, state: 'completed' },
+      { label: 'ORDERS.DETAILS.TIMELINE_CREATED', occurredAtUtc: order.createdAtUtc, state: 'completed' },
     ];
 
     if (order.confirmedAtUtc) {
       steps.push({
-        label: 'Order Confirmed',
+        label: 'ORDERS.DETAILS.TIMELINE_CONFIRMED',
         occurredAtUtc: order.confirmedAtUtc,
         state: 'completed',
       });
     }
 
     steps.push({
-      label: 'Order Cancelled',
+      label: 'ORDERS.DETAILS.TIMELINE_CANCELLED',
       occurredAtUtc: order.cancelledAtUtc,
       state: 'current',
     });
@@ -41,10 +41,10 @@ export function buildOrderTimeline(order: OrderTimelineSource): OrderTimelineSte
   }
 
   const steps: Array<{ label: string; occurredAtUtc: string | null; status: OrderStatus }> = [
-    { label: 'Order Created', occurredAtUtc: order.createdAtUtc, status: 'Draft' },
-    { label: 'Order Confirmed', occurredAtUtc: order.confirmedAtUtc, status: 'Confirmed' },
-    { label: 'Order Shipped', occurredAtUtc: order.shippedAtUtc, status: 'Shipped' },
-    { label: 'Order Delivered', occurredAtUtc: order.deliveredAtUtc, status: 'Delivered' },
+    { label: 'ORDERS.DETAILS.TIMELINE_CREATED', occurredAtUtc: order.createdAtUtc, status: 'Draft' },
+    { label: 'ORDERS.DETAILS.TIMELINE_CONFIRMED', occurredAtUtc: order.confirmedAtUtc, status: 'Confirmed' },
+    { label: 'ORDERS.DETAILS.TIMELINE_SHIPPED', occurredAtUtc: order.shippedAtUtc, status: 'Shipped' },
+    { label: 'ORDERS.DETAILS.TIMELINE_DELIVERED', occurredAtUtc: order.deliveredAtUtc, status: 'Delivered' },
   ];
 
   const currentIndex = steps.findIndex((step) => step.status === order.status);

@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../../core/auth/services/auth.service';
 import { Role } from '../../../roles/models/role.model';
@@ -7,7 +8,7 @@ import { UsersService } from '../../services/users.service';
 
 @Component({
   selector: 'app-assign-roles-page',
-  imports: [RouterLink],
+  imports: [TranslatePipe, RouterLink],
   templateUrl: './assign-roles-page.html',
 })
 export class AssignRolesPage implements OnInit {

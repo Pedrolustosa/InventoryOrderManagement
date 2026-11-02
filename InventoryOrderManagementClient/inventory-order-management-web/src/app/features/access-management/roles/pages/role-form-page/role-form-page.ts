@@ -1,11 +1,12 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { RolesService } from '../../services/roles.service';
 
 @Component({
   selector: 'app-role-form-page',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [TranslatePipe, ReactiveFormsModule, RouterLink],
   templateUrl: './role-form-page.html',
 })
 export class RoleFormPage implements OnInit {

@@ -1,4 +1,6 @@
 import { Component, effect, inject, input, output } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
+
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProductResponse } from '../../../products/models/product.model';
 import { integerAtLeast } from '../../models/integer-validator';
@@ -6,7 +8,7 @@ import { UpdateMinimumStockLevelRequest } from '../../models/update-minimum-stoc
 
 @Component({
   selector: 'app-minimum-stock-form',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TranslatePipe],
   templateUrl: './minimum-stock-form.html',
 })
 export class MinimumStockForm {

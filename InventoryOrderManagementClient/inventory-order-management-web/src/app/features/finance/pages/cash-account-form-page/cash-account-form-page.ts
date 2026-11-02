@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CASH_ACCOUNT_TYPES, CashAccountType, cashAccountTypeLabel } from '../../models/finance.enums';
@@ -8,7 +9,7 @@ import { FinanceRequestError, FinanceService } from '../../services/finance.serv
 
 @Component({
   selector: 'app-cash-account-form-page',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [TranslatePipe, ReactiveFormsModule, RouterLink],
   templateUrl: './cash-account-form-page.html',
 })
 export class CashAccountFormPage implements OnInit {

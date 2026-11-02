@@ -1,18 +1,18 @@
 <section class="space-y-6">
   <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <h1 class="text-3xl font-semibold tracking-tight text-ink">Shipping & delivery</h1>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">{{ 'SHIPPING.LIST.TITLE' | translate }}</h1>
       <p class="mt-2 max-w-2xl text-sm text-muted">
-        Create shipments for confirmed sales orders, dispatch carriers and track delivery status.
+        {{ 'SHIPPING.LIST.SUBTITLE' | translate }}
       </p>
     </div>
-    <a *hasPermission="'Shipments.Create'" routerLink="/shipping/new" class="btn-primary shrink-0">New shipment</a>
+    <a *hasPermission="'Shipments.Create'" routerLink="/shipping/new" class="btn-primary shrink-0">{{ 'SHIPPING.LIST.NEW' | translate }}</a>
   </div>
 
   <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
     @for (status of statuses; track status) {
       <div class="rounded-xl border border-line bg-panel px-4 py-3">
-        <p class="text-xs uppercase tracking-wide text-muted">{{ statusLabel(status) }}</p>
+        <p class="text-xs uppercase tracking-wide text-muted">{{ statusLabel(status) | translate }}</p>
         <p class="mt-1 text-2xl font-semibold text-ink">{{ statusCounts()[status] }}</p>
       </div>
     }
@@ -27,7 +27,7 @@
         [class.!text-white]="statusFilter() === 'all'"
         (click)="setStatus('all')"
       >
-        All
+        {{ 'SHIPPING.FILTERS.ALL' | translate }}
       </button>
       @for (status of statuses; track status) {
         <button
@@ -37,35 +37,35 @@
           [class.!text-white]="statusFilter() === status"
           (click)="setStatus(status)"
         >
-          {{ statusLabel(status) }}
+          {{ statusLabel(status) | translate }}
         </button>
       }
-      <button type="button" class="btn-secondary" (click)="clearFilters()">Clear</button>
+      <button type="button" class="btn-secondary" (click)="clearFilters()">{{ 'COMMON.CLEAR' | translate }}</button>
     </div>
 
     <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
       <label class="block text-sm font-medium text-ink">
-        Order number
+        {{ 'SHIPPING.DETAILS.ORDER_NUMBER' | translate }}
         <input
           type="search"
           class="field mt-1"
-          placeholder="Full order number"
+          [placeholder]="'SHIPPING.FILTERS.ORDER_NUMBER_PLACEHOLDER' | translate"
           [value]="orderNumber()"
           (input)="orderNumber.set($any($event.target).value)"
           (keydown.enter)="applyFilters()"
         />
       </label>
       <label class="block text-sm font-medium text-ink">
-        Customer
+        {{ 'SHIPPING.LIST.COL_CUSTOMER' | translate }}
         <select class="field mt-1" [value]="customerId()" (change)="customerId.set($any($event.target).value)">
-          <option value="">All customers</option>
+          <option value="">{{ 'SHIPPING.FILTERS.ALL_CUSTOMERS' | translate }}</option>
           @for (customer of customers(); track customer.id) {
             <option [value]="customer.id">{{ customer.name }}</option>
           }
         </select>
       </label>
       <label class="block text-sm font-medium text-ink">
-        Carrier
+        {{ 'SHIPPING.LIST.COL_CARRIER' | translate }}
         <input
           type="search"
           class="field mt-1"
@@ -75,7 +75,7 @@
         />
       </label>
       <label class="block text-sm font-medium text-ink">
-        Tracking code
+        {{ 'SHIPPING.FORM.TRACKING_CODE' | translate }}
         <input
           type="search"
           class="field mt-1"
@@ -85,17 +85,17 @@
         />
       </label>
       <label class="block text-sm font-medium text-ink">
-        Start date
+        {{ 'COMMON.START_DATE' | translate }}
         <input type="date" class="field mt-1" [value]="startDate()" (change)="startDate.set($any($event.target).value)" />
       </label>
       <label class="block text-sm font-medium text-ink">
-        End date
+        {{ 'COMMON.END_DATE' | translate }}
         <input type="date" class="field mt-1" [value]="endDate()" (change)="endDate.set($any($event.target).value)" />
       </label>
     </div>
 
     <div class="flex flex-wrap items-center gap-3">
-      <button type="button" class="btn-primary" (click)="applyFilters()">Apply filters</button>
+      <button type="button" class="btn-primary" (click)="applyFilters()">{{ 'COMMON.APPLY_FILTERS' | translate }}</button>
       <p class="text-sm text-muted">{{ totalItems() }} shipment{{ totalItems() === 1 ? '' : 's' }}</p>
     </div>
   </div>
@@ -111,15 +111,15 @@
 
   @if (totalPages() > 1) {
     <div class="flex items-center justify-between gap-3">
-      <button type="button" class="btn-secondary" [disabled]="page() <= 1" (click)="goToPage(page() - 1)">Previous</button>
-      <p class="text-sm text-muted">Page {{ page() }} of {{ totalPages() }}</p>
+      <button type="button" class="btn-secondary" [disabled]="page() <= 1" (click)="goToPage(page() - 1)">{{ 'COMMON.PREVIOUS' | translate }}</button>
+      <p class="text-sm text-muted">{{ 'COMMON.PAGE_OF' | translate:{ page: page(), totalPages: totalPages() } }}</p>
       <button
         type="button"
         class="btn-secondary"
         [disabled]="page() >= totalPages()"
         (click)="goToPage(page() + 1)"
       >
-        Next
+        {{ 'COMMON.NEXT' | translate }}
       </button>
     </div>
   }

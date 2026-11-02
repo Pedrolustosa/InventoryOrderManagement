@@ -2,62 +2,56 @@
   @if (isLoading()) {
     <div class="flex items-center gap-3 text-muted" aria-busy="true">
       <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
-      <span>Loading shipment...</span>
+      <span>{{ 'SHIPPING.DETAILS.LOADING' | translate }}</span>
     </div>
   } @else if (loadError()) {
     <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
       {{ loadError() }}
     </div>
-    <a routerLink="/shipping" class="btn-secondary">Back to list</a>
+    <a routerLink="/shipping" class="btn-secondary">{{ 'COMMON.BACK_TO_LIST' | translate }}</a>
   } @else if (shipment(); as current) {
-    @if (successMessage()) {
-      <div class="rounded-md border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent-ink" role="status">
-        {{ successMessage() }}
-      </div>
-    }
-
     <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
       <div>
-        <p class="text-xs uppercase tracking-wide text-muted">Shipment</p>
+        <p class="text-xs uppercase tracking-wide text-muted">{{ 'SHIPPING.LIST.COL_SHIPMENT' | translate }}</p>
         <h1 class="mt-1 text-3xl font-semibold tracking-tight text-ink">{{ shortId(current.id) }}</h1>
         <div class="mt-3 flex flex-wrap items-center gap-3">
-          <span [class]="statusClass(current.status)">{{ statusLabel(current.status) }}</span>
-          <span class="text-sm text-muted">Order {{ current.orderNumber }} · {{ current.customerName }}</span>
+          <span [class]="statusClass(current.status)">{{ statusLabel(current.status) | translate }}</span>
+          <span class="text-sm text-muted">{{ 'SHIPPING.DETAILS.ORDER_CUSTOMER' | translate:{ orderNumber: current.orderNumber, customerName: current.customerName } }}</span>
         </div>
-        <p class="mt-2 text-sm text-muted">Created {{ current.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}</p>
+        <p class="mt-2 text-sm text-muted">{{ 'SHIPPING.DETAILS.CREATED' | translate:{ date: (current.createdAtUtc | date: 'dd/MM/yyyy HH:mm') } }}</p>
       </div>
 
       <div class="flex flex-wrap gap-2">
-        <a routerLink="/shipping" class="btn-secondary">Back</a>
-        <a class="btn-secondary" [routerLink]="['/orders', current.orderId]">Open order</a>
+        <a routerLink="/shipping" class="btn-secondary">{{ 'COMMON.BACK' | translate }}</a>
+        <a class="btn-secondary" [routerLink]="['/orders', current.orderId]">{{ 'SHIPPING.DETAILS.OPEN_ORDER' | translate }}</a>
         @if (canUpdate()) {
           <button *hasPermission="'Shipments.Update'" type="button" class="btn-secondary" (click)="startEdit()">
-            Edit transport
+            {{ 'SHIPPING.ACTIONS.EDIT_TRANSPORT' | translate }}
           </button>
         }
         @if (canDispatch()) {
           <button *hasPermission="'Shipments.Dispatch'" type="button" class="btn-primary" (click)="openAction('dispatch')">
-            Dispatch
+            {{ 'SHIPPING.ACTIONS.DISPATCH' | translate }}
           </button>
         }
         @if (canSetInTransit()) {
           <button *hasPermission="'Shipments.Advance'" type="button" class="btn-secondary" (click)="openAction('inTransit')">
-            Mark in transit
+            {{ 'SHIPPING.DIALOGS.IN_TRANSIT_TITLE' | translate }}
           </button>
         }
         @if (canDeliver()) {
           <button *hasPermission="'Shipments.Advance'" type="button" class="btn-primary" (click)="openAction('deliver')">
-            Confirm delivery
+            {{ 'SHIPPING.DIALOGS.DELIVER_TITLE' | translate }}
           </button>
         }
         @if (canFail()) {
           <button *hasPermission="'Shipments.Advance'" type="button" class="btn-secondary text-danger" (click)="openAction('fail')">
-            Register failure
+            {{ 'SHIPPING.ACTIONS.REGISTER_FAILURE' | translate }}
           </button>
         }
         @if (canResume()) {
           <button *hasPermission="'Shipments.Advance'" type="button" class="btn-primary" (click)="openAction('resume')">
-            Resume delivery
+            {{ 'SHIPPING.DIALOGS.RESUME_TITLE' | translate }}
           </button>
         }
       </div>
@@ -72,52 +66,52 @@
     <div class="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
       <div class="space-y-6">
         <section class="rounded-xl border border-line bg-panel p-5 shadow-sm sm:p-6">
-          <h2 class="text-lg font-semibold text-ink">Transport</h2>
+          <h2 class="text-lg font-semibold text-ink">{{ 'SHIPPING.FORM.SECTION_TRANSPORT' | translate }}</h2>
           @if (isEditing()) {
             <form class="mt-4 space-y-3" [formGroup]="editForm" (ngSubmit)="saveEdit()">
               <label class="block text-sm font-medium text-ink">
-                Carrier
+                {{ 'SHIPPING.LIST.COL_CARRIER' | translate }}
                 <input class="field mt-1" formControlName="carrierName" [attr.maxlength]="carrierMax" />
               </label>
               <label class="block text-sm font-medium text-ink">
-                Tracking code
+                {{ 'SHIPPING.FORM.TRACKING_CODE' | translate }}
                 <input class="field mt-1" formControlName="trackingCode" [attr.maxlength]="trackingMax" />
               </label>
               <label class="block text-sm font-medium text-ink">
-                Notes
+                {{ 'SHIPPING.FORM.NOTES' | translate }}
                 <textarea class="field mt-1 min-h-24" formControlName="notes" [attr.maxlength]="notesMax"></textarea>
               </label>
               <div class="flex flex-wrap gap-3">
                 <button type="submit" class="btn-primary" [disabled]="isSavingEdit()">
                   @if (isSavingEdit()) {
-                    Saving...
+                    {{ 'COMMON.SAVING' | translate }}
                   } @else {
-                    Save changes
+                    {{ 'SHIPPING.DETAILS.SAVE_CHANGES' | translate }}
                   }
                 </button>
                 <button type="button" class="btn-secondary" [disabled]="isSavingEdit()" (click)="cancelEdit()">
-                  Cancel
+                  {{ 'SHIPPING.DETAILS.CANCEL_EDIT' | translate }}
                 </button>
               </div>
             </form>
           } @else {
             <dl class="mt-4 grid gap-3 sm:grid-cols-2 text-sm">
               <div>
-                <dt class="text-xs uppercase tracking-wide text-muted">Carrier</dt>
+                <dt class="text-xs uppercase tracking-wide text-muted">{{ 'SHIPPING.LIST.COL_CARRIER' | translate }}</dt>
                 <dd class="mt-1 font-medium text-ink">{{ current.carrierName || '—' }}</dd>
               </div>
               <div>
-                <dt class="text-xs uppercase tracking-wide text-muted">Tracking</dt>
+                <dt class="text-xs uppercase tracking-wide text-muted">{{ 'SHIPPING.LIST.COL_TRACKING' | translate }}</dt>
                 <dd class="mt-1 flex flex-wrap items-center gap-2 font-medium text-ink">
                   @if (current.trackingCode) {
                     <span class="rounded-md border border-accent/30 bg-accent/10 px-2 py-1 text-accent-ink">
                       {{ current.trackingCode }}
                     </span>
                     <button type="button" class="btn-secondary !px-2.5 !py-1 text-xs" (click)="copyTracking()">
-                      Copy
+                      {{ 'SHIPPING.DETAILS.COPY' | translate }}
                     </button>
                   } @else {
-                    —
+                    {{ 'COMMON.EMPTY' | translate }}
                   }
                 </dd>
                 @if (copyMessage()) {
@@ -125,12 +119,12 @@
                 }
               </div>
               <div class="sm:col-span-2">
-                <dt class="text-xs uppercase tracking-wide text-muted">Notes</dt>
+                <dt class="text-xs uppercase tracking-wide text-muted">{{ 'SHIPPING.FORM.NOTES' | translate }}</dt>
                 <dd class="mt-1 font-medium text-ink">{{ current.notes || '—' }}</dd>
               </div>
               @if (current.failureReason) {
                 <div class="sm:col-span-2">
-                  <dt class="text-xs uppercase tracking-wide text-muted">Failure reason</dt>
+                  <dt class="text-xs uppercase tracking-wide text-muted">{{ 'SHIPPING.DETAILS.FAILURE_REASON' | translate }}</dt>
                   <dd class="mt-1 font-medium text-danger">{{ current.failureReason }}</dd>
                 </div>
               }
@@ -139,29 +133,29 @@
         </section>
 
         <section class="rounded-xl border border-line bg-panel p-5 shadow-sm sm:p-6">
-          <h2 class="text-lg font-semibold text-ink">Order</h2>
+          <h2 class="text-lg font-semibold text-ink">{{ 'SHIPPING.LIST.COL_ORDER' | translate }}</h2>
           <dl class="mt-4 grid gap-3 sm:grid-cols-2 text-sm">
             <div>
-              <dt class="text-xs uppercase tracking-wide text-muted">Order number</dt>
+              <dt class="text-xs uppercase tracking-wide text-muted">{{ 'SHIPPING.DETAILS.ORDER_NUMBER' | translate }}</dt>
               <dd class="mt-1 font-medium text-ink">{{ current.orderNumber }}</dd>
             </div>
             <div>
-              <dt class="text-xs uppercase tracking-wide text-muted">Customer</dt>
+              <dt class="text-xs uppercase tracking-wide text-muted">{{ 'SHIPPING.LIST.COL_CUSTOMER' | translate }}</dt>
               <dd class="mt-1 font-medium text-ink">{{ current.customerName }}</dd>
             </div>
             @if (formatAddress(current); as address) {
               <div class="sm:col-span-2">
-                <dt class="text-xs uppercase tracking-wide text-muted">Shipping address</dt>
+                <dt class="text-xs uppercase tracking-wide text-muted">{{ 'SHIPPING.FORM.SHIPPING_ADDRESS' | translate }}</dt>
                 <dd class="mt-1 font-medium text-ink">{{ address }}</dd>
               </div>
             }
             @if (order(); as linkedOrder) {
               <div>
-                <dt class="text-xs uppercase tracking-wide text-muted">Order total</dt>
+                <dt class="text-xs uppercase tracking-wide text-muted">{{ 'SHIPPING.DETAILS.ORDER_TOTAL' | translate }}</dt>
                 <dd class="mt-1 font-medium text-ink">{{ linkedOrder.subtotal | currency: 'BRL' }}</dd>
               </div>
               <div>
-                <dt class="text-xs uppercase tracking-wide text-muted">Order status</dt>
+                <dt class="text-xs uppercase tracking-wide text-muted">{{ 'SHIPPING.DETAILS.ORDER_STATUS' | translate }}</dt>
                 <dd class="mt-1 font-medium text-ink">{{ linkedOrder.status }}</dd>
               </div>
             }
@@ -172,10 +166,10 @@
               <table class="min-w-full text-left text-sm">
                 <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
                   <tr>
-                    <th class="py-2 pr-3 font-semibold">SKU</th>
-                    <th class="py-2 pr-3 font-semibold">Product</th>
-                    <th class="py-2 pr-3 font-semibold">Qty</th>
-                    <th class="py-2 font-semibold">Line total</th>
+                    <th class="py-2 pr-3 font-semibold">{{ 'COMMON.SKU' | translate }}</th>
+                    <th class="py-2 pr-3 font-semibold">{{ 'PRODUCTS.LIST.COL_PRODUCT' | translate }}</th>
+                    <th class="py-2 pr-3 font-semibold">{{ 'SHIPPING.DETAILS.COL_QTY' | translate }}</th>
+                    <th class="py-2 font-semibold">{{ 'COMMON.LINE_TOTAL' | translate }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -196,26 +190,26 @@
 
       <div class="space-y-6">
         <section class="rounded-xl border border-line bg-panel p-5 shadow-sm sm:p-6">
-          <h2 class="text-lg font-semibold text-ink">Dates</h2>
+          <h2 class="text-lg font-semibold text-ink">{{ 'SHIPPING.DETAILS.SECTION_DATES' | translate }}</h2>
           <dl class="mt-4 space-y-3 text-sm">
             <div>
-              <dt class="text-xs uppercase tracking-wide text-muted">Created</dt>
+              <dt class="text-xs uppercase tracking-wide text-muted">{{ 'SHIPPING.LIST.COL_CREATED' | translate }}</dt>
               <dd class="mt-1 text-ink">{{ current.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd>
             </div>
             <div>
-              <dt class="text-xs uppercase tracking-wide text-muted">Updated</dt>
+              <dt class="text-xs uppercase tracking-wide text-muted">{{ 'SHIPPING.DETAILS.DATE_UPDATED' | translate }}</dt>
               <dd class="mt-1 text-ink">
                 {{ current.updatedAtUtc ? (current.updatedAtUtc | date: 'dd/MM/yyyy HH:mm') : '—' }}
               </dd>
             </div>
             <div>
-              <dt class="text-xs uppercase tracking-wide text-muted">Shipped</dt>
+              <dt class="text-xs uppercase tracking-wide text-muted">{{ 'SHIPPING.LIST.COL_SHIPPED' | translate }}</dt>
               <dd class="mt-1 text-ink">
                 {{ current.shippedAtUtc ? (current.shippedAtUtc | date: 'dd/MM/yyyy HH:mm') : '—' }}
               </dd>
             </div>
             <div>
-              <dt class="text-xs uppercase tracking-wide text-muted">Delivered</dt>
+              <dt class="text-xs uppercase tracking-wide text-muted">{{ 'SHIPPING.DETAILS.DATE_DELIVERED' | translate }}</dt>
               <dd class="mt-1 text-ink">
                 {{ current.deliveredAtUtc ? (current.deliveredAtUtc | date: 'dd/MM/yyyy HH:mm') : '—' }}
               </dd>

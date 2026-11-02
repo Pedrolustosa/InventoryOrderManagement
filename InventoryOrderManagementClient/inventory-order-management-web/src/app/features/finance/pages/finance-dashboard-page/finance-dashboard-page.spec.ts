@@ -1,4 +1,5 @@
 import { registerLocaleData } from '@angular/common';
+import { provideTranslateService } from '@ngx-translate/core';
 import localePt from '@angular/common/locales/pt';
 import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -40,7 +41,7 @@ describe('FinanceDashboardPage', () => {
     };
     await TestBed.configureTestingModule({
       imports: [FinanceDashboardPage],
-      providers: [
+      providers: [provideTranslateService(), 
         { provide: LOCALE_ID, useValue: 'pt-BR' },
         { provide: FinanceService, useValue: finance },
         { provide: AuthService, useValue: permittedAuth(permittedUser({ permissions: ['Finance.Reports.View'] })) },
@@ -57,7 +58,7 @@ describe('FinanceDashboardPage', () => {
   it('shows the dashboard amounts and an empty account list', async () => {
     await setup(of(dashboard));
     expect(fixture.nativeElement.textContent).toContain('1.500,00');
-    expect(fixture.nativeElement.textContent).toContain('There are no cash accounts.');
+    expect(fixture.nativeElement.textContent).toContain('FINANCE.DASHBOARD.NO_ACCOUNTS');
     expect(finance.getDashboard).toHaveBeenCalledWith(
       expect.objectContaining({ startDateUtc: expect.any(String), endDateUtc: expect.any(String) }),
     );
@@ -69,7 +70,7 @@ describe('FinanceDashboardPage', () => {
     const today = [...fixture.nativeElement.querySelectorAll('button')].find((button) => button.textContent?.includes('Today'));
     today?.dispatchEvent(new Event('click'));
     fixture.detectChanges();
-    const apply = [...fixture.nativeElement.querySelectorAll('button')].find((button) => button.textContent?.includes('Apply period'));
+    const apply = [...fixture.nativeElement.querySelectorAll('button')].find((button) => button.textContent?.includes('FINANCE.FILTERS.APPLY_PERIOD'));
     apply?.dispatchEvent(new Event('click'));
     fixture.detectChanges();
     expect(finance.getDashboard).toHaveBeenCalledTimes(2);
@@ -79,7 +80,7 @@ describe('FinanceDashboardPage', () => {
     await setup(throwError(() => new FinanceRequestError('The dashboard failed.', 500)) as Observable<FinanceDashboard>);
     expect(fixture.nativeElement.textContent).toContain('The dashboard failed.');
     finance.getDashboard.mockReturnValue(of({ ...dashboard, cashAccounts: [] }));
-    const retry = [...fixture.nativeElement.querySelectorAll('button')].find((button) => button.textContent?.includes('Try again'));
+    const retry = [...fixture.nativeElement.querySelectorAll('button')].find((button) => button.textContent?.includes('COMMON.RETRY'));
     retry?.dispatchEvent(new Event('click'));
     fixture.detectChanges();
     await fixture.whenStable();

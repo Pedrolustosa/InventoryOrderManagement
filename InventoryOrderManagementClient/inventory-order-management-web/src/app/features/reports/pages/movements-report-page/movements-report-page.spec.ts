@@ -1,4 +1,5 @@
 import { registerLocaleData } from '@angular/common';
+import { provideTranslateService } from '@ngx-translate/core';
 import localePt from '@angular/common/locales/pt';
 import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -58,7 +59,7 @@ describe('MovementsReportPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [MovementsReportPage],
-      providers: [
+      providers: [provideTranslateService(), 
         provideRouter([]),
         { provide: ReportsService, useValue: reports },
         { provide: ReportPeriodStore, useValue: new ReportPeriodStore() },
@@ -78,14 +79,14 @@ describe('MovementsReportPage', () => {
     fixture.detectChanges();
 
     const text = fixture.nativeElement.textContent as string;
-    expect(text).toContain('Total Entries');
+    expect(text).toContain('REPORTS.MOVEMENTS.KPI_ENTRIES');
     expect(text).toContain('15');
-    expect(text).toContain('Total Order Exits');
+    expect(text).toContain('REPORTS.MOVEMENTS.KPI_ORDER_EXITS');
     expect(text).toContain('9');
-    expect(text).toContain('Total Order Cancellation Returns');
+    expect(text).toContain('REPORTS.MOVEMENTS.KPI_ORDER_RETURNS');
     expect(text).toContain('2');
     expect(text).toContain('Wireless Mouse');
-    expect(text).toContain('Order Exit');
+    expect(text).toContain('STATUS.STOCK_MOVEMENT.OrderExit');
     expect(text).toContain('4');
     expect(text).toContain('Stock issued for order ORD-1.');
     expect(text).toContain('01/11/2026');

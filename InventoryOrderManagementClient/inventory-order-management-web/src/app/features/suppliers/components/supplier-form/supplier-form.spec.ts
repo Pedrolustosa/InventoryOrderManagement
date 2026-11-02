@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CreateSupplierRequest } from '../../models/create-supplier-request.model';
 import { SupplierForm } from './supplier-form';
+import { provideTestTranslate } from '../../../../core/i18n/testing/provide-test-translate';
+
 
 describe('SupplierForm', () => {
   let fixture: ComponentFixture<SupplierForm>;
@@ -8,6 +10,7 @@ describe('SupplierForm', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [...provideTestTranslate()],
       imports: [SupplierForm],
     }).compileComponents();
 

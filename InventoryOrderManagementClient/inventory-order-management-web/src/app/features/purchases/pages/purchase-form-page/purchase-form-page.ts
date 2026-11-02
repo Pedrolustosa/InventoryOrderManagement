@@ -1,4 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { ProductResponse } from '../../../products/models/product.model';
@@ -12,11 +14,12 @@ import { PurchaseRequestError, PurchasesService } from '../../services/purchases
 
 @Component({
   selector: 'app-purchase-form-page',
-  imports: [RouterLink, PurchaseOrderForm],
+  imports: [RouterLink, PurchaseOrderForm, TranslatePipe],
   templateUrl: './purchase-form-page.html',
 })
 export class PurchaseFormPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
   private readonly purchasesService = inject(PurchasesService);
   private readonly suppliersService = inject(SuppliersService);
@@ -63,7 +66,7 @@ export class PurchaseFormPage implements OnInit {
           this.isSubmitting.set(false);
           void this.router.navigate(['/purchases', created.id], {
             state: {
-              successMessage: `Purchase order ${created.purchaseOrderNumber} was saved as ${created.status}.`,
+              successMessage: this.translate.instant('PURCHASES.DETAILS.SUCCESS_SAVED', { number: created.purchaseOrderNumber, status: this.translate.instant('STATUS.PURCHASE.' + created.status) }),
             },
           });
         },
@@ -81,7 +84,7 @@ export class PurchaseFormPage implements OnInit {
         next: (updated) => {
           this.isSubmitting.set(false);
           void this.router.navigate(['/purchases', orderId], {
-            state: { successMessage: `Purchase order ${updated.purchaseOrderNumber} was updated.` },
+            state: { successMessage: this.translate.instant('PURCHASES.DETAILS.SUCCESS_UPDATED', { number: updated.purchaseOrderNumber }) },
           });
         },
         error: (error: PurchaseRequestError) => {

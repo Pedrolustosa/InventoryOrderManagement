@@ -6,10 +6,14 @@ import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/route
 import { of } from 'rxjs';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { permittedAuth, permittedUser } from '../../../../core/auth/testing/permitted-auth';
+import { ToastService } from '../../../../core/notifications/toast.service';
+import { createToastServiceSpy } from '../../../../core/notifications/testing/toast-testing';
 import { OrdersService } from '../../../orders/services/orders.service';
 import { Shipment } from '../../models/shipment.model';
 import { ShipmentsService } from '../../services/shipments.service';
 import { ShipmentDetailsPage } from './shipment-details-page';
+import { provideTestTranslate } from '../../../../core/i18n/testing/provide-test-translate';
+
 
 registerLocaleData(localePt);
 
@@ -72,7 +76,7 @@ describe('ShipmentDetailsPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [ShipmentDetailsPage],
-      providers: [
+      providers: [...provideTestTranslate(), 
         provideRouter([]),
         { provide: ShipmentsService, useValue: shipmentsService },
         {
@@ -100,6 +104,7 @@ describe('ShipmentDetailsPage', () => {
           provide: ActivatedRoute,
           useValue: { snapshot: { paramMap: convertToParamMap({ id: shipment.id }) } },
         },
+        { provide: ToastService, useValue: createToastServiceSpy() },
         { provide: LOCALE_ID, useValue: 'pt-BR' },
         {
           provide: AuthService,

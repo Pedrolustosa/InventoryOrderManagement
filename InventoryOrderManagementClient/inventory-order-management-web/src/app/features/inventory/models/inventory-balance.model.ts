@@ -22,12 +22,5 @@ export function stockStatus(balance: Pick<InventoryBalance, 'quantityOnHand' | '
 }
 
 export function stockStatusLabel(status: StockStatus): string {
-  switch (status) {
-    case 'out-of-stock':
-      return 'Out of Stock';
-    case 'low-stock':
-      return 'Low Stock';
-    case 'in-stock':
-      return 'In Stock';
-  }
+  return `STATUS.INVENTORY_STOCK.${status}`;
 }

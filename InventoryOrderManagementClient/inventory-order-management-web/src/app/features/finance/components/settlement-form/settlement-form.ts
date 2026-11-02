@@ -1,4 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CashAccount } from '../../models/cash-account.model';
@@ -15,7 +16,7 @@ import { FinancialInstallment } from '../../models/financial-title.model';
 
 @Component({
   selector: 'app-settlement-form',
-  imports: [ReactiveFormsModule, CurrencyPipe],
+  imports: [TranslatePipe, ReactiveFormsModule, CurrencyPipe],
   templateUrl: './settlement-form.html',
 })
 export class SettlementForm {

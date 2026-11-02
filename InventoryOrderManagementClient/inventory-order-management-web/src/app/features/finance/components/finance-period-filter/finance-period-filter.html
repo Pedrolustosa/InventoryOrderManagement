@@ -8,7 +8,7 @@
         [class.!text-white]="preset() === option.id"
         (click)="preset.set(option.id)"
       >
-        {{ option.label }}
+        {{ option.labelKey | translate }}
       </button>
     }
   </div>
@@ -16,18 +16,18 @@
   @if (preset() === 'Custom') {
     <div class="grid gap-3 sm:grid-cols-2">
       <label class="block text-sm font-medium text-ink">
-        Start date
+        {{ 'COMMON.START_DATE' | translate }}
         <input type="date" class="field mt-1" [value]="customStart()" (input)="customStart.set($any($event.target).value)" />
       </label>
       <label class="block text-sm font-medium text-ink">
-        End date
+        {{ 'COMMON.END_DATE' | translate }}
         <input type="date" class="field mt-1" [value]="customEnd()" (input)="customEnd.set($any($event.target).value)" />
       </label>
     </div>
   }
 
-  <button type="button" class="btn-secondary" (click)="apply()">Apply period</button>
-  @if (error()) {
-    <p class="text-sm text-danger" role="alert">{{ error() }}</p>
+  <button type="button" class="btn-secondary" (click)="apply()">{{ 'FINANCE.FILTERS.APPLY_PERIOD' | translate }}</button>
+  @if (error(); as err) {
+    <p class="text-sm text-danger" role="alert">{{ err | translate }}</p>
   }
 </div>

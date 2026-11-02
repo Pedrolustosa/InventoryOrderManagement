@@ -5,6 +5,8 @@ import { environment } from '../../../../environments/environment';
 import { CreateOrderRequest } from '../models/create-order-request.model';
 import { Order, OrderCreated, OrderSummary } from '../models/order.model';
 import { OrdersService } from './orders.service';
+import { provideTestTranslate } from '../../../core/i18n/testing/provide-test-translate';
+
 
 describe('OrdersService', () => {
   let service: OrdersService;
@@ -61,7 +63,7 @@ describe('OrdersService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), OrdersService],
+      providers: [...provideTestTranslate(), provideHttpClient(), provideHttpClientTesting(), OrdersService],
     });
 
     service = TestBed.inject(OrdersService);

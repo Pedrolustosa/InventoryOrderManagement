@@ -1,13 +1,14 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { passwordPolicy } from '../../../../core/auth/password-policy';
 import { firstAllowedPath } from '../../../../core/auth/landing';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 
 @Component({
   selector: 'app-change-password-page',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TranslatePipe],
   templateUrl: './change-password-page.html',
 })
 export class ChangePasswordPage {

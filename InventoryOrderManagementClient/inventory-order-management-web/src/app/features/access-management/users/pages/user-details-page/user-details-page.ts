@@ -1,4 +1,5 @@
 import { DatePipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { UserAccount } from '../../models/user.model';
@@ -6,7 +7,7 @@ import { UsersService } from '../../services/users.service';
 
 @Component({
   selector: 'app-user-details-page',
-  imports: [DatePipe, RouterLink],
+  imports: [TranslatePipe, DatePipe, RouterLink],
   templateUrl: './user-details-page.html',
 })
 export class UserDetailsPage implements OnInit {

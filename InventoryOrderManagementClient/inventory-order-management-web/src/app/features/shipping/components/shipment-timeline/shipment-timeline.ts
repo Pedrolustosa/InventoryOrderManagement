@@ -1,11 +1,13 @@
 import { DatePipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
+
 import { Component, computed, input } from '@angular/core';
 import { shipmentStatusLabel, ShipmentStatus } from '../../models/shipment.enums';
 import { ShipmentStatusHistory } from '../../models/shipment.model';
 
 @Component({
   selector: 'app-shipment-timeline',
-  imports: [DatePipe],
+  imports: [DatePipe, TranslatePipe],
   templateUrl: './shipment-timeline.html',
 })
 export class ShipmentTimeline {
@@ -19,7 +21,7 @@ export class ShipmentTimeline {
   );
 
   statusLabel(status: ShipmentStatus | null): string {
-    return status ? shipmentStatusLabel(status) : '—';
+    return status ? shipmentStatusLabel(status) : 'COMMON.EMPTY';
   }
 
   isCurrent(entry: ShipmentStatusHistory): boolean {

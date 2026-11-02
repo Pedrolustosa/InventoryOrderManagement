@@ -1,22 +1,16 @@
 <section class="space-y-6">
   <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <h1 class="text-3xl font-semibold tracking-tight text-ink">Purchase Details</h1>
-      <p class="mt-2 max-w-2xl text-sm text-muted">Supplier, items, receipts and the status stored by the server.</p>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">{{ 'PURCHASES.DETAILS.TITLE' | translate }}</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">{{ 'PURCHASES.DETAILS.SUBTITLE' | translate }}</p>
     </div>
-    <a routerLink="/purchases" class="btn-secondary">Back to purchases</a>
+    <a routerLink="/purchases" class="btn-secondary">{{ 'PURCHASES.FORM.BACK' | translate }}</a>
   </div>
-
-  @if (successMessage()) {
-    <div class="rounded-md border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent-ink" role="status">
-      {{ successMessage() }}
-    </div>
-  }
 
   @if (isLoading()) {
     <div class="flex items-center gap-3 text-muted" aria-busy="true">
       <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
-      <span>Loading purchase order...</span>
+      <span>{{ 'PURCHASES.DETAILS.LOADING' | translate }}</span>
     </div>
   } @else if (loadError()) {
     <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
@@ -26,41 +20,41 @@
     <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
       <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h2 class="text-lg font-semibold text-ink">Purchase Information</h2>
+          <h2 class="text-lg font-semibold text-ink">{{ 'PURCHASES.DETAILS.SECTION_INFO' | translate }}</h2>
           <dl class="mt-4 grid gap-3 sm:grid-cols-2">
             <div>
-              <dt class="text-xs uppercase tracking-wide text-muted">Purchase Number</dt>
+              <dt class="text-xs uppercase tracking-wide text-muted">{{ 'PURCHASES.LIST.COL_NUMBER' | translate }}</dt>
               <dd class="mt-1 text-sm font-medium text-ink">{{ current.purchaseOrderNumber }}</dd>
             </div>
             <div>
-              <dt class="text-xs uppercase tracking-wide text-muted">Supplier</dt>
+              <dt class="text-xs uppercase tracking-wide text-muted">{{ 'PURCHASES.LIST.COL_SUPPLIER' | translate }}</dt>
               <dd class="mt-1 text-sm font-medium text-ink">{{ current.supplierName }}</dd>
             </div>
             <div>
-              <dt class="text-xs uppercase tracking-wide text-muted">Status</dt>
+              <dt class="text-xs uppercase tracking-wide text-muted">{{ 'PURCHASES.LIST.COL_STATUS' | translate }}</dt>
               <dd class="mt-1">
-                <span [class]="statusClass(current)">{{ statusLabel(current) }}</span>
+                <span [class]="statusClass(current)">{{ statusLabel(current) | translate }}</span>
               </dd>
             </div>
             <div>
-              <dt class="text-xs uppercase tracking-wide text-muted">Created At</dt>
+              <dt class="text-xs uppercase tracking-wide text-muted">{{ 'PURCHASES.LIST.COL_CREATED_AT' | translate }}</dt>
               <dd class="mt-1 text-sm text-ink">{{ current.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd>
             </div>
             @if (current.sentAtUtc) {
               <div>
-                <dt class="text-xs uppercase tracking-wide text-muted">Sent At</dt>
+                <dt class="text-xs uppercase tracking-wide text-muted">{{ 'PURCHASES.DETAILS.SENT_AT' | translate }}</dt>
                 <dd class="mt-1 text-sm text-ink">{{ current.sentAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd>
               </div>
             }
             @if (current.receivedAtUtc) {
               <div>
-                <dt class="text-xs uppercase tracking-wide text-muted">Received At</dt>
+                <dt class="text-xs uppercase tracking-wide text-muted">{{ 'PURCHASES.DETAILS.RECEIVED_AT' | translate }}</dt>
                 <dd class="mt-1 text-sm text-ink">{{ current.receivedAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd>
               </div>
             }
             @if (current.cancelledAtUtc) {
               <div>
-                <dt class="text-xs uppercase tracking-wide text-muted">Cancelled At</dt>
+                <dt class="text-xs uppercase tracking-wide text-muted">{{ 'PURCHASES.DETAILS.CANCELLED_AT' | translate }}</dt>
                 <dd class="mt-1 text-sm text-ink">{{ current.cancelledAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd>
               </div>
             }
@@ -73,22 +67,22 @@
         <div class="flex flex-wrap gap-2">
           @if (canEdit()) {
             <a *hasPermission="'Purchases.UpdateDraft'" class="btn-secondary" [routerLink]="['/purchases', current.id, 'edit']">
-              Edit
+              {{ 'COMMON.EDIT' | translate }}
             </a>
           }
           @if (canSend()) {
             <button *hasPermission="'Purchases.Send'" type="button" class="btn-primary" (click)="openAction('send')">
-              Send Purchase
+              {{ 'PURCHASES.ACTIONS.SEND_PURCHASE' | translate }}
             </button>
           }
           @if (canReceive()) {
             <a *hasPermission="'Purchases.Receive'" class="btn-primary" [routerLink]="['/purchases', current.id, 'receive']">
-              Receive
+              {{ 'PURCHASES.ACTIONS.RECEIVE' | translate }}
             </a>
           }
           @if (canCancel()) {
             <button *hasPermission="'Purchases.Cancel'" type="button" class="btn-secondary text-danger" (click)="openAction('cancel')">
-              Cancel
+              {{ 'PURCHASES.ACTIONS.CANCEL' | translate }}
             </button>
           }
         </div>
@@ -101,7 +95,7 @@
         [purchaseOrderNumber]="current.purchaseOrderNumber"
         [supplierName]="current.supplierName"
         [subtotal]="current.subtotal"
-        [receivedSummary]="receivedSummary()"
+        [receivedUnits]="receivedUnits()"
         [isSubmitting]="isActing()"
         [errorMessage]="actionError()"
         (confirmed)="confirmAction($event)"
@@ -110,18 +104,18 @@
     }
 
     <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
-      <h2 class="text-lg font-semibold text-ink">Items</h2>
+      <h2 class="text-lg font-semibold text-ink">{{ 'PURCHASES.FORM.SECTION_ITEMS' | translate }}</h2>
       <div class="mt-4 overflow-x-auto">
         <table class="min-w-full text-left text-sm">
           <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
             <tr>
-              <th class="px-3 py-2 font-semibold">SKU</th>
-              <th class="px-3 py-2 font-semibold">Product</th>
-              <th class="px-3 py-2 font-semibold">Ordered</th>
-              <th class="px-3 py-2 font-semibold">Received</th>
-              <th class="px-3 py-2 font-semibold">Pending</th>
-              <th class="px-3 py-2 font-semibold">Unit Cost</th>
-              <th class="px-3 py-2 font-semibold">Line Total</th>
+              <th class="px-3 py-2 font-semibold">{{ 'COMMON.SKU' | translate }}</th>
+              <th class="px-3 py-2 font-semibold">{{ 'PURCHASES.FORM.PRODUCT' | translate }}</th>
+              <th class="px-3 py-2 font-semibold">{{ 'PURCHASES.DETAILS.COL_ORDERED' | translate }}</th>
+              <th class="px-3 py-2 font-semibold">{{ 'PURCHASES.DETAILS.COL_RECEIVED' | translate }}</th>
+              <th class="px-3 py-2 font-semibold">{{ 'PURCHASES.DETAILS.COL_PENDING' | translate }}</th>
+              <th class="px-3 py-2 font-semibold">{{ 'PURCHASES.DETAILS.COL_UNIT_COST' | translate }}</th>
+              <th class="px-3 py-2 font-semibold">{{ 'COMMON.LINE_TOTAL' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -142,14 +136,14 @@
     </section>
 
     <section class="rounded-xl border border-accent/30 bg-accent/5 p-5">
-      <h2 class="text-lg font-semibold text-ink">Financial Summary</h2>
+      <h2 class="text-lg font-semibold text-ink">{{ 'PURCHASES.DETAILS.SECTION_FINANCIAL' | translate }}</h2>
       <dl class="mt-4 grid gap-3 sm:grid-cols-2">
         <div>
-          <dt class="text-xs uppercase tracking-wide text-muted">Lines</dt>
+          <dt class="text-xs uppercase tracking-wide text-muted">{{ 'PURCHASES.DETAILS.LINES' | translate }}</dt>
           <dd class="mt-1 text-xl font-semibold text-ink">{{ totalItems() }}</dd>
         </div>
         <div>
-          <dt class="text-xs uppercase tracking-wide text-muted">Subtotal</dt>
+          <dt class="text-xs uppercase tracking-wide text-muted">{{ 'PURCHASES.LIST.COL_SUBTOTAL' | translate }}</dt>
           <dd class="mt-1 text-xl font-semibold text-ink">{{ current.subtotal | currency: 'BRL' }}</dd>
         </div>
       </dl>
@@ -157,7 +151,7 @@
 
     @if (current.status === 'Cancelled') {
       <section class="rounded-xl border border-danger/30 bg-panel p-5 shadow-sm">
-        <h2 class="text-lg font-semibold text-ink">Cancellation</h2>
+        <h2 class="text-lg font-semibold text-ink">{{ 'PURCHASES.DETAILS.SECTION_CANCELLATION' | translate }}</h2>
         <p class="mt-3 text-sm text-ink">{{ current.cancellationReason }}</p>
       </section>
     }
