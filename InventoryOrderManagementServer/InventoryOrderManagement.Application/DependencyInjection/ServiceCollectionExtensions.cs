@@ -7,6 +7,7 @@ using InventoryOrderManagement.Application.Orders;
 using InventoryOrderManagement.Application.Products;
 using InventoryOrderManagement.Application.Purchases;
 using InventoryOrderManagement.Application.Reports;
+using InventoryOrderManagement.Application.Returns;
 using InventoryOrderManagement.Application.Suppliers;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -114,6 +115,21 @@ public static class ServiceCollectionExtensions
         services.AddScoped<GetRealizedCashFlowUseCase>();
         services.AddScoped<GetProjectedCashFlowUseCase>();
         services.AddScoped<GetFinancialAgingReportUseCase>();
+        services.AddScoped<CreateCustomerReturnUseCase>();
+        services.AddScoped<CreateSupplierReturnUseCase>();
+        services.AddScoped<GetAllReturnsUseCase>();
+        services.AddScoped<GetReturnByIdUseCase>();
+        services.AddScoped<UpdateReturnUseCase>();
+        services.AddScoped<GetCustomerReturnableItemsUseCase>();
+        services.AddScoped<GetSupplierReturnableItemsUseCase>();
+        services.AddScoped<ReceiveCustomerReturnUseCase>();
+        services.AddScoped<StartReturnInspectionUseCase>();
+        services.AddScoped<CompleteCustomerReturnInspectionUseCase>();
+        services.AddScoped<AuthorizeSupplierReturnUseCase>();
+        services.AddScoped<DispatchSupplierReturnUseCase>();
+        services.AddScoped<CancelReturnUseCase>();
+        services.AddScoped<GetReturnHistoryUseCase>();
+        services.AddScoped<GetReturnStockMovementsUseCase>();
 
         return services;
     }

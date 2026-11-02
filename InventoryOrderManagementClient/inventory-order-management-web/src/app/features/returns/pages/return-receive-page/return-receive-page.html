@@ -1,0 +1,105 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">Receive customer return</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">
+        Record physical receipt. Products are not restocked until inspection completes.
+      </p>
+    </div>
+    <a routerLink="/returns" class="btn-secondary">Back to returns</a>
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex items-center gap-3 text-muted" aria-busy="true">
+      <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
+      <span>Loading return...</span>
+    </div>
+  } @else if (loadError()) {
+    <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
+      {{ loadError() }}
+    </div>
+  } @else if (ret(); as current) {
+    <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
+      <h2 class="text-lg font-semibold text-ink">{{ current.returnNumber }}</h2>
+      <p class="mt-2 text-sm text-muted">
+        Customer: {{ current.customerName || '—' }} · Source: {{ current.sourceReference || '—' }}
+      </p>
+    </section>
+
+    <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
+      <h2 class="text-lg font-semibold text-ink">Items</h2>
+      <div class="mt-4 overflow-x-auto">
+        <table class="min-w-full text-left text-sm">
+          <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
+            <tr>
+              <th class="px-3 py-2">Product</th>
+              <th class="px-3 py-2">SKU</th>
+              <th class="px-3 py-2">Requested</th>
+              <th class="px-3 py-2">Received</th>
+              <th class="px-3 py-2">Unit value</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of current.items; track item.id) {
+              <tr class="border-b border-line/70 last:border-0">
+                <td class="px-3 py-2">{{ item.productName }}</td>
+                <td class="px-3 py-2">{{ item.productSku }}</td>
+                <td class="px-3 py-2">{{ item.requestedQuantity }}</td>
+                <td class="px-3 py-2">
+                  <input
+                    type="number"
+                    min="0"
+                    class="field w-24"
+                    [value]="quantityFor(item.id)"
+                    (input)="setQuantity(item.id, $any($event.target).value)"
+                  />
+                </td>
+                <td class="whitespace-nowrap px-3 py-2">{{ item.unitValueSnapshot | currency: 'BRL' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <label class="mt-4 block text-sm font-medium text-ink">
+        Notes
+        <textarea class="field mt-1 min-h-20" [value]="notes()" (input)="notes.set($any($event.target).value)"></textarea>
+      </label>
+    </section>
+
+    @if (formError()) {
+      <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
+        {{ formError() }}
+      </div>
+    }
+
+    <div class="flex justify-end gap-2">
+      <a [routerLink]="['/returns', current.id]" class="btn-secondary">Cancel</a>
+      <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="review()">Review receipt</button>
+    </div>
+
+    @if (pendingLines(); as lines) {
+      <div class="fixed inset-0 z-40 flex items-center justify-center bg-ink/40 p-4" role="dialog" aria-modal="true">
+        <div class="w-full max-w-lg rounded-xl border border-line bg-panel p-5 shadow-lg">
+          <h2 class="text-lg font-semibold text-ink">Confirm receipt</h2>
+          <p class="mt-2 text-sm text-muted">Receipt does not restock inventory yet.</p>
+          <ul class="mt-4 space-y-2 text-sm text-ink">
+            @for (line of lines; track line.returnItemId) {
+              <li>{{ line.productSku }} · {{ line.productName }} · qty {{ line.receivedQuantity }}</li>
+            }
+          </ul>
+          <div class="mt-5 flex justify-end gap-2">
+            <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="dismissReview()">Back</button>
+            <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="confirm()">
+              @if (isSubmitting()) {
+                Saving...
+              } @else {
+                Confirm receive
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  }
+</section>

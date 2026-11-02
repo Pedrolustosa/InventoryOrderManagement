@@ -150,6 +150,33 @@ public class PurchaseOrder
         Touch();
     }
 
+    /// <summary>
+    /// Records dispatched supplier-return quantities against purchase lines inside the same
+    /// transaction that dispatches the return. Bumps the aggregate concurrency token.
+    /// </summary>
+    public void RegisterSupplierReturn(IReadOnlyList<(Guid PurchaseOrderItemId, int Quantity)> lines)
+    {
+        if (Status is not (PurchaseOrderStatus.PartiallyReceived or PurchaseOrderStatus.Received))
+        {
+            throw new InvalidPurchaseOrderStatusException(Status);
+        }
+
+        if (lines is null || lines.Count == 0)
+        {
+            throw new DomainException("At least one return line is required.");
+        }
+
+        foreach (var line in lines)
+        {
+            var item = _items.SingleOrDefault(x => x.Id == line.PurchaseOrderItemId)
+                ?? throw new ReturnConflictException("The item does not belong to this purchase order.");
+
+            item.RegisterSupplierReturn(line.Quantity);
+        }
+
+        Touch();
+    }
+
     private void ReplaceItems(IReadOnlyList<PurchaseOrderItem> items)
     {
         if (items is null || items.Count == 0)

@@ -1,0 +1,277 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">Return details</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">
+        Header, items, financial intent, history and stock movements returned by the API.
+      </p>
+    </div>
+    <a routerLink="/returns" class="btn-secondary">Back to returns</a>
+  </div>
+
+  @if (successMessage()) {
+    <div class="rounded-md border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent-ink" role="status">
+      {{ successMessage() }}
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="flex items-center gap-3 text-muted" aria-busy="true">
+      <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
+      <span>Loading return...</span>
+    </div>
+  } @else if (loadError()) {
+    <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
+      {{ loadError() }}
+    </div>
+  } @else if (ret(); as current) {
+    <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <h2 class="text-lg font-semibold text-ink">Return information</h2>
+          <dl class="mt-4 grid gap-3 sm:grid-cols-2">
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">Number</dt>
+              <dd class="mt-1 text-sm font-medium text-ink">{{ current.returnNumber }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">Type</dt>
+              <dd class="mt-1 text-sm font-medium text-ink">{{ typeLabel(current.type) }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">Status</dt>
+              <dd class="mt-1"><span [class]="statusClass(current.status)">{{ statusLabel(current.status) }}</span></dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">Counterpart</dt>
+              <dd class="mt-1 text-sm font-medium text-ink">{{ counterpart(current) }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">Source</dt>
+              <dd class="mt-1 text-sm font-medium text-ink">{{ current.sourceReference || '—' }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">Reason</dt>
+              <dd class="mt-1 text-sm font-medium text-ink">{{ reasonLabel(current.reason) }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">Estimated amount</dt>
+              <dd class="mt-1 text-sm font-medium text-ink">{{ current.estimatedAmount | currency: 'BRL' }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">Created</dt>
+              <dd class="mt-1 text-sm text-ink">{{ current.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd>
+            </div>
+            @if (current.authorizationReference) {
+              <div>
+                <dt class="text-xs uppercase tracking-wide text-muted">Authorization ref.</dt>
+                <dd class="mt-1 text-sm text-ink">{{ current.authorizationReference }}</dd>
+              </div>
+            }
+            @if (current.dispatchReference) {
+              <div>
+                <dt class="text-xs uppercase tracking-wide text-muted">Dispatch ref.</dt>
+                <dd class="mt-1 text-sm text-ink">{{ current.dispatchReference }}</dd>
+              </div>
+            }
+            @if (current.cancellationReason) {
+              <div class="sm:col-span-2">
+                <dt class="text-xs uppercase tracking-wide text-muted">Cancellation reason</dt>
+                <dd class="mt-1 text-sm text-ink">{{ current.cancellationReason }}</dd>
+              </div>
+            }
+          </dl>
+          @if (current.reasonDescription) {
+            <p class="mt-4 text-sm text-ink"><span class="text-muted">Reason details:</span> {{ current.reasonDescription }}</p>
+          }
+          @if (current.notes) {
+            <p class="mt-2 text-sm text-ink"><span class="text-muted">Notes:</span> {{ current.notes }}</p>
+          }
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          @if (canEdit()) {
+            <a *hasPermission="editPermission()" class="btn-secondary" [routerLink]="['/returns', current.id, 'edit']">Edit</a>
+          }
+          @if (canReceive()) {
+            <a *hasPermission="'Returns.Customer.Receive'" class="btn-primary" [routerLink]="['/returns', current.id, 'receive']">
+              Receive
+            </a>
+          }
+          @if (canInspect()) {
+            <a *hasPermission="'Returns.Customer.Inspect'" class="btn-primary" [routerLink]="['/returns', current.id, 'inspection']">
+              Inspect
+            </a>
+          }
+          @if (canAuthorize()) {
+            <a *hasPermission="'Returns.Supplier.Authorize'" class="btn-primary" [routerLink]="['/returns', current.id, 'authorize']">
+              Authorize
+            </a>
+          }
+          @if (canDispatch()) {
+            <a *hasPermission="'Returns.Supplier.Dispatch'" class="btn-primary" [routerLink]="['/returns', current.id, 'dispatch']">
+              Dispatch
+            </a>
+          }
+          @if (canCancel()) {
+            <button *hasPermission="'Returns.Cancel'" type="button" class="btn-secondary text-danger" (click)="openCancel()">
+              Cancel
+            </button>
+          }
+        </div>
+      </div>
+    </section>
+
+    @if (showCancel()) {
+      <app-return-cancel-dialog
+        [returnNumber]="current.returnNumber"
+        [isSubmitting]="isActing()"
+        [errorMessage]="actionError()"
+        (confirmed)="confirmCancel($event)"
+        (dismissed)="closeCancel()"
+      />
+    }
+
+    <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
+      <h2 class="text-lg font-semibold text-ink">Items</h2>
+      <div class="mt-4 overflow-x-auto">
+        <table class="min-w-full text-left text-sm">
+          <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
+            <tr>
+              <th class="px-3 py-2">Product</th>
+              <th class="px-3 py-2">SKU</th>
+              <th class="px-3 py-2">Source qty</th>
+              <th class="px-3 py-2">Requested</th>
+              @if (isCustomer()) {
+                <th class="px-3 py-2">Received</th>
+                <th class="px-3 py-2">Restocked</th>
+                <th class="px-3 py-2">Quarantine</th>
+                <th class="px-3 py-2">Discarded</th>
+                <th class="px-3 py-2">Rejected</th>
+                <th class="px-3 py-2">Condition</th>
+              } @else {
+                <th class="px-3 py-2">Dispatched</th>
+              }
+              <th class="px-3 py-2">Unit value</th>
+              <th class="px-3 py-2">Line total</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of current.items; track item.id) {
+              <tr class="border-b border-line/70 last:border-0">
+                <td class="px-3 py-2 text-ink">{{ item.productName }}</td>
+                <td class="px-3 py-2 text-ink">{{ item.productSku }}</td>
+                <td class="px-3 py-2">{{ item.sourceQuantity }}</td>
+                <td class="px-3 py-2">{{ item.requestedQuantity }}</td>
+                @if (isCustomer()) {
+                  <td class="px-3 py-2">{{ item.receivedQuantity }}</td>
+                  <td class="px-3 py-2">{{ item.restockedQuantity }}</td>
+                  <td class="px-3 py-2">{{ item.quarantinedQuantity }}</td>
+                  <td class="px-3 py-2">{{ item.discardedQuantity }}</td>
+                  <td class="px-3 py-2">{{ item.rejectedQuantity }}</td>
+                  <td class="px-3 py-2">{{ item.condition ? conditionLabel(item.condition) : '—' }}</td>
+                } @else {
+                  <td class="px-3 py-2">{{ item.dispatchedQuantity }}</td>
+                }
+                <td class="whitespace-nowrap px-3 py-2">{{ item.unitValueSnapshot | currency: 'BRL' }}</td>
+                <td class="whitespace-nowrap px-3 py-2">{{ item.lineEstimatedAmount | currency: 'BRL' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
+      <h2 class="text-lg font-semibold text-ink">Financial intent</h2>
+      <p class="mt-1 text-sm text-muted">
+        Display only. Returns do not create settlements here; finance titles stay pending until linked by the server.
+      </p>
+      <dl class="mt-4 grid gap-3 sm:grid-cols-2">
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-muted">Treatment</dt>
+          <dd class="mt-1 text-sm text-ink">{{ financialTreatmentLabel(current.financialTreatment) }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-muted">Status</dt>
+          <dd class="mt-1 text-sm text-ink">{{ financialStatusLabel(current.financialStatus) }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-muted">Estimated financial amount</dt>
+          <dd class="mt-1 text-sm text-ink">{{ current.estimatedFinancialAmount | currency: 'BRL' }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-muted">Linked title</dt>
+          <dd class="mt-1 text-sm text-ink">
+            {{ current.financialTitleId || 'Not linked' }}
+          </dd>
+        </div>
+      </dl>
+      @if (current.financialNotes) {
+        <p class="mt-3 text-sm text-ink"><span class="text-muted">Notes:</span> {{ current.financialNotes }}</p>
+      }
+    </section>
+
+    <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
+      <h2 class="text-lg font-semibold text-ink">History</h2>
+      @if (historyLoading()) {
+        <p class="mt-3 text-sm text-muted">Loading history...</p>
+      } @else if (historyError()) {
+        <p class="mt-3 text-sm text-danger" role="alert">{{ historyError() }}</p>
+      } @else if (history().length === 0) {
+        <p class="mt-3 text-sm text-muted">No history events yet.</p>
+      } @else {
+        <ol class="mt-4 space-y-3 border-l border-line pl-4">
+          @for (entry of history(); track entry.id) {
+            <li>
+              <p class="text-sm font-medium text-ink">{{ entry.action }} · {{ entry.outcome }}</p>
+              <p class="text-xs text-muted">{{ entry.occurredAtUtc | date: 'dd/MM/yyyy HH:mm' }}</p>
+              @if (entry.details) {
+                <p class="mt-1 text-sm text-ink">{{ entry.details }}</p>
+              }
+            </li>
+          }
+        </ol>
+      }
+    </section>
+
+    <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
+      <h2 class="text-lg font-semibold text-ink">Stock movements</h2>
+      <p class="mt-1 text-sm text-muted">Read-only. Stock is updated only by the backend.</p>
+      @if (movementsLoading()) {
+        <p class="mt-3 text-sm text-muted">Loading movements...</p>
+      } @else if (movementsError()) {
+        <p class="mt-3 text-sm text-danger" role="alert">{{ movementsError() }}</p>
+      } @else if (movements().length === 0) {
+        <p class="mt-3 text-sm text-muted">No stock movements for this return yet.</p>
+      } @else {
+        <div class="mt-4 overflow-x-auto">
+          <table class="min-w-full text-left text-sm">
+            <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
+              <tr>
+                <th class="px-3 py-2">Product</th>
+                <th class="px-3 py-2">Type</th>
+                <th class="px-3 py-2">Qty</th>
+                <th class="px-3 py-2">Previous</th>
+                <th class="px-3 py-2">New</th>
+                <th class="px-3 py-2">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (movement of movements(); track movement.id) {
+                <tr class="border-b border-line/70 last:border-0">
+                  <td class="px-3 py-2">{{ movement.productName }} ({{ movement.sku }})</td>
+                  <td class="px-3 py-2">{{ movementLabel(movement.movementType) }}</td>
+                  <td class="px-3 py-2">{{ movement.quantity }}</td>
+                  <td class="px-3 py-2">{{ movement.previousQuantity }}</td>
+                  <td class="px-3 py-2">{{ movement.newQuantity }}</td>
+                  <td class="whitespace-nowrap px-3 py-2">{{ movement.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  }
+</section>

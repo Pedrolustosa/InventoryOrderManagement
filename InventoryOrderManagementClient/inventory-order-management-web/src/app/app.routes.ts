@@ -73,6 +73,12 @@ export const routes: Routes = [
         loadChildren: () => import('./features/purchases/purchases.routes').then((m) => m.PURCHASES_ROUTES),
       },
       {
+        path: 'returns',
+        canActivate: [permissionGuard('Returns.View')],
+        data: { title: 'Returns', breadcrumb: 'Returns' },
+        loadChildren: () => import('./features/returns/returns.routes').then((m) => m.RETURNS_ROUTES),
+      },
+      {
         path: 'finance',
         data: { title: 'Finance', breadcrumb: 'Finance' },
         loadChildren: () => import('./features/finance/finance.routes').then((m) => m.FINANCE_ROUTES),

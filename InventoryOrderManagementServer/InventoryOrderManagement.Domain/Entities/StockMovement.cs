@@ -26,6 +26,10 @@ public class StockMovement
 
     public Guid? PurchaseReceiptId { get; private set; }
 
+    public Guid? ReturnRequestId { get; private set; }
+
+    public Guid? ReturnItemId { get; private set; }
+
     public StockMovementType MovementType { get; private set; }
 
     public int Quantity { get; private set; }
@@ -67,7 +71,11 @@ public class StockMovement
             throw new DomainException("Stock quantities cannot be negative.");
         }
 
-        if (movementType is StockMovementType.OrderExit or StockMovementType.OrderCancellationReturn or StockMovementType.PurchaseEntry)
+        if (movementType is StockMovementType.OrderExit
+            or StockMovementType.OrderCancellationReturn
+            or StockMovementType.PurchaseEntry
+            or StockMovementType.CustomerReturnEntry
+            or StockMovementType.SupplierReturnExit)
         {
             throw new DomainException("This movement type must be created with its own reference.");
         }
@@ -103,6 +111,8 @@ public class StockMovement
             orderId: null,
             purchaseOrderId: null,
             purchaseReceiptId: null,
+            returnRequestId: null,
+            returnItemId: null,
             movementType,
             quantity,
             previousQuantity,
@@ -159,6 +169,8 @@ public class StockMovement
             orderId,
             purchaseOrderId: null,
             purchaseReceiptId: null,
+            returnRequestId: null,
+            returnItemId: null,
             movementType,
             quantity,
             previousQuantity,
@@ -214,7 +226,129 @@ public class StockMovement
             orderId: null,
             purchaseOrderId,
             purchaseReceiptId,
+            returnRequestId: null,
+            returnItemId: null,
             StockMovementType.PurchaseEntry,
+            quantity,
+            previousQuantity,
+            newQuantity,
+            NormalizeReason(reason, required: false));
+    }
+
+    public static StockMovement CreateForCustomerReturn(
+        Guid productId,
+        Guid orderId,
+        Guid returnRequestId,
+        Guid returnItemId,
+        int quantity,
+        int previousQuantity,
+        int newQuantity,
+        string? reason)
+    {
+        if (productId == Guid.Empty)
+        {
+            throw new DomainException("Product is required.");
+        }
+
+        if (orderId == Guid.Empty)
+        {
+            throw new DomainException("Order is required.");
+        }
+
+        if (returnRequestId == Guid.Empty)
+        {
+            throw new DomainException("Return request is required.");
+        }
+
+        if (returnItemId == Guid.Empty)
+        {
+            throw new DomainException("Return item is required.");
+        }
+
+        if (quantity <= 0)
+        {
+            throw new DomainException("Quantity must be a positive integer.");
+        }
+
+        if (previousQuantity < 0 || newQuantity < 0)
+        {
+            throw new DomainException("Stock quantities cannot be negative.");
+        }
+
+        EnsureResult(previousQuantity + quantity, newQuantity, "customer return entry");
+
+        return Build(
+            productId,
+            supplierId: null,
+            orderId,
+            purchaseOrderId: null,
+            purchaseReceiptId: null,
+            returnRequestId,
+            returnItemId,
+            StockMovementType.CustomerReturnEntry,
+            quantity,
+            previousQuantity,
+            newQuantity,
+            NormalizeReason(reason, required: false));
+    }
+
+    public static StockMovement CreateForSupplierReturn(
+        Guid productId,
+        Guid supplierId,
+        Guid purchaseOrderId,
+        Guid returnRequestId,
+        Guid returnItemId,
+        int quantity,
+        int previousQuantity,
+        int newQuantity,
+        string? reason)
+    {
+        if (productId == Guid.Empty)
+        {
+            throw new DomainException("Product is required.");
+        }
+
+        if (supplierId == Guid.Empty)
+        {
+            throw new DomainException("Supplier is required.");
+        }
+
+        if (purchaseOrderId == Guid.Empty)
+        {
+            throw new DomainException("Purchase order is required.");
+        }
+
+        if (returnRequestId == Guid.Empty)
+        {
+            throw new DomainException("Return request is required.");
+        }
+
+        if (returnItemId == Guid.Empty)
+        {
+            throw new DomainException("Return item is required.");
+        }
+
+        if (quantity <= 0)
+        {
+            throw new DomainException("Quantity must be a positive integer.");
+        }
+
+        if (previousQuantity < 0 || newQuantity < 0)
+        {
+            throw new DomainException("Stock quantities cannot be negative.");
+        }
+
+        EnsureResult(previousQuantity - quantity, newQuantity, "supplier return exit");
+
+        return Build(
+            productId,
+            supplierId,
+            orderId: null,
+            purchaseOrderId,
+            purchaseReceiptId: null,
+            returnRequestId,
+            returnItemId,
+            StockMovementType.SupplierReturnExit,
             quantity,
             previousQuantity,
             newQuantity,
@@ -227,6 +361,8 @@ public class StockMovement
         Guid? orderId,
         Guid? purchaseOrderId,
         Guid? purchaseReceiptId,
+        Guid? returnRequestId,
+        Guid? returnItemId,
         StockMovementType movementType,
         int quantity,
         int previousQuantity,
@@ -241,6 +377,8 @@ public class StockMovement
             OrderId = orderId,
             PurchaseOrderId = purchaseOrderId,
             PurchaseReceiptId = purchaseReceiptId,
+            ReturnRequestId = returnRequestId,
+            ReturnItemId = returnItemId,
             MovementType = movementType,
             Quantity = quantity,
             PreviousQuantity = previousQuantity,

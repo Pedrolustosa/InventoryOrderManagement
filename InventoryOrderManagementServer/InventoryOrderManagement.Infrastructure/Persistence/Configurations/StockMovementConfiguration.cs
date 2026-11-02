@@ -71,11 +71,23 @@ public class StockMovementConfiguration : IEntityTypeConfiguration<StockMovement
             .HasForeignKey(movement => movement.PurchaseReceiptId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasOne<ReturnRequest>()
+            .WithMany()
+            .HasForeignKey(movement => movement.ReturnRequestId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<ReturnItem>()
+            .WithMany()
+            .HasForeignKey(movement => movement.ReturnItemId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasIndex(movement => new { movement.ProductId, movement.CreatedAtUtc });
         builder.HasIndex(movement => movement.SupplierId);
         builder.HasIndex(movement => movement.CreatedAtUtc);
         builder.HasIndex(movement => movement.OrderId);
         builder.HasIndex(movement => movement.PurchaseOrderId);
         builder.HasIndex(movement => movement.PurchaseReceiptId);
+        builder.HasIndex(movement => movement.ReturnRequestId);
+        builder.HasIndex(movement => movement.ReturnItemId);
     }
 }

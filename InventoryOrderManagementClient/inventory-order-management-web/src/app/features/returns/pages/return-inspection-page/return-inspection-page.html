@@ -1,0 +1,153 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">Inspect customer return</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">
+        Classify each received quantity. Restocked units are applied to stock only by the backend.
+      </p>
+    </div>
+    <a routerLink="/returns" class="btn-secondary">Back to returns</a>
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex items-center gap-3 text-muted" aria-busy="true">
+      <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
+      <span>Preparing inspection...</span>
+    </div>
+  } @else if (loadError()) {
+    <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
+      {{ loadError() }}
+    </div>
+  } @else if (ret(); as current) {
+    <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
+      <h2 class="text-lg font-semibold text-ink">{{ current.returnNumber }}</h2>
+      <p class="mt-2 text-sm text-muted">Customer: {{ current.customerName || '—' }}</p>
+    </section>
+
+    <div class="space-y-4">
+      @for (item of current.items; track item.id) {
+        <section class="rounded-xl border border-line bg-panel p-5 shadow-sm space-y-4">
+          <div>
+            <h3 class="text-base font-semibold text-ink">{{ item.productName }}</h3>
+            <p class="text-sm text-muted">
+              SKU {{ item.productSku }} · Requested {{ item.requestedQuantity }} · Received {{ item.receivedQuantity }}
+            </p>
+          </div>
+
+          <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <label class="block text-sm font-medium text-ink">
+              Condition
+              <select
+                class="field mt-1"
+                [value]="draftFor(item.id).condition"
+                (change)="patchDraft(item.id, { condition: $any($event.target).value })"
+              >
+                @for (condition of conditions; track condition) {
+                  <option [value]="condition">{{ conditionLabel(condition) }}</option>
+                }
+              </select>
+            </label>
+            <label class="block text-sm font-medium text-ink">
+              Restock
+              <input
+                type="number"
+                min="0"
+                class="field mt-1"
+                [value]="draftFor(item.id).restockedQuantity"
+                (input)="patchDraft(item.id, { restockedQuantity: $any($event.target).value })"
+              />
+            </label>
+            <label class="block text-sm font-medium text-ink">
+              Quarantine
+              <input
+                type="number"
+                min="0"
+                class="field mt-1"
+                [value]="draftFor(item.id).quarantinedQuantity"
+                (input)="patchDraft(item.id, { quarantinedQuantity: $any($event.target).value })"
+              />
+            </label>
+            <label class="block text-sm font-medium text-ink">
+              Discard
+              <input
+                type="number"
+                min="0"
+                class="field mt-1"
+                [value]="draftFor(item.id).discardedQuantity"
+                (input)="patchDraft(item.id, { discardedQuantity: $any($event.target).value })"
+              />
+            </label>
+            <label class="block text-sm font-medium text-ink">
+              Rejected
+              <input
+                type="number"
+                min="0"
+                class="field mt-1"
+                [value]="draftFor(item.id).rejectedQuantity"
+                (input)="patchDraft(item.id, { rejectedQuantity: $any($event.target).value })"
+              />
+            </label>
+            <div class="text-sm text-ink">
+              <p class="font-medium">Disposition sum</p>
+              <p class="mt-1" [class.text-danger]="dispositionSum(item.id) !== item.receivedQuantity">
+                {{ dispositionSum(item.id) }} / {{ item.receivedQuantity }}
+              </p>
+            </div>
+            <label class="block text-sm font-medium text-ink md:col-span-2 xl:col-span-3">
+              Inspection notes
+              <textarea
+                class="field mt-1 min-h-20"
+                [value]="draftFor(item.id).inspectionNotes"
+                (input)="patchDraft(item.id, { inspectionNotes: $any($event.target).value })"
+              ></textarea>
+            </label>
+          </div>
+        </section>
+      }
+    </div>
+
+    <label class="block text-sm font-medium text-ink">
+      Overall notes
+      <textarea class="field mt-1 min-h-20" [value]="notes()" (input)="notes.set($any($event.target).value)"></textarea>
+    </label>
+
+    @if (formError()) {
+      <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
+        {{ formError() }}
+      </div>
+    }
+
+    <div class="flex justify-end gap-2">
+      <a [routerLink]="['/returns', current.id]" class="btn-secondary">Cancel</a>
+      <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="review()">Review inspection</button>
+    </div>
+
+    @if (showConfirm()) {
+      <div class="fixed inset-0 z-40 flex items-center justify-center bg-ink/40 p-4" role="dialog" aria-modal="true">
+        <div class="w-full max-w-xl rounded-xl border border-line bg-panel p-5 shadow-lg">
+          <h2 class="text-lg font-semibold text-ink">Confirm inspection</h2>
+          <p class="mt-2 text-sm text-muted">Only restocked quantities will enter available stock.</p>
+          <ul class="mt-4 max-h-64 space-y-2 overflow-y-auto text-sm text-ink">
+            @for (item of current.items; track item.id) {
+              <li>
+                {{ item.productSku }} · restock {{ draftFor(item.id).restockedQuantity }}, quarantine
+                {{ draftFor(item.id).quarantinedQuantity }}, discard {{ draftFor(item.id).discardedQuantity }}, rejected
+                {{ draftFor(item.id).rejectedQuantity }}
+              </li>
+            }
+          </ul>
+          <div class="mt-5 flex justify-end gap-2">
+            <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="dismissConfirm()">Back</button>
+            <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="confirm()">
+              @if (isSubmitting()) {
+                Saving...
+              } @else {
+                Complete inspection
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  }
+</section>

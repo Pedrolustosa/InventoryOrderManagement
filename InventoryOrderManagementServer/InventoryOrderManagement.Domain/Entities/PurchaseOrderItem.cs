@@ -25,11 +25,18 @@ public class PurchaseOrderItem
 
     public int ReceivedQuantity { get; private set; }
 
+    /// <summary>
+    /// Units dispatched back to the supplier on completed supplier returns.
+    /// </summary>
+    public int SupplierReturnedQuantity { get; private set; }
+
     public decimal UnitCost { get; private set; }
 
     public decimal LineTotal { get; private set; }
 
     public int PendingQuantity => OrderedQuantity - ReceivedQuantity;
+
+    public int AvailableToReturnToSupplier => Math.Max(ReceivedQuantity - SupplierReturnedQuantity, 0);
 
     public static PurchaseOrderItem Create(
         Guid productId,
@@ -63,9 +70,26 @@ public class PurchaseOrderItem
             ProductName = NormalizeRequired(productName, Product.NameMaxLength, "Product name"),
             OrderedQuantity = orderedQuantity,
             ReceivedQuantity = 0,
+            SupplierReturnedQuantity = 0,
             UnitCost = cost,
             LineTotal = decimal.Round(orderedQuantity * cost, 2, MidpointRounding.AwayFromZero)
         };
+    }
+
+    internal void RegisterSupplierReturn(int quantity)
+    {
+        if (quantity <= 0)
+        {
+            throw new DomainException("Returned quantity must be a positive integer.");
+        }
+
+        if (quantity > AvailableToReturnToSupplier)
+        {
+            throw new ReturnConflictException(
+                "Returned quantity exceeds the quantity available to return on this purchase order item.");
+        }
+
+        SupplierReturnedQuantity += quantity;
     }
 
     internal void AssignPurchaseOrder(Guid purchaseOrderId)

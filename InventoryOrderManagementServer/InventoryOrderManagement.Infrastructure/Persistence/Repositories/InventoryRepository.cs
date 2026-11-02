@@ -110,6 +110,11 @@ public class InventoryRepository : IInventoryRepository
             rows = rows.Where(row => row.movement.SupplierId == query.SupplierId.Value);
         }
 
+        if (query.ReturnRequestId.HasValue)
+        {
+            rows = rows.Where(row => row.movement.ReturnRequestId == query.ReturnRequestId.Value);
+        }
+
         if (query.MovementType.HasValue)
         {
             rows = rows.Where(row => row.movement.MovementType == query.MovementType.Value);
@@ -137,6 +142,8 @@ public class InventoryRepository : IInventoryRepository
                 SupplierId = row.movement.SupplierId,
                 SupplierName = row.supplier != null ? row.supplier.Name : null,
                 OrderId = row.movement.OrderId,
+                ReturnRequestId = row.movement.ReturnRequestId,
+                ReturnItemId = row.movement.ReturnItemId,
                 MovementType = row.movement.MovementType,
                 Quantity = row.movement.Quantity,
                 PreviousQuantity = row.movement.PreviousQuantity,

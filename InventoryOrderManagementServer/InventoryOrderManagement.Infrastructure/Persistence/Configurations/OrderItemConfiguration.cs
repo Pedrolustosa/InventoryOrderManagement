@@ -11,6 +11,7 @@ public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
         builder.ToTable("OrderItems", table =>
         {
             table.HasCheckConstraint("CK_OrderItems_Quantity", "\"Quantity\" > 0");
+            table.HasCheckConstraint("CK_OrderItems_ReturnedQuantity", "\"ReturnedQuantity\" >= 0");
             table.HasCheckConstraint("CK_OrderItems_UnitPrice", "\"UnitPrice\" >= 0");
             table.HasCheckConstraint("CK_OrderItems_LineTotal", "\"LineTotal\" >= 0");
         });
@@ -37,6 +38,9 @@ public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
             .HasMaxLength(Product.NameMaxLength);
 
         builder.Property(item => item.Quantity)
+            .IsRequired();
+
+        builder.Property(item => item.ReturnedQuantity)
             .IsRequired();
 
         builder.Property(item => item.UnitPrice)

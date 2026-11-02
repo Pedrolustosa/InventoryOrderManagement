@@ -8,5 +8,7 @@ public enum StockMovementType
     AdjustmentDecrease = 3,
     OrderExit = 4,
     OrderCancellationReturn = 5,
-    PurchaseEntry = 6
+    PurchaseEntry = 6,
+    CustomerReturnEntry = 7,
+    SupplierReturnExit = 8
 }

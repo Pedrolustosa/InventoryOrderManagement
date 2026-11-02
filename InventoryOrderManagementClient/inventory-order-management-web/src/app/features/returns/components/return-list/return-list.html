@@ -1,0 +1,128 @@
+<section class="rounded-xl border border-line bg-panel shadow-sm" aria-live="polite">
+  @if (isLoading()) {
+    <div class="flex items-center gap-3 px-5 py-10 text-muted" aria-busy="true">
+      <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
+      <span>Loading returns...</span>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="px-5 py-8 text-sm text-danger" role="alert">{{ errorMessage() }}</div>
+  } @else if (returns().length === 0) {
+    <div class="px-5 py-12 text-center">
+      <p class="text-base font-medium text-ink">No returns found</p>
+      <p class="mt-2 text-sm text-muted">{{ emptyMessage() }}</p>
+      @if (createPath() && createPermission()) {
+        <button
+          *hasPermission="createPermission()!"
+          type="button"
+          class="btn-primary mt-4"
+          (click)="createRequested.emit()"
+        >
+          {{ createLabel() }}
+        </button>
+      }
+    </div>
+  } @else {
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-left text-sm">
+        <thead class="border-b border-line bg-surface/80 text-xs uppercase tracking-wide text-muted">
+          <tr>
+            <th class="px-4 py-3 font-semibold">Number</th>
+            <th class="px-4 py-3 font-semibold">Type</th>
+            <th class="px-4 py-3 font-semibold">Counterpart</th>
+            <th class="px-4 py-3 font-semibold">Source</th>
+            <th class="px-4 py-3 font-semibold">Items</th>
+            <th class="px-4 py-3 font-semibold">Estimated</th>
+            <th class="px-4 py-3 font-semibold">Status</th>
+            <th class="px-4 py-3 font-semibold">Created</th>
+            <th class="px-4 py-3 font-semibold">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of returns(); track item.id) {
+            <tr class="border-b border-line/70 last:border-0">
+              <td class="whitespace-nowrap px-4 py-3 font-medium text-ink">{{ item.returnNumber }}</td>
+              <td class="px-4 py-3 text-ink">{{ typeLabel(item.type) }}</td>
+              <td class="px-4 py-3 text-ink">{{ counterpart(item) }}</td>
+              <td class="px-4 py-3 text-ink">{{ item.sourceReference || '—' }}</td>
+              <td class="px-4 py-3 text-ink">{{ item.itemCount }}</td>
+              <td class="whitespace-nowrap px-4 py-3 text-ink">{{ item.estimatedAmount | currency: 'BRL' }}</td>
+              <td class="px-4 py-3">
+                <span [class]="statusClass(item.status)">{{ statusLabel(item.status) }}</span>
+              </td>
+              <td class="whitespace-nowrap px-4 py-3 text-muted">
+                {{ item.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex flex-wrap gap-2">
+                  <button type="button" class="btn-secondary !px-2.5 !py-1 text-xs" (click)="viewRequested.emit(item)">
+                    View
+                  </button>
+                  @if (canEdit(item.type, item.status)) {
+                    <button
+                      *hasPermission="editPermission(item.type)"
+                      type="button"
+                      class="btn-secondary !px-2.5 !py-1 text-xs"
+                      (click)="editRequested.emit(item)"
+                    >
+                      Edit
+                    </button>
+                  }
+                  @if (canReceive(item.type, item.status)) {
+                    <button
+                      *hasPermission="'Returns.Customer.Receive'"
+                      type="button"
+                      class="btn-secondary !px-2.5 !py-1 text-xs"
+                      (click)="receiveRequested.emit(item)"
+                    >
+                      Receive
+                    </button>
+                  }
+                  @if (canInspect(item.type, item.status)) {
+                    <button
+                      *hasPermission="'Returns.Customer.Inspect'"
+                      type="button"
+                      class="btn-secondary !px-2.5 !py-1 text-xs"
+                      (click)="inspectRequested.emit(item)"
+                    >
+                      Inspect
+                    </button>
+                  }
+                  @if (canAuthorize(item.type, item.status)) {
+                    <button
+                      *hasPermission="'Returns.Supplier.Authorize'"
+                      type="button"
+                      class="btn-secondary !px-2.5 !py-1 text-xs"
+                      (click)="authorizeRequested.emit(item)"
+                    >
+                      Authorize
+                    </button>
+                  }
+                  @if (canDispatch(item.type, item.status)) {
+                    <button
+                      *hasPermission="'Returns.Supplier.Dispatch'"
+                      type="button"
+                      class="btn-secondary !px-2.5 !py-1 text-xs"
+                      (click)="dispatchRequested.emit(item)"
+                    >
+                      Dispatch
+                    </button>
+                  }
+                  @if (canCancel(item.type, item.status)) {
+                    <button
+                      *hasPermission="'Returns.Cancel'"
+                      type="button"
+                      class="btn-secondary !px-2.5 !py-1 text-xs text-danger"
+                      (click)="cancelRequested.emit(item)"
+                    >
+                      Cancel
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

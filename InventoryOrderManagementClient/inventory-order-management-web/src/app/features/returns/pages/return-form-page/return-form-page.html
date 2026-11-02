@@ -1,0 +1,165 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">{{ title() }}</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">
+        Select an eligible source document, choose quantities within the API limits, and submit without editing historical prices.
+      </p>
+    </div>
+    <a routerLink="/returns" class="btn-secondary">Back to returns</a>
+  </div>
+
+  @if (loadError()) {
+    <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
+      {{ loadError() }}
+    </div>
+  } @else if (isLoading() && !isEdit()) {
+    <div class="flex items-center gap-3 text-muted" aria-busy="true">
+      <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
+      <span>Loading eligible orders...</span>
+    </div>
+  } @else {
+    <form class="space-y-6" [formGroup]="form" (ngSubmit)="submit()">
+      @if (!isEdit()) {
+        <section class="rounded-xl border border-line bg-panel p-5 shadow-sm space-y-4">
+          <h2 class="text-lg font-semibold text-ink">
+            {{ returnType() === 'CustomerReturn' ? 'Sales order' : 'Purchase order' }}
+          </h2>
+          <label class="block text-sm font-medium text-ink">
+            Search
+            <input
+              type="search"
+              class="field mt-1"
+              [value]="sourceSearch()"
+              (input)="sourceSearch.set($any($event.target).value)"
+              placeholder="Number or counterpart"
+            />
+          </label>
+          <label class="block text-sm font-medium text-ink">
+            Source document
+            <select
+              class="field mt-1"
+              [value]="selectedSourceId()"
+              (change)="selectSource($any($event.target).value)"
+            >
+              <option value="">Select...</option>
+              @for (option of filteredSources(); track option.id) {
+                <option [value]="option.id">{{ sourceLabel(option) }}</option>
+              }
+            </select>
+          </label>
+        </section>
+      } @else if (editing(); as current) {
+        <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
+          <h2 class="text-lg font-semibold text-ink">{{ current.returnNumber }}</h2>
+          <p class="mt-2 text-sm text-muted">Source: {{ current.sourceReference || '—' }}</p>
+        </section>
+      }
+
+      <section class="rounded-xl border border-line bg-panel p-5 shadow-sm space-y-4">
+        <h2 class="text-lg font-semibold text-ink">Return details</h2>
+        <div class="grid gap-4 md:grid-cols-2">
+          <label class="block text-sm font-medium text-ink">
+            Reason
+            <select class="field mt-1" formControlName="reason">
+              @for (reason of reasons; track reason) {
+                <option [value]="reason">{{ reasonLabel(reason) }}</option>
+              }
+            </select>
+          </label>
+          <label class="block text-sm font-medium text-ink">
+            Financial treatment
+            <select class="field mt-1" formControlName="financialTreatment">
+              @for (treatment of financialTreatments(); track treatment) {
+                <option [value]="treatment">{{ financialLabel(treatment) }}</option>
+              }
+            </select>
+          </label>
+          <label class="block text-sm font-medium text-ink md:col-span-2">
+            Reason description
+            <textarea class="field mt-1 min-h-20" formControlName="reasonDescription" [attr.maxlength]="reasonDescriptionMax"></textarea>
+          </label>
+          <label class="block text-sm font-medium text-ink md:col-span-2">
+            Notes
+            <textarea class="field mt-1 min-h-20" formControlName="notes" [attr.maxlength]="notesMax"></textarea>
+          </label>
+          <label class="block text-sm font-medium text-ink md:col-span-2">
+            Financial notes
+            <textarea class="field mt-1 min-h-20" formControlName="financialNotes" [attr.maxlength]="notesMax"></textarea>
+          </label>
+        </div>
+      </section>
+
+      <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <h2 class="text-lg font-semibold text-ink">Eligible items</h2>
+          <p class="text-sm text-muted">Estimated total: {{ estimatedTotal() | currency: 'BRL' }}</p>
+        </div>
+
+        @if (isLoadingItems()) {
+          <p class="mt-4 text-sm text-muted">Loading eligible items...</p>
+        } @else if (!selectedSourceId() && !isEdit()) {
+          <p class="mt-4 text-sm text-muted">Select a source document to load eligible items.</p>
+        } @else if (eligibleItems().length === 0) {
+          <p class="mt-4 text-sm text-muted">No items are available to return for this document.</p>
+        } @else {
+          <div class="mt-4 overflow-x-auto">
+            <table class="min-w-full text-left text-sm">
+              <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
+                <tr>
+                  <th class="px-3 py-2">Product</th>
+                  <th class="px-3 py-2">SKU</th>
+                  <th class="px-3 py-2">Source qty</th>
+                  <th class="px-3 py-2">Previously returned</th>
+                  <th class="px-3 py-2">Available</th>
+                  <th class="px-3 py-2">Requested</th>
+                  <th class="px-3 py-2">Unit value</th>
+                  <th class="px-3 py-2">Line total</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of eligibleItems(); track item.sourceItemId) {
+                  <tr class="border-b border-line/70 last:border-0">
+                    <td class="px-3 py-2">{{ item.productName }}</td>
+                    <td class="px-3 py-2">{{ item.productSku }}</td>
+                    <td class="px-3 py-2">{{ item.sourceQuantity }}</td>
+                    <td class="px-3 py-2">{{ item.previouslyReturnedQuantity }}</td>
+                    <td class="px-3 py-2">{{ item.availableToReturn }}</td>
+                    <td class="px-3 py-2">
+                      <input
+                        type="number"
+                        min="0"
+                        class="field w-24"
+                        [value]="quantityFor(item.sourceItemId)"
+                        (input)="setQuantity(item.sourceItemId, $any($event.target).value)"
+                      />
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-2">{{ item.unitValueSnapshot | currency: 'BRL' }}</td>
+                    <td class="whitespace-nowrap px-3 py-2">{{ lineTotal(item) | currency: 'BRL' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+
+      @if (formError()) {
+        <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
+          {{ formError() }}
+        </div>
+      }
+
+      <div class="flex justify-end gap-2">
+        <a routerLink="/returns" class="btn-secondary">Cancel</a>
+        <button type="submit" class="btn-primary" [disabled]="isSubmitting()">
+          @if (isSubmitting()) {
+            Saving...
+          } @else {
+            Save return
+          }
+        </button>
+      </div>
+    </form>
+  }
+</section>

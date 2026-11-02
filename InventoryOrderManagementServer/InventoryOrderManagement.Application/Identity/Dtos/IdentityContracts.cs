@@ -152,6 +152,8 @@ public sealed class SecurityAuditQuery
 
     public string? EntityType { get; init; }
 
+    public string? EntityId { get; init; }
+
     public DateTime? StartDateUtc { get; init; }
 
     public DateTime? EndDateUtc { get; init; }

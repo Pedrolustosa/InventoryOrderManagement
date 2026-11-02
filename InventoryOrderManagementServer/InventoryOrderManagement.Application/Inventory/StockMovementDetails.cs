@@ -21,6 +21,10 @@ public sealed class StockMovementDetails
 
     public Guid? OrderId { get; init; }
 
+    public Guid? ReturnRequestId { get; init; }
+
+    public Guid? ReturnItemId { get; init; }
+
     public required StockMovementType MovementType { get; init; }
 
     public required int Quantity { get; init; }
