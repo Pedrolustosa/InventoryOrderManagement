@@ -1,0 +1,92 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">Dispatch supplier return</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">
+        Dispatch reduces available stock and creates exit movements. It does not confirm supplier receipt or finance settlement.
+      </p>
+    </div>
+    <a routerLink="/returns" class="btn-secondary">Back to returns</a>
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex items-center gap-3 text-muted" aria-busy="true">
+      <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
+      <span>Loading return...</span>
+    </div>
+  } @else if (loadError()) {
+    <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
+      {{ loadError() }}
+    </div>
+  } @else if (ret(); as current) {
+    <section class="rounded-xl border border-line bg-panel p-5 shadow-sm space-y-3">
+      <h2 class="text-lg font-semibold text-ink">{{ current.returnNumber }}</h2>
+      <dl class="grid gap-3 sm:grid-cols-2 text-sm">
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-muted">Supplier</dt>
+          <dd class="mt-1 text-ink">{{ current.supplierName || '—' }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-muted">Source</dt>
+          <dd class="mt-1 text-ink">{{ current.sourceReference || '—' }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-muted">Authorization ref.</dt>
+          <dd class="mt-1 text-ink">{{ current.authorizationReference || '—' }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-muted">Estimated amount</dt>
+          <dd class="mt-1 text-ink">{{ current.estimatedAmount | currency: 'BRL' }}</dd>
+        </div>
+      </dl>
+      <ul class="space-y-1 text-sm text-ink">
+        @for (item of current.items; track item.id) {
+          <li>{{ item.productSku }} · {{ item.productName }} · qty {{ item.requestedQuantity }}</li>
+        }
+      </ul>
+    </section>
+
+    <form class="rounded-xl border border-line bg-panel p-5 shadow-sm space-y-4" [formGroup]="form" (ngSubmit)="review()">
+      <label class="block text-sm font-medium text-ink">
+        Dispatch reference
+        <input class="field mt-1" formControlName="dispatchReference" />
+      </label>
+      <label class="block text-sm font-medium text-ink">
+        Notes
+        <textarea class="field mt-1 min-h-20" formControlName="notes" [attr.maxlength]="notesMax"></textarea>
+      </label>
+
+      @if (formError()) {
+        <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
+          {{ formError() }}
+        </div>
+      }
+
+      <div class="flex justify-end gap-2">
+        <a [routerLink]="['/returns', current.id]" class="btn-secondary">Cancel</a>
+        <button type="submit" class="btn-primary" [disabled]="isSubmitting()">Review dispatch</button>
+      </div>
+    </form>
+
+    @if (showConfirm()) {
+      <div class="fixed inset-0 z-40 flex items-center justify-center bg-ink/40 p-4" role="dialog" aria-modal="true">
+        <div class="w-full max-w-lg rounded-xl border border-line bg-panel p-5 shadow-lg">
+          <h2 class="text-lg font-semibold text-ink">Confirm dispatch</h2>
+          <p class="mt-2 text-sm text-muted">
+            This reduces available stock and generates exit movements for the authorized quantities.
+          </p>
+          <div class="mt-5 flex justify-end gap-2">
+            <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="dismissConfirm()">Back</button>
+            <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="confirm()">
+              @if (isSubmitting()) {
+                Saving...
+              } @else {
+                Dispatch
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  }
+</section>

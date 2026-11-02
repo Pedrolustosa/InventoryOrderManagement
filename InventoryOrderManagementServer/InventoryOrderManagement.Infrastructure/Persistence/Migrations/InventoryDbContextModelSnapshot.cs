@@ -548,6 +548,9 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("ReturnedQuantity")
+                        .HasColumnType("INTEGER");
+
                     b.Property<decimal>("UnitPrice")
                         .HasPrecision(18, 2)
                         .HasColumnType("TEXT");
@@ -564,6 +567,8 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                             t.HasCheckConstraint("CK_OrderItems_LineTotal", "\"LineTotal\" >= 0");
 
                             t.HasCheckConstraint("CK_OrderItems_Quantity", "\"Quantity\" > 0");
+
+                            t.HasCheckConstraint("CK_OrderItems_ReturnedQuantity", "\"ReturnedQuantity\" >= 0");
 
                             t.HasCheckConstraint("CK_OrderItems_UnitPrice", "\"UnitPrice\" >= 0");
                         });
@@ -713,6 +718,9 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                     b.Property<int>("ReceivedQuantity")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("SupplierReturnedQuantity")
+                        .HasColumnType("INTEGER");
+
                     b.Property<decimal>("UnitCost")
                         .HasPrecision(18, 2)
                         .HasColumnType("TEXT");
@@ -731,6 +739,8 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                             t.HasCheckConstraint("CK_PurchaseOrderItems_OrderedQuantity", "\"OrderedQuantity\" > 0");
 
                             t.HasCheckConstraint("CK_PurchaseOrderItems_ReceivedQuantity", "\"ReceivedQuantity\" >= 0");
+
+                            t.HasCheckConstraint("CK_PurchaseOrderItems_SupplierReturnedQuantity", "\"SupplierReturnedQuantity\" >= 0");
 
                             t.HasCheckConstraint("CK_PurchaseOrderItems_UnitCost", "\"UnitCost\" >= 0");
                         });
@@ -816,6 +826,264 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.ReturnItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Condition")
+                        .HasMaxLength(30)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("DiscardedQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("DispatchedQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("InspectedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("InspectedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("InspectionNotes")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("LineEstimatedAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("OrderItemId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("PreviouslyReturnedQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ProductSku")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("PurchaseOrderItemId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("QuarantinedQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ReceivedQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("RejectedQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("RequestedQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("RestockedQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("ReturnRequestId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("SourceQuantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("UnitValueSnapshot")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderItemId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("PurchaseOrderItemId");
+
+                    b.HasIndex("ReturnRequestId", "ProductId")
+                        .IsUnique();
+
+                    b.ToTable("ReturnItems", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ReturnItems_DiscardedQuantity", "\"DiscardedQuantity\" >= 0");
+
+                            t.HasCheckConstraint("CK_ReturnItems_DispatchedQuantity", "\"DispatchedQuantity\" >= 0");
+
+                            t.HasCheckConstraint("CK_ReturnItems_LineEstimatedAmount", "\"LineEstimatedAmount\" >= 0");
+
+                            t.HasCheckConstraint("CK_ReturnItems_QuarantinedQuantity", "\"QuarantinedQuantity\" >= 0");
+
+                            t.HasCheckConstraint("CK_ReturnItems_ReceivedQuantity", "\"ReceivedQuantity\" >= 0");
+
+                            t.HasCheckConstraint("CK_ReturnItems_RejectedQuantity", "\"RejectedQuantity\" >= 0");
+
+                            t.HasCheckConstraint("CK_ReturnItems_RequestedQuantity", "\"RequestedQuantity\" > 0");
+
+                            t.HasCheckConstraint("CK_ReturnItems_RestockedQuantity", "\"RestockedQuantity\" >= 0");
+
+                            t.HasCheckConstraint("CK_ReturnItems_UnitValueSnapshot", "\"UnitValueSnapshot\" >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.ReturnRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AuthorizationReference")
+                        .HasMaxLength(80)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("AuthorizedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CancellationReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("CancelledAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("CompletedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CustomerName")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DispatchReference")
+                        .HasMaxLength(80)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DispatchedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("EstimatedAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("EstimatedFinancialAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FinancialNotes")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FinancialStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("FinancialTitleId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FinancialTreatment")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("InspectedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("OrderId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("PurchaseOrderId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReasonDescription")
+                        .HasMaxLength(300)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("ReceivedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReturnNumber")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SourceReference")
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SupplierId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SupplierName")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAtUtc");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("PurchaseOrderId");
+
+                    b.HasIndex("ReturnNumber")
+                        .IsUnique();
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("SupplierId");
+
+                    b.HasIndex("Type");
+
+                    b.ToTable("ReturnRequests", (string)null);
+                });
+
             modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.StockMovement", b =>
                 {
                     b.Property<Guid>("Id")
@@ -855,6 +1123,12 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("ReturnItemId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ReturnRequestId")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid?>("SupplierId")
                         .HasColumnType("TEXT");
 
@@ -867,6 +1141,10 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                     b.HasIndex("PurchaseOrderId");
 
                     b.HasIndex("PurchaseReceiptId");
+
+                    b.HasIndex("ReturnItemId");
+
+                    b.HasIndex("ReturnRequestId");
 
                     b.HasIndex("SupplierId");
 
@@ -1218,10 +1496,12 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("InventoryOrderManagement.Domain.Entities.FinancialSettlement", null)
+                    b.HasOne("InventoryOrderManagement.Domain.Entities.FinancialSettlement", "Settlement")
                         .WithMany()
                         .HasForeignKey("FinancialSettlementId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Settlement");
                 });
 
             modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.Customer", b =>
@@ -1475,6 +1755,44 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.ReturnItem", b =>
+                {
+                    b.HasOne("InventoryOrderManagement.Domain.Entities.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("InventoryOrderManagement.Domain.Entities.ReturnRequest", null)
+                        .WithMany("Items")
+                        .HasForeignKey("ReturnRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.ReturnRequest", b =>
+                {
+                    b.HasOne("InventoryOrderManagement.Domain.Entities.Customer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("InventoryOrderManagement.Domain.Entities.Order", null)
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("InventoryOrderManagement.Domain.Entities.PurchaseOrder", null)
+                        .WithMany()
+                        .HasForeignKey("PurchaseOrderId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("InventoryOrderManagement.Domain.Entities.Supplier", null)
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
             modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.StockMovement", b =>
                 {
                     b.HasOne("InventoryOrderManagement.Domain.Entities.Order", null)
@@ -1496,6 +1814,16 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                     b.HasOne("InventoryOrderManagement.Domain.Entities.PurchaseReceipt", null)
                         .WithMany()
                         .HasForeignKey("PurchaseReceiptId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("InventoryOrderManagement.Domain.Entities.ReturnItem", null)
+                        .WithMany()
+                        .HasForeignKey("ReturnItemId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("InventoryOrderManagement.Domain.Entities.ReturnRequest", null)
+                        .WithMany()
+                        .HasForeignKey("ReturnRequestId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("InventoryOrderManagement.Domain.Entities.Supplier", null)
@@ -1573,6 +1901,11 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                 });
 
             modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.PurchaseReceipt", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.ReturnRequest", b =>
                 {
                     b.Navigation("Items");
                 });

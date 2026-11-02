@@ -116,6 +116,18 @@ public static class Permissions
         public const string ReportsView = "Finance.Reports.View";
     }
 
+    public static class Returns
+    {
+        public const string View = "Returns.View";
+        public const string CustomerCreate = "Returns.Customer.Create";
+        public const string CustomerReceive = "Returns.Customer.Receive";
+        public const string CustomerInspect = "Returns.Customer.Inspect";
+        public const string SupplierCreate = "Returns.Supplier.Create";
+        public const string SupplierAuthorize = "Returns.Supplier.Authorize";
+        public const string SupplierDispatch = "Returns.Supplier.Dispatch";
+        public const string Cancel = "Returns.Cancel";
+    }
+
     public static readonly IReadOnlyList<string> All =
     [
         Users.View,
@@ -175,7 +187,15 @@ public static class Permissions
         Finance.CashAccountsView,
         Finance.CashAccountsManage,
         Finance.CashFlowView,
-        Finance.ReportsView
+        Finance.ReportsView,
+        Returns.View,
+        Returns.CustomerCreate,
+        Returns.CustomerReceive,
+        Returns.CustomerInspect,
+        Returns.SupplierCreate,
+        Returns.SupplierAuthorize,
+        Returns.SupplierDispatch,
+        Returns.Cancel
     ];
 
     public static bool IsKnown(string permission) => All.Contains(permission);
@@ -226,6 +246,15 @@ public static class SecurityActions
     public const string CashAccountCreated = "CashAccountCreated";
     public const string CashAccountUpdated = "CashAccountUpdated";
     public const string CashAccountDeactivated = "CashAccountDeactivated";
+    public const string CustomerReturnCreated = "CustomerReturnCreated";
+    public const string SupplierReturnCreated = "SupplierReturnCreated";
+    public const string ReturnUpdated = "ReturnUpdated";
+    public const string CustomerReturnReceived = "CustomerReturnReceived";
+    public const string ReturnInspectionStarted = "ReturnInspectionStarted";
+    public const string ReturnInspectionCompleted = "ReturnInspectionCompleted";
+    public const string SupplierReturnAuthorized = "SupplierReturnAuthorized";
+    public const string SupplierReturnDispatched = "SupplierReturnDispatched";
+    public const string ReturnCancelled = "ReturnCancelled";
 }
 
 public static class SecurityEntities
@@ -233,6 +262,7 @@ public static class SecurityEntities
     public const string User = "User";
     public const string Role = "Role";
     public const string Session = "Session";
+    public const string ReturnRequest = "ReturnRequest";
 }
 
 public static class SecurityOutcomes

@@ -145,6 +145,33 @@ public class Order
         Touch();
     }
 
+    /// <summary>
+    /// Records accepted customer-return quantities against order lines inside the same transaction
+    /// that completes the return. Bumps the aggregate concurrency token.
+    /// </summary>
+    public void RegisterCustomerReturn(IReadOnlyList<(Guid OrderItemId, int Quantity)> lines)
+    {
+        if (Status != OrderStatus.Delivered)
+        {
+            throw new InvalidOrderStatusException(Status);
+        }
+
+        if (lines is null || lines.Count == 0)
+        {
+            throw new DomainException("At least one return line is required.");
+        }
+
+        foreach (var line in lines)
+        {
+            var item = _items.SingleOrDefault(x => x.Id == line.OrderItemId)
+                ?? throw new ReturnConflictException("The item does not belong to this order.");
+
+            item.RegisterCustomerReturn(line.Quantity);
+        }
+
+        Touch();
+    }
+
     private void ReplaceItems(IReadOnlyList<OrderItem> items)
     {
         if (items is null || items.Count == 0)

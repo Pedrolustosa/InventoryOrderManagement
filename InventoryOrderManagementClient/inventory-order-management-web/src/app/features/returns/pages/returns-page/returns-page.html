@@ -1,0 +1,135 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">{{ title() }}</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">{{ subtitle() }}</p>
+    </div>
+    @if (createPath(); as path) {
+      @if (createPermission(); as permission) {
+        <a *hasPermission="permission" [routerLink]="path" class="btn-primary shrink-0">{{ createLabel() }}</a>
+      }
+    }
+  </div>
+
+  <div class="space-y-3">
+    <div class="flex flex-wrap gap-2">
+      <button
+        type="button"
+        class="btn-secondary"
+        [class.!bg-accent]="statusFilter() === 'all'"
+        [class.!text-white]="statusFilter() === 'all'"
+        (click)="setStatus('all')"
+      >
+        All
+      </button>
+      @for (status of statuses; track status) {
+        <button
+          type="button"
+          class="btn-secondary"
+          [class.!bg-accent]="statusFilter() === status"
+          [class.!text-white]="statusFilter() === status"
+          (click)="setStatus(status)"
+        >
+          {{ statusLabel(status) }}
+        </button>
+      }
+      <button type="button" class="btn-secondary" (click)="clearFilters()">Clear</button>
+    </div>
+
+    <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <label class="block text-sm font-medium text-ink">
+        Return number
+        <input
+          type="search"
+          class="field mt-1"
+          placeholder="Full return number"
+          [value]="returnNumber()"
+          (input)="returnNumber.set($any($event.target).value)"
+          (keydown.enter)="applyFilters()"
+        />
+      </label>
+      @if (fixedType() !== 'SupplierReturn') {
+        <label class="block text-sm font-medium text-ink">
+          Customer
+          <select class="field mt-1" [value]="customerId()" (change)="customerId.set($any($event.target).value)">
+            <option value="">All customers</option>
+            @for (customer of customers(); track customer.id) {
+              <option [value]="customer.id">{{ customer.name }}</option>
+            }
+          </select>
+        </label>
+      }
+      @if (fixedType() !== 'CustomerReturn') {
+        <label class="block text-sm font-medium text-ink">
+          Supplier
+          <select class="field mt-1" [value]="supplierId()" (change)="supplierId.set($any($event.target).value)">
+            <option value="">All suppliers</option>
+            @for (supplier of suppliers(); track supplier.id) {
+              <option [value]="supplier.id">{{ supplier.name }}</option>
+            }
+          </select>
+        </label>
+      }
+      <label class="block text-sm font-medium text-ink">
+        Start date
+        <input type="date" class="field mt-1" [value]="startDate()" (input)="startDate.set($any($event.target).value)" />
+      </label>
+      <label class="block text-sm font-medium text-ink">
+        End date
+        <input type="date" class="field mt-1" [value]="endDate()" (input)="endDate.set($any($event.target).value)" />
+      </label>
+    </div>
+    <button type="button" class="btn-secondary" (click)="applyFilters()">Apply filters</button>
+  </div>
+
+  @if (successMessage()) {
+    <div class="rounded-md border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent-ink" role="status">
+      {{ successMessage() }}
+    </div>
+  }
+
+  <p class="text-sm text-muted">{{ totalItems() }} returns</p>
+
+  @if (pendingCancel(); as item) {
+    <app-return-cancel-dialog
+      [returnNumber]="item.returnNumber"
+      [isSubmitting]="isActing()"
+      [errorMessage]="actionError()"
+      (confirmed)="confirmCancel($event)"
+      (dismissed)="closeCancel()"
+    />
+  }
+
+  <app-return-list
+    [returns]="returns()"
+    [isLoading]="isLoading()"
+    [errorMessage]="loadError()"
+    [emptyMessage]="emptyMessage()"
+    [createPath]="createPath()"
+    [createPermission]="createPermission()"
+    [createLabel]="createLabel()"
+    (viewRequested)="viewReturn($event)"
+    (editRequested)="editReturn($event)"
+    (receiveRequested)="receiveReturn($event)"
+    (inspectRequested)="inspectReturn($event)"
+    (authorizeRequested)="authorizeReturn($event)"
+    (dispatchRequested)="dispatchReturn($event)"
+    (cancelRequested)="openCancel($event)"
+    (createRequested)="openCreate()"
+  />
+
+  @if (totalPages() > 1) {
+    <div class="flex items-center justify-between gap-3">
+      <button type="button" class="btn-secondary" [disabled]="page() <= 1" (click)="goToPage(page() - 1)">Previous</button>
+      <p class="text-sm text-muted">Page {{ page() }} of {{ totalPages() }}</p>
+      <button
+        type="button"
+        class="btn-secondary"
+        [disabled]="page() >= totalPages()"
+        (click)="goToPage(page() + 1)"
+      >
+        Next
+      </button>
+    </div>
+  }
+</section>

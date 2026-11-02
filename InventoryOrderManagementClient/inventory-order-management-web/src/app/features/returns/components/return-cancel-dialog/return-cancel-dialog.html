@@ -1,0 +1,30 @@
+<div class="fixed inset-0 z-40 flex items-center justify-center bg-ink/40 p-4" role="dialog" aria-modal="true">
+  <div class="w-full max-w-lg rounded-xl border border-line bg-panel p-5 shadow-lg">
+    <h2 class="text-lg font-semibold text-ink">Cancel return</h2>
+    <p class="mt-2 text-sm text-muted">
+      Cancel return <span class="font-medium text-ink">{{ returnNumber() }}</span>? This cannot be undone.
+    </p>
+
+    <label class="mt-4 block text-sm font-medium text-ink">
+      Cancellation reason
+      <textarea class="field mt-1 min-h-24" [formControl]="reason" [attr.maxlength]="reasonMaxLength"></textarea>
+    </label>
+    @if (reasonError()) {
+      <p class="mt-1 text-sm text-danger" role="alert">{{ reasonError() }}</p>
+    }
+    @if (errorMessage()) {
+      <p class="mt-2 text-sm text-danger" role="alert">{{ errorMessage() }}</p>
+    }
+
+    <div class="mt-5 flex justify-end gap-2">
+      <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="dismiss()">Back</button>
+      <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="submit()">
+        @if (isSubmitting()) {
+          Cancelling...
+        } @else {
+          Confirm cancel
+        }
+      </button>
+    </div>
+  </div>
+</div>

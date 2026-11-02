@@ -49,6 +49,10 @@ public class InventoryDbContext : IdentityDbContext<ApplicationUser, Application
 
     public DbSet<CashMovement> CashMovements => Set<CashMovement>();
 
+    public DbSet<ReturnRequest> ReturnRequests => Set<ReturnRequest>();
+
+    public DbSet<ReturnItem> ReturnItems => Set<ReturnItem>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

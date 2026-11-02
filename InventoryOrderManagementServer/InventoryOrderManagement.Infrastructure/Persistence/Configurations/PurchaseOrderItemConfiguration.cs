@@ -12,6 +12,7 @@ public class PurchaseOrderItemConfiguration : IEntityTypeConfiguration<PurchaseO
         {
             table.HasCheckConstraint("CK_PurchaseOrderItems_OrderedQuantity", "\"OrderedQuantity\" > 0");
             table.HasCheckConstraint("CK_PurchaseOrderItems_ReceivedQuantity", "\"ReceivedQuantity\" >= 0");
+            table.HasCheckConstraint("CK_PurchaseOrderItems_SupplierReturnedQuantity", "\"SupplierReturnedQuantity\" >= 0");
             table.HasCheckConstraint("CK_PurchaseOrderItems_UnitCost", "\"UnitCost\" >= 0");
             table.HasCheckConstraint("CK_PurchaseOrderItems_LineTotal", "\"LineTotal\" >= 0");
         });
@@ -41,6 +42,9 @@ public class PurchaseOrderItemConfiguration : IEntityTypeConfiguration<PurchaseO
             .IsRequired();
 
         builder.Property(item => item.ReceivedQuantity)
+            .IsRequired();
+
+        builder.Property(item => item.SupplierReturnedQuantity)
             .IsRequired();
 
         builder.Property(item => item.UnitCost)

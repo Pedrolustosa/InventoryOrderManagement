@@ -212,6 +212,22 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                 StatusCodes.Status409Conflict,
                 "Financial conflict",
                 financialConflictException.Message),
+            ReturnNotFoundException returnNotFoundException => (
+                StatusCodes.Status404NotFound,
+                "Return not found",
+                returnNotFoundException.Message),
+            ReturnConflictException returnConflictException => (
+                StatusCodes.Status409Conflict,
+                "Return conflict",
+                returnConflictException.Message),
+            InvalidReturnStatusException invalidReturnStatusException => (
+                StatusCodes.Status409Conflict,
+                "Invalid return status",
+                invalidReturnStatusException.Message),
+            InvalidReturnPeriodException invalidReturnPeriodException => (
+                StatusCodes.Status400BadRequest,
+                "Invalid return period",
+                invalidReturnPeriodException.Message),
             InvalidReportRequestException invalidReportRequestException => (
                 StatusCodes.Status400BadRequest,
                 "Invalid report request",

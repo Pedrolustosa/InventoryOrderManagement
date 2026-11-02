@@ -97,6 +97,10 @@ import { NavIconName } from './navigation';
           <circle cx="12" cy="12" r="8" />
           <path d="M12 8v5l3 2" />
         }
+        @case ('undo') {
+          <path d="M9 14L4 9l5-5" />
+          <path d="M4 9h10a5 5 0 0 1 0 10h-3" />
+        }
       }
     </svg>
   `,

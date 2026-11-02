@@ -8,6 +8,7 @@ export const APP_MODULES = [
   { path: '/inventory', permission: 'Inventory.View' },
   { path: '/orders', permission: 'Orders.View' },
   { path: '/purchases', permission: 'Purchases.View' },
+  { path: '/returns', permission: 'Returns.View' },
   { path: '/reports', permission: 'Reports.View' },
   { path: '/users', permission: 'Users.View' },
   { path: '/roles', permission: 'Roles.View' },
@@ -55,6 +56,30 @@ export function resolveReturnUrl(permissions: readonly string[], returnUrl: stri
   }
 
   if (/^\/purchases\/[^/]+\/receive$/.test(returnUrl) && !permissions.includes('Purchases.Receive')) {
+    return firstAllowedPath(permissions);
+  }
+
+  if (returnUrl === '/returns/customer/new' && !permissions.includes('Returns.Customer.Create')) {
+    return firstAllowedPath(permissions);
+  }
+
+  if (returnUrl === '/returns/supplier/new' && !permissions.includes('Returns.Supplier.Create')) {
+    return firstAllowedPath(permissions);
+  }
+
+  if (/^\/returns\/[^/]+\/receive$/.test(returnUrl) && !permissions.includes('Returns.Customer.Receive')) {
+    return firstAllowedPath(permissions);
+  }
+
+  if (/^\/returns\/[^/]+\/inspection$/.test(returnUrl) && !permissions.includes('Returns.Customer.Inspect')) {
+    return firstAllowedPath(permissions);
+  }
+
+  if (/^\/returns\/[^/]+\/authorize$/.test(returnUrl) && !permissions.includes('Returns.Supplier.Authorize')) {
+    return firstAllowedPath(permissions);
+  }
+
+  if (/^\/returns\/[^/]+\/dispatch$/.test(returnUrl) && !permissions.includes('Returns.Supplier.Dispatch')) {
     return firstAllowedPath(permissions);
   }
 

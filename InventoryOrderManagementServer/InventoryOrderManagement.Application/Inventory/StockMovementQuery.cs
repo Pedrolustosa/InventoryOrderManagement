@@ -8,6 +8,8 @@ public sealed class StockMovementQuery
 
     public Guid? SupplierId { get; init; }
 
+    public Guid? ReturnRequestId { get; init; }
+
     public StockMovementType? MovementType { get; init; }
 
     public DateTime? StartDateUtc { get; init; }

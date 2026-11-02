@@ -15,7 +15,8 @@ export type NavIconName =
   | 'bank'
   | 'swap'
   | 'receipt'
-  | 'clock';
+  | 'clock'
+  | 'undo';
 
 export interface NavigationItem {
   label: string;
@@ -45,6 +46,9 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
       { label: 'Inventory', route: '/inventory', icon: 'archive', permission: 'Inventory.View' },
       { label: 'Purchases', route: '/purchases', icon: 'bag', permission: 'Purchases.View' },
       { label: 'Orders', route: '/orders', icon: 'clipboard', permission: 'Orders.View' },
+      { label: 'Returns', route: '/returns', icon: 'undo', permission: 'Returns.View' },
+      { label: 'Customer returns', route: '/returns/customer', icon: 'undo', permission: 'Returns.View' },
+      { label: 'Supplier returns', route: '/returns/supplier', icon: 'undo', permission: 'Returns.View' },
     ],
   },
   {

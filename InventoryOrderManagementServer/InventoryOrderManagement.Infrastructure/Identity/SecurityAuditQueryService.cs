@@ -57,6 +57,12 @@ public sealed class SecurityAuditQueryService : ISecurityAuditQuery
             logs = logs.Where(log => log.EntityType == entityType);
         }
 
+        if (!string.IsNullOrWhiteSpace(query.EntityId))
+        {
+            var entityId = query.EntityId.Trim();
+            logs = logs.Where(log => log.EntityId == entityId);
+        }
+
         if (query.StartDateUtc.HasValue)
         {
             logs = logs.Where(log => log.OccurredAtUtc >= query.StartDateUtc.Value);
