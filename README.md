@@ -106,7 +106,9 @@ The goal is to apply Clean Architecture, DDD where applicable, REST APIs, an Ang
 |---|---|
 | Angular 22 | SPA framework |
 | TypeScript | Static typing |
-| Tailwind CSS 4 | Utility-first styling |
+| Tailwind CSS 4 | Utility-first styling + design tokens |
+| Inter (`@fontsource/inter`) | Self-hosted UI typography |
+| `@ngx-translate` | Runtime bilingual UI (`pt-BR` default / `en`) |
 | Angular Router | Navigation and lazy-loaded features |
 | Reactive Forms | Forms and validation |
 | Signals and RxJS | Local state and async streams |
@@ -526,7 +528,10 @@ Items not present yet or candidates for evolution (no delivery commitment):
 
 - Angular 22 standalone
 - TypeScript, Reactive Forms, Signals, RxJS
-- Tailwind CSS 4
+- Tailwind CSS 4 design system (blue / green / orange tokens) and Inter typography
+- Branding assets under `InventoryOrderManagementClient/inventory-order-management-web/public/assets/branding/` (logo mark from the app icons)
+- Bilingual UI via `@ngx-translate` (`pt-BR` default, runtime `EN` switch; currency remains **BRL**)
+- Translation catalogs in `public/assets/i18n/`
 - Router guards and permissions
 - Cookie-based REST integration
 - Vitest unit tests

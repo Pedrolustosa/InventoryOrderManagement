@@ -1,4 +1,6 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -14,11 +16,12 @@ import { ShipmentsRequestError, ShipmentsService } from '../../services/shipment
 
 @Component({
   selector: 'app-shipment-create-page',
-  imports: [RouterLink, ReactiveFormsModule, CurrencyPipe, DatePipe],
+  imports: [RouterLink, ReactiveFormsModule, CurrencyPipe, DatePipe, TranslatePipe],
   templateUrl: './shipment-create-page.html',
 })
 export class ShipmentCreatePage implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
+  private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
   private readonly ordersService = inject(OrdersService);
   private readonly shipmentsService = inject(ShipmentsService);
@@ -126,13 +129,13 @@ export class ShipmentCreatePage implements OnInit {
 
     const order = this.selectedOrder();
     if (!order) {
-      this.formError.set('Select a confirmed sales order.');
+      this.formError.set('SHIPPING.FORM.ERR_SELECT_ORDER');
       return;
     }
 
     this.form.markAllAsTouched();
     if (this.form.invalid) {
-      this.formError.set('Fill the required transport fields before saving.');
+      this.formError.set('SHIPPING.FORM.ERR_REQUIRED_TRANSPORT');
       return;
     }
 
@@ -151,7 +154,7 @@ export class ShipmentCreatePage implements OnInit {
         next: (shipment) => {
           this.isSubmitting.set(false);
           void this.router.navigate(['/shipping', shipment.id], {
-            state: { successMessage: `Shipment for order ${shipment.orderNumber} was created.` },
+            state: { successMessage: this.translate.instant('SHIPPING.FORM.SUCCESS_CREATED', { orderNumber: shipment.orderNumber }) },
           });
         },
         error: (error: ShipmentsRequestError | Error) => {

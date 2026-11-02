@@ -1,4 +1,6 @@
 import { Component, effect, inject, input, output, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
+
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CreateCustomerRequest } from '../../models/create-customer-request.model';
 import { CustomerResponse } from '../../models/customer.model';
@@ -22,7 +24,7 @@ type CustomerFormControlName =
 
 @Component({
   selector: 'app-customer-form',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TranslatePipe],
   templateUrl: './customer-form.html',
 })
 export class CustomerForm {

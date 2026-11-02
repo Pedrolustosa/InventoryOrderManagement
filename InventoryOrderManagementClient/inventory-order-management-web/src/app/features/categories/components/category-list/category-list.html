@@ -2,26 +2,26 @@
   @if (isLoading()) {
     <div class="flex items-center gap-3 px-5 py-10 text-muted" aria-busy="true">
       <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
-      <span>Loading categories...</span>
+      <span>{{ 'CATEGORIES.LIST.LOADING' | translate }}</span>
     </div>
   } @else if (errorMessage()) {
     <div class="px-5 py-8 text-sm text-danger" role="alert">{{ errorMessage() }}</div>
   } @else if (categories().length === 0) {
     <div class="px-5 py-12 text-center">
-      <p class="text-base font-medium text-ink">No categories found</p>
-      <p class="mt-2 text-sm text-muted">Create a category or adjust your filters.</p>
+      <p class="text-base font-medium text-ink">{{ 'CATEGORIES.LIST.EMPTY_TITLE' | translate }}</p>
+      <p class="mt-2 text-sm text-muted">{{ 'CATEGORIES.LIST.EMPTY_BODY' | translate }}</p>
     </div>
   } @else {
     <div class="overflow-x-auto">
       <table class="min-w-full text-left text-sm">
         <thead class="border-b border-line bg-surface/80 text-xs uppercase tracking-wide text-muted">
           <tr>
-            <th class="px-4 py-3 font-semibold">Name</th>
-            <th class="px-4 py-3 font-semibold">Description</th>
-            <th class="px-4 py-3 font-semibold">Created At</th>
-            <th class="px-4 py-3 font-semibold">Updated At</th>
-            <th class="px-4 py-3 font-semibold">Status</th>
-            <th class="px-4 py-3 font-semibold">Actions</th>
+            <th class="px-4 py-3 font-semibold">{{ 'CATEGORIES.LIST.COL_NAME' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'CATEGORIES.LIST.COL_DESCRIPTION' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'CATEGORIES.LIST.COL_CREATED_AT' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'CATEGORIES.LIST.COL_UPDATED_AT' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'CATEGORIES.LIST.COL_STATUS' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'CATEGORIES.LIST.COL_ACTIONS' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -38,23 +38,23 @@
                 @if (category.updatedAtUtc) {
                   {{ category.updatedAtUtc | date: 'dd/MM/yyyy HH:mm' }}
                 } @else {
-                  —
+                  {{ 'COMMON.EMPTY' | translate }}
                 }
               </td>
               <td class="px-4 py-3">
                 @if (category.isActive) {
-                  <span class="badge-active">Active</span>
+                  <span class="badge-active">{{ 'COMMON.ACTIVE' | translate }}</span>
                 } @else {
-                  <span class="badge-inactive">Inactive</span>
+                  <span class="badge-inactive">{{ 'COMMON.INACTIVE' | translate }}</span>
                 }
               </td>
               <td class="px-4 py-3">
                 <div class="flex flex-wrap gap-2">
                   <button type="button" class="btn-secondary !px-2.5 !py-1 text-xs" (click)="viewRequested.emit(category)">
-                    View
+                    {{ 'COMMON.VIEW' | translate }}
                   </button>
                   <button *hasPermission="'Categories.Update'" type="button" class="btn-secondary !px-2.5 !py-1 text-xs" (click)="editRequested.emit(category)">
-                    Edit
+                    {{ 'COMMON.EDIT' | translate }}
                   </button>
                   @if (category.isActive) {
                     <button
@@ -63,7 +63,7 @@
                       class="btn-secondary !px-2.5 !py-1 text-xs text-danger"
                       (click)="deactivateRequested.emit(category)"
                     >
-                      Deactivate
+                      {{ 'COMMON.DEACTIVATE' | translate }}
                     </button>
                   }
                 </div>

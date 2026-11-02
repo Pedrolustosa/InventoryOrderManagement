@@ -5,6 +5,8 @@ import { environment } from '../../../../environments/environment';
 import { PagedResult, ShipmentFilters } from '../models/shipment-requests.model';
 import { Shipment, ShipmentSummary } from '../models/shipment.model';
 import { ShipmentsRequestError, ShipmentsService } from './shipments.service';
+import { provideTestTranslate } from '../../../core/i18n/testing/provide-test-translate';
+
 
 describe('ShipmentsService', () => {
   let service: ShipmentsService;
@@ -66,7 +68,7 @@ describe('ShipmentsService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), ShipmentsService],
+      providers: [...provideTestTranslate(), provideHttpClient(), provideHttpClientTesting(), ShipmentsService],
     });
     service = TestBed.inject(ShipmentsService);
     httpMock = TestBed.inject(HttpTestingController);

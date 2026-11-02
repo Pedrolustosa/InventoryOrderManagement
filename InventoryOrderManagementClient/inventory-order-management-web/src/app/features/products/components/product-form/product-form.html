@@ -1,7 +1,7 @@
 <form class="space-y-5" [formGroup]="form" (ngSubmit)="submit()" novalidate>
   <div class="grid gap-4 sm:grid-cols-2">
     <div class="space-y-1.5">
-      <label class="text-sm font-medium text-ink" for="sku">SKU</label>
+      <label class="text-sm font-medium text-ink" for="sku">{{ 'PRODUCTS.LIST.COL_SKU' | translate }}</label>
       <input
         id="sku"
         type="text"
@@ -14,16 +14,16 @@
       @if (controlInvalid('sku')) {
         <p class="text-sm text-danger" role="alert">
           @if (form.controls.sku.hasError('required')) {
-            SKU is required.
+            {{ 'PRODUCTS.FORM.SKU_REQUIRED' | translate }}
           } @else if (form.controls.sku.hasError('maxlength')) {
-            SKU cannot exceed 50 characters.
+            {{ 'PRODUCTS.FORM.SKU_MAX' | translate }}
           }
         </p>
       }
     </div>
 
     <div class="space-y-1.5">
-      <label class="text-sm font-medium text-ink" for="name">Product Name</label>
+      <label class="text-sm font-medium text-ink" for="name">{{ 'PRODUCTS.FORM.NAME' | translate }}</label>
       <input
         id="name"
         type="text"
@@ -36,9 +36,9 @@
       @if (controlInvalid('name')) {
         <p class="text-sm text-danger" role="alert">
           @if (form.controls.name.hasError('required')) {
-            Name is required.
+            {{ 'PRODUCTS.FORM.NAME_REQUIRED' | translate }}
           } @else if (form.controls.name.hasError('maxlength')) {
-            Name cannot exceed 150 characters.
+            {{ 'PRODUCTS.FORM.NAME_MAX' | translate }}
           }
         </p>
       }
@@ -46,7 +46,7 @@
   </div>
 
   <div class="space-y-1.5">
-    <label class="text-sm font-medium text-ink" for="categoryId">Category</label>
+    <label class="text-sm font-medium text-ink" for="categoryId">{{ 'PRODUCTS.LIST.COL_CATEGORY' | translate }}</label>
     <select
       id="categoryId"
       formControlName="categoryId"
@@ -54,18 +54,18 @@
       [class.field-error]="controlInvalid('categoryId')"
       [attr.aria-invalid]="controlInvalid('categoryId')"
     >
-      <option value="" disabled>Select a category</option>
+      <option value="" disabled>{{ 'PRODUCTS.FORM.SELECT_CATEGORY' | translate }}</option>
       @for (category of categories(); track category.id) {
         <option [value]="category.id">{{ category.name }}</option>
       }
     </select>
     @if (controlInvalid('categoryId')) {
-      <p class="text-sm text-danger" role="alert">Category is required.</p>
+      <p class="text-sm text-danger" role="alert">{{ 'PRODUCTS.FORM.CATEGORY_REQUIRED' | translate }}</p>
     }
   </div>
 
   <div class="space-y-1.5">
-    <label class="text-sm font-medium text-ink" for="description">Description</label>
+    <label class="text-sm font-medium text-ink" for="description">{{ 'PRODUCTS.LIST.COL_DESCRIPTION' | translate }}</label>
     <textarea
       id="description"
       rows="3"
@@ -75,12 +75,12 @@
       [attr.aria-invalid]="controlInvalid('description')"
     ></textarea>
     @if (controlInvalid('description')) {
-      <p class="text-sm text-danger" role="alert">Description cannot exceed 500 characters.</p>
+      <p class="text-sm text-danger" role="alert">{{ 'PRODUCTS.FORM.DESCRIPTION_MAX' | translate }}</p>
     }
   </div>
 
   <div class="max-w-xs space-y-1.5">
-    <label class="text-sm font-medium text-ink" for="currentPrice">Current Price</label>
+    <label class="text-sm font-medium text-ink" for="currentPrice">{{ 'PRODUCTS.LIST.COL_CURRENT_PRICE' | translate }}</label>
     <input
       id="currentPrice"
       type="number"
@@ -94,9 +94,9 @@
     @if (controlInvalid('currentPrice')) {
       <p class="text-sm text-danger" role="alert">
         @if (form.controls.currentPrice.hasError('required')) {
-          Current price is required.
+          {{ 'PRODUCTS.FORM.PRICE_REQUIRED' | translate }}
         } @else if (form.controls.currentPrice.hasError('min')) {
-          Current price cannot be negative.
+          {{ 'PRODUCTS.FORM.PRICE_NEGATIVE' | translate }}
         }
       </p>
     }
@@ -111,13 +111,13 @@
   <div class="flex flex-wrap gap-3">
     <button type="submit" class="btn-primary" [disabled]="form.invalid || isSubmitting()">
       @if (isSubmitting()) {
-        Saving...
+        {{ 'COMMON.SAVING' | translate }}
       } @else {
-        Save Product
+        {{ 'PRODUCTS.FORM.SAVE' | translate }}
       }
     </button>
     <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="cancel()">
-      Cancel
+      {{ 'COMMON.CANCEL' | translate }}
     </button>
   </div>
 </form>

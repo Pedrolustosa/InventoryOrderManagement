@@ -1,6 +1,9 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ToastService } from '../../../../core/notifications/toast.service';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { PurchaseActionDialog, PurchaseLifecycleAction } from '../../components/purchase-action-dialog/purchase-action-dialog';
 import { PurchaseReceiptHistory } from '../../components/purchase-receipt-history/purchase-receipt-history';
@@ -12,12 +15,14 @@ import { PurchaseRequestError, PurchasesService } from '../../services/purchases
 
 @Component({
   selector: 'app-purchase-details-page',
-  imports: [RouterLink, CurrencyPipe, DatePipe, PurchaseActionDialog, PurchaseReceiptHistory, HasPermissionDirective],
+  imports: [RouterLink, CurrencyPipe, DatePipe, PurchaseActionDialog, PurchaseReceiptHistory, HasPermissionDirective, TranslatePipe],
   templateUrl: './purchase-details-page.html',
 })
 export class PurchaseDetailsPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
   private readonly purchasesService = inject(PurchasesService);
 
   readonly order = signal<PurchaseOrder | null>(null);
@@ -28,7 +33,6 @@ export class PurchaseDetailsPage implements OnInit {
   readonly isActing = signal(false);
   readonly loadError = signal<string | null>(null);
   readonly actionError = signal<string | null>(null);
-  readonly successMessage = signal<string | null>(null);
   readonly pendingAction = signal<PurchaseLifecycleAction | null>(null);
 
   readonly totalItems = computed(() => this.order()?.items.length ?? 0);
@@ -51,15 +55,10 @@ export class PurchaseDetailsPage implements OnInit {
     const order = this.order();
     return order ? canCancelPurchase(order.status) : false;
   });
-  readonly receivedSummary = computed(() => {
-    const units = this.receivedUnits();
-    return units > 0 ? `${units} units have already been received.` : null;
-  });
-
   constructor() {
     const state = this.router.getCurrentNavigation()?.extras.state as { successMessage?: string } | undefined;
     if (state?.successMessage) {
-      this.successMessage.set(state.successMessage);
+      this.toast.success(state.successMessage);
     }
   }
 
@@ -77,7 +76,6 @@ export class PurchaseDetailsPage implements OnInit {
 
   openAction(action: PurchaseLifecycleAction): void {
     this.actionError.set(null);
-    this.successMessage.set(null);
     this.pendingAction.set(action);
   }
 
@@ -109,10 +107,9 @@ export class PurchaseDetailsPage implements OnInit {
         this.order.set(updated);
         this.isActing.set(false);
         this.pendingAction.set(null);
-        this.successMessage.set(
-          action === 'send'
-            ? `Purchase order ${updated.purchaseOrderNumber} was sent.`
-            : `Purchase order ${updated.purchaseOrderNumber} was cancelled.`,
+        this.toast.successKey(
+          action === 'send' ? 'PURCHASES.DETAILS.SUCCESS_SENT' : 'PURCHASES.DETAILS.SUCCESS_CANCELLED',
+          { number: updated.purchaseOrderNumber },
         );
         this.loadReceipts(updated.id);
       },
@@ -129,7 +126,7 @@ export class PurchaseDetailsPage implements OnInit {
   private loadOrder(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
-      this.loadError.set('Purchase order was not found.');
+      this.loadError.set(this.translate.instant('PURCHASES.DETAILS.NOT_FOUND'));
       this.isLoading.set(false);
       return;
     }

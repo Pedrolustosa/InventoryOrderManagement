@@ -1,7 +1,7 @@
 <form class="space-y-5" [formGroup]="form" (ngSubmit)="submit()" novalidate>
   <div class="grid gap-4 sm:grid-cols-2">
     <div class="space-y-1.5 sm:col-span-2">
-      <label class="text-sm font-medium text-ink" for="supplier-name">Name</label>
+      <label class="text-sm font-medium text-ink" for="supplier-name">{{ 'SUPPLIERS.FORM.NAME' | translate }}</label>
       <input
         id="supplier-name"
         type="text"
@@ -14,16 +14,16 @@
       @if (controlInvalid('name')) {
         <p class="text-sm text-danger" role="alert">
           @if (form.controls.name.hasError('required')) {
-            Name is required.
+            {{ 'SUPPLIERS.FORM.NAME_REQUIRED' | translate }}
           } @else if (form.controls.name.hasError('maxlength')) {
-            Name cannot exceed 150 characters.
+            {{ 'SUPPLIERS.FORM.NAME_MAX' | translate }}
           }
         </p>
       }
     </div>
 
     <div class="space-y-1.5">
-      <label class="text-sm font-medium text-ink" for="supplier-tax">Tax Identifier</label>
+      <label class="text-sm font-medium text-ink" for="supplier-tax">{{ 'SUPPLIERS.LIST.COL_TAX_ID' | translate }}</label>
       <input
         id="supplier-tax"
         type="text"
@@ -34,12 +34,12 @@
         [attr.aria-invalid]="controlInvalid('taxIdentifier')"
       />
       @if (controlInvalid('taxIdentifier')) {
-        <p class="text-sm text-danger" role="alert">Tax identifier cannot exceed 50 characters.</p>
+        <p class="text-sm text-danger" role="alert">{{ 'SUPPLIERS.FORM.TAX_MAX' | translate }}</p>
       }
     </div>
 
     <div class="space-y-1.5">
-      <label class="text-sm font-medium text-ink" for="supplier-contact">Contact Name</label>
+      <label class="text-sm font-medium text-ink" for="supplier-contact">{{ 'SUPPLIERS.FORM.CONTACT_NAME' | translate }}</label>
       <input
         id="supplier-contact"
         type="text"
@@ -50,12 +50,12 @@
         [attr.aria-invalid]="controlInvalid('contactName')"
       />
       @if (controlInvalid('contactName')) {
-        <p class="text-sm text-danger" role="alert">Contact name cannot exceed 100 characters.</p>
+        <p class="text-sm text-danger" role="alert">{{ 'SUPPLIERS.FORM.CONTACT_MAX' | translate }}</p>
       }
     </div>
 
     <div class="space-y-1.5">
-      <label class="text-sm font-medium text-ink" for="supplier-email">Email</label>
+      <label class="text-sm font-medium text-ink" for="supplier-email">{{ 'SUPPLIERS.LIST.COL_EMAIL' | translate }}</label>
       <input
         id="supplier-email"
         type="email"
@@ -68,16 +68,16 @@
       @if (controlInvalid('email')) {
         <p class="text-sm text-danger" role="alert">
           @if (form.controls.email.hasError('email')) {
-            Email format is invalid.
+            {{ 'SUPPLIERS.FORM.EMAIL_INVALID' | translate }}
           } @else if (form.controls.email.hasError('maxlength')) {
-            Email cannot exceed 254 characters.
+            {{ 'SUPPLIERS.FORM.EMAIL_MAX' | translate }}
           }
         </p>
       }
     </div>
 
     <div class="space-y-1.5">
-      <label class="text-sm font-medium text-ink" for="supplier-phone">Phone</label>
+      <label class="text-sm font-medium text-ink" for="supplier-phone">{{ 'SUPPLIERS.LIST.COL_PHONE' | translate }}</label>
       <input
         id="supplier-phone"
         type="tel"
@@ -88,13 +88,13 @@
         [attr.aria-invalid]="controlInvalid('phone')"
       />
       @if (controlInvalid('phone')) {
-        <p class="text-sm text-danger" role="alert">Phone cannot exceed 30 characters.</p>
+        <p class="text-sm text-danger" role="alert">{{ 'SUPPLIERS.FORM.PHONE_MAX' | translate }}</p>
       }
     </div>
   </div>
 
   <div class="space-y-1.5">
-    <label class="text-sm font-medium text-ink" for="supplier-notes">Notes</label>
+    <label class="text-sm font-medium text-ink" for="supplier-notes">{{ 'SUPPLIERS.FORM.NOTES' | translate }}</label>
     <textarea
       id="supplier-notes"
       rows="3"
@@ -104,7 +104,7 @@
       [attr.aria-invalid]="controlInvalid('notes')"
     ></textarea>
     @if (controlInvalid('notes')) {
-      <p class="text-sm text-danger" role="alert">Notes cannot exceed 500 characters.</p>
+      <p class="text-sm text-danger" role="alert">{{ 'SUPPLIERS.FORM.NOTES_MAX' | translate }}</p>
     }
   </div>
 
@@ -117,15 +117,15 @@
   <div class="flex flex-wrap gap-3">
     <button type="submit" class="btn-primary" [disabled]="form.invalid || isSubmitting()">
       @if (isSubmitting()) {
-        Saving...
+        {{ 'COMMON.SAVING' | translate }}
       } @else if (mode() === 'edit') {
-        Save Changes
+        {{ 'COMMON.SAVE_CHANGES' | translate }}
       } @else {
-        Save Supplier
+        {{ 'SUPPLIERS.FORM.SAVE' | translate }}
       }
     </button>
     <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="cancel()">
-      Cancel
+      {{ 'COMMON.CANCEL' | translate }}
     </button>
   </div>
 </form>

@@ -1,19 +1,19 @@
 <form class="space-y-6" [formGroup]="form" (ngSubmit)="submit()" novalidate>
   <div class="grid gap-4 sm:grid-cols-2">
     <div class="space-y-1.5 sm:col-span-2">
-      <label class="text-sm font-medium text-ink" for="adjust-product-search">Search product</label>
+      <label class="text-sm font-medium text-ink" for="adjust-product-search">{{ 'INVENTORY.FORM.SEARCH_PRODUCT' | translate }}</label>
       <input
         id="adjust-product-search"
         type="search"
         class="field"
-        placeholder="Name or SKU"
+        [placeholder]="'INVENTORY.FORM.NAME_OR_SKU' | translate"
         [value]="productSearch()"
         (input)="productSearch.set($any($event.target).value)"
       />
     </div>
 
     <div class="space-y-1.5">
-      <label class="text-sm font-medium text-ink" for="adjust-product">Product</label>
+      <label class="text-sm font-medium text-ink" for="adjust-product">{{ 'INVENTORY.LIST.COL_PRODUCT' | translate }}</label>
       <select
         id="adjust-product"
         formControlName="productId"
@@ -21,25 +21,25 @@
         [class.field-error]="controlInvalid('productId')"
         (change)="onProductChange()"
       >
-        <option value="">Select a product</option>
+        <option value="">{{ 'INVENTORY.FORM.SELECT_PRODUCT' | translate }}</option>
         @for (product of filteredProducts(); track product.id) {
           <option [value]="product.id">
-            {{ product.sku }} — {{ product.name }}{{ product.isActive ? '' : ' (Inactive)' }}
+            {{ product.sku }} — {{ product.name }}{{ product.isActive ? '' : ('COMMON.INACTIVE_SUFFIX' | translate) }}
           </option>
         }
       </select>
       @if (controlInvalid('productId')) {
-        <p class="text-sm text-danger" role="alert">Product is required.</p>
+        <p class="text-sm text-danger" role="alert">{{ 'INVENTORY.FORM.PRODUCT_REQUIRED' | translate }}</p>
       }
     </div>
 
     <div class="space-y-1.5">
-      <p class="text-sm font-medium text-ink">Current Quantity</p>
+      <p class="text-sm font-medium text-ink">{{ 'INVENTORY.FORM.CURRENT_QTY' | translate }}</p>
       <p class="field bg-surface text-ink" aria-live="polite">
         @if (isBalanceLoading()) {
-          Loading balance...
+          {{ 'INVENTORY.FORM.LOADING_BALANCE' | translate }}
         } @else if (currentQuantity() === null) {
-          Select a product
+          {{ 'INVENTORY.FORM.SELECT_PRODUCT' | translate }}
         } @else {
           {{ currentQuantity() }}
         }
@@ -47,7 +47,7 @@
     </div>
 
     <div class="space-y-1.5">
-      <label class="text-sm font-medium text-ink" for="adjust-quantity">Physical Quantity</label>
+      <label class="text-sm font-medium text-ink" for="adjust-quantity">{{ 'INVENTORY.FORM.PHYSICAL_QTY' | translate }}</label>
       <input
         id="adjust-quantity"
         type="number"
@@ -58,12 +58,12 @@
         [class.field-error]="controlInvalid('newQuantity')"
       />
       @if (controlInvalid('newQuantity')) {
-        <p class="text-sm text-danger" role="alert">Physical quantity must be a non-negative integer.</p>
+        <p class="text-sm text-danger" role="alert">{{ 'INVENTORY.FORM.QTY_NON_NEGATIVE' | translate }}</p>
       }
     </div>
 
     <div class="space-y-1.5 sm:col-span-2">
-      <label class="text-sm font-medium text-ink" for="adjust-reason">Reason</label>
+      <label class="text-sm font-medium text-ink" for="adjust-reason">{{ 'INVENTORY.MOVEMENTS.COL_REASON' | translate }}</label>
       <textarea
         id="adjust-reason"
         rows="3"
@@ -74,9 +74,9 @@
       @if (controlInvalid('reason')) {
         <p class="text-sm text-danger" role="alert">
           @if (form.controls.reason.hasError('required')) {
-            Reason is required.
+            {{ 'INVENTORY.FORM.REASON_REQUIRED' | translate }}
           } @else {
-            Reason cannot exceed 300 characters.
+            {{ 'INVENTORY.FORM.REASON_MAX' | translate }}
           }
         </p>
       }
@@ -85,22 +85,22 @@
 
   @if (difference() !== null) {
     <div class="rounded-lg border border-line bg-surface px-4 py-3 text-sm">
-      <p class="font-medium text-ink">Adjustment preview</p>
+      <p class="font-medium text-ink">{{ 'INVENTORY.FORM.PREVIEW_ADJUST' | translate }}</p>
       <dl class="mt-2 grid gap-2 sm:grid-cols-2">
         <div>
-          <dt class="text-xs uppercase tracking-wide text-muted">Current Quantity</dt>
+          <dt class="text-xs uppercase tracking-wide text-muted">{{ 'INVENTORY.FORM.CURRENT_QTY' | translate }}</dt>
           <dd class="text-ink">{{ currentQuantity() }}</dd>
         </div>
         <div>
-          <dt class="text-xs uppercase tracking-wide text-muted">Physical Quantity</dt>
+          <dt class="text-xs uppercase tracking-wide text-muted">{{ 'INVENTORY.FORM.PHYSICAL_QTY' | translate }}</dt>
           <dd class="text-ink">{{ physicalQuantity() }}</dd>
         </div>
         <div>
-          <dt class="text-xs uppercase tracking-wide text-muted">Difference</dt>
+          <dt class="text-xs uppercase tracking-wide text-muted">{{ 'INVENTORY.FORM.DIFFERENCE' | translate }}</dt>
           <dd class="text-ink">{{ difference() }}</dd>
         </div>
         <div>
-          <dt class="text-xs uppercase tracking-wide text-muted">Adjustment Type</dt>
+          <dt class="text-xs uppercase tracking-wide text-muted">{{ 'INVENTORY.FORM.ADJUSTMENT_TYPE' | translate }}</dt>
           <dd class="text-ink">{{ adjustmentLabel() }}</dd>
         </div>
       </dl>
@@ -109,7 +109,7 @@
 
   @if (difference() === 0) {
     <p class="text-sm text-accent-ink" role="status">
-      The physical quantity matches the current balance. No adjustment is needed.
+      {{ 'INVENTORY.FORM.UNCHANGED_HINT' | translate }}
     </p>
   }
 
@@ -119,10 +119,10 @@
 
   <div class="flex flex-wrap gap-2">
     <button type="submit" class="btn-primary" [disabled]="isSubmitting() || form.invalid || difference() === 0 || currentQuantity() === null">
-      {{ isSubmitting() ? 'Adjusting...' : 'Confirm adjustment' }}
+      {{ (isSubmitting() ? 'INVENTORY.FORM.ADJUSTING' : 'INVENTORY.FORM.CONFIRM_ADJUST') | translate }}
     </button>
     <button type="button" class="btn-secondary" (click)="cancelled.emit()" [disabled]="isSubmitting()">
-      Cancel
+      {{ 'COMMON.CANCEL' | translate }}
     </button>
   </div>
 </form>

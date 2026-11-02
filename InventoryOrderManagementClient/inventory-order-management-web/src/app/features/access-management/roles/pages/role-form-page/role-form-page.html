@@ -1,23 +1,23 @@
 <section class="mx-auto max-w-xl space-y-6">
-  <h1 class="text-3xl font-semibold text-ink">{{ roleId ? 'Edit Role' : 'Create Role' }}</h1>
+  <h1 class="text-3xl font-semibold text-ink">{{ (roleId ? 'ROLES.FORM.EDIT_TITLE' : 'ROLES.FORM.CREATE_TITLE') | translate }}</h1>
   @if (isSystemRole()) {
-    <p class="text-sm text-muted">A system role keeps its name. The description can be updated.</p>
+    <p class="text-sm text-muted">{{ 'ROLES.FORM.SYSTEM_HINT' | translate }}</p>
   }
   @if (errorMessage()) {
     <p class="text-sm text-danger" role="alert">{{ errorMessage() }}</p>
   }
   <form class="space-y-4 rounded-xl border border-line bg-panel p-5" [formGroup]="form" (ngSubmit)="submit()">
     <label class="block space-y-1 text-sm">
-      <span class="font-medium">Name</span>
+      <span class="font-medium">{{ 'ROLES.FORM.NAME' | translate }}</span>
       <input class="field" formControlName="name" maxlength="80" />
     </label>
     <label class="block space-y-1 text-sm">
-      <span class="font-medium">Description</span>
+      <span class="font-medium">{{ 'ROLES.FORM.DESCRIPTION' | translate }}</span>
       <textarea class="field" rows="3" formControlName="description" maxlength="300"></textarea>
     </label>
     <div class="flex gap-2">
-      <button type="submit" class="btn-primary" [disabled]="isSubmitting()">Save</button>
-      <a routerLink="/roles" class="btn-secondary">Cancel</a>
+      <button type="submit" class="btn-primary" [disabled]="isSubmitting()">{{ 'COMMON.SAVE' | translate }}</button>
+      <a routerLink="/roles" class="btn-secondary">{{ 'COMMON.CANCEL' | translate }}</a>
     </div>
   </form>
 </section>

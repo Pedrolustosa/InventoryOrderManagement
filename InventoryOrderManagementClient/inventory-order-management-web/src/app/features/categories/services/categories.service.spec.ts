@@ -6,6 +6,8 @@ import { CategoryResponse } from '../models/category.model';
 import { CreateCategoryRequest } from '../models/create-category-request.model';
 import { UpdateCategoryRequest } from '../models/update-category-request.model';
 import { CategoriesService } from './categories.service';
+import { provideTestTranslate } from '../../../core/i18n/testing/provide-test-translate';
+
 
 describe('CategoriesService', () => {
   let service: CategoriesService;
@@ -23,7 +25,7 @@ describe('CategoriesService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), CategoriesService],
+      providers: [...provideTestTranslate(), provideHttpClient(), provideHttpClientTesting(), CategoriesService],
     });
 
     service = TestBed.inject(CategoriesService);

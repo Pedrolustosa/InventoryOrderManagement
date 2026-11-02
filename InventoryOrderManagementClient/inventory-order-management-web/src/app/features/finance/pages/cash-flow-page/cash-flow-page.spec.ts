@@ -1,4 +1,5 @@
 import { registerLocaleData } from '@angular/common';
+import { provideTranslateService } from '@ngx-translate/core';
 import localePt from '@angular/common/locales/pt';
 import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -26,7 +27,7 @@ describe('CashFlowPage', () => {
     };
     await TestBed.configureTestingModule({
       imports: [CashFlowPage],
-      providers: [
+      providers: [provideTranslateService(), 
         { provide: LOCALE_ID, useValue: 'pt-BR' },
         { provide: FinanceService, useValue: finance },
       ],
@@ -42,9 +43,9 @@ describe('CashFlowPage', () => {
   it('loads realized and projected flows separately', () => {
     expect(finance.getRealizedCashFlow).toHaveBeenCalledWith(expect.objectContaining({ grouping: 'Day' }));
     expect(finance.getProjectedCashFlow).toHaveBeenCalledWith(expect.not.objectContaining({ cashAccountId: expect.anything() }));
-    expect(fixture.nativeElement.textContent).toContain('Realized');
-    expect(fixture.nativeElement.textContent).toContain('Projected');
-    expect(fixture.nativeElement.textContent).toContain('not added together');
+    expect(fixture.nativeElement.textContent).toContain('FINANCE.DASHBOARD.REALIZED');
+    expect(fixture.nativeElement.textContent).toContain('FINANCE.DASHBOARD.PROJECTED');
+    expect(fixture.nativeElement.textContent).toContain('FINANCE.DASHBOARD.CASH_FLOW_INTRO');
   });
 
   it('sends the selected account only to the realized flow', () => {

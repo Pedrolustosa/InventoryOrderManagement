@@ -50,33 +50,11 @@ export const RETURN_FINANCIAL_STATUSES = ['None', 'Pending'] as const;
 export type ReturnFinancialStatus = (typeof RETURN_FINANCIAL_STATUSES)[number];
 
 export function returnTypeLabel(type: ReturnType): string {
-  switch (type) {
-    case 'CustomerReturn':
-      return 'Customer return';
-    case 'SupplierReturn':
-      return 'Supplier return';
-  }
+  return `STATUS.RETURN_TYPE.${type}`;
 }
 
 export function returnStatusLabel(status: ReturnStatus): string {
-  switch (status) {
-    case 'Draft':
-      return 'Draft';
-    case 'Authorized':
-      return 'Authorized';
-    case 'Received':
-      return 'Received';
-    case 'UnderInspection':
-      return 'Under inspection';
-    case 'Completed':
-      return 'Completed';
-    case 'Dispatched':
-      return 'Dispatched';
-    case 'Rejected':
-      return 'Rejected';
-    case 'Cancelled':
-      return 'Cancelled';
-  }
+  return `STATUS.RETURN.${status}`;
 }
 
 export function returnStatusClass(status: ReturnStatus): string {
@@ -101,69 +79,19 @@ export function returnStatusClass(status: ReturnStatus): string {
 }
 
 export function returnReasonLabel(reason: ReturnReason): string {
-  switch (reason) {
-    case 'Defective':
-      return 'Defective';
-    case 'Damaged':
-      return 'Damaged';
-    case 'IncorrectProduct':
-      return 'Incorrect product';
-    case 'IncorrectQuantity':
-      return 'Incorrect quantity';
-    case 'QualityIssue':
-      return 'Quality issue';
-    case 'CustomerRegret':
-      return 'Customer regret';
-    case 'CommercialAgreement':
-      return 'Commercial agreement';
-    case 'Other':
-      return 'Other';
-  }
+  return `STATUS.RETURN_REASON.${reason}`;
 }
 
 export function returnItemConditionLabel(condition: ReturnItemCondition): string {
-  switch (condition) {
-    case 'Sealed':
-      return 'Sealed';
-    case 'Unopened':
-      return 'Unopened';
-    case 'Opened':
-      return 'Opened';
-    case 'Good':
-      return 'Good';
-    case 'Damaged':
-      return 'Damaged';
-    case 'Defective':
-      return 'Defective';
-    case 'Incomplete':
-      return 'Incomplete';
-    case 'Other':
-      return 'Other';
-  }
+  return `STATUS.RETURN_ITEM_CONDITION.${condition}`;
 }
 
 export function returnFinancialTreatmentLabel(treatment: ReturnFinancialTreatment): string {
-  switch (treatment) {
-    case 'None':
-      return 'None';
-    case 'CustomerRefund':
-      return 'Customer refund';
-    case 'CustomerCredit':
-      return 'Customer credit';
-    case 'SupplierCredit':
-      return 'Supplier credit';
-    case 'SupplierRefund':
-      return 'Supplier refund';
-  }
+  return `STATUS.RETURN_FINANCIAL_TREATMENT.${treatment}`;
 }
 
 export function returnFinancialStatusLabel(status: ReturnFinancialStatus): string {
-  switch (status) {
-    case 'None':
-      return 'None';
-    case 'Pending':
-      return 'Pending';
-  }
+  return `STATUS.RETURN_FINANCIAL_STATUS.${status}`;
 }
 
 export function customerFinancialTreatments(): ReturnFinancialTreatment[] {

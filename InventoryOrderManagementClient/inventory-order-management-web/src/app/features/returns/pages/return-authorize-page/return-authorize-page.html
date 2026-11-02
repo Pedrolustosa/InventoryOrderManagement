@@ -1,18 +1,18 @@
 <section class="space-y-6">
   <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <h1 class="text-3xl font-semibold tracking-tight text-ink">Authorize supplier return</h1>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">{{ 'RETURNS.AUTHORIZE.TITLE' | translate }}</h1>
       <p class="mt-2 max-w-2xl text-sm text-muted">
-        Authorization does not reduce stock. Stock changes only when the return is dispatched.
+        {{ 'RETURNS.AUTHORIZE.SUBTITLE' | translate }}
       </p>
     </div>
-    <a routerLink="/returns" class="btn-secondary">Back to returns</a>
+    <a routerLink="/returns" class="btn-secondary">{{ 'RETURNS.DETAILS.BACK' | translate }}</a>
   </div>
 
   @if (isLoading()) {
     <div class="flex items-center gap-3 text-muted" aria-busy="true">
       <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
-      <span>Loading return...</span>
+      <span>{{ 'RETURNS.DETAILS.LOADING' | translate }}</span>
     </div>
   } @else if (loadError()) {
     <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
@@ -23,65 +23,69 @@
       <h2 class="text-lg font-semibold text-ink">{{ current.returnNumber }}</h2>
       <dl class="grid gap-3 sm:grid-cols-2 text-sm">
         <div>
-          <dt class="text-xs uppercase tracking-wide text-muted">Supplier</dt>
-          <dd class="mt-1 text-ink">{{ current.supplierName || '—' }}</dd>
+          <dt class="text-xs uppercase tracking-wide text-muted">{{ 'RETURNS.AUTHORIZE.SUPPLIER' | translate }}</dt>
+          <dd class="mt-1 text-ink">{{ current.supplierName || ('COMMON.EMPTY' | translate) }}</dd>
         </div>
         <div>
-          <dt class="text-xs uppercase tracking-wide text-muted">Source</dt>
-          <dd class="mt-1 text-ink">{{ current.sourceReference || '—' }}</dd>
+          <dt class="text-xs uppercase tracking-wide text-muted">{{ 'RETURNS.AUTHORIZE.SOURCE' | translate }}</dt>
+          <dd class="mt-1 text-ink">{{ current.sourceReference || ('COMMON.EMPTY' | translate) }}</dd>
         </div>
         <div>
-          <dt class="text-xs uppercase tracking-wide text-muted">Reason</dt>
-          <dd class="mt-1 text-ink">{{ reasonLabel(current.reason) }}</dd>
+          <dt class="text-xs uppercase tracking-wide text-muted">{{ 'RETURNS.AUTHORIZE.REASON' | translate }}</dt>
+          <dd class="mt-1 text-ink">{{ reasonLabel(current.reason) | translate }}</dd>
         </div>
         <div>
-          <dt class="text-xs uppercase tracking-wide text-muted">Estimated amount</dt>
+          <dt class="text-xs uppercase tracking-wide text-muted">{{ 'RETURNS.AUTHORIZE.ESTIMATED' | translate }}</dt>
           <dd class="mt-1 text-ink">{{ current.estimatedAmount | currency: 'BRL' }}</dd>
         </div>
       </dl>
       <ul class="space-y-1 text-sm text-ink">
         @for (item of current.items; track item.id) {
-          <li>{{ item.productSku }} · {{ item.productName }} · qty {{ item.requestedQuantity }}</li>
+          <li>{{ 'RETURNS.AUTHORIZE.ITEM_LINE' | translate: { sku: item.productSku, name: item.productName, qty: item.requestedQuantity } }}</li>
         }
       </ul>
     </section>
 
     <form class="rounded-xl border border-line bg-panel p-5 shadow-sm space-y-4" [formGroup]="form" (ngSubmit)="review()">
       <label class="block text-sm font-medium text-ink">
-        Authorization reference
+        {{ 'RETURNS.AUTHORIZE.REFERENCE' | translate }}
         <input class="field mt-1" formControlName="authorizationReference" />
       </label>
       <label class="block text-sm font-medium text-ink">
-        Notes
+        {{ 'RETURNS.AUTHORIZE.NOTES' | translate }}
         <textarea class="field mt-1 min-h-20" formControlName="notes" [attr.maxlength]="notesMax"></textarea>
       </label>
 
-      @if (formError()) {
+      @if (formError(); as err) {
         <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
-          {{ formError() }}
+          {{ err | translate: formErrorParams() }}
         </div>
       }
 
       <div class="flex justify-end gap-2">
-        <a [routerLink]="['/returns', current.id]" class="btn-secondary">Cancel</a>
-        <button type="submit" class="btn-primary" [disabled]="isSubmitting()">Review authorization</button>
+        <a [routerLink]="['/returns', current.id]" class="btn-secondary">{{ 'COMMON.CANCEL' | translate }}</a>
+        <button type="submit" class="btn-primary" [disabled]="isSubmitting()">
+          {{ 'RETURNS.AUTHORIZE.REVIEW' | translate }}
+        </button>
       </div>
     </form>
 
     @if (showConfirm()) {
       <div class="fixed inset-0 z-40 flex items-center justify-center bg-ink/40 p-4" role="dialog" aria-modal="true">
         <div class="w-full max-w-lg rounded-xl border border-line bg-panel p-5 shadow-lg">
-          <h2 class="text-lg font-semibold text-ink">Confirm authorization</h2>
+          <h2 class="text-lg font-semibold text-ink">{{ 'RETURNS.DIALOGS.CONFIRM_AUTH_TITLE' | translate }}</h2>
           <p class="mt-2 text-sm text-muted">
-            Stock will not change now. After dispatch, cancellation is no longer allowed.
+            {{ 'RETURNS.DIALOGS.CONFIRM_AUTH_MSG' | translate }}
           </p>
           <div class="mt-5 flex justify-end gap-2">
-            <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="dismissConfirm()">Back</button>
+            <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="dismissConfirm()">
+              {{ 'COMMON.BACK' | translate }}
+            </button>
             <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="confirm()">
               @if (isSubmitting()) {
-                Saving...
+                {{ 'COMMON.SAVING' | translate }}
               } @else {
-                Authorize
+                {{ 'RETURNS.ACTIONS.AUTHORIZE' | translate }}
               }
             </button>
           </div>

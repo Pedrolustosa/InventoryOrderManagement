@@ -6,6 +6,8 @@ import { CreateSupplierRequest } from '../models/create-supplier-request.model';
 import { SupplierResponse } from '../models/supplier.model';
 import { UpdateSupplierRequest } from '../models/update-supplier-request.model';
 import { SuppliersService } from './suppliers.service';
+import { provideTestTranslate } from '../../../core/i18n/testing/provide-test-translate';
+
 
 describe('SuppliersService', () => {
   let service: SuppliersService;
@@ -27,7 +29,7 @@ describe('SuppliersService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), SuppliersService],
+      providers: [...provideTestTranslate(), provideHttpClient(), provideHttpClientTesting(), SuppliersService],
     });
 
     service = TestBed.inject(SuppliersService);

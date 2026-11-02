@@ -23,12 +23,5 @@ export interface LowStockReport {
 }
 
 export function stockStatusLabel(status: StockReportStatus): string {
-  switch (status) {
-    case 'InStock':
-      return 'In Stock';
-    case 'LowStock':
-      return 'Low Stock';
-    case 'OutOfStock':
-      return 'Out of Stock';
-  }
+  return `STATUS.INVENTORY_STOCK.${status}`;
 }

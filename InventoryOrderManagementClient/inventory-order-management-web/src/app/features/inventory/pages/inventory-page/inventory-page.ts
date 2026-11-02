@@ -1,5 +1,8 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
 import { Observable, forkJoin } from 'rxjs';
+import { ToastService } from '../../../../core/notifications/toast.service';
 import { CategoriesService } from '../../../categories/services/categories.service';
 import { ProductResponse } from '../../../products/models/product.model';
 import { ProductsService } from '../../../products/services/products.service';
@@ -28,20 +31,20 @@ type PanelMode = 'none' | 'receive' | 'exit' | 'adjust' | 'minimum' | 'detail';
 
 @Component({
   selector: 'app-inventory-page',
-  imports: [
-    InventoryBalanceList,
+  imports: [InventoryBalanceList,
     StockMovementList,
     ReceiveStockForm,
     RegisterStockExitForm,
     AdjustStockForm,
     MinimumStockForm,
     InventoryDetail,
-    HasPermissionDirective,
-  ],
+    HasPermissionDirective, TranslatePipe],
   templateUrl: './inventory-page.html',
 })
 export class InventoryPage implements OnInit {
   private readonly inventoryService = inject(InventoryService);
+  private readonly translate = inject(TranslateService);
+  private readonly toast = inject(ToastService);
   private readonly productsService = inject(ProductsService);
   private readonly suppliersService = inject(SuppliersService);
   private readonly categoriesService = inject(CategoriesService);
@@ -60,7 +63,6 @@ export class InventoryPage implements OnInit {
   readonly loadError = signal<string | null>(null);
   readonly movementsError = signal<string | null>(null);
   readonly submitError = signal<string | null>(null);
-  readonly successMessage = signal<string | null>(null);
   readonly movementPeriodError = signal<string | null>(null);
   readonly searchTerm = signal('');
   readonly stockFilter = signal<StockFilter>('all');
@@ -109,18 +111,18 @@ export class InventoryPage implements OnInit {
 
   readonly balanceEmptyMessage = computed(() => {
     if (this.balances().length === 0) {
-      return 'There are no products available for inventory control yet.';
+      return 'INVENTORY.LIST.EMPTY_NO_DATA';
     }
 
     if (this.stockFilter() === 'low-stock') {
-      return 'No product is below its minimum stock level.';
+      return 'INVENTORY.LIST.EMPTY_LOW';
     }
 
     if (this.stockFilter() === 'out-of-stock') {
-      return 'No product is out of stock.';
+      return 'INVENTORY.LIST.EMPTY_OUT';
     }
 
-    return 'No products match the current filters.';
+    return 'INVENTORY.LIST.EMPTY_FILTERED';
   });
 
   readonly movementEmptyMessage = computed(() => {
@@ -131,10 +133,10 @@ export class InventoryPage implements OnInit {
       this.movementStartDate() ||
       this.movementEndDate()
     ) {
-      return 'No movements match the current filters.';
+      return 'INVENTORY.MOVEMENTS.EMPTY_FILTERED';
     }
 
-    return 'There are no stock movements yet.';
+    return 'INVENTORY.MOVEMENTS.EMPTY_NO_DATA';
   });
 
   ngOnInit(): void {
@@ -176,7 +178,6 @@ export class InventoryPage implements OnInit {
   }
 
   openDetail(balance: InventoryBalance): void {
-    this.successMessage.set(null);
     this.submitError.set(null);
     this.panelMode.set('detail');
     this.selectedBalance.set(balance);
@@ -233,7 +234,7 @@ export class InventoryPage implements OnInit {
 
   applyMovementFilters(): void {
     if (!this.periodIsValid()) {
-      this.movementPeriodError.set('The start date cannot be later than the end date.');
+      this.movementPeriodError.set('INVENTORY.MOVEMENTS.PERIOD_ERROR');
       return;
     }
 
@@ -254,12 +255,12 @@ export class InventoryPage implements OnInit {
   receiveStock(request: ReceiveStockRequest): void {
     this.runOperation(
       this.inventoryService.receiveStock(request),
-      'Stock entry recorded.',
+      this.translate.instant('INVENTORY.FORM.SUCCESS_ENTRY'),
     );
   }
 
   registerExit(request: RegisterStockExitRequest): void {
-    this.runOperation(this.inventoryService.registerStockExit(request), 'Stock exit recorded.');
+    this.runOperation(this.inventoryService.registerStockExit(request), this.translate.instant('INVENTORY.FORM.SUCCESS_EXIT'));
   }
 
   adjustStock(request: AdjustStockRequest): void {
@@ -269,15 +270,12 @@ export class InventoryPage implements OnInit {
 
     this.isSubmitting.set(true);
     this.submitError.set(null);
-    this.successMessage.set(null);
 
     this.inventoryService.adjustStock(request).subscribe({
       next: (result) => {
         this.isSubmitting.set(false);
-        this.successMessage.set(
-          result.movementCreated
-            ? 'Stock adjustment recorded.'
-            : 'The physical quantity already matches the current balance. No movement was created.',
+        this.toast.successKey(
+          result.movementCreated ? 'INVENTORY.FORM.SUCCESS_ADJUST' : 'INVENTORY.FORM.SUCCESS_NO_CHANGE',
         );
         this.closePanel();
         this.reload();
@@ -292,12 +290,11 @@ export class InventoryPage implements OnInit {
   updateMinimum(event: { productId: string; request: UpdateMinimumStockLevelRequest }): void {
     this.runOperation(
       this.inventoryService.updateMinimumStockLevel(event.productId, event.request),
-      'Minimum stock updated.',
+      this.translate.instant('INVENTORY.FORM.SUCCESS_MINIMUM'),
     );
   }
 
   private beginPanel(mode: Exclude<PanelMode, 'none' | 'detail'>, productId: string | null = null): void {
-    this.successMessage.set(null);
     this.submitError.set(null);
     this.selectedBalance.set(null);
     this.selectedProductId.set(productId);
@@ -311,12 +308,11 @@ export class InventoryPage implements OnInit {
 
     this.isSubmitting.set(true);
     this.submitError.set(null);
-    this.successMessage.set(null);
 
     operation.subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        this.successMessage.set(success);
+        this.toast.success(success);
         this.closePanel();
         this.reload();
       },

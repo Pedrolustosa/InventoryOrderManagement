@@ -6,6 +6,8 @@ import { PagedResult, PurchaseOrderFilters } from '../models/purchase-order-requ
 import { PurchaseOrder, PurchaseOrderSummary } from '../models/purchase-order.model';
 import { PurchaseReceipt } from '../models/purchase-receipt.model';
 import { PurchaseRequestError, PurchasesService } from './purchases.service';
+import { provideTestTranslate } from '../../../core/i18n/testing/provide-test-translate';
+
 
 describe('PurchasesService', () => {
   let service: PurchasesService;
@@ -58,7 +60,7 @@ describe('PurchasesService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), PurchasesService],
+      providers: [...provideTestTranslate(), provideHttpClient(), provideHttpClientTesting(), PurchasesService],
     });
     service = TestBed.inject(PurchasesService);
     httpMock = TestBed.inject(HttpTestingController);

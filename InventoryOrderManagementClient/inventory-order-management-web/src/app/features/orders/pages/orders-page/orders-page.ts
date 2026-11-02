@@ -1,5 +1,8 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
 import { Router, RouterLink } from '@angular/router';
+import { ToastService } from '../../../../core/notifications/toast.service';
 import { CustomerResponse } from '../../../customers/models/customer.model';
 import { CustomersService } from '../../../customers/services/customers.service';
 import { OrderActionDialog, OrderLifecycleAction } from '../../components/order-action-dialog/order-action-dialog';
@@ -14,13 +17,15 @@ type StatusFilter = 'all' | OrderStatus;
 
 @Component({
   selector: 'app-orders-page',
-  imports: [RouterLink, OrderList, OrderActionDialog, HasPermissionDirective],
+  imports: [RouterLink, OrderList, OrderActionDialog, HasPermissionDirective, TranslatePipe],
   templateUrl: './orders-page.html',
 })
 export class OrdersPage implements OnInit {
   private readonly ordersService = inject(OrdersService);
   private readonly customersService = inject(CustomersService);
   private readonly router = inject(Router);
+  private readonly translate = inject(TranslateService);
+  private readonly toast = inject(ToastService);
 
   readonly statuses = ORDER_STATUSES;
   readonly orders = signal<OrderSummary[]>([]);
@@ -29,7 +34,6 @@ export class OrdersPage implements OnInit {
   readonly isLoading = signal(false);
   readonly isActing = signal(false);
   readonly loadError = signal<string | null>(null);
-  readonly successMessage = signal<string | null>(null);
   readonly actionError = signal<string | null>(null);
   readonly statusFilter = signal<StatusFilter>('all');
   readonly customerId = signal('');
@@ -48,8 +52,8 @@ export class OrdersPage implements OnInit {
   readonly cancelledCount = computed(() => this.count('Cancelled'));
   readonly emptyMessage = computed(() =>
     hasOrderFilters(this.appliedFilters())
-      ? 'No orders match the current filters.'
-      : 'There are no orders yet.',
+      ? 'ORDERS.LIST.EMPTY_FILTERED'
+      : 'ORDERS.LIST.EMPTY_NO_DATA',
   );
   readonly allowCreate = computed(() => !hasOrderFilters(this.appliedFilters()));
 
@@ -101,7 +105,6 @@ export class OrdersPage implements OnInit {
   }
 
   openAction(action: OrderLifecycleAction, order: OrderSummary): void {
-    this.successMessage.set(null);
     this.actionError.set(null);
     this.pendingAction.set(action);
     this.pendingOrder.set(order);
@@ -132,7 +135,7 @@ export class OrdersPage implements OnInit {
         this.isActing.set(false);
         this.pendingAction.set(null);
         this.pendingOrder.set(null);
-        this.successMessage.set(this.successText(action, order.orderNumber));
+        this.toast.success(this.successText(action, order.orderNumber));
         this.loadOrders();
       },
       error: (error: Error) => {
@@ -196,13 +199,13 @@ export class OrdersPage implements OnInit {
   private successText(action: OrderLifecycleAction, orderNumber: string): string {
     switch (action) {
       case 'confirm':
-        return `Order ${orderNumber} was confirmed. Stock was issued by the server.`;
+        return this.translate.instant('ORDERS.DETAILS.SUCCESS_CONFIRMED', { orderNumber });
       case 'ship':
-        return `Order ${orderNumber} was shipped.`;
+        return this.translate.instant('ORDERS.DETAILS.SUCCESS_SHIPPED', { orderNumber });
       case 'deliver':
-        return `Order ${orderNumber} was delivered.`;
+        return this.translate.instant('ORDERS.DETAILS.SUCCESS_DELIVERED', { orderNumber });
       case 'cancel':
-        return `Order ${orderNumber} was cancelled.`;
+        return this.translate.instant('ORDERS.DETAILS.SUCCESS_CANCELLED', { orderNumber });
     }
   }
 

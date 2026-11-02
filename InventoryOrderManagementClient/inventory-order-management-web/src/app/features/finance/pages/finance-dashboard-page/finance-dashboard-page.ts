@@ -1,4 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { FinancePeriodFilter } from '../../components/finance-period-filter/finance-period-filter';
@@ -17,7 +18,7 @@ import { FinanceRequestError, FinanceService } from '../../services/finance.serv
 
 @Component({
   selector: 'app-finance-dashboard-page',
-  imports: [CurrencyPipe, FinancePeriodFilter, ReportChart],
+  imports: [TranslatePipe, CurrencyPipe, FinancePeriodFilter, ReportChart],
   templateUrl: './finance-dashboard-page.html',
 })
 export class FinanceDashboardPage implements OnInit {
@@ -47,7 +48,7 @@ export class FinanceDashboardPage implements OnInit {
     const dashboard = this.dashboard();
     return dashboard ? payablesVersusReceivablesChart(dashboard.openPayables, dashboard.openReceivables) : null;
   });
-  readonly flowChart = computed(() => (this.flow() ? cashFlowChart(this.flow()!.buckets, 'Realized cash flow') : null));
+  readonly flowChart = computed(() => (this.flow() ? cashFlowChart(this.flow()!.buckets, 'FINANCE.DASHBOARD.REALIZED_CASH_FLOW') : null));
 
   private range: FinanceRange | null = null;
 

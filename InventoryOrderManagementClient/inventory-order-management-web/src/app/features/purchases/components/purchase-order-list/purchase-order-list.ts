@@ -1,4 +1,6 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
+
 import { Component, input, output } from '@angular/core';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { canCancelPurchase, canEditPurchase, canReceivePurchase, canSendPurchase } from '../../models/purchase-actions';
@@ -7,14 +9,14 @@ import { PurchaseOrderStatus, purchaseStatusClass, purchaseStatusLabel } from '.
 
 @Component({
   selector: 'app-purchase-order-list',
-  imports: [CurrencyPipe, DatePipe, HasPermissionDirective],
+  imports: [CurrencyPipe, DatePipe, HasPermissionDirective, TranslatePipe],
   templateUrl: './purchase-order-list.html',
 })
 export class PurchaseOrderList {
   readonly orders = input.required<PurchaseOrderSummary[]>();
   readonly isLoading = input(false);
   readonly errorMessage = input<string | null>(null);
-  readonly emptyMessage = input('There are no purchase orders yet.');
+  readonly emptyMessage = input('PURCHASES.LIST.EMPTY_NO_DATA');
   readonly allowCreate = input(false);
 
   readonly viewRequested = output<PurchaseOrderSummary>();

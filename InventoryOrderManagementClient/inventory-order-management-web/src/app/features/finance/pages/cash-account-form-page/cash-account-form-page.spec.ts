@@ -1,4 +1,5 @@
 import { registerLocaleData } from '@angular/common';
+import { provideTranslateService } from '@ngx-translate/core';
 import localePt from '@angular/common/locales/pt';
 import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -31,7 +32,7 @@ describe('CashAccountFormPage', () => {
     };
     await TestBed.configureTestingModule({
       imports: [CashAccountFormPage],
-      providers: [
+      providers: [provideTranslateService(), 
         provideRouter([]),
         { provide: LOCALE_ID, useValue: 'pt-BR' },
         {

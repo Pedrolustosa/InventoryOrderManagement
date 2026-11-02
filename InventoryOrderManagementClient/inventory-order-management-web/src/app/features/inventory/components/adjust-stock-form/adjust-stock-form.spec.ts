@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ProductResponse } from '../../../products/models/product.model';
 import { AdjustStockRequest } from '../../models/adjust-stock-request.model';
 import { AdjustStockForm } from './adjust-stock-form';
+import { provideTestTranslate } from '../../../../core/i18n/testing/provide-test-translate';
+
 
 describe('AdjustStockForm', () => {
   let fixture: ComponentFixture<AdjustStockForm>;
@@ -20,6 +22,7 @@ describe('AdjustStockForm', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [...provideTestTranslate()],
       imports: [AdjustStockForm],
     }).compileComponents();
 

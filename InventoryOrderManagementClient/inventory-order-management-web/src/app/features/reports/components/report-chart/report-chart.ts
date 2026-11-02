@@ -1,18 +1,27 @@
-import { Component, ElementRef, OnDestroy, effect, input, signal, untracked, viewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, effect, inject, input, signal, untracked, viewChild } from '@angular/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { ReportChartModel, formatChartTooltip } from '../../models/report-chart.model';
+import { CHART_CONSTRUCTOR } from './chart-constructor.token';
 
 let registered = false;
 
 @Component({
+  imports: [TranslatePipe],
   selector: 'app-report-chart',
   templateUrl: './report-chart.html',
 })
 export class ReportChart implements OnDestroy {
+  private readonly translate = inject(TranslateService);
+  private readonly ChartCtor = inject(CHART_CONSTRUCTOR);
   readonly model = input.required<ReportChartModel>();
   readonly drawFailed = signal(false);
   private readonly canvas = viewChild<ElementRef<HTMLCanvasElement>>('canvas');
   private chart: Chart | null = null;
+
+  labelText(value: string): string {
+    return this.localize(value);
+  }
 
   constructor() {
     effect(() => {
@@ -49,18 +58,12 @@ export class ReportChart implements OnDestroy {
     }
 
     if (!registered) {
-      Chart.register(...registerables);
+      this.ChartCtor.register(...registerables);
       registered = true;
     }
 
     try {
-      const context = canvas.getContext('2d');
-      if (!context) {
-        this.drawFailed.set(true);
-        return;
-      }
-
-      this.chart = new Chart(context, this.configuration(model));
+      this.chart = new this.ChartCtor(canvas, this.configuration(model));
     } catch {
       this.drawFailed.set(true);
     }
@@ -71,9 +74,9 @@ export class ReportChart implements OnDestroy {
     return {
       type: model.type,
       data: {
-        labels: model.labels,
+        labels: model.labels.map((label) => this.localize(label)),
         datasets: model.series.map((series) => ({
-          label: series.label,
+          label: this.localize(series.label),
           data: series.data,
           backgroundColor: series.colors ?? series.color,
           borderColor: series.color,
@@ -105,17 +108,33 @@ export class ReportChart implements OnDestroy {
             : {
                 x: {
                   beginAtZero: true,
-                  title: { display: true, text: horizontal ? model.valueAxisLabel : model.categoryAxisLabel },
+                  title: {
+                    display: true,
+                    text: this.localize(horizontal ? model.valueAxisLabel : model.categoryAxisLabel),
+                  },
                   ticks: horizontal && model.format === 'currency' ? { callback: (value) => formatChartTooltip(Number(value), 'currency') } : undefined,
                 },
                 y: {
                   beginAtZero: true,
-                  title: { display: true, text: horizontal ? model.categoryAxisLabel : model.valueAxisLabel },
+                  title: {
+                    display: true,
+                    text: this.localize(horizontal ? model.categoryAxisLabel : model.valueAxisLabel),
+                  },
                   ticks: !horizontal && model.format === 'currency' ? { callback: (value) => formatChartTooltip(Number(value), 'currency') } : undefined,
                 },
               },
       },
     };
+  }
+
+  private localize(value: string): string {
+    if (!value) {
+      return value;
+    }
+    if (/^[A-Z][A-Z0-9_.]*$/.test(value)) {
+      return this.translate.instant(value);
+    }
+    return value;
   }
 
   private destroyChart(): void {

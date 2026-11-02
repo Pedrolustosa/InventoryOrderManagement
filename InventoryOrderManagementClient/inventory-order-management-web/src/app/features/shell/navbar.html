@@ -3,7 +3,7 @@
     type="button"
     class="inline-flex size-10 items-center justify-center rounded-md border border-line text-ink transition hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
     [attr.aria-expanded]="menuExpanded()"
-    [attr.aria-label]="menuLabel()"
+    [attr.aria-label]="menuLabel() | translate"
     (click)="menuToggled.emit()"
   >
     <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
@@ -15,13 +15,42 @@
     <app-page-heading />
   </div>
 
+  <div
+    class="inline-flex items-center rounded-md border border-line p-0.5 text-xs font-semibold"
+    role="group"
+    [attr.aria-label]="'SHELL.LANGUAGE' | translate"
+  >
+    <button
+      type="button"
+      class="rounded px-2.5 py-1.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      [class.bg-accent]="language() === 'pt-BR'"
+      [class.text-white]="language() === 'pt-BR'"
+      [class.text-muted]="language() !== 'pt-BR'"
+      [attr.aria-pressed]="language() === 'pt-BR'"
+      (click)="setLanguage('pt-BR')"
+    >
+      {{ 'SHELL.LANGUAGE_PT' | translate }}
+    </button>
+    <button
+      type="button"
+      class="rounded px-2.5 py-1.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      [class.bg-accent]="language() === 'en'"
+      [class.text-white]="language() === 'en'"
+      [class.text-muted]="language() !== 'en'"
+      [attr.aria-pressed]="language() === 'en'"
+      (click)="setLanguage('en')"
+    >
+      {{ 'SHELL.LANGUAGE_EN' | translate }}
+    </button>
+  </div>
+
   <div class="relative">
     <button
       type="button"
       class="inline-flex max-w-56 items-center gap-2 rounded-md border border-line px-3 py-2 text-sm font-semibold text-ink transition hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       [attr.aria-expanded]="accountOpen()"
       aria-haspopup="menu"
-      aria-label="Account menu"
+      [attr.aria-label]="'SHELL.ACCOUNT_MENU' | translate"
       (click)="toggleAccount()"
     >
       <span class="truncate">{{ currentUser()?.displayName }}</span>
@@ -31,7 +60,12 @@
     </button>
 
     @if (accountOpen()) {
-      <button type="button" class="fixed inset-0 z-10 cursor-default" aria-label="Close account menu" (click)="closeAccount()"></button>
+      <button
+        type="button"
+        class="fixed inset-0 z-10 cursor-default"
+        [attr.aria-label]="'SHELL.CLOSE_ACCOUNT_MENU' | translate"
+        (click)="closeAccount()"
+      ></button>
       <div class="absolute right-0 z-20 mt-2 w-72 rounded-md border border-line bg-panel p-3 shadow-sm" role="menu">
         <p class="text-sm font-semibold text-ink">{{ currentUser()?.displayName }}</p>
         <p class="mt-1 truncate text-sm text-muted">{{ currentUser()?.email }}</p>
@@ -45,7 +79,7 @@
             class="block rounded-md px-2 py-2 text-sm font-medium text-ink hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             (click)="closeAccount()"
           >
-            Change password
+            {{ 'SHELL.CHANGE_PASSWORD' | translate }}
           </a>
           <button
             type="button"
@@ -53,7 +87,7 @@
             class="block w-full rounded-md px-2 py-2 text-left text-sm font-medium text-danger hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             (click)="signOut()"
           >
-            Sign out
+            {{ 'SHELL.SIGN_OUT' | translate }}
           </button>
         </div>
       </div>

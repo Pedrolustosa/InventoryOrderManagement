@@ -1,10 +1,10 @@
 <form class="space-y-6" [formGroup]="form" (ngSubmit)="submit()" novalidate>
   <section class="space-y-4">
-    <h3 class="text-sm font-semibold uppercase tracking-wide text-muted">Customer Information</h3>
+    <h3 class="text-sm font-semibold uppercase tracking-wide text-muted">{{ 'CUSTOMERS.FORM.SECTION_INFO' | translate }}</h3>
 
     <div class="grid gap-4 sm:grid-cols-2">
       <div class="space-y-1.5">
-        <label class="text-sm font-medium text-ink" for="customer-type">Customer Type</label>
+        <label class="text-sm font-medium text-ink" for="customer-type">{{ 'CUSTOMERS.FORM.CUSTOMER_TYPE' | translate }}</label>
         <select
           id="customer-type"
           formControlName="customerType"
@@ -12,14 +12,14 @@
           [class.field-error]="controlInvalid('customerType')"
         >
           @for (type of customerTypes; track type) {
-            <option [value]="type">{{ type }}</option>
+            <option [value]="type">{{ ('STATUS.CUSTOMER_TYPE.' + type) | translate }}</option>
           }
         </select>
       </div>
 
       <div class="space-y-1.5">
         <label class="text-sm font-medium text-ink" for="customer-tax">
-          {{ isCompany() ? 'CNPJ' : 'CPF' }}
+          {{ (isCompany() ? 'CUSTOMERS.FORM.CNPJ' : 'CUSTOMERS.FORM.CPF') | translate }}
         </label>
         <input
           id="customer-tax"
@@ -33,7 +33,7 @@
 
       <div class="space-y-1.5 sm:col-span-2">
         <label class="text-sm font-medium text-ink" for="customer-name">
-          {{ isCompany() ? 'Company Name' : 'Name' }}
+          {{ (isCompany() ? 'CUSTOMERS.FORM.COMPANY_NAME' : 'CUSTOMERS.FORM.NAME') | translate }}
         </label>
         <input
           id="customer-name"
@@ -47,9 +47,9 @@
         @if (controlInvalid('name')) {
           <p class="text-sm text-danger" role="alert">
             @if (form.controls.name.hasError('required')) {
-              Name is required.
+              {{ 'CUSTOMERS.FORM.NAME_REQUIRED' | translate }}
             } @else if (form.controls.name.hasError('maxlength')) {
-              Name cannot exceed 150 characters.
+              {{ 'CUSTOMERS.FORM.NAME_MAX' | translate }}
             }
           </p>
         }
@@ -58,10 +58,10 @@
   </section>
 
   <section class="space-y-4">
-    <h3 class="text-sm font-semibold uppercase tracking-wide text-muted">Contact Information</h3>
+    <h3 class="text-sm font-semibold uppercase tracking-wide text-muted">{{ 'CUSTOMERS.FORM.SECTION_CONTACT' | translate }}</h3>
     <div class="grid gap-4 sm:grid-cols-2">
       <div class="space-y-1.5">
-        <label class="text-sm font-medium text-ink" for="customer-email">Email</label>
+        <label class="text-sm font-medium text-ink" for="customer-email">{{ 'CUSTOMERS.LIST.COL_EMAIL' | translate }}</label>
         <input
           id="customer-email"
           type="email"
@@ -72,15 +72,15 @@
         @if (controlInvalid('email')) {
           <p class="text-sm text-danger" role="alert">
             @if (form.controls.email.hasError('email')) {
-              Email format is invalid.
+              {{ 'CUSTOMERS.FORM.EMAIL_INVALID' | translate }}
             } @else {
-              Email cannot exceed 254 characters.
+              {{ 'CUSTOMERS.FORM.EMAIL_MAX' | translate }}
             }
           </p>
         }
       </div>
       <div class="space-y-1.5">
-        <label class="text-sm font-medium text-ink" for="customer-phone">Phone</label>
+        <label class="text-sm font-medium text-ink" for="customer-phone">{{ 'CUSTOMERS.LIST.COL_PHONE' | translate }}</label>
         <input
           id="customer-phone"
           type="tel"
@@ -89,7 +89,7 @@
           [class.field-error]="controlInvalid('phone')"
         />
         @if (controlInvalid('phone')) {
-          <p class="text-sm text-danger" role="alert">Phone cannot exceed 30 characters.</p>
+          <p class="text-sm text-danger" role="alert">{{ 'CUSTOMERS.FORM.PHONE_MAX' | translate }}</p>
         }
       </div>
     </div>
@@ -97,7 +97,7 @@
 
   <section class="space-y-4">
     <div class="flex flex-wrap items-center justify-between gap-3">
-      <h3 class="text-sm font-semibold uppercase tracking-wide text-muted">Address Information</h3>
+      <h3 class="text-sm font-semibold uppercase tracking-wide text-muted">{{ 'CUSTOMERS.FORM.SECTION_ADDRESS' | translate }}</h3>
       <label class="flex items-center gap-2 text-sm text-ink">
         <input
           type="checkbox"
@@ -105,60 +105,60 @@
           [checked]="includeAddress()"
           (change)="toggleAddress($any($event.target).checked)"
         />
-        Add Address
+        {{ 'CUSTOMERS.FORM.ADD_ADDRESS' | translate }}
       </label>
     </div>
 
     @if (includeAddress()) {
       <div class="grid gap-4 sm:grid-cols-2">
         <div class="space-y-1.5">
-          <label class="text-sm font-medium text-ink" for="postal-code">Postal Code</label>
+          <label class="text-sm font-medium text-ink" for="postal-code">{{ 'COMMON.POSTAL_CODE' | translate }}</label>
           <input id="postal-code" type="text" formControlName="postalCode" class="field" [class.field-error]="controlInvalid('postalCode')" />
           @if (controlInvalid('postalCode')) {
-            <p class="text-sm text-danger" role="alert">Postal code is required.</p>
+            <p class="text-sm text-danger" role="alert">{{ 'CUSTOMERS.FORM.POSTAL_REQUIRED' | translate }}</p>
           }
         </div>
         <div class="space-y-1.5">
-          <label class="text-sm font-medium text-ink" for="number">Number</label>
+          <label class="text-sm font-medium text-ink" for="number">{{ 'COMMON.NUMBER' | translate }}</label>
           <input id="number" type="text" formControlName="number" class="field" [class.field-error]="controlInvalid('number')" />
           @if (controlInvalid('number')) {
-            <p class="text-sm text-danger" role="alert">Number is required.</p>
+            <p class="text-sm text-danger" role="alert">{{ 'CUSTOMERS.FORM.NUMBER_REQUIRED' | translate }}</p>
           }
         </div>
         <div class="space-y-1.5 sm:col-span-2">
-          <label class="text-sm font-medium text-ink" for="street">Street</label>
+          <label class="text-sm font-medium text-ink" for="street">{{ 'COMMON.STREET' | translate }}</label>
           <input id="street" type="text" formControlName="street" class="field" [class.field-error]="controlInvalid('street')" />
           @if (controlInvalid('street')) {
-            <p class="text-sm text-danger" role="alert">Street is required.</p>
+            <p class="text-sm text-danger" role="alert">{{ 'CUSTOMERS.FORM.STREET_REQUIRED' | translate }}</p>
           }
         </div>
         <div class="space-y-1.5">
-          <label class="text-sm font-medium text-ink" for="complement">Complement</label>
+          <label class="text-sm font-medium text-ink" for="complement">{{ 'COMMON.COMPLEMENT' | translate }}</label>
           <input id="complement" type="text" formControlName="complement" class="field" />
         </div>
         <div class="space-y-1.5">
-          <label class="text-sm font-medium text-ink" for="neighborhood">Neighborhood</label>
+          <label class="text-sm font-medium text-ink" for="neighborhood">{{ 'COMMON.NEIGHBORHOOD' | translate }}</label>
           <input id="neighborhood" type="text" formControlName="neighborhood" class="field" />
         </div>
         <div class="space-y-1.5">
-          <label class="text-sm font-medium text-ink" for="city">City</label>
+          <label class="text-sm font-medium text-ink" for="city">{{ 'CUSTOMERS.LIST.COL_CITY' | translate }}</label>
           <input id="city" type="text" formControlName="city" class="field" [class.field-error]="controlInvalid('city')" />
           @if (controlInvalid('city')) {
-            <p class="text-sm text-danger" role="alert">City is required.</p>
+            <p class="text-sm text-danger" role="alert">{{ 'CUSTOMERS.FORM.CITY_REQUIRED' | translate }}</p>
           }
         </div>
         <div class="space-y-1.5">
-          <label class="text-sm font-medium text-ink" for="state">State</label>
+          <label class="text-sm font-medium text-ink" for="state">{{ 'COMMON.STATE' | translate }}</label>
           <input id="state" type="text" formControlName="state" class="field" [class.field-error]="controlInvalid('state')" />
           @if (controlInvalid('state')) {
-            <p class="text-sm text-danger" role="alert">State is required.</p>
+            <p class="text-sm text-danger" role="alert">{{ 'CUSTOMERS.FORM.STATE_REQUIRED' | translate }}</p>
           }
         </div>
         <div class="space-y-1.5 sm:col-span-2">
-          <label class="text-sm font-medium text-ink" for="country">Country</label>
+          <label class="text-sm font-medium text-ink" for="country">{{ 'COMMON.COUNTRY' | translate }}</label>
           <input id="country" type="text" formControlName="country" class="field" [class.field-error]="controlInvalid('country')" />
           @if (controlInvalid('country')) {
-            <p class="text-sm text-danger" role="alert">Country is required.</p>
+            <p class="text-sm text-danger" role="alert">{{ 'CUSTOMERS.FORM.COUNTRY_REQUIRED' | translate }}</p>
           }
         </div>
       </div>
@@ -174,15 +174,15 @@
   <div class="flex flex-wrap gap-3">
     <button type="submit" class="btn-primary" [disabled]="form.invalid || isSubmitting()">
       @if (isSubmitting()) {
-        Saving...
+        {{ 'COMMON.SAVING' | translate }}
       } @else if (mode() === 'edit') {
-        Save Changes
+        {{ 'COMMON.SAVE_CHANGES' | translate }}
       } @else {
-        Save Customer
+        {{ 'CUSTOMERS.FORM.SAVE' | translate }}
       }
     </button>
     <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="cancel()">
-      Cancel
+      {{ 'COMMON.CANCEL' | translate }}
     </button>
   </div>
 </form>

@@ -1,62 +1,62 @@
 <section class="space-y-6">
   <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <h1 class="text-3xl font-semibold tracking-tight text-ink">{{ heading() }}</h1>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">{{ heading() | translate }}</h1>
       <p class="mt-2 max-w-2xl text-sm text-muted">
-        The amount is the value you recognize. A purchase or sales total is only a reference until you apply it.
+        {{ 'FINANCE.FORM.TITLE_INTRO' | translate }}
       </p>
     </div>
-    <a class="btn-secondary" [routerLink]="collectionPath()">Back</a>
+    <a class="btn-secondary" [routerLink]="collectionPath()">{{ 'PERMISSIONS.FORM.BACK' | translate }}</a>
   </div>
 
   @if (isLoading()) {
     <div class="flex items-center gap-3 text-muted" aria-busy="true">
       <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
-      <span>Loading title...</span>
+      <span>{{ 'FINANCE.DETAILS.LOADING' | translate }}</span>
     </div>
   } @else if (loadError()) {
     <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">{{ loadError() }}</div>
   } @else {
     @if (locked()) {
       <p class="rounded-md border border-line bg-surface px-4 py-3 text-sm text-muted" role="status">
-        This title has a settlement or is cancelled, so its values stay as the server stored them.
+        {{ 'FINANCE.FORM.LOCKED' | translate }}
       </p>
     }
 
     <form class="space-y-8" [formGroup]="form" (ngSubmit)="submit()">
       <section class="space-y-4">
-        <h2 class="text-lg font-semibold text-ink">General</h2>
+        <h2 class="text-lg font-semibold text-ink">{{ 'FINANCE.FORM.SECTION_GENERAL' | translate }}</h2>
         <label class="block text-sm font-medium text-ink">
-          Description
+          {{ 'ROLES.FORM.DESCRIPTION' | translate }}
           <input type="text" class="field mt-1" [attr.maxlength]="descriptionMax" formControlName="description" />
         </label>
         <div class="grid gap-4 md:grid-cols-2">
           <label class="block text-sm font-medium text-ink">
-            Counterparty
+            {{ 'FINANCE.FILTERS.COUNTERPARTY' | translate }}
             <select class="field mt-1" formControlName="counterpartyMode">
-              <option value="party">{{ partyLabel() }}</option>
-              <option value="other">Other</option>
+              <option value="party">{{ partyLabel() | translate }}</option>
+              <option value="other">{{ 'FINANCE.FORM.OTHER' | translate }}</option>
             </select>
           </label>
           <label class="block text-sm font-medium text-ink">
-            Document number
+            {{ 'FINANCE.FILTERS.DOCUMENT_NUMBER' | translate }}
             <input type="text" class="field mt-1" [attr.maxlength]="documentMax" formControlName="documentNumber" />
           </label>
           <label class="block text-sm font-medium text-ink">
-            Issue date
+            {{ 'FINANCE.DETAILS.ISSUE_DATE' | translate }}
             <input type="date" class="field mt-1" formControlName="issueDate" />
           </label>
         </div>
 
         @if (form.controls.counterpartyMode.value === 'party') {
           <label class="block text-sm font-medium text-ink">
-            Search {{ partyLabel().toLowerCase() }}
+            Search {{ partyLabel().toLowerCase() | translate }}
             <input type="search" class="field mt-1" [value]="partySearch()" (input)="partySearch.set($any($event.target).value)" />
           </label>
           <label class="block text-sm font-medium text-ink">
-            {{ partyLabel() }}
+            {{ partyLabel() | translate }}
             <select class="field mt-1" formControlName="counterpartyId">
-              <option value="">Select</option>
+              <option value="">{{ 'FINANCE.FORM.SELECT' | translate }}</option>
               @for (party of visibleParties(); track party.id) {
                 <option [value]="party.id">{{ party.name }}</option>
               }
@@ -64,33 +64,33 @@
           </label>
         } @else {
           <label class="block text-sm font-medium text-ink">
-            Name
+            {{ 'ROLES.FORM.NAME' | translate }}
             <input type="text" class="field mt-1" [attr.maxlength]="nameMax" formControlName="counterpartyName" />
           </label>
         }
       </section>
 
       <section class="space-y-4">
-        <h2 class="text-lg font-semibold text-ink">Origin</h2>
+        <h2 class="text-lg font-semibold text-ink">{{ 'FINANCE.DETAILS.ORIGIN' | translate }}</h2>
         <div class="grid gap-4 md:grid-cols-2">
           <label class="block text-sm font-medium text-ink">
-            Source
+            {{ 'FINANCE.FORM.SOURCE' | translate }}
             <select class="field mt-1" formControlName="sourceType" (change)="sourceChanged()">
               @for (type of sourceTypes(); track type) {
-                <option [value]="type">{{ sourceTypeLabel(type) }}</option>
+                <option [value]="type">{{ sourceTypeLabel(type) | translate }}</option>
               }
             </select>
           </label>
           @if (form.controls.sourceType.value !== 'Manual') {
             <label class="block text-sm font-medium text-ink">
-              {{ kind() === 'payable' ? 'Purchase number' : 'Order number' }}
+              {{ (kind() === 'payable' ? 'FINANCE.FORM.PURCHASE_NUMBER' : 'FINANCE.FORM.ORDER_NUMBER') | translate }}
               <input type="search" class="field mt-1" formControlName="sourceNumber" (input)="sourceNumberChanged()" />
             </label>
           }
         </div>
         @if (form.controls.sourceType.value !== 'Manual') {
           <button type="button" class="btn-secondary" [disabled]="isLookingUp()" (click)="findSource()">
-            {{ isLookingUp() ? 'Looking up...' : 'Find document' }}
+            {{ (isLookingUp() ? 'FINANCE.FORM.LOOKING_UP' : 'FINANCE.FORM.FIND_DOCUMENT') | translate }}
           </button>
           @if (sourceError()) {
             <p class="text-sm text-danger" role="alert">{{ sourceError() }}</p>
@@ -98,8 +98,8 @@
           @if (sourceMatch(); as match) {
             <div class="rounded-lg border border-line bg-surface/60 p-4 text-sm text-ink">
               <p>{{ match.number }} · {{ match.partyName }}</p>
-              <p class="mt-1">Reference amount {{ match.referenceAmount | currency: 'BRL' }}</p>
-              <button type="button" class="btn-secondary mt-3" (click)="useReferenceAmount()">Use reference amount</button>
+              <p class="mt-1">{{ 'FINANCE.FORM.REFERENCE_AMOUNT' | translate: { amount: (match.referenceAmount | currency: 'BRL') } }}</p>
+              <button type="button" class="btn-secondary mt-3" (click)="useReferenceAmount()">{{ 'FINANCE.FORM.USE_REFERENCE_AMOUNT' | translate }}</button>
             </div>
           }
         }
@@ -108,36 +108,36 @@
       <section class="space-y-4">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 class="text-lg font-semibold text-ink">Installments</h2>
-            <p class="mt-1 text-sm text-muted">The installment amounts must equal the total. Splitting writes the amounts into the fields.</p>
+            <h2 class="text-lg font-semibold text-ink">{{ 'FINANCE.DETAILS.SECTION_INSTALLMENTS' | translate }}</h2>
+            <p class="mt-1 text-sm text-muted">{{ 'FINANCE.FORM.INSTALLMENT_HELP' | translate }}</p>
           </div>
           <div class="flex flex-wrap gap-2">
-            <button type="button" class="btn-secondary" (click)="addInstallment()">Add installment</button>
-            <button type="button" class="btn-secondary" (click)="splitTotal()">Split total evenly</button>
+            <button type="button" class="btn-secondary" (click)="addInstallment()">{{ 'FINANCE.FORM.ADD_INSTALLMENT' | translate }}</button>
+            <button type="button" class="btn-secondary" (click)="splitTotal()">{{ 'FINANCE.FORM.SPLIT_EVENLY' | translate }}</button>
           </div>
         </div>
         <label class="block max-w-xs text-sm font-medium text-ink">
-          Total amount
+          {{ 'FINANCE.FORM.TOTAL_AMOUNT' | translate }}
           <input type="number" min="0.01" step="0.01" class="field mt-1" formControlName="totalAmount" />
         </label>
         <div class="space-y-3">
           @for (installment of installments.controls; track $index) {
             <div class="grid gap-3 rounded-lg border border-line p-4 md:grid-cols-4" [formGroup]="installment">
               <label class="block text-sm font-medium text-ink">
-                Number
+                {{ 'FINANCE.DETAILS.NUMBER' | translate }}
                 <input type="number" min="1" step="1" class="field mt-1" formControlName="installmentNumber" />
               </label>
               <label class="block text-sm font-medium text-ink">
-                Due date
+                {{ 'FINANCE.FORM.DUE_DATE' | translate }}
                 <input type="date" class="field mt-1" formControlName="dueDate" />
               </label>
               <label class="block text-sm font-medium text-ink">
-                Amount
+                {{ 'FINANCE.DASHBOARD.AXIS_AMOUNT' | translate }}
                 <input type="number" min="0.01" step="0.01" class="field mt-1" formControlName="amount" />
               </label>
               <div class="flex items-end">
                 <button type="button" class="btn-secondary" [disabled]="installments.length === 1" (click)="removeInstallment($index)">
-                  Remove
+                  {{ 'COMMON.REMOVE' | translate }}
                 </button>
               </div>
             </div>
@@ -154,16 +154,16 @@
       </section>
 
       <label class="block text-sm font-medium text-ink">
-        Notes
+        {{ 'FINANCE.DIALOGS.NOTES' | translate }}
         <textarea class="field mt-1 min-h-24" [attr.maxlength]="notesMax" formControlName="notes"></textarea>
       </label>
 
       @if (formError()) {
-        <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">{{ formError() }}</div>
+        <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">{{ formError() | translate: { party: (kind() === 'payable' ? 'FINANCE.FORM.PARTY_SUPPLIER' : 'FINANCE.FORM.PARTY_CUSTOMER') | translate } }}</div>
       }
 
       @if (!locked()) {
-        <button type="submit" class="btn-primary" [disabled]="isSaving()">{{ isSaving() ? 'Saving...' : 'Save title' }}</button>
+        <button type="submit" class="btn-primary" [disabled]="isSaving()">{{ (isSaving() ? 'COMMON.SAVING' : 'FINANCE.FORM.SAVE_TITLE') | translate }}</button>
       }
     </form>
   }

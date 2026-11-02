@@ -1,14 +1,14 @@
-<section class="rounded-xl border border-line bg-panel p-4 shadow-sm" aria-label="Period">
+<section class="rounded-xl border border-line bg-panel p-4 shadow-sm" [attr.aria-label]="'REPORTS.FILTERS.PERIOD' | translate">
   <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
     <div>
-      <h2 class="text-sm font-semibold text-ink">Period</h2>
+      <h2 class="text-sm font-semibold text-ink">{{ 'REPORTS.FILTERS.PERIOD' | translate }}</h2>
       @if (store.range(); as range) {
         <p class="mt-1 text-sm text-muted">
-          {{ range.startLabel }} to {{ range.endLabel }}
-          <span class="block text-xs">Local days, sent to the API as a UTC interval that excludes the end instant.</span>
+          {{ 'REPORTS.FILTERS.PERIOD_RANGE' | translate: { start: range.startLabel, end: range.endLabel } }}
+          <span class="block text-xs">{{ 'REPORTS.FILTERS.PERIOD_HINT' | translate }}</span>
         </p>
       } @else {
-        <p class="mt-1 text-sm text-muted">Choose a valid period to load the time-based reports.</p>
+        <p class="mt-1 text-sm text-muted">{{ 'REPORTS.FILTERS.PERIOD_REQUIRED' | translate }}</p>
       }
     </div>
     <div class="flex flex-wrap gap-2">
@@ -20,7 +20,7 @@
           [class.!text-white]="store.preset() === option.id || (option.id === 'Custom' && store.showCustom())"
           (click)="store.selectPreset(option.id)"
         >
-          {{ option.label }}
+          {{ option.labelKey | translate }}
         </button>
       }
     </div>
@@ -29,7 +29,7 @@
   @if (store.showCustom()) {
     <form class="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end" (submit)="$event.preventDefault(); store.applyCustom()">
       <label class="block text-sm font-medium text-ink">
-        Start date
+        {{ 'COMMON.START_DATE' | translate }}
         <input
           type="date"
           class="field mt-1"
@@ -38,7 +38,7 @@
         />
       </label>
       <label class="block text-sm font-medium text-ink">
-        End date
+        {{ 'COMMON.END_DATE' | translate }}
         <input
           type="date"
           class="field mt-1"
@@ -46,11 +46,11 @@
           (input)="store.draftEnd.set($any($event.target).value)"
         />
       </label>
-      <button type="submit" class="btn-primary">Apply period</button>
+      <button type="submit" class="btn-primary">{{ 'REPORTS.FILTERS.APPLY_PERIOD' | translate }}</button>
     </form>
   }
 
   @if (store.validationError()) {
-    <p class="mt-3 text-sm text-danger" role="alert">{{ store.validationError() }}</p>
+    <p class="mt-3 text-sm text-danger" role="alert">{{ store.validationError() | translate }}</p>
   }
 </section>

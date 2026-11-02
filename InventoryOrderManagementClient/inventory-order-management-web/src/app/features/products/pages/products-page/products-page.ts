@@ -1,5 +1,8 @@
 import { Component, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
+
 import { RouterLink } from '@angular/router';
+import { ToastService } from '../../../../core/notifications/toast.service';
 import { CategoryResponse } from '../../../categories/models/category.model';
 import { CategoriesService } from '../../../categories/services/categories.service';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
@@ -11,11 +14,12 @@ import { ProductsService } from '../../services/products.service';
 
 @Component({
   selector: 'app-products-page',
-  imports: [ProductForm, ProductList, RouterLink, HasPermissionDirective],
+  imports: [ProductForm, ProductList, RouterLink, HasPermissionDirective, TranslatePipe],
   templateUrl: './products-page.html',
 })
 export class ProductsPage implements OnInit {
   private readonly productsService = inject(ProductsService);
+  private readonly toast = inject(ToastService);
   private readonly categoriesService = inject(CategoriesService);
 
   @ViewChild(ProductForm) private productForm?: ProductForm;
@@ -28,7 +32,6 @@ export class ProductsPage implements OnInit {
   readonly formVisible = signal(false);
   readonly loadError = signal<string | null>(null);
   readonly submitError = signal<string | null>(null);
-  readonly successMessage = signal<string | null>(null);
 
   readonly categoryNamesById = computed(() => {
     const map = new Map<string, string>();
@@ -45,7 +48,6 @@ export class ProductsPage implements OnInit {
   }
 
   openForm(): void {
-    this.successMessage.set(null);
     this.submitError.set(null);
     this.formVisible.set(true);
     this.loadActiveCategories();
@@ -94,12 +96,11 @@ export class ProductsPage implements OnInit {
 
     this.isSubmitting.set(true);
     this.submitError.set(null);
-    this.successMessage.set(null);
 
     this.productsService.createProduct(request).subscribe({
       next: (created) => {
         this.isSubmitting.set(false);
-        this.successMessage.set(`Product "${created.name}" (${created.sku}) was created successfully.`);
+        this.toast.successKey('PRODUCTS.FORM.SUCCESS_CREATED', { name: created.name, sku: created.sku });
         this.closeForm();
         this.loadProducts();
       },

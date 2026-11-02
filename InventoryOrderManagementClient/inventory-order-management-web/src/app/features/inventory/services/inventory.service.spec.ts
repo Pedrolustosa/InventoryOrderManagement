@@ -5,6 +5,8 @@ import { environment } from '../../../../environments/environment';
 import { InventoryBalance } from '../models/inventory-balance.model';
 import { StockMovement } from '../models/stock-movement.model';
 import { InventoryService } from './inventory.service';
+import { provideTestTranslate } from '../../../core/i18n/testing/provide-test-translate';
+
 
 describe('InventoryService', () => {
   let service: InventoryService;
@@ -38,7 +40,7 @@ describe('InventoryService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), InventoryService],
+      providers: [...provideTestTranslate(), provideHttpClient(), provideHttpClientTesting(), InventoryService],
     });
 
     service = TestBed.inject(InventoryService);

@@ -1,5 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
+import { ToastService } from '../../../../core/notifications/toast.service';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { CustomersService } from '../../../customers/services/customers.service';
 import { CustomerResponse } from '../../../customers/models/customer.model';
@@ -21,7 +23,7 @@ type StatusFilter = 'all' | ReturnStatus;
 
 @Component({
   selector: 'app-returns-page',
-  imports: [RouterLink, ReturnList, ReturnCancelDialog, HasPermissionDirective],
+  imports: [RouterLink, ReturnList, ReturnCancelDialog, HasPermissionDirective, TranslatePipe],
   templateUrl: './returns-page.html',
 })
 export class ReturnsPage implements OnInit {
@@ -30,6 +32,7 @@ export class ReturnsPage implements OnInit {
   private readonly suppliersService = inject(SuppliersService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   readonly statuses = RETURN_STATUSES;
   readonly returns = signal<ReturnSummary[]>([]);
@@ -38,7 +41,6 @@ export class ReturnsPage implements OnInit {
   readonly isLoading = signal(false);
   readonly isActing = signal(false);
   readonly loadError = signal<string | null>(null);
-  readonly successMessage = signal<string | null>(null);
   readonly actionError = signal<string | null>(null);
   readonly statusFilter = signal<StatusFilter>('all');
   readonly customerId = signal('');
@@ -56,23 +58,23 @@ export class ReturnsPage implements OnInit {
   readonly title = computed(() => {
     const type = this.fixedType();
     if (type === 'CustomerReturn') {
-      return 'Customer returns';
+      return 'RETURNS.LIST.TITLE_CUSTOMER';
     }
     if (type === 'SupplierReturn') {
-      return 'Supplier returns';
+      return 'RETURNS.LIST.TITLE_SUPPLIER';
     }
-    return 'Returns & exchanges';
+    return 'RETURNS.LIST.TITLE_ALL';
   });
 
   readonly subtitle = computed(() => {
     const type = this.fixedType();
     if (type === 'CustomerReturn') {
-      return 'Manage products returned by customers, receipt and inspection.';
+      return 'RETURNS.LIST.SUBTITLE_CUSTOMER';
     }
     if (type === 'SupplierReturn') {
-      return 'Manage returns to suppliers, authorization and dispatch.';
+      return 'RETURNS.LIST.SUBTITLE_SUPPLIER';
     }
-    return 'Consult customer and supplier returns, history and related stock movements.';
+    return 'RETURNS.LIST.SUBTITLE_ALL';
   });
 
   readonly createPath = computed(() => {
@@ -98,13 +100,13 @@ export class ReturnsPage implements OnInit {
   });
 
   readonly createLabel = computed(() =>
-    this.fixedType() === 'SupplierReturn' ? 'New supplier return' : 'New customer return',
+    this.fixedType() === 'SupplierReturn' ? 'RETURNS.ACTIONS.NEW_SUPPLIER' : 'RETURNS.ACTIONS.NEW_CUSTOMER',
   );
 
   readonly emptyMessage = computed(() =>
     hasReturnFilters(this.appliedFilters())
-      ? 'No returns match the current filters.'
-      : 'There are no returns yet.',
+      ? 'RETURNS.LIST.EMPTY_FILTERED'
+      : 'RETURNS.LIST.EMPTY_NO_DATA',
   );
 
   ngOnInit(): void {
@@ -193,7 +195,6 @@ export class ReturnsPage implements OnInit {
   }
 
   openCancel(item: ReturnSummary): void {
-    this.successMessage.set(null);
     this.actionError.set(null);
     this.pendingCancel.set(item);
   }
@@ -219,7 +220,7 @@ export class ReturnsPage implements OnInit {
       next: (updated) => {
         this.isActing.set(false);
         this.pendingCancel.set(null);
-        this.successMessage.set(`Return ${updated.returnNumber} was cancelled.`);
+        this.toast.successKey('RETURNS.DETAILS.SUCCESS_CANCELLED', { number: updated.returnNumber });
         this.loadReturns();
       },
       error: (error: ReturnsRequestError) => {

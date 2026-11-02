@@ -1,4 +1,6 @@
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
+
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ProductResponse } from '../../../products/models/product.model';
 import { AdjustStockRequest } from '../../models/adjust-stock-request.model';
@@ -6,7 +8,7 @@ import { integerAtLeast } from '../../models/integer-validator';
 
 @Component({
   selector: 'app-adjust-stock-form',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TranslatePipe],
   templateUrl: './adjust-stock-form.html',
 })
 export class AdjustStockForm {

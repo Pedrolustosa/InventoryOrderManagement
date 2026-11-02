@@ -1,10 +1,12 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
+
 import { Component, input } from '@angular/core';
 import { ProductResponse } from '../../models/product.model';
 
 @Component({
   selector: 'app-product-list',
-  imports: [CurrencyPipe, DatePipe],
+  imports: [CurrencyPipe, DatePipe, TranslatePipe],
   templateUrl: './product-list.html',
 })
 export class ProductList {

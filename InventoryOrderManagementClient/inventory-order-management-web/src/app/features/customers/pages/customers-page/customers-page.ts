@@ -1,4 +1,7 @@
 import { Component, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
+
+import { ToastService } from '../../../../core/notifications/toast.service';
 import { DeactivateConfirm } from '../../components/deactivate-confirm/deactivate-confirm';
 import { CustomerDetail } from '../../components/customer-detail/customer-detail';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
@@ -16,11 +19,12 @@ type PanelMode = 'none' | 'create' | 'edit' | 'detail' | 'deactivate';
 
 @Component({
   selector: 'app-customers-page',
-  imports: [CustomerForm, CustomerList, CustomerDetail, DeactivateConfirm, HasPermissionDirective],
+  imports: [CustomerForm, CustomerList, CustomerDetail, DeactivateConfirm, HasPermissionDirective, TranslatePipe],
   templateUrl: './customers-page.html',
 })
 export class CustomersPage implements OnInit {
   private readonly customersService = inject(CustomersService);
+  private readonly toast = inject(ToastService);
 
   @ViewChild(CustomerForm) private customerForm?: CustomerForm;
 
@@ -30,7 +34,6 @@ export class CustomersPage implements OnInit {
   readonly isDetailLoading = signal(false);
   readonly loadError = signal<string | null>(null);
   readonly submitError = signal<string | null>(null);
-  readonly successMessage = signal<string | null>(null);
   readonly statusFilter = signal<StatusFilter>('all');
   readonly typeFilter = signal<TypeFilter>('all');
   readonly searchTerm = signal('');
@@ -91,7 +94,6 @@ export class CustomersPage implements OnInit {
   }
 
   openCreate(): void {
-    this.successMessage.set(null);
     this.submitError.set(null);
     this.selectedCustomer.set(null);
     this.panelMode.set('create');
@@ -102,14 +104,12 @@ export class CustomersPage implements OnInit {
       return;
     }
 
-    this.successMessage.set(null);
     this.submitError.set(null);
     this.selectedCustomer.set(customer);
     this.panelMode.set('edit');
   }
 
   openDetail(customer: CustomerResponse): void {
-    this.successMessage.set(null);
     this.submitError.set(null);
     this.panelMode.set('detail');
     this.isDetailLoading.set(true);
@@ -132,7 +132,6 @@ export class CustomersPage implements OnInit {
       return;
     }
 
-    this.successMessage.set(null);
     this.submitError.set(null);
     this.selectedCustomer.set(customer);
     this.panelMode.set('deactivate');
@@ -176,7 +175,6 @@ export class CustomersPage implements OnInit {
 
     this.isSubmitting.set(true);
     this.submitError.set(null);
-    this.successMessage.set(null);
 
     if (this.panelMode() === 'edit') {
       const current = this.selectedCustomer();
@@ -188,7 +186,7 @@ export class CustomersPage implements OnInit {
       this.customersService.updateCustomer(current.id, request).subscribe({
         next: () => {
           this.isSubmitting.set(false);
-          this.successMessage.set(`Customer "${request.name}" was updated successfully.`);
+          this.toast.successKey('CUSTOMERS.FORM.SUCCESS_UPDATED', { name: request.name });
           this.closePanel();
           this.loadCustomers();
         },
@@ -203,7 +201,7 @@ export class CustomersPage implements OnInit {
     this.customersService.createCustomer(request).subscribe({
       next: (created) => {
         this.isSubmitting.set(false);
-        this.successMessage.set(`Customer "${created.name}" was created successfully.`);
+        this.toast.successKey('CUSTOMERS.FORM.SUCCESS_CREATED', { name: created.name });
         this.closePanel();
         this.loadCustomers();
       },
@@ -226,7 +224,7 @@ export class CustomersPage implements OnInit {
     this.customersService.deactivateCustomer(current.id).subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        this.successMessage.set(`Customer "${current.name}" was deactivated.`);
+        this.toast.successKey('CUSTOMERS.FORM.SUCCESS_DEACTIVATED', { name: current.name });
         this.closePanel();
         this.loadCustomers();
       },

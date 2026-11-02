@@ -1,4 +1,5 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FinancePeriodFilter } from '../../components/finance-period-filter/finance-period-filter';
 import { CashAccount } from '../../models/cash-account.model';
@@ -10,7 +11,7 @@ import { FinanceRequestError, FinanceService } from '../../services/finance.serv
 
 @Component({
   selector: 'app-settlement-list-page',
-  imports: [CurrencyPipe, DatePipe, FinancePeriodFilter],
+  imports: [TranslatePipe, CurrencyPipe, DatePipe, FinancePeriodFilter],
   templateUrl: './settlement-list-page.html',
 })
 export class SettlementListPage implements OnInit {
@@ -41,7 +42,7 @@ export class SettlementListPage implements OnInit {
 
   accountName(id: string | null | undefined): string {
     if (!id) {
-      return 'No cash movement';
+      return 'FINANCE.LIST.NO_CASH_MOVEMENT';
     }
 
     return this.accounts().find((account) => account.id === id)?.name ?? 'Unknown account';

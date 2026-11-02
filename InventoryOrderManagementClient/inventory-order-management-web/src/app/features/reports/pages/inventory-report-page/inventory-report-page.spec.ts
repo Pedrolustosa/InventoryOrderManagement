@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideTranslateService } from '@ngx-translate/core';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { CategoriesService } from '../../../categories/services/categories.service';
@@ -73,7 +74,7 @@ describe('InventoryReportPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [InventoryReportPage],
-      providers: [
+      providers: [provideTranslateService(), 
         provideRouter([]),
         { provide: ReportsService, useValue: reports },
         { provide: CategoriesService, useValue: { getCategories: () => of([{ id: 'category-1', name: 'Electronics' }]) } },
@@ -91,10 +92,10 @@ describe('InventoryReportPage', () => {
     fixture.detectChanges();
 
     const text = fixture.nativeElement.textContent as string;
-    expect(text).toContain('Out of Stock');
-    expect(text).toContain('Low Stock');
+    expect(text).toContain('STATUS.INVENTORY_STOCK.OutOfStock');
+    expect(text).toContain('STATUS.INVENTORY_STOCK.LowStock');
     expect(text).toContain('A5 Notebook');
-    expect(text).toContain('current snapshot');
+    expect(text).toContain('REPORTS.OVERVIEW.NOTE_INVENTORY');
     expect(text).toContain('1');
     expect(reports.getInventoryReport).toHaveBeenCalledWith(expect.objectContaining({ page: 1, pageSize: 20 }));
     expect(reports.getInventoryReport.mock.calls[0][0].startDateUtc).toBeUndefined();

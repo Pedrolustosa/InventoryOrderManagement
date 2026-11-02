@@ -1,4 +1,5 @@
 import { registerLocaleData } from '@angular/common';
+import { provideTranslateService } from '@ngx-translate/core';
 import localePt from '@angular/common/locales/pt';
 import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -56,7 +57,7 @@ describe('ReportsOverviewPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [ReportsOverviewPage],
-      providers: [
+      providers: [provideTranslateService(), 
         { provide: ReportsService, useValue: reports },
         { provide: ReportPeriodStore, useValue: period },
         { provide: LOCALE_ID, useValue: 'pt-BR' },
@@ -72,14 +73,14 @@ describe('ReportsOverviewPage', () => {
     fixture.detectChanges();
 
     const text = fixture.nativeElement.textContent as string;
-    expect(text).toContain('Total Products');
+    expect(text).toContain('REPORTS.OVERVIEW.TOTAL_PRODUCTS');
     expect(text).toContain('5');
     expect(text).toContain('999,30');
     expect(text).toContain('333,10');
     expect(text).toContain('33,33%');
     expect(text).toContain('349,80');
-    expect(text).toContain('not cash received');
-    expect(text).toContain('current snapshot');
+    expect(text).toContain('REPORTS.OVERVIEW.NOTE_CONFIRMED_VALUE');
+    expect(text).toContain('REPORTS.OVERVIEW.NOTE_INVENTORY');
   });
 
   it('should reload indicators when the period changes', async () => {
@@ -104,7 +105,7 @@ describe('ReportsOverviewPage', () => {
 
     fixture.detectChanges();
     const text = fixture.nativeElement.textContent as string;
-    expect(text).toContain('Loading overview');
+    expect(text).toContain('REPORTS.OVERVIEW.LOADING');
 
     pending.next(dashboard);
     pending.complete();
@@ -113,6 +114,6 @@ describe('ReportsOverviewPage', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Invalid period.');
-    expect(fixture.nativeElement.textContent).toContain('Total Products');
+    expect(fixture.nativeElement.textContent).toContain('REPORTS.OVERVIEW.TOTAL_PRODUCTS');
   });
 });

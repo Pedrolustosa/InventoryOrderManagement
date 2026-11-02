@@ -1,12 +1,13 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/services/auth.service';
 import { NavIcon } from './nav-icon';
 import { NAVIGATION_GROUPS } from './navigation';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [RouterLink, RouterLinkActive, NavIcon],
+  imports: [RouterLink, RouterLinkActive, NavIcon, TranslatePipe],
   templateUrl: './sidebar.html',
 })
 export class Sidebar {

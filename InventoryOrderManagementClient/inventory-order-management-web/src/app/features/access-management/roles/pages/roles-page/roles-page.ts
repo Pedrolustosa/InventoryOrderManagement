@@ -1,20 +1,22 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { RouterLink } from '@angular/router';
+import { ToastService } from '../../../../../core/notifications/toast.service';
 import { HasPermissionDirective } from '../../../../../shared/directives/has-permission.directive';
 import { Role } from '../../models/role.model';
 import { RolesService } from '../../services/roles.service';
 
 @Component({
   selector: 'app-roles-page',
-  imports: [RouterLink, HasPermissionDirective],
+  imports: [TranslatePipe, RouterLink, HasPermissionDirective],
   templateUrl: './roles-page.html',
 })
 export class RolesPage implements OnInit {
   private readonly rolesService = inject(RolesService);
+  private readonly toast = inject(ToastService);
 
   readonly roles = signal<Role[]>([]);
   readonly errorMessage = signal<string | null>(null);
-  readonly successMessage = signal<string | null>(null);
   readonly pendingDelete = signal<Role | null>(null);
 
   ngOnInit(): void {
@@ -37,12 +39,12 @@ export class RolesPage implements OnInit {
     this.rolesService.deleteRole(role.id).subscribe({
       next: () => {
         this.pendingDelete.set(null);
-        this.successMessage.set(`${role.name} was deleted.`);
+        this.toast.successKey('ROLES.LIST.SUCCESS_DELETED', { roleName: role.name });
         this.load();
       },
       error: (error: Error) => {
         this.pendingDelete.set(null);
-        this.errorMessage.set(error.message);
+        this.toast.error(error.message);
       },
     });
   }

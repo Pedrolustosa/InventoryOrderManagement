@@ -1,4 +1,6 @@
 import { CurrencyPipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
+
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
@@ -18,7 +20,7 @@ interface DraftLine {
 
 @Component({
   selector: 'app-purchase-order-form',
-  imports: [ReactiveFormsModule, CurrencyPipe],
+  imports: [ReactiveFormsModule, CurrencyPipe, TranslatePipe],
   templateUrl: './purchase-order-form.html',
 })
 export class PurchaseOrderForm {
@@ -145,25 +147,25 @@ export class PurchaseOrderForm {
   }
 
   displayValue(value: string | null | undefined): string {
-    return value && value.trim().length > 0 ? value : 'Not informed';
+    return value && value.trim().length > 0 ? value : 'COMMON.NOT_INFORMED';
   }
 
   addItem(): void {
     this.itemError.set(null);
     if (this.itemForm.invalid) {
       this.itemForm.markAllAsTouched();
-      this.itemError.set('Select a product, a positive whole quantity and a cost of zero or more.');
+      this.itemError.set('PURCHASES.FORM.ERR_SELECT_LINE');
       return;
     }
 
     const product = this.selectedProduct();
     if (!product || !product.isActive) {
-      this.itemError.set('Inactive products cannot be added to a purchase order.');
+      this.itemError.set('PURCHASES.FORM.ERR_INACTIVE_PRODUCT');
       return;
     }
 
     if (this.items().some((item) => item.productId === product.id)) {
-      this.itemError.set('The same product cannot be added more than once.');
+      this.itemError.set('PURCHASES.FORM.ERR_DUPLICATE');
       return;
     }
 
@@ -216,12 +218,12 @@ export class PurchaseOrderForm {
     const supplier = this.suppliers().find((entry) => entry.id === supplierId) ?? null;
     if (!supplierId) {
       this.form.controls.supplierId.markAsTouched();
-      this.itemError.set('Select a supplier.');
+      this.itemError.set('PURCHASES.FORM.ERR_SELECT_SUPPLIER');
       return;
     }
 
     if (this.mode() === 'create' && (!supplier || !supplier.isActive)) {
-      this.itemError.set('Inactive suppliers cannot be used on a purchase order.');
+      this.itemError.set('PURCHASES.FORM.ERR_INACTIVE_SUPPLIER');
       return;
     }
 
@@ -231,24 +233,24 @@ export class PurchaseOrderForm {
     }
 
     if (this.items().length === 0) {
-      this.itemError.set('Add at least one product to the purchase order.');
+      this.itemError.set('PURCHASES.FORM.ERR_ADD_PRODUCT');
       return;
     }
 
     const productIds = this.items().map((item) => item.productId);
     if (new Set(productIds).size !== productIds.length) {
-      this.itemError.set('The same product cannot be added more than once.');
+      this.itemError.set('PURCHASES.FORM.ERR_DUPLICATE');
       return;
     }
 
     for (const item of this.items()) {
       if (!Number.isInteger(item.orderedQuantity) || item.orderedQuantity < 1) {
-        this.itemError.set('Ordered quantity must be a positive whole number.');
+        this.itemError.set('PURCHASES.FORM.ERR_QTY');
         return;
       }
 
       if (item.unitCost < 0 || Number.isNaN(item.unitCost)) {
-        this.itemError.set('Unit cost cannot be negative.');
+        this.itemError.set('PURCHASES.FORM.ERR_COST');
         return;
       }
     }

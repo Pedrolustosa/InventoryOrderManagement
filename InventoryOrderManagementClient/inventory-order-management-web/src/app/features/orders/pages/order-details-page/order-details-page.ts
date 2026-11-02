@@ -1,6 +1,9 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ToastService } from '../../../../core/notifications/toast.service';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { InventoryService } from '../../../inventory/services/inventory.service';
 import { ShipmentSummary } from '../../../shipping/models/shipment.model';
@@ -14,12 +17,14 @@ import { OrdersService } from '../../services/orders.service';
 
 @Component({
   selector: 'app-order-details-page',
-  imports: [RouterLink, CurrencyPipe, DatePipe, OrderTimeline, OrderActionDialog, HasPermissionDirective],
+  imports: [RouterLink, CurrencyPipe, DatePipe, OrderTimeline, OrderActionDialog, HasPermissionDirective, TranslatePipe],
   templateUrl: './order-details-page.html',
 })
 export class OrderDetailsPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
   private readonly ordersService = inject(OrdersService);
   private readonly inventoryService = inject(InventoryService);
   private readonly shipmentsService = inject(ShipmentsService);
@@ -31,7 +36,6 @@ export class OrderDetailsPage implements OnInit {
   readonly isActing = signal(false);
   readonly loadError = signal<string | null>(null);
   readonly actionError = signal<string | null>(null);
-  readonly successMessage = signal<string | null>(null);
   readonly pendingAction = signal<OrderLifecycleAction | null>(null);
 
   readonly totalItems = computed(() => this.order()?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0);
@@ -59,7 +63,7 @@ export class OrderDetailsPage implements OnInit {
   constructor() {
     const state = this.router.getCurrentNavigation()?.extras.state as { successMessage?: string } | undefined;
     if (state?.successMessage) {
-      this.successMessage.set(state.successMessage);
+      this.toast.success(state.successMessage);
     }
   }
 
@@ -78,7 +82,6 @@ export class OrderDetailsPage implements OnInit {
 
   openAction(action: OrderLifecycleAction): void {
     this.actionError.set(null);
-    this.successMessage.set(null);
     this.pendingAction.set(action);
   }
 
@@ -105,7 +108,7 @@ export class OrderDetailsPage implements OnInit {
         this.order.set(updated);
         this.isActing.set(false);
         this.pendingAction.set(null);
-        this.successMessage.set(this.successText(action, updated.orderNumber));
+        this.toast.success(this.successText(action, updated.orderNumber));
         if (action === 'confirm' || action === 'cancel') {
           this.loadAvailability(updated);
         }
@@ -120,7 +123,7 @@ export class OrderDetailsPage implements OnInit {
   private loadOrder(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
-      this.loadError.set('Order was not found.');
+      this.loadError.set(this.translate.instant('ORDERS.DETAILS.NOT_FOUND'));
       this.isLoading.set(false);
       return;
     }
@@ -178,13 +181,13 @@ export class OrderDetailsPage implements OnInit {
   private successText(action: OrderLifecycleAction, orderNumber: string): string {
     switch (action) {
       case 'confirm':
-        return `Order ${orderNumber} was confirmed. Stock was issued by the server.`;
+        return this.translate.instant('ORDERS.DETAILS.SUCCESS_CONFIRMED', { orderNumber });
       case 'ship':
-        return `Order ${orderNumber} was shipped.`;
+        return this.translate.instant('ORDERS.DETAILS.SUCCESS_SHIPPED', { orderNumber });
       case 'deliver':
-        return `Order ${orderNumber} was delivered.`;
+        return this.translate.instant('ORDERS.DETAILS.SUCCESS_DELIVERED', { orderNumber });
       case 'cancel':
-        return `Order ${orderNumber} was cancelled.`;
+        return this.translate.instant('ORDERS.DETAILS.SUCCESS_CANCELLED', { orderNumber });
     }
   }
 }

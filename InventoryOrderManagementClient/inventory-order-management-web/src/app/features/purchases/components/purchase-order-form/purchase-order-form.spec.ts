@@ -7,6 +7,8 @@ import { SupplierResponse } from '../../../suppliers/models/supplier.model';
 import { CreatePurchaseOrderRequest } from '../../models/purchase-order-requests.model';
 import { PurchaseOrder } from '../../models/purchase-order.model';
 import { PurchaseOrderForm } from './purchase-order-form';
+import { provideTestTranslate } from '../../../../core/i18n/testing/provide-test-translate';
+
 
 registerLocaleData(localePt);
 
@@ -77,7 +79,7 @@ describe('PurchaseOrderForm', () => {
     saved.length = 0;
     await TestBed.configureTestingModule({
       imports: [PurchaseOrderForm],
-      providers: [{ provide: LOCALE_ID, useValue: 'pt-BR' }],
+      providers: [...provideTestTranslate(), { provide: LOCALE_ID, useValue: 'pt-BR' }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PurchaseOrderForm);
@@ -97,7 +99,7 @@ describe('PurchaseOrderForm', () => {
     component.submit();
 
     expect(saved).toEqual([]);
-    expect(component.itemError()).toContain('supplier');
+    expect(component.itemError()).toBe('PURCHASES.FORM.ERR_SELECT_SUPPLIER');
   });
 
   it('should reject a duplicate product and a negative cost', () => {
@@ -107,7 +109,7 @@ describe('PurchaseOrderForm', () => {
     component.itemForm.setValue({ productId: widget.id, orderedQuantity: 2, unitCost: 1.25 });
     component.addItem();
 
-    expect(component.itemError()).toContain('more than once');
+    expect(component.itemError()).toBe('PURCHASES.FORM.ERR_DUPLICATE');
     expect(component.items()).toHaveLength(1);
 
     component.itemForm.controls.unitCost.setValue(-1);

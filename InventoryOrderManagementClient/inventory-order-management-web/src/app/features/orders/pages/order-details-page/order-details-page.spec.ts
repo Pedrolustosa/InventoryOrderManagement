@@ -10,8 +10,12 @@ import { Order } from '../../models/order.model';
 import { OrderStatus } from '../../models/order-status.model';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { permittedAuth } from '../../../../core/auth/testing/permitted-auth';
+import { ToastService } from '../../../../core/notifications/toast.service';
+import { createToastServiceSpy } from '../../../../core/notifications/testing/toast-testing';
 import { OrdersService } from '../../services/orders.service';
 import { OrderDetailsPage } from './order-details-page';
+import { provideTestTranslate } from '../../../../core/i18n/testing/provide-test-translate';
+
 
 registerLocaleData(localePt);
 
@@ -76,7 +80,7 @@ describe('OrderDetailsPage', () => {
   async function setup(
     order: Order,
     linkedShipment: { id: string; orderId: string } | null = null,
-  ): Promise<void> {
+  ): Promise<ReturnType<typeof createToastServiceSpy>> {
     ordersService = {
       getOrderById: vi.fn().mockReturnValue(of(order)),
       confirmOrder: vi.fn(),
@@ -87,10 +91,11 @@ describe('OrderDetailsPage', () => {
     shipmentsService = {
       getByOrderId: vi.fn().mockReturnValue(of(linkedShipment)),
     };
+    const toast = createToastServiceSpy();
 
     await TestBed.configureTestingModule({
       imports: [OrderDetailsPage],
-      providers: [
+      providers: [...provideTestTranslate(), 
         provideRouter([]),
         { provide: OrdersService, useValue: ordersService },
         { provide: ShipmentsService, useValue: shipmentsService },
@@ -102,6 +107,7 @@ describe('OrderDetailsPage', () => {
           provide: ActivatedRoute,
           useValue: { snapshot: { paramMap: convertToParamMap({ id: order.id }) } },
         },
+        { provide: ToastService, useValue: toast },
         { provide: LOCALE_ID, useValue: 'pt-BR' },
         { provide: AuthService, useValue: permittedAuth() },
       ],
@@ -112,6 +118,7 @@ describe('OrderDetailsPage', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
+    return toast;
   }
 
   it('should show the stored order, address, items, subtotal, and timeline', async () => {
@@ -142,7 +149,7 @@ describe('OrderDetailsPage', () => {
   });
 
   it('should confirm a draft and replace the order with the API response', async () => {
-    await setup(buildOrder('Draft'));
+    const toast = await setup(buildOrder('Draft'));
     const confirmed = buildOrder('Confirmed');
     ordersService.confirmOrder.mockReturnValue(of(confirmed));
 
@@ -154,7 +161,7 @@ describe('OrderDetailsPage', () => {
 
     expect(ordersService.confirmOrder).toHaveBeenCalledWith('order-1');
     expect(component.order()?.status).toBe('Confirmed');
-    expect(fixture.nativeElement.textContent).toContain('was confirmed');
+    expect(toast.success).toHaveBeenCalledWith(expect.stringContaining('was confirmed'));
   });
 
   it('should keep the current status when confirmation reports insufficient stock', async () => {

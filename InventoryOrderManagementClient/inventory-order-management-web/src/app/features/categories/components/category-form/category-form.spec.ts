@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CreateCategoryRequest } from '../../models/create-category-request.model';
 import { CategoryForm } from './category-form';
+import { provideTestTranslate } from '../../../../core/i18n/testing/provide-test-translate';
+
 
 describe('CategoryForm', () => {
   let fixture: ComponentFixture<CategoryForm>;
@@ -8,6 +10,7 @@ describe('CategoryForm', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [...provideTestTranslate()],
       imports: [CategoryForm],
     }).compileComponents();
 

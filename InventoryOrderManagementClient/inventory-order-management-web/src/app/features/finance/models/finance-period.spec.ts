@@ -15,6 +15,6 @@ describe('finance period', () => {
 
   it('rejects a custom range that ends before it starts', () => {
     const result = resolveFinanceRange('Custom', '2026-11-10', '2026-11-01', now);
-    expect(result).toEqual({ error: 'The start date cannot be later than the end date.' });
+    expect(result).toEqual({ error: 'FINANCE.FILTERS.PERIOD_ERROR' });
   });
 });

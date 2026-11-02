@@ -1,45 +1,45 @@
 <section class="rounded-xl border border-line bg-panel p-5 shadow-sm sm:p-6">
   <div class="mb-5 flex items-start justify-between gap-4">
     <div>
-      <h2 class="text-lg font-semibold text-ink">Category Details</h2>
-      <p class="mt-1 text-sm text-muted">Read-only view of the selected category.</p>
+      <h2 class="text-lg font-semibold text-ink">{{ 'CATEGORIES.DETAILS.TITLE' | translate }}</h2>
+      <p class="mt-1 text-sm text-muted">{{ 'CATEGORIES.DETAILS.SUBTITLE' | translate }}</p>
     </div>
-    <button type="button" class="btn-secondary" (click)="closed.emit()">Close</button>
+    <button type="button" class="btn-secondary" (click)="closed.emit()">{{ 'COMMON.CLOSE' | translate }}</button>
   </div>
 
   @if (isLoading()) {
-    <p class="text-sm text-muted">Loading category...</p>
+    <p class="text-sm text-muted">{{ 'CATEGORIES.DETAILS.LOADING' | translate }}</p>
   } @else {
     <dl class="grid gap-4 sm:grid-cols-2">
       <div>
-        <dt class="text-xs uppercase tracking-wide text-muted">Name</dt>
+        <dt class="text-xs uppercase tracking-wide text-muted">{{ 'CATEGORIES.LIST.COL_NAME' | translate }}</dt>
         <dd class="mt-1 text-sm font-medium text-ink">{{ category().name }}</dd>
       </div>
       <div>
-        <dt class="text-xs uppercase tracking-wide text-muted">Status</dt>
+        <dt class="text-xs uppercase tracking-wide text-muted">{{ 'CATEGORIES.LIST.COL_STATUS' | translate }}</dt>
         <dd class="mt-1">
           @if (category().isActive) {
-            <span class="badge-active">Active</span>
+            <span class="badge-active">{{ 'COMMON.ACTIVE' | translate }}</span>
           } @else {
-            <span class="badge-inactive">Inactive</span>
+            <span class="badge-inactive">{{ 'COMMON.INACTIVE' | translate }}</span>
           }
         </dd>
       </div>
       <div class="sm:col-span-2">
-        <dt class="text-xs uppercase tracking-wide text-muted">Description</dt>
+        <dt class="text-xs uppercase tracking-wide text-muted">{{ 'CATEGORIES.LIST.COL_DESCRIPTION' | translate }}</dt>
         <dd class="mt-1 text-sm text-ink">{{ category().description || '—' }}</dd>
       </div>
       <div>
-        <dt class="text-xs uppercase tracking-wide text-muted">Created At</dt>
+        <dt class="text-xs uppercase tracking-wide text-muted">{{ 'CATEGORIES.LIST.COL_CREATED_AT' | translate }}</dt>
         <dd class="mt-1 text-sm text-ink">{{ category().createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd>
       </div>
       <div>
-        <dt class="text-xs uppercase tracking-wide text-muted">Updated At</dt>
+        <dt class="text-xs uppercase tracking-wide text-muted">{{ 'CATEGORIES.LIST.COL_UPDATED_AT' | translate }}</dt>
         <dd class="mt-1 text-sm text-ink">
           @if (category().updatedAtUtc) {
             {{ category().updatedAtUtc | date: 'dd/MM/yyyy HH:mm' }}
           } @else {
-            —
+            {{ 'COMMON.EMPTY' | translate }}
           }
         </dd>
       </div>

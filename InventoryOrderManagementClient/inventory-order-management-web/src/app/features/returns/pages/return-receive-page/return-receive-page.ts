@@ -1,4 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { canReceiveReturn } from '../../models/return-actions';
@@ -14,7 +15,7 @@ interface ReceiveLine {
 
 @Component({
   selector: 'app-return-receive-page',
-  imports: [RouterLink, CurrencyPipe],
+  imports: [TranslatePipe, RouterLink, CurrencyPipe],
   templateUrl: './return-receive-page.html',
 })
 export class ReturnReceivePage implements OnInit {
@@ -29,6 +30,7 @@ export class ReturnReceivePage implements OnInit {
   readonly isSubmitting = signal(false);
   readonly loadError = signal<string | null>(null);
   readonly formError = signal<string | null>(null);
+  readonly formErrorParams = signal<Record<string, unknown>>({});
   readonly pendingLines = signal<ReceiveLine[] | null>(null);
 
   ngOnInit(): void {
@@ -92,7 +94,7 @@ export class ReturnReceivePage implements OnInit {
           this.isSubmitting.set(false);
           void this.router.navigate(['/returns', updated.id], {
             state: {
-              successMessage: `Return ${updated.returnNumber} was received. Stock is not updated until inspection completes.`,
+              successMessage: { key: 'RETURNS.RECEIVE.SUCCESS', params: { number: updated.returnNumber } },
             },
           });
         },
@@ -143,20 +145,19 @@ export class ReturnReceivePage implements OnInit {
     for (const item of items) {
       const raw = (this.quantities()[item.id] ?? '').trim();
       if (!raw) {
-        this.formError.set(`Enter a received quantity for ${item.productSku}.`);
+        this.formError.set('RETURNS.RECEIVE.ERR_ENTER'); this.formErrorParams.set({ sku: item.productSku });
         return null;
       }
 
       const quantity = Number(raw);
       if (!Number.isInteger(quantity) || quantity < 0) {
-        this.formError.set(`Received quantity for ${item.productSku} must be zero or a positive whole number.`);
+        this.formError.set('RETURNS.RECEIVE.ERR_WHOLE'); this.formErrorParams.set({ sku: item.productSku });
         return null;
       }
 
       if (quantity > item.requestedQuantity) {
-        this.formError.set(
-          `Received quantity for ${item.productSku} cannot exceed the requested quantity of ${item.requestedQuantity}.`,
-        );
+        this.formError.set('RETURNS.RECEIVE.ERR_EXCEED');
+        this.formErrorParams.set({ sku: item.productSku, requested: item.requestedQuantity });
         return null;
       }
 
@@ -169,7 +170,7 @@ export class ReturnReceivePage implements OnInit {
     }
 
     if (lines.every((line) => line.receivedQuantity === 0)) {
-      this.formError.set('Receive at least one unit.');
+      this.formError.set('RETURNS.RECEIVE.ERR_EMPTY');
       return null;
     }
 

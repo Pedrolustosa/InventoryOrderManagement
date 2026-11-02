@@ -1,4 +1,5 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FinancePeriodFilter } from '../../components/finance-period-filter/finance-period-filter';
 import { CashAccount, CashMovement } from '../../models/cash-account.model';
@@ -9,7 +10,7 @@ import { FinanceRequestError, FinanceService } from '../../services/finance.serv
 
 @Component({
   selector: 'app-cash-movement-list-page',
-  imports: [CurrencyPipe, DatePipe, FinancePeriodFilter],
+  imports: [TranslatePipe, CurrencyPipe, DatePipe, FinancePeriodFilter],
   templateUrl: './cash-movement-list-page.html',
 })
 export class CashMovementListPage implements OnInit {

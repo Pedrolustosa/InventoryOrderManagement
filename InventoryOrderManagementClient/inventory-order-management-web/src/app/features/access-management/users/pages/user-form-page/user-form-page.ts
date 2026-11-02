@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { passwordPolicy } from '../../../../../core/auth/password-policy';
@@ -9,7 +10,7 @@ import { UsersService } from '../../services/users.service';
 
 @Component({
   selector: 'app-user-form-page',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [TranslatePipe, ReactiveFormsModule, RouterLink],
   templateUrl: './user-form-page.html',
 })
 export class UserFormPage implements OnInit {

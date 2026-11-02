@@ -1,12 +1,12 @@
 <section class="space-y-6">
   <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <h1 class="text-3xl font-semibold tracking-tight text-ink">{{ title() }}</h1>
-      <p class="mt-2 max-w-2xl text-sm text-muted">{{ subtitle() }}</p>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">{{ title() | translate }}</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">{{ subtitle() | translate }}</p>
     </div>
     @if (createPath(); as path) {
       @if (createPermission(); as permission) {
-        <a *hasPermission="permission" [routerLink]="path" class="btn-primary shrink-0">{{ createLabel() }}</a>
+        <a *hasPermission="permission" [routerLink]="path" class="btn-primary shrink-0">{{ createLabel() | translate }}</a>
       }
     }
   </div>
@@ -20,7 +20,7 @@
         [class.!text-white]="statusFilter() === 'all'"
         (click)="setStatus('all')"
       >
-        All
+        {{ 'RETURNS.FILTERS.ALL' | translate }}
       </button>
       @for (status of statuses; track status) {
         <button
@@ -30,19 +30,19 @@
           [class.!text-white]="statusFilter() === status"
           (click)="setStatus(status)"
         >
-          {{ statusLabel(status) }}
+          {{ statusLabel(status) | translate }}
         </button>
       }
-      <button type="button" class="btn-secondary" (click)="clearFilters()">Clear</button>
+      <button type="button" class="btn-secondary" (click)="clearFilters()">{{ 'COMMON.CLEAR' | translate }}</button>
     </div>
 
     <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
       <label class="block text-sm font-medium text-ink">
-        Return number
+        {{ 'RETURNS.FILTERS.NUMBER' | translate }}
         <input
           type="search"
           class="field mt-1"
-          placeholder="Full return number"
+          [attr.placeholder]="'RETURNS.FILTERS.NUMBER_PLACEHOLDER' | translate"
           [value]="returnNumber()"
           (input)="returnNumber.set($any($event.target).value)"
           (keydown.enter)="applyFilters()"
@@ -50,9 +50,9 @@
       </label>
       @if (fixedType() !== 'SupplierReturn') {
         <label class="block text-sm font-medium text-ink">
-          Customer
+          {{ 'RETURNS.FILTERS.CUSTOMER' | translate }}
           <select class="field mt-1" [value]="customerId()" (change)="customerId.set($any($event.target).value)">
-            <option value="">All customers</option>
+            <option value="">{{ 'RETURNS.FILTERS.ALL_CUSTOMERS' | translate }}</option>
             @for (customer of customers(); track customer.id) {
               <option [value]="customer.id">{{ customer.name }}</option>
             }
@@ -61,9 +61,9 @@
       }
       @if (fixedType() !== 'CustomerReturn') {
         <label class="block text-sm font-medium text-ink">
-          Supplier
+          {{ 'RETURNS.FILTERS.SUPPLIER' | translate }}
           <select class="field mt-1" [value]="supplierId()" (change)="supplierId.set($any($event.target).value)">
-            <option value="">All suppliers</option>
+            <option value="">{{ 'RETURNS.FILTERS.ALL_SUPPLIERS' | translate }}</option>
             @for (supplier of suppliers(); track supplier.id) {
               <option [value]="supplier.id">{{ supplier.name }}</option>
             }
@@ -71,24 +71,18 @@
         </label>
       }
       <label class="block text-sm font-medium text-ink">
-        Start date
+        {{ 'COMMON.START_DATE' | translate }}
         <input type="date" class="field mt-1" [value]="startDate()" (input)="startDate.set($any($event.target).value)" />
       </label>
       <label class="block text-sm font-medium text-ink">
-        End date
+        {{ 'COMMON.END_DATE' | translate }}
         <input type="date" class="field mt-1" [value]="endDate()" (input)="endDate.set($any($event.target).value)" />
       </label>
     </div>
-    <button type="button" class="btn-secondary" (click)="applyFilters()">Apply filters</button>
+    <button type="button" class="btn-secondary" (click)="applyFilters()">{{ 'COMMON.APPLY_FILTERS' | translate }}</button>
   </div>
 
-  @if (successMessage()) {
-    <div class="rounded-md border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent-ink" role="status">
-      {{ successMessage() }}
-    </div>
-  }
-
-  <p class="text-sm text-muted">{{ totalItems() }} returns</p>
+  <p class="text-sm text-muted">{{ 'RETURNS.LIST.COUNT' | translate: { n: totalItems() } }}</p>
 
   @if (pendingCancel(); as item) {
     <app-return-cancel-dialog
@@ -120,15 +114,17 @@
 
   @if (totalPages() > 1) {
     <div class="flex items-center justify-between gap-3">
-      <button type="button" class="btn-secondary" [disabled]="page() <= 1" (click)="goToPage(page() - 1)">Previous</button>
-      <p class="text-sm text-muted">Page {{ page() }} of {{ totalPages() }}</p>
+      <button type="button" class="btn-secondary" [disabled]="page() <= 1" (click)="goToPage(page() - 1)">
+        {{ 'COMMON.PREVIOUS' | translate }}
+      </button>
+      <p class="text-sm text-muted">{{ 'COMMON.PAGE_OF' | translate: { page: page(), totalPages: totalPages() } }}</p>
       <button
         type="button"
         class="btn-secondary"
         [disabled]="page() >= totalPages()"
         (click)="goToPage(page() + 1)"
       >
-        Next
+        {{ 'COMMON.NEXT' | translate }}
       </button>
     </div>
   }

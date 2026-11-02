@@ -8,14 +8,19 @@ import { CategoriesService } from '../../../categories/services/categories.servi
 import { ProductResponse } from '../../models/product.model';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { permittedAuth } from '../../../../core/auth/testing/permitted-auth';
+import { ToastService } from '../../../../core/notifications/toast.service';
+import { createToastServiceSpy, ToastServiceSpy } from '../../../../core/notifications/testing/toast-testing';
 import { ProductsService } from '../../services/products.service';
 import { ProductsPage } from './products-page';
+import { provideTestTranslate } from '../../../../core/i18n/testing/provide-test-translate';
+
 
 registerLocaleData(localePt);
 
 describe('ProductsPage', () => {
   let fixture: ComponentFixture<ProductsPage>;
   let component: ProductsPage;
+  let toast: ToastServiceSpy;
   let productsService: {
     getProducts: ReturnType<typeof vi.fn>;
     createProduct: ReturnType<typeof vi.fn>;
@@ -51,6 +56,7 @@ describe('ProductsPage', () => {
   ];
 
   beforeEach(async () => {
+    toast = createToastServiceSpy();
     productsService = {
       getProducts: vi.fn(),
       createProduct: vi.fn(),
@@ -64,10 +70,11 @@ describe('ProductsPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [ProductsPage],
-      providers: [
+      providers: [...provideTestTranslate(), 
         provideRouter([]),
         { provide: ProductsService, useValue: productsService },
         { provide: CategoriesService, useValue: categoriesService },
+        { provide: ToastService, useValue: toast },
         { provide: LOCALE_ID, useValue: 'pt-BR' },
         { provide: AuthService, useValue: permittedAuth() },
       ],
@@ -169,7 +176,10 @@ describe('ProductsPage', () => {
     fixture.detectChanges();
 
     expect(productsService.createProduct).toHaveBeenCalledTimes(1);
-    expect(component.successMessage()).toContain('KB-001');
+    expect(toast.successKey).toHaveBeenCalledWith('PRODUCTS.FORM.SUCCESS_CREATED', {
+      name: 'Mechanical Keyboard',
+      sku: 'KB-001',
+    });
     expect(component.formVisible()).toBe(false);
     expect(component.products()).toEqual(products);
   });

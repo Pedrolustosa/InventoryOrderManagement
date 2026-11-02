@@ -1,4 +1,6 @@
 import { DatePipe } from '@angular/common';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { canReceivePurchase } from '../../models/purchase-actions';
@@ -15,11 +17,12 @@ interface ReceiveLine {
 
 @Component({
   selector: 'app-purchase-receive-page',
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe, TranslatePipe],
   templateUrl: './purchase-receive-page.html',
 })
 export class PurchaseReceivePage implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
   private readonly purchasesService = inject(PurchasesService);
 
@@ -98,7 +101,7 @@ export class PurchaseReceivePage implements OnInit {
         next: (receipt) => {
           this.isSubmitting.set(false);
           void this.router.navigate(['/purchases', order.id], {
-            state: { successMessage: `Receipt ${receipt.receiptNumber} was recorded. Stock was updated by the server.` },
+            state: { successMessage: this.translate.instant('PURCHASES.RECEIVE.SUCCESS', { receiptNumber: receipt.receiptNumber }) },
           });
         },
         error: (error: PurchaseRequestError) => {
@@ -115,7 +118,7 @@ export class PurchaseReceivePage implements OnInit {
   private loadOrder(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
-      this.loadError.set('Purchase order was not found.');
+      this.loadError.set(this.translate.instant('PURCHASES.DETAILS.NOT_FOUND'));
       this.isLoading.set(false);
       return;
     }
@@ -152,12 +155,19 @@ export class PurchaseReceivePage implements OnInit {
 
       const quantity = Number(raw);
       if (!Number.isInteger(quantity) || quantity < 1) {
-        this.formError.set(`Quantity for ${item.productSku} must be a positive whole number.`);
+        this.formError.set(
+          this.translate.instant('PURCHASES.RECEIVE.ERR_QTY', { sku: item.productSku }),
+        );
         return null;
       }
 
       if (quantity > item.pendingQuantity) {
-        this.formError.set(`Quantity for ${item.productSku} cannot exceed the pending quantity of ${item.pendingQuantity}.`);
+        this.formError.set(
+          this.translate.instant('PURCHASES.RECEIVE.ERR_EXCEED', {
+            sku: item.productSku,
+            pending: item.pendingQuantity,
+          }),
+        );
         return null;
       }
 
@@ -170,7 +180,7 @@ export class PurchaseReceivePage implements OnInit {
     }
 
     if (lines.length === 0) {
-      this.formError.set('Enter a quantity for at least one pending item.');
+      this.formError.set('PURCHASES.RECEIVE.ERR_EMPTY');
       return null;
     }
 

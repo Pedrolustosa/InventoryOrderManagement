@@ -2,14 +2,14 @@
   @if (isLoading()) {
     <div class="flex items-center gap-3 px-5 py-10 text-muted" aria-busy="true">
       <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
-      <span>Loading returns...</span>
+      <span>{{ 'RETURNS.LIST.LOADING' | translate }}</span>
     </div>
   } @else if (errorMessage()) {
     <div class="px-5 py-8 text-sm text-danger" role="alert">{{ errorMessage() }}</div>
   } @else if (returns().length === 0) {
     <div class="px-5 py-12 text-center">
-      <p class="text-base font-medium text-ink">No returns found</p>
-      <p class="mt-2 text-sm text-muted">{{ emptyMessage() }}</p>
+      <p class="text-base font-medium text-ink">{{ 'RETURNS.LIST.EMPTY_TITLE' | translate }}</p>
+      <p class="mt-2 text-sm text-muted">{{ emptyMessage() | translate }}</p>
       @if (createPath() && createPermission()) {
         <button
           *hasPermission="createPermission()!"
@@ -17,7 +17,7 @@
           class="btn-primary mt-4"
           (click)="createRequested.emit()"
         >
-          {{ createLabel() }}
+          {{ createLabel() | translate }}
         </button>
       }
     </div>
@@ -26,28 +26,28 @@
       <table class="min-w-full text-left text-sm">
         <thead class="border-b border-line bg-surface/80 text-xs uppercase tracking-wide text-muted">
           <tr>
-            <th class="px-4 py-3 font-semibold">Number</th>
-            <th class="px-4 py-3 font-semibold">Type</th>
-            <th class="px-4 py-3 font-semibold">Counterpart</th>
-            <th class="px-4 py-3 font-semibold">Source</th>
-            <th class="px-4 py-3 font-semibold">Items</th>
-            <th class="px-4 py-3 font-semibold">Estimated</th>
-            <th class="px-4 py-3 font-semibold">Status</th>
-            <th class="px-4 py-3 font-semibold">Created</th>
-            <th class="px-4 py-3 font-semibold">Actions</th>
+            <th class="px-4 py-3 font-semibold">{{ 'RETURNS.LIST.COL_NUMBER' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'RETURNS.LIST.COL_TYPE' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'RETURNS.LIST.COL_COUNTERPART' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'RETURNS.LIST.COL_SOURCE' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'RETURNS.LIST.COL_ITEMS' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'RETURNS.LIST.COL_ESTIMATED' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'RETURNS.LIST.COL_STATUS' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'RETURNS.LIST.COL_CREATED' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'RETURNS.LIST.COL_ACTIONS' | translate }}</th>
           </tr>
         </thead>
         <tbody>
           @for (item of returns(); track item.id) {
             <tr class="border-b border-line/70 last:border-0">
               <td class="whitespace-nowrap px-4 py-3 font-medium text-ink">{{ item.returnNumber }}</td>
-              <td class="px-4 py-3 text-ink">{{ typeLabel(item.type) }}</td>
+              <td class="px-4 py-3 text-ink">{{ typeLabel(item.type) | translate }}</td>
               <td class="px-4 py-3 text-ink">{{ counterpart(item) }}</td>
-              <td class="px-4 py-3 text-ink">{{ item.sourceReference || '—' }}</td>
+              <td class="px-4 py-3 text-ink">{{ item.sourceReference || ('COMMON.EMPTY' | translate) }}</td>
               <td class="px-4 py-3 text-ink">{{ item.itemCount }}</td>
               <td class="whitespace-nowrap px-4 py-3 text-ink">{{ item.estimatedAmount | currency: 'BRL' }}</td>
               <td class="px-4 py-3">
-                <span [class]="statusClass(item.status)">{{ statusLabel(item.status) }}</span>
+                <span [class]="statusClass(item.status)">{{ statusLabel(item.status) | translate }}</span>
               </td>
               <td class="whitespace-nowrap px-4 py-3 text-muted">
                 {{ item.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}
@@ -55,7 +55,7 @@
               <td class="px-4 py-3">
                 <div class="flex flex-wrap gap-2">
                   <button type="button" class="btn-secondary !px-2.5 !py-1 text-xs" (click)="viewRequested.emit(item)">
-                    View
+                    {{ 'COMMON.VIEW' | translate }}
                   </button>
                   @if (canEdit(item.type, item.status)) {
                     <button
@@ -64,7 +64,7 @@
                       class="btn-secondary !px-2.5 !py-1 text-xs"
                       (click)="editRequested.emit(item)"
                     >
-                      Edit
+                      {{ 'COMMON.EDIT' | translate }}
                     </button>
                   }
                   @if (canReceive(item.type, item.status)) {
@@ -74,7 +74,7 @@
                       class="btn-secondary !px-2.5 !py-1 text-xs"
                       (click)="receiveRequested.emit(item)"
                     >
-                      Receive
+                      {{ 'RETURNS.ACTIONS.RECEIVE' | translate }}
                     </button>
                   }
                   @if (canInspect(item.type, item.status)) {
@@ -84,7 +84,7 @@
                       class="btn-secondary !px-2.5 !py-1 text-xs"
                       (click)="inspectRequested.emit(item)"
                     >
-                      Inspect
+                      {{ 'RETURNS.ACTIONS.INSPECT' | translate }}
                     </button>
                   }
                   @if (canAuthorize(item.type, item.status)) {
@@ -94,7 +94,7 @@
                       class="btn-secondary !px-2.5 !py-1 text-xs"
                       (click)="authorizeRequested.emit(item)"
                     >
-                      Authorize
+                      {{ 'RETURNS.ACTIONS.AUTHORIZE' | translate }}
                     </button>
                   }
                   @if (canDispatch(item.type, item.status)) {
@@ -104,7 +104,7 @@
                       class="btn-secondary !px-2.5 !py-1 text-xs"
                       (click)="dispatchRequested.emit(item)"
                     >
-                      Dispatch
+                      {{ 'RETURNS.ACTIONS.DISPATCH' | translate }}
                     </button>
                   }
                   @if (canCancel(item.type, item.status)) {
@@ -114,7 +114,7 @@
                       class="btn-secondary !px-2.5 !py-1 text-xs text-danger"
                       (click)="cancelRequested.emit(item)"
                     >
-                      Cancel
+                      {{ 'RETURNS.ACTIONS.CANCEL' | translate }}
                     </button>
                   }
                 </div>

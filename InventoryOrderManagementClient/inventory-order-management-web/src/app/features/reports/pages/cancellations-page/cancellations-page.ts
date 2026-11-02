@@ -1,4 +1,5 @@
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReportChart } from '../../components/report-chart/report-chart';
@@ -12,7 +13,7 @@ import { ReportsService } from '../../services/reports.service';
 
 @Component({
   selector: 'app-cancellations-page',
-  imports: [CurrencyPipe, DecimalPipe, ReportChart],
+  imports: [TranslatePipe, CurrencyPipe, DecimalPipe, ReportChart],
   templateUrl: './cancellations-page.html',
 })
 export class CancellationsPage {

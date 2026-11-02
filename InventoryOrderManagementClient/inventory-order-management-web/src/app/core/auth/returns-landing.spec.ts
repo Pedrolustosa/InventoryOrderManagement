@@ -3,7 +3,7 @@ import { NAVIGATION_GROUPS } from '../../features/shell/navigation';
 
 describe('returns landing and navigation', () => {
   it('should include returns in the operations navigation group', () => {
-    const operations = NAVIGATION_GROUPS.find((group) => group.label === 'Operations');
+    const operations = NAVIGATION_GROUPS.find((group) => group.labelKey === 'NAVIGATION.OPERATIONS');
     const routes = operations?.items.map((item) => item.route) ?? [];
     expect(routes).toContain('/returns');
     expect(routes).toContain('/returns/customer');

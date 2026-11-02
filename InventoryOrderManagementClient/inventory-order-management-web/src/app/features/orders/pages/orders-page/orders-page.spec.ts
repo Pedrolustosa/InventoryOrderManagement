@@ -9,8 +9,12 @@ import { OrderFilters } from '../../models/order-filters.model';
 import { OrderSummary } from '../../models/order.model';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { permittedAuth } from '../../../../core/auth/testing/permitted-auth';
+import { ToastService } from '../../../../core/notifications/toast.service';
+import { createToastServiceSpy } from '../../../../core/notifications/testing/toast-testing';
 import { OrdersService } from '../../services/orders.service';
 import { OrdersPage } from './orders-page';
+import { provideTestTranslate } from '../../../../core/i18n/testing/provide-test-translate';
+
 
 registerLocaleData(localePt);
 
@@ -63,10 +67,11 @@ describe('OrdersPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [OrdersPage],
-      providers: [
+      providers: [...provideTestTranslate(), 
         provideRouter([]),
         { provide: OrdersService, useValue: ordersService },
         { provide: CustomersService, useValue: { getCustomers: vi.fn().mockReturnValue(of([])) } },
+        { provide: ToastService, useValue: createToastServiceSpy() },
         { provide: LOCALE_ID, useValue: 'pt-BR' },
         { provide: AuthService, useValue: permittedAuth() },
       ],

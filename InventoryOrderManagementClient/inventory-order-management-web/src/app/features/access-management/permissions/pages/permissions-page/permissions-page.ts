@@ -1,5 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ToastService } from '../../../../../core/notifications/toast.service';
 import { Role } from '../../../roles/models/role.model';
 import { RolesService } from '../../../roles/services/roles.service';
 import { PermissionGroup } from '../../models/permission.model';
@@ -7,13 +9,14 @@ import { PermissionsService } from '../../services/permissions.service';
 
 @Component({
   selector: 'app-permissions-page',
-  imports: [RouterLink],
+  imports: [TranslatePipe, RouterLink],
   templateUrl: './permissions-page.html',
 })
 export class PermissionsPage implements OnInit {
   private readonly permissionsService = inject(PermissionsService);
   private readonly rolesService = inject(RolesService);
   private readonly route = inject(ActivatedRoute);
+  private readonly toast = inject(ToastService);
 
   readonly catalog = signal<PermissionGroup[]>([]);
   readonly roles = signal<Role[]>([]);
@@ -22,7 +25,6 @@ export class PermissionsPage implements OnInit {
   readonly confirming = signal(false);
   readonly isSaving = signal(false);
   readonly errorMessage = signal<string | null>(null);
-  readonly successMessage = signal<string | null>(null);
 
   ngOnInit(): void {
     this.permissionsService.getCatalog().subscribe({
@@ -51,7 +53,6 @@ export class PermissionsPage implements OnInit {
 
     this.selectedRole.set(role);
     this.confirming.set(false);
-    this.successMessage.set(null);
     this.permissionsService.getByRole(role.id).subscribe({
       next: (permissions) => this.selected.set(permissions),
       error: (error: Error) => this.errorMessage.set(error.message),
@@ -82,12 +83,12 @@ export class PermissionsPage implements OnInit {
       next: () => {
         this.isSaving.set(false);
         this.confirming.set(false);
-        this.successMessage.set('Permissions saved.');
+        this.toast.successKey('PERMISSIONS.FORM.SUCCESS');
       },
       error: (error: Error) => {
         this.isSaving.set(false);
         this.confirming.set(false);
-        this.errorMessage.set(error.message);
+        this.toast.error(error.message);
       },
     });
   }

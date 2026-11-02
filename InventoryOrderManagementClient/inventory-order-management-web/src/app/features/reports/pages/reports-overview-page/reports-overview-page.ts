@@ -1,4 +1,5 @@
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, DestroyRef, effect, inject, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CANCELLATION_NOTE, CONFIRMED_VALUE_NOTE, STOCK_SNAPSHOT_NOTE } from '../../models/report-copy';
@@ -10,7 +11,7 @@ import { ReportsService } from '../../services/reports.service';
 
 @Component({
   selector: 'app-reports-overview-page',
-  imports: [CurrencyPipe, DecimalPipe],
+  imports: [TranslatePipe, CurrencyPipe, DecimalPipe],
   templateUrl: './reports-overview-page.html',
 })
 export class ReportsOverviewPage {

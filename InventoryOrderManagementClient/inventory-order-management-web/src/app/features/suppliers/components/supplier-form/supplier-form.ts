@@ -1,4 +1,6 @@
 import { Component, effect, inject, input, output } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
+
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CreateSupplierRequest } from '../../models/create-supplier-request.model';
 import { SupplierResponse } from '../../models/supplier.model';
@@ -14,7 +16,7 @@ type SupplierFormControlName =
 
 @Component({
   selector: 'app-supplier-form',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TranslatePipe],
   templateUrl: './supplier-form.html',
 })
 export class SupplierForm {

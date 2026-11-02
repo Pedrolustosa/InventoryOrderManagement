@@ -1,4 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CustomersService } from '../../../customers/services/customers.service';
@@ -17,7 +18,7 @@ interface PartyOption {
 
 @Component({
   selector: 'app-aging-report-page',
-  imports: [RouterLink, CurrencyPipe, DateOnlyPipe, FinancialStatus],
+  imports: [TranslatePipe, RouterLink, CurrencyPipe, DateOnlyPipe, FinancialStatus],
   templateUrl: './aging-report-page.html',
 })
 export class AgingReportPage implements OnInit {

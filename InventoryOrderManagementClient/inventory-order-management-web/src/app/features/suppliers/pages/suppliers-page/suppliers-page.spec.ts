@@ -6,14 +6,19 @@ import { Subject, of, throwError } from 'rxjs';
 import { SupplierResponse } from '../../models/supplier.model';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { permittedAuth } from '../../../../core/auth/testing/permitted-auth';
+import { ToastService } from '../../../../core/notifications/toast.service';
+import { createToastServiceSpy, ToastServiceSpy } from '../../../../core/notifications/testing/toast-testing';
 import { SuppliersService } from '../../services/suppliers.service';
 import { SuppliersPage } from './suppliers-page';
+import { provideTestTranslate } from '../../../../core/i18n/testing/provide-test-translate';
+
 
 registerLocaleData(localePt);
 
 describe('SuppliersPage', () => {
   let fixture: ComponentFixture<SuppliersPage>;
   let component: SuppliersPage;
+  let toast: ToastServiceSpy;
   let suppliersService: {
     getSuppliers: ReturnType<typeof vi.fn>;
     getSupplierById: ReturnType<typeof vi.fn>;
@@ -50,6 +55,7 @@ describe('SuppliersPage', () => {
   ];
 
   beforeEach(async () => {
+    toast = createToastServiceSpy();
     suppliersService = {
       getSuppliers: vi.fn(),
       getSupplierById: vi.fn(),
@@ -63,8 +69,9 @@ describe('SuppliersPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [SuppliersPage],
-      providers: [
+      providers: [...provideTestTranslate(), 
         { provide: SuppliersService, useValue: suppliersService },
+        { provide: ToastService, useValue: toast },
         { provide: LOCALE_ID, useValue: 'pt-BR' },
         { provide: AuthService, useValue: permittedAuth() },
       ],
@@ -152,7 +159,7 @@ describe('SuppliersPage', () => {
     fixture.detectChanges();
 
     expect(suppliersService.createSupplier).toHaveBeenCalledTimes(1);
-    expect(component.successMessage()).toContain('Tech Components');
+    expect(toast.successKey).toHaveBeenCalledWith('SUPPLIERS.FORM.SUCCESS_CREATED', { name: 'Tech Components' });
     expect(component.panelMode()).toBe('none');
     expect(component.suppliers()).toEqual([created]);
   });
@@ -178,7 +185,7 @@ describe('SuppliersPage', () => {
     await fixture.whenStable();
 
     expect(suppliersService.updateSupplier).toHaveBeenCalled();
-    expect(component.successMessage()).toContain('Updated Tech');
+    expect(toast.successKey).toHaveBeenCalledWith('SUPPLIERS.FORM.SUCCESS_UPDATED', { name: 'Updated Tech' });
   });
 
   it('should deactivate a supplier and reload', async () => {
@@ -195,7 +202,9 @@ describe('SuppliersPage', () => {
     await fixture.whenStable();
 
     expect(suppliersService.deactivateSupplier).toHaveBeenCalledWith(suppliers[0].id);
-    expect(component.successMessage()).toContain('deactivated');
+    expect(toast.successKey).toHaveBeenCalledWith('SUPPLIERS.FORM.SUCCESS_DEACTIVATED', {
+      name: 'Tech Components',
+    });
     expect(component.panelMode()).toBe('none');
   });
 

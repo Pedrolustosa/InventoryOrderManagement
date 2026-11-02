@@ -1,20 +1,20 @@
 <section class="space-y-6">
   <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <h1 class="text-3xl font-semibold tracking-tight text-ink">Receive Purchase</h1>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">{{ 'PURCHASES.RECEIVE.TITLE' | translate }}</h1>
       <p class="mt-2 max-w-2xl text-sm text-muted">
-        Record a partial or full receipt. The server updates stock. This screen does not change inventory by itself.
+        {{ 'PURCHASES.RECEIVE.SUBTITLE' | translate }}
       </p>
     </div>
     @if (order(); as current) {
-      <a class="btn-secondary" [routerLink]="['/purchases', current.id]">Back to purchase</a>
+      <a class="btn-secondary" [routerLink]="['/purchases', current.id]">{{ 'PURCHASES.RECEIVE.BACK' | translate }}</a>
     }
   </div>
 
   @if (isLoading()) {
     <div class="flex items-center gap-3 text-muted" aria-busy="true">
       <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
-      <span>Loading purchase order...</span>
+      <span>{{ 'PURCHASES.DETAILS.LOADING' | translate }}</span>
     </div>
   } @else if (loadError()) {
     <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
@@ -24,20 +24,20 @@
     <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
       <dl class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <dt class="text-xs uppercase tracking-wide text-muted">Purchase Number</dt>
+          <dt class="text-xs uppercase tracking-wide text-muted">{{ 'PURCHASES.LIST.COL_NUMBER' | translate }}</dt>
           <dd class="mt-1 text-sm font-medium text-ink">{{ current.purchaseOrderNumber }}</dd>
         </div>
         <div>
-          <dt class="text-xs uppercase tracking-wide text-muted">Supplier</dt>
+          <dt class="text-xs uppercase tracking-wide text-muted">{{ 'PURCHASES.LIST.COL_SUPPLIER' | translate }}</dt>
           <dd class="mt-1 text-sm text-ink">{{ current.supplierName }}</dd>
         </div>
         <div>
-          <dt class="text-xs uppercase tracking-wide text-muted">Status</dt>
-          <dd class="mt-1 text-sm text-ink">{{ statusLabel() }}</dd>
+          <dt class="text-xs uppercase tracking-wide text-muted">{{ 'PURCHASES.LIST.COL_STATUS' | translate }}</dt>
+          <dd class="mt-1 text-sm text-ink">{{ statusLabel() | translate }}</dd>
         </div>
         @if (current.sentAtUtc) {
           <div>
-            <dt class="text-xs uppercase tracking-wide text-muted">Sent At</dt>
+            <dt class="text-xs uppercase tracking-wide text-muted">{{ 'PURCHASES.DETAILS.SENT_AT' | translate }}</dt>
             <dd class="mt-1 text-sm text-ink">{{ current.sentAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd>
           </div>
         }
@@ -48,12 +48,12 @@
       <table class="min-w-full text-left text-sm">
         <thead class="border-b border-line bg-surface/80 text-xs uppercase tracking-wide text-muted">
           <tr>
-            <th class="px-4 py-3 font-semibold">Product</th>
-            <th class="px-4 py-3 font-semibold">SKU</th>
-            <th class="px-4 py-3 font-semibold">Ordered</th>
-            <th class="px-4 py-3 font-semibold">Received</th>
-            <th class="px-4 py-3 font-semibold">Pending</th>
-            <th class="px-4 py-3 font-semibold">Quantity to receive</th>
+            <th class="px-4 py-3 font-semibold">{{ 'PURCHASES.FORM.PRODUCT' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'COMMON.SKU' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'PURCHASES.DETAILS.COL_ORDERED' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'PURCHASES.DETAILS.COL_RECEIVED' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'PURCHASES.DETAILS.COL_PENDING' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'PURCHASES.RECEIVE.COL_QTY_TO_RECEIVE' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -66,7 +66,7 @@
               <td class="px-4 py-3 text-ink">{{ item.pendingQuantity }}</td>
               <td class="px-4 py-3">
                 @if (item.pendingQuantity === 0) {
-                  <span class="text-sm text-muted">Fully received</span>
+                  <span class="text-sm text-muted">{{ 'PURCHASES.RECEIVE.FULLY_RECEIVED' | translate }}</span>
                 } @else {
                   <input
                     type="number"
@@ -86,21 +86,21 @@
     </section>
 
     <label class="block text-sm font-medium text-ink">
-      Receipt notes
+      {{ 'PURCHASES.RECEIVE.NOTES' | translate }}
       <textarea class="field mt-1 min-h-24" [value]="notes()" (input)="notes.set($any($event.target).value)"></textarea>
     </label>
 
     @if (formError()) {
       <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
-        {{ formError() }}
+        {{ formError() | translate }}
       </div>
     }
 
     @if (pendingLines(); as lines) {
       <section class="rounded-xl border border-line bg-panel p-5 shadow-sm" role="dialog" aria-labelledby="receive-confirm-title">
-        <h2 id="receive-confirm-title" class="text-lg font-semibold text-ink">Confirm receipt</h2>
+        <h2 id="receive-confirm-title" class="text-lg font-semibold text-ink">{{ 'PURCHASES.DIALOGS.CONFIRM_RECEIPT_TITLE' | translate }}</h2>
         <p class="mt-2 text-sm text-muted">
-          {{ current.purchaseOrderNumber }} from {{ current.supplierName }}. Stock will be updated by the server.
+          {{ 'PURCHASES.DIALOGS.CONFIRM_RECEIPT_MSG' | translate:{ number: current.purchaseOrderNumber, supplier: current.supplierName } }}
         </p>
         <ul class="mt-3 space-y-1 text-sm text-ink">
           @for (line of lines; track line.purchaseOrderItemId) {
@@ -109,13 +109,13 @@
         </ul>
         <div class="mt-5 flex flex-wrap gap-3">
           <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="confirm()">
-            {{ isSubmitting() ? 'Receiving...' : 'Confirm receipt' }}
+            {{ (isSubmitting() ? 'PURCHASES.DIALOGS.RECEIVING' : 'PURCHASES.DIALOGS.CONFIRM_RECEIPT') | translate }}
           </button>
-          <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="dismissReview()">Back</button>
+          <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="dismissReview()">{{ 'COMMON.BACK' | translate }}</button>
         </div>
       </section>
     } @else {
-      <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="review()">Review receipt</button>
+      <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="review()">{{ 'PURCHASES.RECEIVE.REVIEW' | translate }}</button>
     }
   }
 </section>

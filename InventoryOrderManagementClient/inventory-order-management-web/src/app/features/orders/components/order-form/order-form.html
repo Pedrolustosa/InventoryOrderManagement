@@ -1,31 +1,31 @@
 <form class="space-y-8" [formGroup]="form" (ngSubmit)="submit()">
   <section class="space-y-4">
     <div>
-      <h2 class="text-lg font-semibold text-ink">Customer Information</h2>
-      <p class="mt-1 text-sm text-muted">Only active customers can be selected.</p>
+      <h2 class="text-lg font-semibold text-ink">{{ 'ORDERS.FORM.SECTION_CUSTOMER' | translate }}</h2>
+      <p class="mt-1 text-sm text-muted">{{ 'ORDERS.FORM.CUSTOMER_HINT' | translate }}</p>
     </div>
 
     @if (activeCustomers().length === 0) {
       <p class="rounded-md border border-line bg-surface px-4 py-3 text-sm text-muted" role="status">
-        There are no active customers available for new orders.
+        {{ 'ORDERS.FORM.NO_ACTIVE_CUSTOMERS' | translate }}
       </p>
     } @else {
       <div class="grid gap-4 sm:grid-cols-2">
         <label class="block text-sm font-medium text-ink sm:col-span-2">
-          Search customer
+          {{ 'ORDERS.FORM.SEARCH_CUSTOMER' | translate }}
           <input
             type="search"
             class="field mt-1"
-            placeholder="Search by name"
+            [placeholder]="'ORDERS.FORM.SEARCH_CUSTOMER_PLACEHOLDER' | translate"
             [value]="customerSearch()"
             (input)="customerSearch.set($any($event.target).value)"
           />
         </label>
 
         <label class="block text-sm font-medium text-ink sm:col-span-2">
-          Customer
+          {{ 'ORDERS.LIST.COL_CUSTOMER' | translate }}
           <select class="field mt-1" formControlName="customerId">
-            <option value="">Select a customer</option>
+            <option value="">{{ 'ORDERS.FORM.SELECT_CUSTOMER' | translate }}</option>
             @for (customer of visibleCustomers(); track customer.id) {
               <option [value]="customer.id">{{ customer.name }}</option>
             }
@@ -36,24 +36,24 @@
       @if (selectedCustomer(); as customer) {
         <dl class="grid gap-3 rounded-lg border border-line bg-surface/60 p-4 sm:grid-cols-2">
           <div>
-            <dt class="text-xs uppercase tracking-wide text-muted">Customer Type</dt>
-            <dd class="mt-1 text-sm text-ink">{{ customer.customerType }}</dd>
+            <dt class="text-xs uppercase tracking-wide text-muted">{{ 'ORDERS.FORM.CUSTOMER_TYPE' | translate }}</dt>
+            <dd class="mt-1 text-sm text-ink">{{ ('STATUS.CUSTOMER_TYPE.' + customer.customerType) | translate }}</dd>
           </div>
           <div>
-            <dt class="text-xs uppercase tracking-wide text-muted">Tax Identifier</dt>
-            <dd class="mt-1 text-sm text-ink">{{ displayValue(customer.taxIdentifier) }}</dd>
+            <dt class="text-xs uppercase tracking-wide text-muted">{{ 'COMMON.TAX_IDENTIFIER' | translate }}</dt>
+            <dd class="mt-1 text-sm text-ink">{{ displayValue(customer.taxIdentifier) | translate }}</dd>
           </div>
           <div>
-            <dt class="text-xs uppercase tracking-wide text-muted">Email</dt>
-            <dd class="mt-1 text-sm text-ink">{{ displayValue(customer.email) }}</dd>
+            <dt class="text-xs uppercase tracking-wide text-muted">{{ 'COMMON.EMAIL' | translate }}</dt>
+            <dd class="mt-1 text-sm text-ink">{{ displayValue(customer.email) | translate }}</dd>
           </div>
           <div>
-            <dt class="text-xs uppercase tracking-wide text-muted">Phone</dt>
-            <dd class="mt-1 text-sm text-ink">{{ displayValue(customer.phone) }}</dd>
+            <dt class="text-xs uppercase tracking-wide text-muted">{{ 'COMMON.PHONE' | translate }}</dt>
+            <dd class="mt-1 text-sm text-ink">{{ displayValue(customer.phone) | translate }}</dd>
           </div>
         </dl>
         @if (!customer.isActive) {
-          <p class="text-sm text-danger" role="alert">Inactive customers cannot place orders.</p>
+          <p class="text-sm text-danger" role="alert">{{ 'ORDERS.FORM.INACTIVE_CUSTOMER' | translate }}</p>
         }
       }
     }
@@ -61,8 +61,8 @@
 
   <section class="space-y-4">
     <div>
-      <h2 class="text-lg font-semibold text-ink">Shipping Address</h2>
-      <p class="mt-1 text-sm text-muted">The address is stored on the order and does not change the customer record.</p>
+      <h2 class="text-lg font-semibold text-ink">{{ 'ORDERS.FORM.SECTION_ADDRESS' | translate }}</h2>
+      <p class="mt-1 text-sm text-muted">{{ 'ORDERS.FORM.ADDRESS_HINT' | translate }}</p>
     </div>
 
     @if (selectedCustomer()?.address; as address) {
@@ -73,7 +73,7 @@
           [checked]="useRegisteredAddress()"
           (change)="toggleRegisteredAddress($any($event.target).checked)"
         />
-        Use the address registered for this customer
+        {{ 'ORDERS.FORM.USE_REGISTERED_ADDRESS' | translate }}
       </label>
       @if (useRegisteredAddress()) {
         <p class="text-sm text-muted">
@@ -81,7 +81,7 @@
         </p>
       }
     } @else if (selectedCustomer()) {
-      <p class="text-sm text-muted">This customer has no registered address. Enter a shipping address to continue.</p>
+      <p class="text-sm text-muted">{{ 'ORDERS.FORM.NO_REGISTERED_ADDRESS' | translate }}</p>
     }
 
     @if (selectedCustomer() && !useRegisteredAddress()) {
@@ -91,31 +91,31 @@
           <input formControlName="postalCode" class="field mt-1" [class.field-error]="controlInvalid('postalCode')" />
         </label>
         <label class="block text-sm font-medium text-ink">
-          Number
+          {{ 'COMMON.NUMBER' | translate }}
           <input formControlName="number" class="field mt-1" [class.field-error]="controlInvalid('number')" />
         </label>
         <label class="block text-sm font-medium text-ink sm:col-span-2">
-          Street
+          {{ 'COMMON.STREET' | translate }}
           <input formControlName="street" class="field mt-1" [class.field-error]="controlInvalid('street')" />
         </label>
         <label class="block text-sm font-medium text-ink">
-          Complement
+          {{ 'COMMON.COMPLEMENT' | translate }}
           <input formControlName="complement" class="field mt-1" />
         </label>
         <label class="block text-sm font-medium text-ink">
-          Neighborhood
+          {{ 'COMMON.NEIGHBORHOOD' | translate }}
           <input formControlName="neighborhood" class="field mt-1" />
         </label>
         <label class="block text-sm font-medium text-ink">
-          City
+          {{ 'COMMON.CITY' | translate }}
           <input formControlName="city" class="field mt-1" [class.field-error]="controlInvalid('city')" />
         </label>
         <label class="block text-sm font-medium text-ink">
-          State
+          {{ 'COMMON.STATE' | translate }}
           <input formControlName="state" class="field mt-1" [class.field-error]="controlInvalid('state')" />
         </label>
         <label class="block text-sm font-medium text-ink sm:col-span-2">
-          Country
+          {{ 'COMMON.COUNTRY' | translate }}
           <input formControlName="country" class="field mt-1" [class.field-error]="controlInvalid('country')" />
         </label>
       </div>
@@ -124,50 +124,50 @@
 
   <section class="space-y-4">
     <div>
-      <h2 class="text-lg font-semibold text-ink">Order Items</h2>
-      <p class="mt-1 text-sm text-muted">Prices shown here are the current catalog prices and are not sent to the API.</p>
+      <h2 class="text-lg font-semibold text-ink">{{ 'ORDERS.FORM.SECTION_ITEMS' | translate }}</h2>
+      <p class="mt-1 text-sm text-muted">{{ 'ORDERS.FORM.ITEMS_HINT' | translate }}</p>
     </div>
 
     @if (activeProducts().length === 0) {
       <p class="rounded-md border border-line bg-surface px-4 py-3 text-sm text-muted" role="status">
-        There are no active products available to add to the order.
+        {{ 'ORDERS.FORM.NO_ACTIVE_PRODUCTS' | translate }}
       </p>
     } @else {
       <div class="grid gap-4 lg:grid-cols-4" [formGroup]="itemForm">
         <label class="block text-sm font-medium text-ink lg:col-span-2">
-          Product
+          {{ 'ORDERS.FORM.PRODUCT' | translate }}
           <select class="field mt-1" formControlName="productId">
-            <option value="">Select a product</option>
+            <option value="">{{ 'ORDERS.FORM.SELECT_PRODUCT' | translate }}</option>
             @for (product of activeProducts(); track product.id) {
               <option [value]="product.id">{{ product.name }}</option>
             }
           </select>
         </label>
         <label class="block text-sm font-medium text-ink">
-          Quantity
+          {{ 'COMMON.QUANTITY' | translate }}
           <input type="number" min="1" step="1" class="field mt-1" formControlName="quantity" />
         </label>
         <div class="flex items-end">
-          <button type="button" class="btn-secondary w-full" (click)="addItem()">Add product</button>
+          <button type="button" class="btn-secondary w-full" (click)="addItem()">{{ 'ORDERS.FORM.ADD_PRODUCT' | translate }}</button>
         </div>
       </div>
 
       @if (selectedProduct(); as product) {
         <dl class="grid gap-3 rounded-lg border border-line bg-surface/60 p-4 sm:grid-cols-4">
           <div>
-            <dt class="text-xs uppercase tracking-wide text-muted">SKU</dt>
+            <dt class="text-xs uppercase tracking-wide text-muted">{{ 'COMMON.SKU' | translate }}</dt>
             <dd class="mt-1 text-sm text-ink">{{ product.sku }}</dd>
           </div>
           <div>
-            <dt class="text-xs uppercase tracking-wide text-muted">Available Stock</dt>
+            <dt class="text-xs uppercase tracking-wide text-muted">{{ 'ORDERS.FORM.AVAILABLE_STOCK' | translate }}</dt>
             <dd class="mt-1 text-sm text-ink">{{ selectedAvailableStock() }}</dd>
           </div>
           <div>
-            <dt class="text-xs uppercase tracking-wide text-muted">Unit Price</dt>
+            <dt class="text-xs uppercase tracking-wide text-muted">{{ 'COMMON.UNIT_PRICE' | translate }}</dt>
             <dd class="mt-1 text-sm text-ink">{{ product.currentPrice | currency: 'BRL' }}</dd>
           </div>
           <div>
-            <dt class="text-xs uppercase tracking-wide text-muted">Line Total</dt>
+            <dt class="text-xs uppercase tracking-wide text-muted">{{ 'COMMON.LINE_TOTAL' | translate }}</dt>
             <dd class="mt-1 text-sm text-ink">{{ pendingLineTotal() | currency: 'BRL' }}</dd>
           </div>
         </dl>
@@ -175,23 +175,23 @@
     }
 
     @if (itemError()) {
-      <p class="text-sm text-danger" role="alert">{{ itemError() }}</p>
+      <p class="text-sm text-danger" role="alert">{{ itemError() | translate }}</p>
     }
 
     @if (items().length === 0) {
-      <p class="text-sm text-muted">Add at least one product to the order.</p>
+      <p class="text-sm text-muted">{{ 'ORDERS.FORM.EMPTY_ITEMS' | translate }}</p>
     } @else {
       <div class="overflow-x-auto rounded-lg border border-line">
         <table class="min-w-full text-left text-sm">
           <thead class="border-b border-line bg-surface/80 text-xs uppercase tracking-wide text-muted">
             <tr>
-              <th class="px-4 py-3 font-semibold">SKU</th>
-              <th class="px-4 py-3 font-semibold">Product</th>
-              <th class="px-4 py-3 font-semibold">Available</th>
-              <th class="px-4 py-3 font-semibold">Unit Price</th>
-              <th class="px-4 py-3 font-semibold">Quantity</th>
-              <th class="px-4 py-3 font-semibold">Line Total</th>
-              <th class="px-4 py-3 font-semibold">Actions</th>
+              <th class="px-4 py-3 font-semibold">{{ 'COMMON.SKU' | translate }}</th>
+              <th class="px-4 py-3 font-semibold">{{ 'ORDERS.FORM.PRODUCT' | translate }}</th>
+              <th class="px-4 py-3 font-semibold">{{ 'ORDERS.FORM.COL_AVAILABLE' | translate }}</th>
+              <th class="px-4 py-3 font-semibold">{{ 'COMMON.UNIT_PRICE' | translate }}</th>
+              <th class="px-4 py-3 font-semibold">{{ 'COMMON.QUANTITY' | translate }}</th>
+              <th class="px-4 py-3 font-semibold">{{ 'COMMON.LINE_TOTAL' | translate }}</th>
+              <th class="px-4 py-3 font-semibold">{{ 'ORDERS.LIST.COL_ACTIONS' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -205,7 +205,7 @@
                 <td class="px-4 py-3 text-ink">{{ lineTotal(item) | currency: 'BRL' }}</td>
                 <td class="px-4 py-3">
                   <button type="button" class="btn-secondary !px-2.5 !py-1 text-xs" (click)="removeItem(item.productId)">
-                    Remove
+                    {{ 'COMMON.REMOVE' | translate }}
                   </button>
                 </td>
               </tr>
@@ -217,19 +217,19 @@
   </section>
 
   <section class="rounded-xl border border-accent/30 bg-accent/5 p-4">
-    <h2 class="text-lg font-semibold text-ink">Order Summary</h2>
-    <p class="mt-1 text-sm text-muted">Estimated from current prices. The API calculates the stored subtotal.</p>
+    <h2 class="text-lg font-semibold text-ink">{{ 'ORDERS.FORM.SECTION_SUMMARY' | translate }}</h2>
+    <p class="mt-1 text-sm text-muted">{{ 'ORDERS.FORM.SUMMARY_HINT' | translate }}</p>
     <dl class="mt-4 grid gap-3 sm:grid-cols-3">
       <div>
-        <dt class="text-xs uppercase tracking-wide text-muted">Total Items</dt>
+        <dt class="text-xs uppercase tracking-wide text-muted">{{ 'ORDERS.FORM.TOTAL_ITEMS' | translate }}</dt>
         <dd class="mt-1 text-xl font-semibold text-ink">{{ totalItems() }}</dd>
       </div>
       <div>
-        <dt class="text-xs uppercase tracking-wide text-muted">Subtotal</dt>
+        <dt class="text-xs uppercase tracking-wide text-muted">{{ 'ORDERS.LIST.COL_SUBTOTAL' | translate }}</dt>
         <dd class="mt-1 text-xl font-semibold text-ink">{{ estimatedSubtotal() | currency: 'BRL' }}</dd>
       </div>
       <div>
-        <dt class="text-xs uppercase tracking-wide text-muted">Total Order</dt>
+        <dt class="text-xs uppercase tracking-wide text-muted">{{ 'ORDERS.FORM.TOTAL_ORDER' | translate }}</dt>
         <dd class="mt-1 text-xl font-semibold text-ink">{{ estimatedSubtotal() | currency: 'BRL' }}</dd>
       </div>
     </dl>
@@ -244,11 +244,11 @@
   <div class="flex flex-wrap gap-3">
     <button type="submit" class="btn-primary" [disabled]="isSubmitting()">
       @if (isSubmitting()) {
-        Saving...
+        {{ 'COMMON.SAVING' | translate }}
       } @else {
-        {{ mode() === 'edit' ? 'Update Draft' : 'Save Draft' }}
+        {{ (mode() === 'edit' ? 'ORDERS.FORM.UPDATE_DRAFT' : 'ORDERS.FORM.SAVE_DRAFT') | translate }}
       }
     </button>
-    <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="cancel()">Back</button>
+    <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="cancel()">{{ 'COMMON.BACK' | translate }}</button>
   </div>
 </form>

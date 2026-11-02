@@ -3,6 +3,8 @@ import { provideRouter, Router, Routes } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { AuthService } from '../../core/auth/services/auth.service';
 import { permittedAuth, permittedUser } from '../../core/auth/testing/permitted-auth';
+import { LANGUAGE_STORAGE_KEY } from '../../core/i18n/language.service';
+import { provideTestTranslate } from '../../core/i18n/testing/provide-test-translate';
 import { AppShell, HomeRedirect } from './app-shell';
 import { SIDEBAR_COLLAPSED_KEY } from './navigation';
 
@@ -15,26 +17,26 @@ const routes: Routes = [
     children: [
       {
         path: 'products',
-        data: { title: 'Products', breadcrumb: 'Products' },
+        data: { title: 'ROUTES.PRODUCTS', breadcrumb: 'ROUTES.PRODUCTS' },
         children: [{ path: '', component: HomeRedirect }],
       },
       {
         path: 'orders',
-        data: { title: 'Orders', breadcrumb: 'Orders' },
+        data: { title: 'ROUTES.ORDERS', breadcrumb: 'ROUTES.ORDERS' },
         children: [
           { path: '', component: HomeRedirect },
-          { path: 'new', component: HomeRedirect, data: { title: 'New order', breadcrumb: 'New order' } },
+          { path: 'new', component: HomeRedirect, data: { title: 'ROUTES.ORDERS_NEW', breadcrumb: 'ROUTES.ORDERS_NEW' } },
         ],
       },
       {
         path: 'reports',
-        data: { title: 'Reports', breadcrumb: 'Reports' },
+        data: { title: 'ROUTES.REPORTS', breadcrumb: 'ROUTES.REPORTS' },
         children: [
           { path: '', component: HomeRedirect },
           {
             path: 'inventory',
             component: HomeRedirect,
-            data: { title: 'Inventory Reports', breadcrumb: 'Inventory' },
+            data: { title: 'ROUTES.REPORTS_INVENTORY', breadcrumb: 'ROUTES.REPORTS_INVENTORY' },
           },
         ],
       },
@@ -45,6 +47,7 @@ const routes: Routes = [
 describe('AppShell', () => {
   afterEach(() => {
     localStorage.removeItem(SIDEBAR_COLLAPSED_KEY);
+    localStorage.removeItem(LANGUAGE_STORAGE_KEY);
     vi.unstubAllGlobals();
   });
 
@@ -62,7 +65,7 @@ describe('AppShell', () => {
 
     const auth = options.auth ?? permittedAuth(permittedUser());
     TestBed.configureTestingModule({
-      providers: [provideRouter(routes), { provide: AuthService, useValue: auth }],
+      providers: [provideRouter(routes), provideTestTranslate(), { provide: AuthService, useValue: auth }],
     });
     const harness = await RouterTestingHarness.create(options.url ?? '/products');
     return { harness, auth, root: harness.fixture.nativeElement as HTMLElement };
@@ -118,8 +121,20 @@ describe('AppShell', () => {
   it('shows the report child in the breadcrumb', async () => {
     const { root } = await render({ url: '/reports/inventory' });
 
-    expect(root.querySelector('app-page-heading')?.textContent).toContain('Inventory Reports');
+    expect(root.querySelector('app-page-heading')?.textContent).toContain('Inventory');
     expect(root.querySelector('nav[aria-label="Breadcrumb"]')?.textContent).toContain('Inventory');
+  });
+
+  it('switches language from the navbar control', async () => {
+    const { harness, root } = await render();
+    const enButton = [...root.querySelectorAll('button')].find((button) => button.textContent?.trim() === 'EN');
+
+    expect(enButton).toBeTruthy();
+    enButton?.click();
+    harness.fixture.detectChanges();
+
+    expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe('en');
+    expect(document.documentElement.lang).toBe('en');
   });
 
   it('opens the account menu, navigates to change password, and signs out', async () => {

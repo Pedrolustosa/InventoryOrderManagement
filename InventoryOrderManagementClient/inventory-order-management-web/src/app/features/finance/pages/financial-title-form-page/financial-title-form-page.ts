@@ -1,4 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -44,7 +45,7 @@ const PAYABLE_SOURCE_STATUSES = new Set(['Sent', 'PartiallyReceived', 'Received'
 
 @Component({
   selector: 'app-financial-title-form-page',
-  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe],
+  imports: [TranslatePipe, ReactiveFormsModule, RouterLink, CurrencyPipe],
   templateUrl: './financial-title-form-page.html',
 })
 export class FinancialTitleFormPage implements OnInit {
@@ -90,8 +91,11 @@ export class FinancialTitleFormPage implements OnInit {
     );
   });
   readonly heading = computed(() => {
-    const action = this.mode() === 'edit' ? 'Edit' : 'New';
-    return this.kind() === 'payable' ? `${action} payable` : `${action} receivable`;
+    const payable = this.kind() === 'payable';
+    if (this.mode() === 'edit') {
+      return payable ? 'FINANCE.FORM.EDIT_PAYABLE' : 'FINANCE.FORM.EDIT_RECEIVABLE';
+    }
+    return payable ? 'FINANCE.FORM.NEW_PAYABLE' : 'FINANCE.FORM.NEW_RECEIVABLE';
   });
 
   readonly form = this.formBuilder.nonNullable.group({
@@ -141,7 +145,7 @@ export class FinancialTitleFormPage implements OnInit {
   splitTotal(): void {
     const total = toCents(this.form.controls.totalAmount.value ?? Number.NaN);
     if (total === null || total <= 0) {
-      this.formError.set('Enter the total before splitting it.');
+      this.formError.set('FINANCE.FORM.ERR_ENTER_TOTAL_BEFORE_SPLIT');
       return;
     }
 
@@ -251,7 +255,10 @@ export class FinancialTitleFormPage implements OnInit {
       next: (title) => {
         this.isSaving.set(false);
         void this.router.navigate([this.collectionPath(), title.id], {
-          state: { notice: this.mode() === 'create' ? 'Title created.' : 'Title updated.' },
+          state: {
+            notice:
+              this.mode() === 'create' ? 'FINANCE.DETAILS.SUCCESS_CREATED' : 'FINANCE.DETAILS.SUCCESS_UPDATED',
+          },
         });
       },
       error: (error: FinanceRequestError) => {
@@ -404,35 +411,35 @@ export class FinancialTitleFormPage implements OnInit {
 
   private validate(): string | null {
     if (this.form.controls.description.invalid || this.form.controls.issueDate.invalid) {
-      return 'Description and issue date are required.';
+      return 'FINANCE.FORM.ERR_DESCRIPTION_ISSUE';
     }
 
     const total = toCents(this.form.controls.totalAmount.value ?? Number.NaN);
     if (total === null || total <= 0) {
-      return 'Enter a total amount with at most two decimal places.';
+      return 'FINANCE.FORM.ERR_TOTAL_DECIMALS';
     }
 
     const mode = this.form.controls.counterpartyMode.value;
     const sourceType = this.form.controls.sourceType.value;
     if (sourceType !== 'Manual' && !this.sourceMatch()) {
       return this.kind() === 'payable'
-        ? 'Find a compatible purchase order before saving.'
-        : 'Find a delivered sales order before saving.';
+        ? 'FINANCE.FORM.ERR_FIND_PURCHASE'
+        : 'FINANCE.FORM.ERR_FIND_DELIVERED_ORDER';
     }
 
     if (mode === 'other') {
       if (sourceType !== 'Manual') {
-        return 'A linked title needs a supplier or customer.';
+        return 'FINANCE.FORM.ERR_LINKED_PARTY';
       }
       if (!this.form.controls.counterpartyName.value.trim()) {
-        return `Enter the ${this.partyLabel().toLowerCase()} name.`;
+        return 'FINANCE.FORM.ERR_ENTER_PARTY_NAME';
       }
     } else if (!this.form.controls.counterpartyId.value) {
-      return `Select an active ${this.partyLabel().toLowerCase()}.`;
+      return 'FINANCE.FORM.ERR_SELECT_ACTIVE_PARTY';
     }
 
     if (this.installments.length === 0) {
-      return 'Add at least one installment.';
+      return 'FINANCE.FORM.ERR_ADD_INSTALLMENT';
     }
 
     const numbers = new Set<number>();
@@ -440,20 +447,20 @@ export class FinancialTitleFormPage implements OnInit {
       const number = group.controls.installmentNumber.value;
       const amount = toCents(group.controls.amount.value ?? Number.NaN);
       if (!Number.isInteger(number) || number < 1 || numbers.has(number)) {
-        return 'Installment numbers must be unique positive integers.';
+        return 'FINANCE.FORM.ERR_INSTALLMENT_NUMBERS';
       }
       numbers.add(number);
       if (!group.controls.dueDate.value) {
-        return 'Every installment needs a due date.';
+        return 'FINANCE.FORM.ERR_INSTALLMENT_DUE';
       }
       if (amount === null || amount <= 0) {
-        return 'Every installment amount must be greater than zero and use two decimal places.';
+        return 'FINANCE.FORM.ERR_INSTALLMENT_AMOUNT';
       }
     }
 
     const sum = sumCents(this.installments.controls.map((group) => group.controls.amount.value ?? Number.NaN));
     if (sum !== total) {
-      return 'The installments must add up to the total amount.';
+      return 'FINANCE.FORM.ERR_INSTALLMENT_SUM';
     }
 
     return null;

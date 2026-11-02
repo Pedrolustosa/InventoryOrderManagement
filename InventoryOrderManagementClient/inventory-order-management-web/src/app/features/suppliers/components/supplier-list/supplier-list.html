@@ -2,28 +2,28 @@
   @if (isLoading()) {
     <div class="flex items-center gap-3 px-5 py-10 text-muted" aria-busy="true">
       <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
-      <span>Loading suppliers...</span>
+      <span>{{ 'SUPPLIERS.LIST.LOADING' | translate }}</span>
     </div>
   } @else if (errorMessage()) {
     <div class="px-5 py-8 text-sm text-danger" role="alert">{{ errorMessage() }}</div>
   } @else if (suppliers().length === 0) {
     <div class="px-5 py-12 text-center">
-      <p class="text-base font-medium text-ink">No suppliers found</p>
-      <p class="mt-2 text-sm text-muted">Create a supplier or adjust your filters.</p>
+      <p class="text-base font-medium text-ink">{{ 'SUPPLIERS.LIST.EMPTY_TITLE' | translate }}</p>
+      <p class="mt-2 text-sm text-muted">{{ 'SUPPLIERS.LIST.EMPTY_BODY' | translate }}</p>
     </div>
   } @else {
     <div class="overflow-x-auto">
       <table class="min-w-full text-left text-sm">
         <thead class="border-b border-line bg-surface/80 text-xs uppercase tracking-wide text-muted">
           <tr>
-            <th class="px-4 py-3 font-semibold">Supplier</th>
-            <th class="px-4 py-3 font-semibold">Tax Identifier</th>
-            <th class="px-4 py-3 font-semibold">Contact</th>
-            <th class="px-4 py-3 font-semibold">Email</th>
-            <th class="px-4 py-3 font-semibold">Phone</th>
-            <th class="px-4 py-3 font-semibold">Status</th>
-            <th class="px-4 py-3 font-semibold">Created At</th>
-            <th class="px-4 py-3 font-semibold">Actions</th>
+            <th class="px-4 py-3 font-semibold">{{ 'SUPPLIERS.LIST.COL_SUPPLIER' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'SUPPLIERS.LIST.COL_TAX_ID' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'SUPPLIERS.LIST.COL_CONTACT' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'SUPPLIERS.LIST.COL_EMAIL' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'SUPPLIERS.LIST.COL_PHONE' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'SUPPLIERS.LIST.COL_STATUS' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'SUPPLIERS.LIST.COL_CREATED_AT' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'SUPPLIERS.LIST.COL_ACTIONS' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -31,20 +31,20 @@
             <tr class="border-b border-line/70 last:border-0">
               <td class="px-4 py-3 font-medium text-ink">{{ supplier.name }}</td>
               <td class="whitespace-nowrap px-4 py-3 text-muted">
-                {{ displayValue(supplier.taxIdentifier) }}
+                {{ displayValue(supplier.taxIdentifier) | translate }}
               </td>
-              <td class="px-4 py-3 text-muted">{{ displayValue(supplier.contactName) }}</td>
+              <td class="px-4 py-3 text-muted">{{ displayValue(supplier.contactName) | translate }}</td>
               <td class="max-w-[12rem] truncate px-4 py-3 text-muted">
-                {{ displayValue(supplier.email) }}
+                {{ displayValue(supplier.email) | translate }}
               </td>
               <td class="whitespace-nowrap px-4 py-3 text-muted">
-                {{ displayValue(supplier.phone) }}
+                {{ displayValue(supplier.phone) | translate }}
               </td>
               <td class="px-4 py-3">
                 @if (supplier.isActive) {
-                  <span class="badge-active">Active</span>
+                  <span class="badge-active">{{ 'COMMON.ACTIVE' | translate }}</span>
                 } @else {
-                  <span class="badge-inactive">Inactive</span>
+                  <span class="badge-inactive">{{ 'COMMON.INACTIVE' | translate }}</span>
                 }
               </td>
               <td class="whitespace-nowrap px-4 py-3 text-muted">
@@ -57,7 +57,7 @@
                     class="btn-secondary !px-2.5 !py-1 text-xs"
                     (click)="viewRequested.emit(supplier)"
                   >
-                    View
+                    {{ 'COMMON.VIEW' | translate }}
                   </button>
                   @if (supplier.isActive) {
                     <button
@@ -66,7 +66,7 @@
                       class="btn-secondary !px-2.5 !py-1 text-xs"
                       (click)="editRequested.emit(supplier)"
                     >
-                      Edit
+                      {{ 'COMMON.EDIT' | translate }}
                     </button>
                     <button
                       *hasPermission="'Suppliers.Deactivate'"
@@ -74,7 +74,7 @@
                       class="btn-secondary !px-2.5 !py-1 text-xs text-danger"
                       (click)="deactivateRequested.emit(supplier)"
                     >
-                      Deactivate
+                      {{ 'COMMON.DEACTIVATE' | translate }}
                     </button>
                   }
                 </div>

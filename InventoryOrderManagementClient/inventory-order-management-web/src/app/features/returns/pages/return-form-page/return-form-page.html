@@ -1,12 +1,12 @@
 <section class="space-y-6">
   <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <h1 class="text-3xl font-semibold tracking-tight text-ink">{{ title() }}</h1>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">{{ title() | translate }}</h1>
       <p class="mt-2 max-w-2xl text-sm text-muted">
-        Select an eligible source document, choose quantities within the API limits, and submit without editing historical prices.
+        {{ 'RETURNS.FORM.SUBTITLE' | translate }}
       </p>
     </div>
-    <a routerLink="/returns" class="btn-secondary">Back to returns</a>
+    <a routerLink="/returns" class="btn-secondary">{{ 'RETURNS.FORM.BACK' | translate }}</a>
   </div>
 
   @if (loadError()) {
@@ -16,33 +16,33 @@
   } @else if (isLoading() && !isEdit()) {
     <div class="flex items-center gap-3 text-muted" aria-busy="true">
       <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
-      <span>Loading eligible orders...</span>
+      <span>{{ 'RETURNS.FORM.LOADING_ORDERS' | translate }}</span>
     </div>
   } @else {
     <form class="space-y-6" [formGroup]="form" (ngSubmit)="submit()">
       @if (!isEdit()) {
         <section class="rounded-xl border border-line bg-panel p-5 shadow-sm space-y-4">
           <h2 class="text-lg font-semibold text-ink">
-            {{ returnType() === 'CustomerReturn' ? 'Sales order' : 'Purchase order' }}
+            {{ (returnType() === 'CustomerReturn' ? 'RETURNS.FORM.SECTION_SALES_ORDER' : 'RETURNS.FORM.SECTION_PURCHASE_ORDER') | translate }}
           </h2>
           <label class="block text-sm font-medium text-ink">
-            Search
+            {{ 'RETURNS.FORM.SEARCH' | translate }}
             <input
               type="search"
               class="field mt-1"
               [value]="sourceSearch()"
               (input)="sourceSearch.set($any($event.target).value)"
-              placeholder="Number or counterpart"
+              [attr.placeholder]="'RETURNS.FORM.SEARCH_PLACEHOLDER' | translate"
             />
           </label>
           <label class="block text-sm font-medium text-ink">
-            Source document
+            {{ 'RETURNS.FORM.SOURCE_DOCUMENT' | translate }}
             <select
               class="field mt-1"
               [value]="selectedSourceId()"
               (change)="selectSource($any($event.target).value)"
             >
-              <option value="">Select...</option>
+              <option value="">{{ 'RETURNS.FORM.SELECT' | translate }}</option>
               @for (option of filteredSources(); track option.id) {
                 <option [value]="option.id">{{ sourceLabel(option) }}</option>
               }
@@ -52,39 +52,39 @@
       } @else if (editing(); as current) {
         <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
           <h2 class="text-lg font-semibold text-ink">{{ current.returnNumber }}</h2>
-          <p class="mt-2 text-sm text-muted">Source: {{ current.sourceReference || '—' }}</p>
+          <p class="mt-2 text-sm text-muted">{{ 'RETURNS.FORM.SOURCE_PREFIX' | translate: { reference: current.sourceReference || ('COMMON.EMPTY' | translate) } }}</p>
         </section>
       }
 
       <section class="rounded-xl border border-line bg-panel p-5 shadow-sm space-y-4">
-        <h2 class="text-lg font-semibold text-ink">Return details</h2>
+        <h2 class="text-lg font-semibold text-ink">{{ 'RETURNS.FORM.SECTION_DETAILS' | translate }}</h2>
         <div class="grid gap-4 md:grid-cols-2">
           <label class="block text-sm font-medium text-ink">
-            Reason
+            {{ 'RETURNS.FORM.REASON' | translate }}
             <select class="field mt-1" formControlName="reason">
               @for (reason of reasons; track reason) {
-                <option [value]="reason">{{ reasonLabel(reason) }}</option>
+                <option [value]="reason">{{ reasonLabel(reason) | translate }}</option>
               }
             </select>
           </label>
           <label class="block text-sm font-medium text-ink">
-            Financial treatment
+            {{ 'RETURNS.FORM.FINANCIAL_TREATMENT' | translate }}
             <select class="field mt-1" formControlName="financialTreatment">
               @for (treatment of financialTreatments(); track treatment) {
-                <option [value]="treatment">{{ financialLabel(treatment) }}</option>
+                <option [value]="treatment">{{ financialLabel(treatment) | translate }}</option>
               }
             </select>
           </label>
           <label class="block text-sm font-medium text-ink md:col-span-2">
-            Reason description
+            {{ 'RETURNS.FORM.REASON_DESCRIPTION' | translate }}
             <textarea class="field mt-1 min-h-20" formControlName="reasonDescription" [attr.maxlength]="reasonDescriptionMax"></textarea>
           </label>
           <label class="block text-sm font-medium text-ink md:col-span-2">
-            Notes
+            {{ 'RETURNS.FORM.NOTES' | translate }}
             <textarea class="field mt-1 min-h-20" formControlName="notes" [attr.maxlength]="notesMax"></textarea>
           </label>
           <label class="block text-sm font-medium text-ink md:col-span-2">
-            Financial notes
+            {{ 'RETURNS.FORM.FINANCIAL_NOTES' | translate }}
             <textarea class="field mt-1 min-h-20" formControlName="financialNotes" [attr.maxlength]="notesMax"></textarea>
           </label>
         </div>
@@ -92,29 +92,29 @@
 
       <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
         <div class="flex flex-wrap items-end justify-between gap-3">
-          <h2 class="text-lg font-semibold text-ink">Eligible items</h2>
-          <p class="text-sm text-muted">Estimated total: {{ estimatedTotal() | currency: 'BRL' }}</p>
+          <h2 class="text-lg font-semibold text-ink">{{ 'RETURNS.FORM.ELIGIBLE_ITEMS' | translate }}</h2>
+          <p class="text-sm text-muted">{{ 'RETURNS.FORM.ESTIMATED_TOTAL' | translate: { amount: (estimatedTotal() | currency: 'BRL') } }}</p>
         </div>
 
         @if (isLoadingItems()) {
-          <p class="mt-4 text-sm text-muted">Loading eligible items...</p>
+          <p class="mt-4 text-sm text-muted">{{ 'RETURNS.FORM.LOADING_ITEMS' | translate }}</p>
         } @else if (!selectedSourceId() && !isEdit()) {
-          <p class="mt-4 text-sm text-muted">Select a source document to load eligible items.</p>
+          <p class="mt-4 text-sm text-muted">{{ 'RETURNS.FORM.SELECT_SOURCE_HINT' | translate }}</p>
         } @else if (eligibleItems().length === 0) {
-          <p class="mt-4 text-sm text-muted">No items are available to return for this document.</p>
+          <p class="mt-4 text-sm text-muted">{{ 'RETURNS.FORM.NO_ITEMS' | translate }}</p>
         } @else {
           <div class="mt-4 overflow-x-auto">
             <table class="min-w-full text-left text-sm">
               <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
                 <tr>
-                  <th class="px-3 py-2">Product</th>
-                  <th class="px-3 py-2">SKU</th>
-                  <th class="px-3 py-2">Source qty</th>
-                  <th class="px-3 py-2">Previously returned</th>
-                  <th class="px-3 py-2">Available</th>
-                  <th class="px-3 py-2">Requested</th>
-                  <th class="px-3 py-2">Unit value</th>
-                  <th class="px-3 py-2">Line total</th>
+                  <th class="px-3 py-2">{{ 'RETURNS.FORM.COL_PRODUCT' | translate }}</th>
+                  <th class="px-3 py-2">{{ 'RETURNS.FORM.COL_SKU' | translate }}</th>
+                  <th class="px-3 py-2">{{ 'RETURNS.FORM.COL_SOURCE_QTY' | translate }}</th>
+                  <th class="px-3 py-2">{{ 'RETURNS.FORM.COL_PREVIOUSLY_RETURNED' | translate }}</th>
+                  <th class="px-3 py-2">{{ 'RETURNS.FORM.COL_AVAILABLE' | translate }}</th>
+                  <th class="px-3 py-2">{{ 'RETURNS.FORM.COL_REQUESTED' | translate }}</th>
+                  <th class="px-3 py-2">{{ 'RETURNS.FORM.COL_UNIT_VALUE' | translate }}</th>
+                  <th class="px-3 py-2">{{ 'RETURNS.FORM.COL_LINE_TOTAL' | translate }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -144,19 +144,19 @@
         }
       </section>
 
-      @if (formError()) {
+      @if (formError(); as err) {
         <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
-          {{ formError() }}
+          {{ err | translate: formErrorParams() }}
         </div>
       }
 
       <div class="flex justify-end gap-2">
-        <a routerLink="/returns" class="btn-secondary">Cancel</a>
+        <a routerLink="/returns" class="btn-secondary">{{ 'COMMON.CANCEL' | translate }}</a>
         <button type="submit" class="btn-primary" [disabled]="isSubmitting()">
           @if (isSubmitting()) {
-            Saving...
+            {{ 'COMMON.SAVING' | translate }}
           } @else {
-            Save return
+            {{ 'RETURNS.FORM.SAVE' | translate }}
           }
         </button>
       </div>

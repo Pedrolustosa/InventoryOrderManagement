@@ -1,7 +1,10 @@
 import { Component, input, output } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
+
 import { CustomerResponse } from '../../models/customer.model';
 
 @Component({
+  imports: [TranslatePipe],
   selector: 'app-customer-deactivate-confirm',
   templateUrl: './deactivate-confirm.html',
 })

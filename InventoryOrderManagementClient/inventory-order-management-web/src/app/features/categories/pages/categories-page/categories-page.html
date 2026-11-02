@@ -1,28 +1,28 @@
 <section class="space-y-6">
   <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <h1 class="text-3xl font-semibold tracking-tight text-ink">Categories Management</h1>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">{{ 'CATEGORIES.LIST.TITLE' | translate }}</h1>
       <p class="mt-2 max-w-2xl text-sm text-muted">
-        Organize and manage your product categories.
+        {{ 'CATEGORIES.LIST.SUBTITLE' | translate }}
       </p>
     </div>
 
     @if (panelMode() === 'none') {
-      <button *hasPermission="'Categories.Create'" type="button" class="btn-primary shrink-0" (click)="openCreate()">New Category</button>
+      <button *hasPermission="'Categories.Create'" type="button" class="btn-primary shrink-0" (click)="openCreate()">{{ 'CATEGORIES.LIST.NEW' | translate }}</button>
     }
   </div>
 
   <div class="grid gap-3 sm:grid-cols-3">
     <div class="rounded-xl border border-line bg-panel px-4 py-3">
-      <p class="text-xs uppercase tracking-wide text-muted">Total Categories</p>
+      <p class="text-xs uppercase tracking-wide text-muted">{{ 'CATEGORIES.LIST.KPI_TOTAL' | translate }}</p>
       <p class="mt-1 text-2xl font-semibold text-ink">{{ totalCount() }}</p>
     </div>
     <div class="rounded-xl border border-line bg-panel px-4 py-3">
-      <p class="text-xs uppercase tracking-wide text-muted">Active Categories</p>
+      <p class="text-xs uppercase tracking-wide text-muted">{{ 'CATEGORIES.LIST.KPI_ACTIVE' | translate }}</p>
       <p class="mt-1 text-2xl font-semibold text-accent-ink">{{ activeCount() }}</p>
     </div>
     <div class="rounded-xl border border-line bg-panel px-4 py-3">
-      <p class="text-xs uppercase tracking-wide text-muted">Inactive Categories</p>
+      <p class="text-xs uppercase tracking-wide text-muted">{{ 'CATEGORIES.LIST.KPI_INACTIVE' | translate }}</p>
       <p class="mt-1 text-2xl font-semibold text-muted">{{ inactiveCount() }}</p>
     </div>
   </div>
@@ -36,7 +36,7 @@
         [class.!text-white]="statusFilter() === 'all'"
         (click)="setStatusFilter('all')"
       >
-        All
+        {{ 'COMMON.ALL' | translate }}
       </button>
       <button
         type="button"
@@ -45,7 +45,7 @@
         [class.!text-white]="statusFilter() === 'active'"
         (click)="setStatusFilter('active')"
       >
-        Active
+        {{ 'COMMON.ACTIVE' | translate }}
       </button>
       <button
         type="button"
@@ -54,33 +54,27 @@
         [class.!text-white]="statusFilter() === 'inactive'"
         (click)="setStatusFilter('inactive')"
       >
-        Inactive
+        {{ 'COMMON.INACTIVE' | translate }}
       </button>
     </div>
 
     <input
       type="search"
       class="field max-w-sm"
-      placeholder="Search by name"
+      [placeholder]="'CATEGORIES.LIST.SEARCH_PLACEHOLDER' | translate"
       [value]="searchTerm()"
       (input)="onSearch($any($event.target).value)"
     />
   </div>
 
-  @if (successMessage()) {
-    <div class="rounded-md border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent-ink" role="status">
-      {{ successMessage() }}
-    </div>
-  }
-
   @if (panelMode() === 'create' || panelMode() === 'edit') {
     <section class="rounded-xl border border-line bg-panel p-5 shadow-sm sm:p-6">
       <div class="mb-5">
         <h2 class="text-lg font-semibold text-ink">
-          {{ panelMode() === 'edit' ? 'Edit Category' : 'Create Category' }}
+          {{ (panelMode() === 'edit' ? 'CATEGORIES.FORM.EDIT_TITLE' : 'CATEGORIES.FORM.CREATE_TITLE') | translate }}
         </h2>
         <p class="mt-1 text-sm text-muted">
-          {{ panelMode() === 'edit' ? 'Update name and description.' : 'Add a new category to the catalog.' }}
+          {{ (panelMode() === 'edit' ? 'CATEGORIES.FORM.EDIT_SUBTITLE' : 'CATEGORIES.FORM.CREATE_SUBTITLE') | translate }}
         </p>
       </div>
 

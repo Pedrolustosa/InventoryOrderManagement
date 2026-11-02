@@ -19,63 +19,115 @@ export type NavIconName =
   | 'undo';
 
 export interface NavigationItem {
-  label: string;
+  /** i18n key under NAVIGATION.* */
+  labelKey: string;
   route: string;
   icon: NavIconName;
   permission: string;
 }
 
 export interface NavigationGroup {
-  label: string;
+  /** i18n key under NAVIGATION.* */
+  labelKey: string;
   items: NavigationItem[];
 }
 
 export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
   {
-    label: 'Catalog',
+    labelKey: 'NAVIGATION.CATALOG',
     items: [
-      { label: 'Products', route: '/products', icon: 'box', permission: 'Products.View' },
-      { label: 'Categories', route: '/categories', icon: 'tag', permission: 'Categories.View' },
-      { label: 'Suppliers', route: '/suppliers', icon: 'truck', permission: 'Suppliers.View' },
-      { label: 'Customers', route: '/customers', icon: 'users', permission: 'Customers.View' },
+      { labelKey: 'NAVIGATION.PRODUCTS', route: '/products', icon: 'box', permission: 'Products.View' },
+      { labelKey: 'NAVIGATION.CATEGORIES', route: '/categories', icon: 'tag', permission: 'Categories.View' },
+      { labelKey: 'NAVIGATION.SUPPLIERS', route: '/suppliers', icon: 'truck', permission: 'Suppliers.View' },
+      { labelKey: 'NAVIGATION.CUSTOMERS', route: '/customers', icon: 'users', permission: 'Customers.View' },
     ],
   },
   {
-    label: 'Operations',
+    labelKey: 'NAVIGATION.OPERATIONS',
     items: [
-      { label: 'Inventory', route: '/inventory', icon: 'archive', permission: 'Inventory.View' },
-      { label: 'Purchases', route: '/purchases', icon: 'bag', permission: 'Purchases.View' },
-      { label: 'Orders', route: '/orders', icon: 'clipboard', permission: 'Orders.View' },
-      { label: 'Shipping', route: '/shipping', icon: 'truck', permission: 'Shipments.View' },
-      { label: 'Returns', route: '/returns', icon: 'undo', permission: 'Returns.View' },
-      { label: 'Customer returns', route: '/returns/customer', icon: 'undo', permission: 'Returns.View' },
-      { label: 'Supplier returns', route: '/returns/supplier', icon: 'undo', permission: 'Returns.View' },
+      { labelKey: 'NAVIGATION.INVENTORY', route: '/inventory', icon: 'archive', permission: 'Inventory.View' },
+      { labelKey: 'NAVIGATION.PURCHASES', route: '/purchases', icon: 'bag', permission: 'Purchases.View' },
+      { labelKey: 'NAVIGATION.ORDERS', route: '/orders', icon: 'clipboard', permission: 'Orders.View' },
+      { labelKey: 'NAVIGATION.SHIPPING', route: '/shipping', icon: 'truck', permission: 'Shipments.View' },
+      { labelKey: 'NAVIGATION.RETURNS', route: '/returns', icon: 'undo', permission: 'Returns.View' },
+      {
+        labelKey: 'NAVIGATION.CUSTOMER_RETURNS',
+        route: '/returns/customer',
+        icon: 'undo',
+        permission: 'Returns.View',
+      },
+      {
+        labelKey: 'NAVIGATION.SUPPLIER_RETURNS',
+        route: '/returns/supplier',
+        icon: 'undo',
+        permission: 'Returns.View',
+      },
     ],
   },
   {
-    label: 'Finance',
+    labelKey: 'NAVIGATION.FINANCE',
     items: [
-      { label: 'Dashboard', route: '/finance/dashboard', icon: 'wallet', permission: 'Finance.Reports.View' },
-      { label: 'Payables', route: '/finance/payables', icon: 'receipt', permission: 'Finance.View' },
-      { label: 'Receivables', route: '/finance/receivables', icon: 'receipt', permission: 'Finance.View' },
-      { label: 'Cash accounts', route: '/finance/cash-accounts', icon: 'bank', permission: 'Finance.CashAccounts.View' },
-      { label: 'Cash flow', route: '/finance/cash-flow', icon: 'chart', permission: 'Finance.CashFlow.View' },
-      { label: 'Cash movements', route: '/finance/cash-movements', icon: 'swap', permission: 'Finance.CashFlow.View' },
-      { label: 'Settlements', route: '/finance/settlements', icon: 'receipt', permission: 'Finance.View' },
-      { label: 'Aging', route: '/finance/reports/aging', icon: 'clock', permission: 'Finance.Reports.View' },
+      {
+        labelKey: 'NAVIGATION.FINANCE_DASHBOARD',
+        route: '/finance/dashboard',
+        icon: 'wallet',
+        permission: 'Finance.Reports.View',
+      },
+      { labelKey: 'NAVIGATION.PAYABLES', route: '/finance/payables', icon: 'receipt', permission: 'Finance.View' },
+      {
+        labelKey: 'NAVIGATION.RECEIVABLES',
+        route: '/finance/receivables',
+        icon: 'receipt',
+        permission: 'Finance.View',
+      },
+      {
+        labelKey: 'NAVIGATION.CASH_ACCOUNTS',
+        route: '/finance/cash-accounts',
+        icon: 'bank',
+        permission: 'Finance.CashAccounts.View',
+      },
+      {
+        labelKey: 'NAVIGATION.CASH_FLOW',
+        route: '/finance/cash-flow',
+        icon: 'chart',
+        permission: 'Finance.CashFlow.View',
+      },
+      {
+        labelKey: 'NAVIGATION.CASH_MOVEMENTS',
+        route: '/finance/cash-movements',
+        icon: 'swap',
+        permission: 'Finance.CashFlow.View',
+      },
+      {
+        labelKey: 'NAVIGATION.SETTLEMENTS',
+        route: '/finance/settlements',
+        icon: 'receipt',
+        permission: 'Finance.View',
+      },
+      {
+        labelKey: 'NAVIGATION.AGING',
+        route: '/finance/reports/aging',
+        icon: 'clock',
+        permission: 'Finance.Reports.View',
+      },
     ],
   },
   {
-    label: 'Analysis',
-    items: [{ label: 'Reports', route: '/reports', icon: 'chart', permission: 'Reports.View' }],
+    labelKey: 'NAVIGATION.ANALYSIS',
+    items: [{ labelKey: 'NAVIGATION.REPORTS', route: '/reports', icon: 'chart', permission: 'Reports.View' }],
   },
   {
-    label: 'Administration',
+    labelKey: 'NAVIGATION.ADMINISTRATION',
     items: [
-      { label: 'Users', route: '/users', icon: 'user', permission: 'Users.View' },
-      { label: 'Roles', route: '/roles', icon: 'shield', permission: 'Roles.View' },
-      { label: 'Permissions', route: '/permissions', icon: 'key', permission: 'Roles.View' },
-      { label: 'Security Audit', route: '/audit', icon: 'scroll', permission: 'Security.Audit.View' },
+      { labelKey: 'NAVIGATION.USERS', route: '/users', icon: 'user', permission: 'Users.View' },
+      { labelKey: 'NAVIGATION.ROLES', route: '/roles', icon: 'shield', permission: 'Roles.View' },
+      { labelKey: 'NAVIGATION.PERMISSIONS', route: '/permissions', icon: 'key', permission: 'Roles.View' },
+      {
+        labelKey: 'NAVIGATION.SECURITY_AUDIT',
+        route: '/audit',
+        icon: 'scroll',
+        permission: 'Security.Audit.View',
+      },
     ],
   },
 ];

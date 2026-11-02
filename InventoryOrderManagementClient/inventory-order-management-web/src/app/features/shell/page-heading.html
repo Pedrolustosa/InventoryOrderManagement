@@ -1,17 +1,17 @@
 <div>
-  <p class="text-lg font-semibold tracking-tight text-ink">{{ title() }}</p>
+  <p class="text-lg font-semibold tracking-tight text-ink">{{ titleKey() | translate }}</p>
   @if (crumbs().length > 1) {
-    <nav class="mt-1" aria-label="Breadcrumb">
+    <nav class="mt-1" [attr.aria-label]="'SHELL.BREADCRUMB' | translate">
       <ol class="flex flex-wrap items-center gap-1 text-sm text-muted">
-        @for (crumb of crumbs(); track crumb.label; let last = $last) {
+        @for (crumb of crumbs(); track crumb.labelKey + crumb.url; let last = $last) {
           <li class="flex items-center gap-1">
             @if (!last) {
               <a [routerLink]="crumb.url" class="rounded hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
-                {{ crumb.label }}
+                {{ crumb.labelKey | translate }}
               </a>
               <span aria-hidden="true">/</span>
             } @else {
-              <span class="text-ink" aria-current="page">{{ crumb.label }}</span>
+              <span class="text-ink" aria-current="page">{{ crumb.labelKey | translate }}</span>
             }
           </li>
         }

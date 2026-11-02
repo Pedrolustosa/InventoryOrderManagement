@@ -1,4 +1,5 @@
 import { registerLocaleData } from '@angular/common';
+import { provideTranslateService } from '@ngx-translate/core';
 import localePt from '@angular/common/locales/pt';
 import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -45,7 +46,7 @@ describe('AgingReportPage', () => {
     };
     await TestBed.configureTestingModule({
       imports: [AgingReportPage],
-      providers: [
+      providers: [provideTranslateService(), 
         provideRouter([]),
         { provide: LOCALE_ID, useValue: 'pt-BR' },
         { provide: FinanceService, useValue: finance },

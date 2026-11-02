@@ -1,4 +1,5 @@
 import { registerLocaleData } from '@angular/common';
+import { provideTranslateService } from '@ngx-translate/core';
 import localePt from '@angular/common/locales/pt';
 import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -57,7 +58,7 @@ describe('FinancialTitleDetailsPage', () => {
     };
     await TestBed.configureTestingModule({
       imports: [FinancialTitleDetailsPage],
-      providers: [
+      providers: [provideTranslateService(), 
         provideRouter([]),
         { provide: LOCALE_ID, useValue: 'pt-BR' },
         {
@@ -82,12 +83,12 @@ describe('FinancialTitleDetailsPage', () => {
 
   it('shows settlement actions only when the user can settle', async () => {
     const allowed = await setup(['Finance.View', 'Finance.Payables.Settle', 'Finance.Payables.Cancel', 'Finance.Payables.Update']);
-    expect(buttonText(allowed.nativeElement)).toContain('Pay');
-    expect(allowed.nativeElement.textContent).toContain('Edit');
+    expect(buttonText(allowed.nativeElement)).toContain('FINANCE.DETAILS.PAY');
+    expect(allowed.nativeElement.textContent).toContain('COMMON.EDIT');
 
     TestBed.resetTestingModule();
     const denied = await setup(['Finance.View']);
-    expect(buttonText(denied.nativeElement)).not.toContain('Pay');
+    expect(buttonText(denied.nativeElement)).not.toContain('FINANCE.DETAILS.PAY');
     expect(buttonText(denied.nativeElement)).not.toContain('Cancel');
   });
 

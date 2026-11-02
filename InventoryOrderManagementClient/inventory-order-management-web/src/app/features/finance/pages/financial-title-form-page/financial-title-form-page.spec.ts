@@ -1,4 +1,5 @@
 import { registerLocaleData } from '@angular/common';
+import { provideTranslateService } from '@ngx-translate/core';
 import localePt from '@angular/common/locales/pt';
 import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -25,7 +26,7 @@ describe('FinancialTitleFormPage', () => {
     finance = { createPayable: vi.fn(), createReceivable: vi.fn() };
     await TestBed.configureTestingModule({
       imports: [FinancialTitleFormPage],
-      providers: [
+      providers: [provideTranslateService(), 
         provideRouter([]),
         { provide: LOCALE_ID, useValue: 'pt-BR' },
         {
@@ -66,7 +67,7 @@ describe('FinancialTitleFormPage', () => {
 
     component.submit();
 
-    expect(component.formError()).toBe('The installments must add up to the total amount.');
+    expect(component.formError()).toBe('FINANCE.FORM.ERR_INSTALLMENT_SUM');
     expect(finance.createPayable).not.toHaveBeenCalled();
     expect(fixture.nativeElement.textContent).toContain('Acme');
   });

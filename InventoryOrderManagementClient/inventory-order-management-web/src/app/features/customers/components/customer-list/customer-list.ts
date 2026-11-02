@@ -1,11 +1,13 @@
 import { DatePipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
+
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { Component, input, output } from '@angular/core';
 import { CustomerResponse } from '../../models/customer.model';
 
 @Component({
   selector: 'app-customer-list',
-  imports: [DatePipe, HasPermissionDirective],
+  imports: [DatePipe, HasPermissionDirective, TranslatePipe],
   templateUrl: './customer-list.html',
 })
 export class CustomerList {
@@ -18,6 +20,6 @@ export class CustomerList {
   readonly deactivateRequested = output<CustomerResponse>();
 
   displayValue(value: string | null | undefined): string {
-    return value && value.trim().length > 0 ? value : 'Not informed';
+    return value && value.trim().length > 0 ? value : 'COMMON.NOT_INFORMED';
   }
 }

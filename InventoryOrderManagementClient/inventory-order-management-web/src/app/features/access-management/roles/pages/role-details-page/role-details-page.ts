@@ -1,11 +1,12 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Role } from '../../models/role.model';
 import { RolesService } from '../../services/roles.service';
 
 @Component({
   selector: 'app-role-details-page',
-  imports: [RouterLink],
+  imports: [TranslatePipe, RouterLink],
   templateUrl: './role-details-page.html',
 })
 export class RoleDetailsPage implements OnInit {

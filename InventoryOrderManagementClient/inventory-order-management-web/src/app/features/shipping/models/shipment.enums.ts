@@ -9,18 +9,7 @@ export const SHIPMENT_STATUSES = [
 export type ShipmentStatus = (typeof SHIPMENT_STATUSES)[number];
 
 export function shipmentStatusLabel(status: ShipmentStatus): string {
-  switch (status) {
-    case 'Preparing':
-      return 'Preparing';
-    case 'Shipped':
-      return 'Shipped';
-    case 'InTransit':
-      return 'In transit';
-    case 'Delivered':
-      return 'Delivered';
-    case 'Failed':
-      return 'Failed';
-  }
+  return `STATUS.SHIPMENT.${status}`;
 }
 
 export function shipmentStatusClass(status: ShipmentStatus): string {

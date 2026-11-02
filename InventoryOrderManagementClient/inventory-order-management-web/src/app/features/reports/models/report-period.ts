@@ -9,13 +9,13 @@ export const REPORT_PRESETS = [
 
 export type ReportPreset = (typeof REPORT_PRESETS)[number];
 
-export const REPORT_PRESET_OPTIONS: { id: ReportPreset; label: string }[] = [
-  { id: 'Last7Days', label: 'Last 7 Days' },
-  { id: 'Last30Days', label: 'Last 30 Days' },
-  { id: 'CurrentMonth', label: 'Current Month' },
-  { id: 'PreviousMonth', label: 'Previous Month' },
-  { id: 'CurrentYear', label: 'Current Year' },
-  { id: 'Custom', label: 'Custom Period' },
+export const REPORT_PRESET_OPTIONS: { id: ReportPreset; labelKey: string }[] = [
+  { id: 'Last7Days', labelKey: 'REPORTS.FILTERS.LAST_7_DAYS' },
+  { id: 'Last30Days', labelKey: 'REPORTS.FILTERS.LAST_30_DAYS' },
+  { id: 'CurrentMonth', labelKey: 'REPORTS.FILTERS.CURRENT_MONTH' },
+  { id: 'PreviousMonth', labelKey: 'REPORTS.FILTERS.PREVIOUS_MONTH' },
+  { id: 'CurrentYear', labelKey: 'REPORTS.FILTERS.CURRENT_YEAR' },
+  { id: 'Custom', labelKey: 'REPORTS.FILTERS.CUSTOM_PERIOD' },
 ];
 
 export interface ReportRange {
@@ -71,11 +71,11 @@ function customRange(customStart: string, customEnd: string): ReportRangeResult 
   const endDay = parseLocalDate(customEnd);
 
   if (!start || !endDay) {
-    return { error: 'Choose a start date and an end date.' };
+    return { error: 'REPORTS.FILTERS.CHOOSE_DATES' };
   }
 
   if (start.getTime() > endDay.getTime()) {
-    return { error: 'The start date cannot be later than the end date.' };
+    return { error: 'REPORTS.FILTERS.PERIOD_ERROR' };
   }
 
   return { range: toRange(start, addDays(endDay, 1)) };

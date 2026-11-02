@@ -2,17 +2,17 @@
   @if (isLoading()) {
     <div class="flex items-center gap-3 px-5 py-10 text-muted" aria-busy="true">
       <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
-      <span>Loading purchase orders...</span>
+      <span>{{ 'PURCHASES.LIST.LOADING' | translate }}</span>
     </div>
   } @else if (errorMessage()) {
     <div class="px-5 py-8 text-sm text-danger" role="alert">{{ errorMessage() }}</div>
   } @else if (orders().length === 0) {
     <div class="px-5 py-12 text-center">
-      <p class="text-base font-medium text-ink">No purchase orders found</p>
-      <p class="mt-2 text-sm text-muted">{{ emptyMessage() }}</p>
+      <p class="text-base font-medium text-ink">{{ 'PURCHASES.LIST.EMPTY_TITLE' | translate }}</p>
+      <p class="mt-2 text-sm text-muted">{{ emptyMessage() | translate }}</p>
       @if (allowCreate()) {
         <button *hasPermission="'Purchases.Create'" type="button" class="btn-primary mt-4" (click)="createRequested.emit()">
-          New Purchase
+          {{ 'PURCHASES.LIST.NEW' | translate }}
         </button>
       }
     </div>
@@ -21,12 +21,12 @@
       <table class="min-w-full text-left text-sm">
         <thead class="border-b border-line bg-surface/80 text-xs uppercase tracking-wide text-muted">
           <tr>
-            <th class="px-4 py-3 font-semibold">Purchase Number</th>
-            <th class="px-4 py-3 font-semibold">Supplier</th>
-            <th class="px-4 py-3 font-semibold">Subtotal</th>
-            <th class="px-4 py-3 font-semibold">Status</th>
-            <th class="px-4 py-3 font-semibold">Created At</th>
-            <th class="px-4 py-3 font-semibold">Actions</th>
+            <th class="px-4 py-3 font-semibold">{{ 'PURCHASES.LIST.COL_NUMBER' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'PURCHASES.LIST.COL_SUPPLIER' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'PURCHASES.LIST.COL_SUBTOTAL' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'PURCHASES.LIST.COL_STATUS' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'PURCHASES.LIST.COL_CREATED_AT' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'PURCHASES.LIST.COL_ACTIONS' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -36,7 +36,7 @@
               <td class="px-4 py-3 text-ink">{{ order.supplierName }}</td>
               <td class="whitespace-nowrap px-4 py-3 text-ink">{{ order.subtotal | currency: 'BRL' }}</td>
               <td class="px-4 py-3">
-                <span [class]="statusClass(order.status)">{{ statusLabel(order.status) }}</span>
+                <span [class]="statusClass(order.status)">{{ statusLabel(order.status) | translate }}</span>
               </td>
               <td class="whitespace-nowrap px-4 py-3 text-muted">
                 {{ order.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}
@@ -44,7 +44,7 @@
               <td class="px-4 py-3">
                 <div class="flex flex-wrap gap-2">
                   <button type="button" class="btn-secondary !px-2.5 !py-1 text-xs" (click)="viewRequested.emit(order)">
-                    View
+                    {{ 'COMMON.VIEW' | translate }}
                   </button>
                   @if (canEdit(order.status)) {
                     <button
@@ -53,7 +53,7 @@
                       class="btn-secondary !px-2.5 !py-1 text-xs"
                       (click)="editRequested.emit(order)"
                     >
-                      Edit
+                      {{ 'COMMON.EDIT' | translate }}
                     </button>
                   }
                   @if (canSend(order.status)) {
@@ -63,7 +63,7 @@
                       class="btn-secondary !px-2.5 !py-1 text-xs"
                       (click)="sendRequested.emit(order)"
                     >
-                      Send
+                      {{ 'PURCHASES.ACTIONS.SEND' | translate }}
                     </button>
                   }
                   @if (canReceive(order.status)) {
@@ -73,7 +73,7 @@
                       class="btn-secondary !px-2.5 !py-1 text-xs"
                       (click)="receiveRequested.emit(order)"
                     >
-                      Receive
+                      {{ 'PURCHASES.ACTIONS.RECEIVE' | translate }}
                     </button>
                   }
                   @if (canCancel(order.status)) {
@@ -83,7 +83,7 @@
                       class="btn-secondary !px-2.5 !py-1 text-xs text-danger"
                       (click)="cancelRequested.emit(order)"
                     >
-                      Cancel
+                      {{ 'PURCHASES.ACTIONS.CANCEL' | translate }}
                     </button>
                   }
                 </div>

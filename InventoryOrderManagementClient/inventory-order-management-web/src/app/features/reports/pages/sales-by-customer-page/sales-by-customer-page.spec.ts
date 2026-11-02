@@ -1,4 +1,5 @@
 import { registerLocaleData } from '@angular/common';
+import { provideTranslateService } from '@ngx-translate/core';
 import localePt from '@angular/common/locales/pt';
 import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -38,7 +39,7 @@ describe('sales reports', () => {
     const reports = { getBestSellingProductsReport: vi.fn().mockReturnValue(of(products)) };
     await TestBed.configureTestingModule({
       imports: [BestSellersPage],
-      providers: [
+      providers: [provideTranslateService(), 
         { provide: ReportsService, useValue: reports },
         { provide: ReportPeriodStore, useValue: new ReportPeriodStore() },
         { provide: LOCALE_ID, useValue: 'pt-BR' },
@@ -54,7 +55,7 @@ describe('sales reports', () => {
     expect(text).toContain('Wireless Mouse');
     expect(text).toContain('SEED-MS-001');
     expect(text).toContain('499,50');
-    expect(text).toContain('Quantity sold');
+    expect(text).toContain('REPORTS.CHARTS.QTY_SOLD');
     expect(reports.getBestSellingProductsReport).toHaveBeenCalledWith(expect.objectContaining({ limit: 10 }));
 
     fixture.componentInstance.setLimit(5);
@@ -67,7 +68,7 @@ describe('sales reports', () => {
     const reports = { getSalesByCustomerReport: vi.fn().mockReturnValue(of(customers)) };
     await TestBed.configureTestingModule({
       imports: [SalesByCustomerPage],
-      providers: [
+      providers: [provideTranslateService(), 
         { provide: ReportsService, useValue: reports },
         { provide: ReportPeriodStore, useValue: new ReportPeriodStore() },
         { provide: LOCALE_ID, useValue: 'pt-BR' },
@@ -84,8 +85,8 @@ describe('sales reports', () => {
     expect(text).toContain('John Smith');
     expect(text).toContain('999,30');
     expect(text).toContain('333,10');
-    expect(ranking.textContent).toContain('Customer Name');
-    expect(ranking.textContent).toContain('Average Order Value');
+    expect(ranking.textContent).toContain('REPORTS.CUSTOMERS.COL_NAME');
+    expect(ranking.textContent).toContain('REPORTS.CUSTOMERS.COL_AVG');
     expect(ranking.textContent).not.toContain('Email');
     expect(ranking.textContent).not.toContain('Phone');
 

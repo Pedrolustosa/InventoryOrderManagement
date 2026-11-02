@@ -37,18 +37,7 @@ export type CashFlowNature = (typeof CASH_FLOW_NATURES)[number];
 export type FinanceKind = 'payable' | 'receivable';
 
 export function financialStatusLabel(status: FinancialTitleStatus): string {
-  switch (status) {
-    case 'Pending':
-      return 'Pending';
-    case 'PartiallyPaid':
-      return 'Partially paid';
-    case 'Paid':
-      return 'Paid';
-    case 'Overdue':
-      return 'Overdue';
-    case 'Cancelled':
-      return 'Cancelled';
-  }
+  return `STATUS.FINANCE_TITLE.${status}`;
 }
 
 export function financialStatusClass(status: FinancialTitleStatus): string {
@@ -67,50 +56,19 @@ export function financialStatusClass(status: FinancialTitleStatus): string {
 }
 
 export function paymentMethodLabel(method: FinancialPaymentMethod): string {
-  switch (method) {
-    case 'Cash':
-      return 'Cash';
-    case 'Pix':
-      return 'Pix';
-    case 'BankTransfer':
-      return 'Bank transfer';
-    case 'CreditCard':
-      return 'Credit card';
-    case 'DebitCard':
-      return 'Debit card';
-    case 'Check':
-      return 'Check';
-    case 'Other':
-      return 'Other';
-  }
+  return `STATUS.FINANCE_PAYMENT_METHOD.${method}`;
 }
 
 export function cashAccountTypeLabel(type: CashAccountType): string {
-  switch (type) {
-    case 'Cash':
-      return 'Cash';
-    case 'CheckingAccount':
-      return 'Checking account';
-    case 'SavingsAccount':
-      return 'Savings account';
-    case 'Other':
-      return 'Other';
-  }
+  return `STATUS.CASH_ACCOUNT_TYPE.${type}`;
 }
 
 export function sourceTypeLabel(type: FinancialSourceType): string {
-  switch (type) {
-    case 'Manual':
-      return 'Manual';
-    case 'PurchaseOrder':
-      return 'Purchase order';
-    case 'SalesOrder':
-      return 'Sales order';
-  }
+  return `STATUS.FINANCE_SOURCE.${type}`;
 }
 
 export function directionLabel(direction: CashMovementDirection): string {
-  return direction === 'Inflow' ? 'Inflow' : 'Outflow';
+  return `STATUS.CASH_MOVEMENT_DIRECTION.${direction}`;
 }
 
 export function directionClass(direction: CashMovementDirection): string {
@@ -118,16 +76,9 @@ export function directionClass(direction: CashMovementDirection): string {
 }
 
 export function groupingLabel(grouping: CashFlowGrouping): string {
-  switch (grouping) {
-    case 'Day':
-      return 'Day';
-    case 'Week':
-      return 'Week';
-    case 'Month':
-      return 'Month';
-  }
+  return `STATUS.CASH_FLOW_GROUPING.${grouping}`;
 }
 
 export function counterpartyLabel(kind: FinanceKind): string {
-  return kind === 'payable' ? 'Supplier' : 'Customer';
+  return kind === 'payable' ? 'STATUS.FINANCE_PARTY.Supplier' : 'STATUS.FINANCE_PARTY.Customer';
 }

@@ -1,4 +1,5 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -14,7 +15,7 @@ import { FinanceRequestError, FinanceService } from '../../services/finance.serv
 
 @Component({
   selector: 'app-financial-title-details-page',
-  imports: [RouterLink, CurrencyPipe, DatePipe, DateOnlyPipe, ReactiveFormsModule, FinancialStatus, SettlementForm, HasPermissionDirective],
+  imports: [TranslatePipe, RouterLink, CurrencyPipe, DatePipe, DateOnlyPipe, ReactiveFormsModule, FinancialStatus, SettlementForm, HasPermissionDirective],
   templateUrl: './financial-title-details-page.html',
 })
 export class FinancialTitleDetailsPage implements OnInit {
@@ -49,7 +50,7 @@ export class FinancialTitleDetailsPage implements OnInit {
   readonly cancelPermission = computed(() =>
     this.kind() === 'payable' ? 'Finance.Payables.Cancel' : 'Finance.Receivables.Cancel',
   );
-  readonly heading = computed(() => (this.kind() === 'payable' ? 'Payable details' : 'Receivable details'));
+  readonly heading = computed(() => (this.kind() === 'payable' ? 'FINANCE.DETAILS.PAYABLE_TITLE' : 'FINANCE.DETAILS.RECEIVABLE_TITLE'));
 
   readonly reason = this.formBuilder.nonNullable.control('', [Validators.required, Validators.maxLength(CANCELLATION_REASON_MAX)]);
 
@@ -69,7 +70,7 @@ export class FinancialTitleDetailsPage implements OnInit {
 
   accountName(id: string | null | undefined): string {
     if (!id) {
-      return 'No cash movement';
+      return 'FINANCE.LIST.NO_CASH_MOVEMENT';
     }
 
     return this.accounts().find((account) => account.id === id)?.name ?? 'Unknown account';
@@ -103,7 +104,7 @@ export class FinancialTitleDetailsPage implements OnInit {
         this.isActing.set(false);
         this.cancelOpen.set(false);
         this.title.set(updated);
-        this.notice.set('Title cancelled. Earlier settlements were kept.');
+        this.notice.set('FINANCE.DETAILS.SUCCESS_CANCELLED');
       },
       error: (error: FinanceRequestError) => {
         this.isActing.set(false);
@@ -141,7 +142,7 @@ export class FinancialTitleDetailsPage implements OnInit {
       next: () => {
         this.isActing.set(false);
         this.settlementInstallment.set(null);
-        this.notice.set(this.kind() === 'payable' ? 'Payment recorded.' : 'Receipt recorded.');
+        this.notice.set(this.kind() === 'payable' ? 'FINANCE.DETAILS.SUCCESS_PAYMENT' : 'FINANCE.DETAILS.SUCCESS_RECEIPT');
         this.load(title.id);
       },
       error: (error: FinanceRequestError) => {

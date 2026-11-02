@@ -1,4 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
+
 import { Router, RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -21,7 +23,7 @@ type StatusFilter = 'all' | ShipmentStatus;
 
 @Component({
   selector: 'app-shipments-page',
-  imports: [RouterLink, ShipmentList, HasPermissionDirective],
+  imports: [RouterLink, ShipmentList, HasPermissionDirective, TranslatePipe],
   templateUrl: './shipments-page.html',
 })
 export class ShipmentsPage implements OnInit {
@@ -56,8 +58,8 @@ export class ShipmentsPage implements OnInit {
 
   readonly emptyMessage = computed(() =>
     hasShipmentFilters(this.appliedFilters())
-      ? 'No shipments match the current filters.'
-      : 'There are no shipments yet.',
+      ? 'SHIPPING.LIST.EMPTY_FILTERED'
+      : 'SHIPPING.LIST.EMPTY_NO_DATA',
   );
 
   ngOnInit(): void {

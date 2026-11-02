@@ -1,8 +1,10 @@
-import { Component, DestroyRef, HostListener, inject, signal } from '@angular/core';
+import { Component, DestroyRef, HostListener, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { filter } from 'rxjs';
 import { AuthService } from '../../core/auth/services/auth.service';
+import { LanguageService } from '../../core/i18n/language.service';
 import { Navbar } from './navbar';
 import { SIDEBAR_COLLAPSED_KEY } from './navigation';
 import { Sidebar } from './sidebar';
@@ -15,17 +17,20 @@ export class HomeRedirect {}
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, Sidebar, Navbar],
+  imports: [RouterOutlet, Sidebar, Navbar, TranslatePipe],
   templateUrl: './app-shell.html',
 })
 export class AppShell {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly languageService = inject(LanguageService);
 
   readonly collapsed = signal(readCollapsedPreference());
   readonly mobileOpen = signal(false);
   readonly desktop = signal(true);
+  /** Remount main content when language changes so locale-aware pipes refresh. */
+  readonly localeEpoch = computed(() => this.languageService.language());
 
   constructor() {
     const media = window.matchMedia?.('(min-width: 1024px)');
@@ -55,10 +60,10 @@ export class AppShell {
 
   menuLabel(): string {
     if (!this.desktop()) {
-      return this.mobileOpen() ? 'Close menu' : 'Open menu';
+      return this.mobileOpen() ? 'SHELL.CLOSE_MENU' : 'SHELL.OPEN_MENU';
     }
 
-    return this.collapsed() ? 'Expand sidebar' : 'Collapse sidebar';
+    return this.collapsed() ? 'SHELL.EXPAND_SIDEBAR' : 'SHELL.COLLAPSE_SIDEBAR';
   }
 
   toggleMenu(): void {

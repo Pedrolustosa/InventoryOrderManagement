@@ -1,11 +1,13 @@
 import { Component, inject, input, output } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
+
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CategoryResponse } from '../../../categories/models/category.model';
 import { CreateProductRequest } from '../../models/create-product-request.model';
 
 @Component({
   selector: 'app-product-form',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TranslatePipe],
   templateUrl: './product-form.html',
 })
 export class ProductForm {

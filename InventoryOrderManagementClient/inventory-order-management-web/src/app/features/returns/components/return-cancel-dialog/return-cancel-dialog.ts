@@ -1,10 +1,11 @@
 import { Component, inject, input, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CANCELLATION_REASON_MAX_LENGTH } from '../../models/return-requests.model';
 
 @Component({
   selector: 'app-return-cancel-dialog',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TranslatePipe],
   templateUrl: './return-cancel-dialog.html',
 })
 export class ReturnCancelDialog {
@@ -31,13 +32,13 @@ export class ReturnCancelDialog {
 
     const value = this.reason.value.trim();
     if (!value) {
-      this.reasonError.set('A cancellation reason is required.');
+      this.reasonError.set('RETURNS.DIALOGS.REASON_REQUIRED');
       this.reason.markAsTouched();
       return;
     }
 
     if (value.length > CANCELLATION_REASON_MAX_LENGTH) {
-      this.reasonError.set(`The reason cannot exceed ${CANCELLATION_REASON_MAX_LENGTH} characters.`);
+      this.reasonError.set('RETURNS.DIALOGS.REASON_TOO_LONG');
       return;
     }
 

@@ -2,16 +2,16 @@
   @if (isLoading()) {
     <div class="flex items-center gap-3 px-5 py-10 text-muted" aria-busy="true">
       <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
-      <span>Loading orders...</span>
+      <span>{{ 'ORDERS.LIST.LOADING' | translate }}</span>
     </div>
   } @else if (errorMessage()) {
     <div class="px-5 py-8 text-sm text-danger" role="alert">{{ errorMessage() }}</div>
   } @else if (orders().length === 0) {
     <div class="px-5 py-12 text-center">
-      <p class="text-base font-medium text-ink">No orders found</p>
-      <p class="mt-2 text-sm text-muted">{{ emptyMessage() }}</p>
+      <p class="text-base font-medium text-ink">{{ 'ORDERS.LIST.EMPTY_TITLE' | translate }}</p>
+      <p class="mt-2 text-sm text-muted">{{ emptyMessage() | translate }}</p>
       @if (allowCreate()) {
-        <button *hasPermission="'Orders.Create'" type="button" class="btn-primary mt-4" (click)="createRequested.emit()">New Order</button>
+        <button *hasPermission="'Orders.Create'" type="button" class="btn-primary mt-4" (click)="createRequested.emit()">{{ 'ORDERS.LIST.NEW' | translate }}</button>
       }
     </div>
   } @else {
@@ -19,12 +19,12 @@
       <table class="min-w-full text-left text-sm">
         <thead class="border-b border-line bg-surface/80 text-xs uppercase tracking-wide text-muted">
           <tr>
-            <th class="px-4 py-3 font-semibold">Order Number</th>
-            <th class="px-4 py-3 font-semibold">Customer</th>
-            <th class="px-4 py-3 font-semibold">Subtotal</th>
-            <th class="px-4 py-3 font-semibold">Status</th>
-            <th class="px-4 py-3 font-semibold">Created At</th>
-            <th class="px-4 py-3 font-semibold">Actions</th>
+            <th class="px-4 py-3 font-semibold">{{ 'ORDERS.LIST.COL_ORDER_NUMBER' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'ORDERS.LIST.COL_CUSTOMER' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'ORDERS.LIST.COL_SUBTOTAL' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'ORDERS.LIST.COL_STATUS' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'ORDERS.LIST.COL_CREATED_AT' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'ORDERS.LIST.COL_ACTIONS' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -34,7 +34,7 @@
               <td class="px-4 py-3 text-ink">{{ order.customerName }}</td>
               <td class="whitespace-nowrap px-4 py-3 text-ink">{{ order.subtotal | currency: 'BRL' }}</td>
               <td class="px-4 py-3">
-                <span [class]="statusClass(order.status)">{{ statusLabel(order.status) }}</span>
+                <span [class]="statusClass(order.status)">{{ statusLabel(order.status) | translate }}</span>
               </td>
               <td class="whitespace-nowrap px-4 py-3 text-muted">
                 {{ order.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}
@@ -42,11 +42,11 @@
               <td class="px-4 py-3">
                 <div class="flex flex-wrap gap-2">
                   <button type="button" class="btn-secondary !px-2.5 !py-1 text-xs" (click)="viewRequested.emit(order)">
-                    View
+                    {{ 'COMMON.VIEW' | translate }}
                   </button>
                   @if (canEdit(order.status)) {
                     <button *hasPermission="'Orders.UpdateDraft'" type="button" class="btn-secondary !px-2.5 !py-1 text-xs" (click)="editRequested.emit(order)">
-                      Edit
+                      {{ 'COMMON.EDIT' | translate }}
                     </button>
                   }
                   @if (canConfirm(order.status)) {
@@ -56,12 +56,12 @@
                       class="btn-secondary !px-2.5 !py-1 text-xs"
                       (click)="confirmRequested.emit(order)"
                     >
-                      Confirm
+                      {{ 'ORDERS.ACTIONS.CONFIRM' | translate }}
                     </button>
                   }
                   @if (canShip(order.status)) {
                     <button *hasPermission="'Orders.Ship'" type="button" class="btn-secondary !px-2.5 !py-1 text-xs" (click)="shipRequested.emit(order)">
-                      Ship
+                      {{ 'ORDERS.ACTIONS.SHIP' | translate }}
                     </button>
                   }
                   @if (canDeliver(order.status)) {
@@ -71,7 +71,7 @@
                       class="btn-secondary !px-2.5 !py-1 text-xs"
                       (click)="deliverRequested.emit(order)"
                     >
-                      Deliver
+                      {{ 'ORDERS.ACTIONS.DELIVER' | translate }}
                     </button>
                   }
                   @if (canCancel(order.status)) {
@@ -81,7 +81,7 @@
                       class="btn-secondary !px-2.5 !py-1 text-xs text-danger"
                       (click)="cancelRequested.emit(order)"
                     >
-                      Cancel
+                      {{ 'ORDERS.ACTIONS.CANCEL' | translate }}
                     </button>
                   }
                 </div>

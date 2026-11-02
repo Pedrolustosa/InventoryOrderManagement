@@ -6,11 +6,15 @@ import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { permittedAuth, permittedUser } from '../../../../core/auth/testing/permitted-auth';
+import { ToastService } from '../../../../core/notifications/toast.service';
+import { createToastServiceSpy } from '../../../../core/notifications/testing/toast-testing';
 import { SuppliersService } from '../../../suppliers/services/suppliers.service';
 import { PagedResult } from '../../models/purchase-order-requests.model';
 import { PurchaseOrderSummary } from '../../models/purchase-order.model';
 import { PurchaseRequestError, PurchasesService } from '../../services/purchases.service';
 import { PurchasesPage } from './purchases-page';
+import { provideTestTranslate } from '../../../../core/i18n/testing/provide-test-translate';
+
 
 registerLocaleData(localePt);
 
@@ -52,10 +56,11 @@ describe('PurchasesPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [PurchasesPage],
-      providers: [
+      providers: [...provideTestTranslate(), 
         provideRouter([]),
         { provide: PurchasesService, useValue: purchasesService },
         { provide: SuppliersService, useValue: { getSuppliers: vi.fn().mockReturnValue(of([])) } },
+        { provide: ToastService, useValue: createToastServiceSpy() },
         { provide: LOCALE_ID, useValue: 'pt-BR' },
         { provide: AuthService, useValue: auth },
       ],

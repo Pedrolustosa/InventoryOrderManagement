@@ -1,4 +1,5 @@
 import { registerLocaleData } from '@angular/common';
+import { provideTranslateService } from '@ngx-translate/core';
 import localePt from '@angular/common/locales/pt';
 import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -45,7 +46,7 @@ describe('FinancialTitleListPage', () => {
     };
     await TestBed.configureTestingModule({
       imports: [FinancialTitleListPage],
-      providers: [
+      providers: [provideTranslateService(), 
         provideRouter([]),
         { provide: LOCALE_ID, useValue: 'pt-BR' },
         {
@@ -68,7 +69,7 @@ describe('FinancialTitleListPage', () => {
 
   it('lists one row per title and sends the document filter', () => {
     expect(fixture.nativeElement.textContent).toContain('FT-1');
-    expect(fixture.nativeElement.textContent).toContain('Pending');
+    expect(fixture.nativeElement.textContent).toContain('STATUS.FINANCE_TITLE.Pending');
     fixture.componentInstance.documentNumber.set('NF-9');
     fixture.componentInstance.statusFilter.set('Overdue');
     fixture.componentInstance.applyFilters();
@@ -83,7 +84,7 @@ describe('FinancialTitleListPage', () => {
     TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
       imports: [FinancialTitleListPage],
-      providers: [
+      providers: [provideTranslateService(), 
         provideRouter([]),
         { provide: LOCALE_ID, useValue: 'pt-BR' },
         {
