@@ -1,0 +1,106 @@
+<section class="rounded-xl border border-line bg-panel p-5 shadow-sm" role="dialog" aria-labelledby="settlement-title">
+  <h2 id="settlement-title" class="text-lg font-semibold text-ink">
+    {{ kind() === 'payable' ? 'Record payment' : 'Record receipt' }}
+  </h2>
+  <p class="mt-2 text-sm text-muted">
+    {{ titleNumber() }} · {{ counterpartyName() }} · installment {{ installment().installmentNumber }}. Outstanding
+    <span class="font-medium text-ink">{{ installment().outstandingBalance | currency: 'BRL' }}</span>. The amounts below
+    are a preview. The server confirms the settlement.
+  </p>
+
+  <form class="mt-4 space-y-4" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="grid gap-4 md:grid-cols-2">
+      <label class="block text-sm font-medium text-ink">
+        Amount to settle
+        <input type="number" min="0.01" step="0.01" class="field mt-1" formControlName="principal" />
+      </label>
+      <label class="block text-sm font-medium text-ink">
+        Cash account
+        <select class="field mt-1" formControlName="cashAccountId">
+          <option value="">Select an account</option>
+          @for (account of activeAccounts(); track account.id) {
+            <option [value]="account.id">{{ account.name }} · {{ account.accountType }}</option>
+          }
+        </select>
+      </label>
+      <label class="block text-sm font-medium text-ink">
+        Method
+        <select class="field mt-1" formControlName="paymentMethod">
+          @for (method of methods; track method) {
+            <option [value]="method">{{ paymentMethodLabel(method) }}</option>
+          }
+        </select>
+      </label>
+      <label class="block text-sm font-medium text-ink">
+        Occurred at
+        <input type="datetime-local" class="field mt-1" formControlName="occurredAt" />
+      </label>
+      <label class="block text-sm font-medium text-ink">
+        Discount
+        <input type="number" min="0" step="0.01" class="field mt-1" formControlName="discount" />
+      </label>
+      <label class="block text-sm font-medium text-ink">
+        Interest
+        <input type="number" min="0" step="0.01" class="field mt-1" formControlName="interest" />
+      </label>
+      <label class="block text-sm font-medium text-ink">
+        Fine
+        <input type="number" min="0" step="0.01" class="field mt-1" formControlName="fine" />
+      </label>
+      <label class="block text-sm font-medium text-ink">
+        Reference
+        <input type="text" class="field mt-1" [attr.maxlength]="referenceMax" formControlName="reference" />
+      </label>
+    </div>
+    <label class="block text-sm font-medium text-ink">
+      Notes
+      <textarea class="field mt-1 min-h-20" [attr.maxlength]="notesMax" formControlName="notes"></textarea>
+    </label>
+
+    @if (cashPreview(); as amounts) {
+      <dl class="grid gap-3 rounded-lg border border-line bg-surface/60 p-4 sm:grid-cols-3">
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-muted">Settled principal</dt>
+          <dd class="mt-1 text-sm font-medium text-ink">{{ fromCents(amounts.principalCents) | currency: 'BRL' }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-muted">Cash movement</dt>
+          <dd class="mt-1 text-sm font-medium text-ink">{{ fromCents(amounts.cashCents) | currency: 'BRL' }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-muted">Outstanding after</dt>
+          <dd class="mt-1 text-sm font-medium text-ink">
+            {{ fromCents(remainingCents(amounts.principalCents)) | currency: 'BRL' }}
+          </dd>
+        </div>
+      </dl>
+      <p class="text-sm text-muted">
+        {{ fromCents(amounts.principalCents) | currency: 'BRL' }} − {{ fromCents(amounts.discountCents) | currency: 'BRL' }}
+        + {{ fromCents(amounts.interestCents) | currency: 'BRL' }} + {{ fromCents(amounts.fineCents) | currency: 'BRL' }}
+        = {{ fromCents(amounts.cashCents) | currency: 'BRL' }}
+      </p>
+      @if (amounts.cashCents === 0) {
+        <p class="text-sm text-muted">A zero cash amount does not create a cash movement.</p>
+      }
+    } @else if (previewError()) {
+      <p class="text-sm text-danger" role="alert">{{ previewError() }}</p>
+    }
+
+    @if (activeAccounts().length === 0) {
+      <p class="text-sm text-muted" role="status">There is no active cash account. A cash movement needs one.</p>
+    }
+
+    @if (localError() || errorMessage()) {
+      <div class="rounded-md border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger" role="alert">
+        {{ localError() || errorMessage() }}
+      </div>
+    }
+
+    <div class="flex flex-wrap gap-3">
+      <button type="submit" class="btn-primary" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Saving...' : 'Confirm' }}
+      </button>
+      <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="dismissed.emit()">Close</button>
+    </div>
+  </form>
+</section>

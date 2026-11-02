@@ -99,6 +99,23 @@ public static class Permissions
         public const string AuditView = "Security.Audit.View";
     }
 
+    public static class Finance
+    {
+        public const string View = "Finance.View";
+        public const string PayablesCreate = "Finance.Payables.Create";
+        public const string PayablesUpdate = "Finance.Payables.Update";
+        public const string PayablesCancel = "Finance.Payables.Cancel";
+        public const string PayablesSettle = "Finance.Payables.Settle";
+        public const string ReceivablesCreate = "Finance.Receivables.Create";
+        public const string ReceivablesUpdate = "Finance.Receivables.Update";
+        public const string ReceivablesCancel = "Finance.Receivables.Cancel";
+        public const string ReceivablesSettle = "Finance.Receivables.Settle";
+        public const string CashAccountsView = "Finance.CashAccounts.View";
+        public const string CashAccountsManage = "Finance.CashAccounts.Manage";
+        public const string CashFlowView = "Finance.CashFlow.View";
+        public const string ReportsView = "Finance.Reports.View";
+    }
+
     public static readonly IReadOnlyList<string> All =
     [
         Users.View,
@@ -145,7 +162,20 @@ public static class Permissions
         Purchases.Send,
         Purchases.Receive,
         Purchases.Cancel,
-        Security.AuditView
+        Security.AuditView,
+        Finance.View,
+        Finance.PayablesCreate,
+        Finance.PayablesUpdate,
+        Finance.PayablesCancel,
+        Finance.PayablesSettle,
+        Finance.ReceivablesCreate,
+        Finance.ReceivablesUpdate,
+        Finance.ReceivablesCancel,
+        Finance.ReceivablesSettle,
+        Finance.CashAccountsView,
+        Finance.CashAccountsManage,
+        Finance.CashFlowView,
+        Finance.ReportsView
     ];
 
     public static bool IsKnown(string permission) => All.Contains(permission);
@@ -189,6 +219,13 @@ public static class SecurityActions
     public const string PurchaseOrderSent = "PurchaseOrderSent";
     public const string PurchaseReceiptCreated = "PurchaseReceiptCreated";
     public const string PurchaseOrderCancelled = "PurchaseOrderCancelled";
+    public const string FinancialTitleCreated = "FinancialTitleCreated";
+    public const string FinancialTitleUpdated = "FinancialTitleUpdated";
+    public const string FinancialTitleCancelled = "FinancialTitleCancelled";
+    public const string FinancialSettlementCreated = "FinancialSettlementCreated";
+    public const string CashAccountCreated = "CashAccountCreated";
+    public const string CashAccountUpdated = "CashAccountUpdated";
+    public const string CashAccountDeactivated = "CashAccountDeactivated";
 }
 
 public static class SecurityEntities

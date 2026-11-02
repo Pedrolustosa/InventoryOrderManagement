@@ -39,6 +39,16 @@ public class InventoryDbContext : IdentityDbContext<ApplicationUser, Application
 
     public DbSet<PurchaseReceiptItem> PurchaseReceiptItems => Set<PurchaseReceiptItem>();
 
+    public DbSet<FinancialTitle> FinancialTitles => Set<FinancialTitle>();
+
+    public DbSet<FinancialInstallment> FinancialInstallments => Set<FinancialInstallment>();
+
+    public DbSet<FinancialSettlement> FinancialSettlements => Set<FinancialSettlement>();
+
+    public DbSet<CashAccount> CashAccounts => Set<CashAccount>();
+
+    public DbSet<CashMovement> CashMovements => Set<CashMovement>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

@@ -1,0 +1,119 @@
+<section class="space-y-6">
+  <div>
+    <h1 class="text-3xl font-semibold tracking-tight text-ink">Finance dashboard</h1>
+    <p class="mt-2 max-w-2xl text-sm text-muted">
+      Open and overdue amounts ignore the period. Paid, received and realized amounts use {{ rangeLabel() || 'the selected period' }}.
+    </p>
+  </div>
+
+  <app-finance-period-filter (applied)="applyRange($event)" />
+
+  @if (isLoading()) {
+    <div class="flex items-center gap-3 text-muted" aria-busy="true">
+      <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
+      <span>Loading dashboard...</span>
+    </div>
+  } @else if (loadError()) {
+    <div class="space-y-3 rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
+      <p>{{ loadError() }}</p>
+      <button type="button" class="btn-secondary" (click)="retry()">Try again</button>
+    </div>
+  } @else if (dashboard(); as current) {
+    <dl class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div class="rounded-xl border border-line bg-panel p-4">
+        <dt class="text-xs uppercase tracking-wide text-muted">Open payables</dt>
+        <dd class="mt-2 text-xl font-semibold text-ink">{{ current.openPayables | currency: 'BRL' }}</dd>
+      </div>
+      <div class="rounded-xl border border-line bg-panel p-4">
+        <dt class="text-xs uppercase tracking-wide text-muted">Open receivables</dt>
+        <dd class="mt-2 text-xl font-semibold text-ink">{{ current.openReceivables | currency: 'BRL' }}</dd>
+      </div>
+      <div class="rounded-xl border border-line bg-panel p-4">
+        <dt class="text-xs uppercase tracking-wide text-muted">Overdue payables</dt>
+        <dd class="mt-2 text-xl font-semibold text-danger">{{ current.overduePayables | currency: 'BRL' }}</dd>
+      </div>
+      <div class="rounded-xl border border-line bg-panel p-4">
+        <dt class="text-xs uppercase tracking-wide text-muted">Overdue receivables</dt>
+        <dd class="mt-2 text-xl font-semibold text-danger">{{ current.overdueReceivables | currency: 'BRL' }}</dd>
+      </div>
+      <div class="rounded-xl border border-line bg-panel p-4">
+        <dt class="text-xs uppercase tracking-wide text-muted">Paid in period</dt>
+        <dd class="mt-2 text-xl font-semibold text-ink">{{ current.paidInPeriod | currency: 'BRL' }}</dd>
+      </div>
+      <div class="rounded-xl border border-line bg-panel p-4">
+        <dt class="text-xs uppercase tracking-wide text-muted">Received in period</dt>
+        <dd class="mt-2 text-xl font-semibold text-ink">{{ current.receivedInPeriod | currency: 'BRL' }}</dd>
+      </div>
+      <div class="rounded-xl border border-line bg-panel p-4">
+        <dt class="text-xs uppercase tracking-wide text-muted">Cash balance</dt>
+        <dd class="mt-2 text-xl font-semibold text-ink">{{ currentBalance() | currency: 'BRL' }}</dd>
+      </div>
+      <div class="rounded-xl border border-line bg-panel p-4">
+        <dt class="text-xs uppercase tracking-wide text-muted">Realized net</dt>
+        <dd class="mt-2 text-xl font-semibold text-ink">{{ current.realizedNet | currency: 'BRL' }}</dd>
+      </div>
+    </dl>
+
+    <section class="rounded-xl border border-line bg-panel p-5">
+      <h2 class="text-lg font-semibold text-ink">Projected in the due-date window</h2>
+      <p class="mt-1 text-sm text-muted">These are open installments, not cash movements.</p>
+      <dl class="mt-4 grid gap-3 sm:grid-cols-2">
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-muted">Projected inflows</dt>
+          <dd class="mt-1 text-sm font-medium text-ink">{{ current.projectedInflows | currency: 'BRL' }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-muted">Projected outflows</dt>
+          <dd class="mt-1 text-sm font-medium text-ink">{{ current.projectedOutflows | currency: 'BRL' }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <div class="grid gap-4 xl:grid-cols-2">
+      @if (realizedChart(); as chart) {
+        <section class="rounded-xl border border-line bg-panel p-4">
+          <h2 class="mb-3 text-lg font-semibold text-ink">{{ chart.title }}</h2>
+          <app-report-chart [model]="chart" />
+        </section>
+      }
+      @if (comparisonChart(); as chart) {
+        <section class="rounded-xl border border-line bg-panel p-4">
+          <h2 class="mb-3 text-lg font-semibold text-ink">{{ chart.title }}</h2>
+          <app-report-chart [model]="chart" />
+        </section>
+      }
+      @if (obligationsChart(); as chart) {
+        <section class="rounded-xl border border-line bg-panel p-4">
+          <h2 class="mb-3 text-lg font-semibold text-ink">{{ chart.title }}</h2>
+          <app-report-chart [model]="chart" />
+        </section>
+      }
+      @if (canViewFlow()) {
+        <section class="rounded-xl border border-line bg-panel p-4">
+          <h2 class="mb-3 text-lg font-semibold text-ink">Realized cash flow</h2>
+          @if (flowError()) {
+            <p class="text-sm text-danger" role="alert">{{ flowError() }}</p>
+          } @else if (flowChart(); as chart) {
+            <app-report-chart [model]="chart" />
+          }
+        </section>
+      }
+    </div>
+
+    <section class="space-y-3">
+      <h2 class="text-lg font-semibold text-ink">Account balances</h2>
+      @if (current.cashAccounts.length === 0) {
+        <p class="rounded-md border border-line bg-surface px-4 py-3 text-sm text-muted" role="status">There are no cash accounts.</p>
+      } @else {
+        <ul class="divide-y divide-line rounded-xl border border-line bg-panel">
+          @for (account of current.cashAccounts; track account.id) {
+            <li class="flex items-center justify-between gap-3 px-4 py-3 text-sm">
+              <span class="text-ink">{{ account.name }}</span>
+              <span class="font-medium text-ink">{{ account.currentBalance | currency: 'BRL' }}</span>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  }
+</section>

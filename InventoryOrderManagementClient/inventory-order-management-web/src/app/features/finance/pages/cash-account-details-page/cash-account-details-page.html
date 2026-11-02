@@ -1,0 +1,91 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">Cash account</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">Current balance = opening balance + inflows − outflows, as returned by the server.</p>
+    </div>
+    <a class="btn-secondary" routerLink="/finance/cash-accounts">Back</a>
+  </div>
+
+  @if (notice()) {
+    <div class="rounded-md border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent-ink" role="status">{{ notice() }}</div>
+  }
+
+  @if (isLoading()) {
+    <p class="text-sm text-muted" aria-busy="true">Loading account...</p>
+  } @else if (loadError()) {
+    <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">{{ loadError() }}</div>
+  } @else if (account(); as current) {
+    <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <dl class="grid gap-3 sm:grid-cols-2">
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Name</dt>
+            <dd class="mt-1 text-sm font-medium text-ink">{{ current.name }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Type</dt>
+            <dd class="mt-1 text-sm text-ink">{{ cashAccountTypeLabel(current.accountType) }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Opening date</dt>
+            <dd class="mt-1 text-sm text-ink">{{ current.openingBalanceDate | dateOnly }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Status</dt>
+            <dd class="mt-1 text-sm text-ink">{{ current.isActive ? 'Active' : 'Inactive' }}</dd>
+          </div>
+        </dl>
+        <div class="flex flex-wrap gap-2">
+          <a *hasPermission="'Finance.CashAccounts.Manage'" class="btn-secondary" [routerLink]="['/finance/cash-accounts', current.id, 'edit']">
+            Edit
+          </a>
+          @if (current.isActive) {
+            <button *hasPermission="'Finance.CashAccounts.Manage'" type="button" class="btn-secondary" (click)="confirmDeactivate.set(true)">
+              Deactivate
+            </button>
+          }
+        </div>
+      </div>
+    </section>
+
+    @if (confirmDeactivate()) {
+      <section class="rounded-xl border border-line bg-panel p-5" role="dialog" aria-labelledby="deactivate-title">
+        <h2 id="deactivate-title" class="text-lg font-semibold text-ink">Deactivate account</h2>
+        <p class="mt-2 text-sm text-muted">
+          {{ current.name }} will no longer be available for new settlements. Its movements stay in the history.
+        </p>
+        @if (actionError()) {
+          <p class="mt-3 text-sm text-danger" role="alert">{{ actionError() }}</p>
+        }
+        <div class="mt-4 flex gap-2">
+          <button type="button" class="btn-primary" [disabled]="isActing()" (click)="deactivate()">
+            {{ isActing() ? 'Deactivating...' : 'Confirm' }}
+          </button>
+          <button type="button" class="btn-secondary" [disabled]="isActing()" (click)="confirmDeactivate.set(false)">Close</button>
+        </div>
+      </section>
+    }
+
+    @if (balance(); as amounts) {
+      <dl class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div class="rounded-xl border border-line bg-panel p-4">
+          <dt class="text-xs uppercase tracking-wide text-muted">Opening balance</dt>
+          <dd class="mt-2 text-xl font-semibold text-ink">{{ amounts.openingBalance | currency: 'BRL' }}</dd>
+        </div>
+        <div class="rounded-xl border border-line bg-panel p-4">
+          <dt class="text-xs uppercase tracking-wide text-muted">Inflows</dt>
+          <dd class="mt-2 text-xl font-semibold text-emerald-800">{{ amounts.totalInflows | currency: 'BRL' }}</dd>
+        </div>
+        <div class="rounded-xl border border-line bg-panel p-4">
+          <dt class="text-xs uppercase tracking-wide text-muted">Outflows</dt>
+          <dd class="mt-2 text-xl font-semibold text-danger">{{ amounts.totalOutflows | currency: 'BRL' }}</dd>
+        </div>
+        <div class="rounded-xl border border-line bg-panel p-4">
+          <dt class="text-xs uppercase tracking-wide text-muted">Current balance</dt>
+          <dd class="mt-2 text-xl font-semibold text-ink">{{ amounts.currentBalance | currency: 'BRL' }}</dd>
+        </div>
+      </dl>
+    }
+  }
+</section>

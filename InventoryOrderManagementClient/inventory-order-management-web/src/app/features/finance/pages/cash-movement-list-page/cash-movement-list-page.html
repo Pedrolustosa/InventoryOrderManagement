@@ -1,0 +1,59 @@
+<section class="space-y-6">
+  <div>
+    <h1 class="text-3xl font-semibold tracking-tight text-ink">Cash movements</h1>
+    <p class="mt-2 max-w-2xl text-sm text-muted">Recorded movements only. They cannot be edited, deleted or created here.</p>
+  </div>
+
+  <app-finance-period-filter (applied)="applyRange($event)" />
+  <label class="block max-w-sm text-sm font-medium text-ink">
+    Account
+    <select class="field mt-1" [value]="cashAccountId()" (change)="cashAccountId.set($any($event.target).value); reload()">
+      <option value="">All accounts</option>
+      @for (account of accounts(); track account.id) {
+        <option [value]="account.id">{{ account.name }}</option>
+      }
+    </select>
+  </label>
+
+  <p class="text-sm text-muted">{{ totalItems() }} movements</p>
+
+  @if (isLoading()) {
+    <p class="text-sm text-muted" aria-busy="true">Loading movements...</p>
+  } @else if (loadError()) {
+    <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">{{ loadError() }}</div>
+  } @else if (movements().length === 0) {
+    <p class="rounded-md border border-line bg-surface px-4 py-3 text-sm text-muted" role="status">No movements match the current filters.</p>
+  } @else {
+    <div class="overflow-x-auto rounded-xl border border-line bg-panel">
+      <table class="min-w-full text-left text-sm">
+        <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
+          <tr>
+            <th class="px-4 py-3 font-medium">Date</th>
+            <th class="px-4 py-3 font-medium">Description</th>
+            <th class="px-4 py-3 font-medium">Account</th>
+            <th class="px-4 py-3 font-medium">Direction</th>
+            <th class="px-4 py-3 font-medium">Amount</th>
+            <th class="px-4 py-3 font-medium">Origin</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (movement of movements(); track movement.id) {
+            <tr class="border-b border-line last:border-0">
+              <td class="px-4 py-3">{{ movement.occurredAtUtc | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td class="px-4 py-3">{{ movement.description }}</td>
+              <td class="px-4 py-3">{{ accountName(movement.cashAccountId) }}</td>
+              <td class="px-4 py-3" [class]="directionClass(movement.direction)">{{ directionLabel(movement.direction) }}</td>
+              <td class="px-4 py-3">{{ movement.amount | currency: 'BRL' }}</td>
+              <td class="px-4 py-3">{{ movement.financialSettlementId ? 'Settlement' : '—' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="flex flex-wrap items-center gap-3">
+      <button type="button" class="btn-secondary" [disabled]="page() <= 1" (click)="goToPage(page() - 1)">Previous</button>
+      <span class="text-sm text-muted">Page {{ page() }} of {{ totalPages() }}</span>
+      <button type="button" class="btn-secondary" [disabled]="page() >= totalPages()" (click)="goToPage(page() + 1)">Next</button>
+    </div>
+  }
+</section>

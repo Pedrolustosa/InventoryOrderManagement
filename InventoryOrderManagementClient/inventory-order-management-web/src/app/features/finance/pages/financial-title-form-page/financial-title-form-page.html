@@ -1,0 +1,170 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">{{ heading() }}</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">
+        The amount is the value you recognize. A purchase or sales total is only a reference until you apply it.
+      </p>
+    </div>
+    <a class="btn-secondary" [routerLink]="collectionPath()">Back</a>
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex items-center gap-3 text-muted" aria-busy="true">
+      <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
+      <span>Loading title...</span>
+    </div>
+  } @else if (loadError()) {
+    <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">{{ loadError() }}</div>
+  } @else {
+    @if (locked()) {
+      <p class="rounded-md border border-line bg-surface px-4 py-3 text-sm text-muted" role="status">
+        This title has a settlement or is cancelled, so its values stay as the server stored them.
+      </p>
+    }
+
+    <form class="space-y-8" [formGroup]="form" (ngSubmit)="submit()">
+      <section class="space-y-4">
+        <h2 class="text-lg font-semibold text-ink">General</h2>
+        <label class="block text-sm font-medium text-ink">
+          Description
+          <input type="text" class="field mt-1" [attr.maxlength]="descriptionMax" formControlName="description" />
+        </label>
+        <div class="grid gap-4 md:grid-cols-2">
+          <label class="block text-sm font-medium text-ink">
+            Counterparty
+            <select class="field mt-1" formControlName="counterpartyMode">
+              <option value="party">{{ partyLabel() }}</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+          <label class="block text-sm font-medium text-ink">
+            Document number
+            <input type="text" class="field mt-1" [attr.maxlength]="documentMax" formControlName="documentNumber" />
+          </label>
+          <label class="block text-sm font-medium text-ink">
+            Issue date
+            <input type="date" class="field mt-1" formControlName="issueDate" />
+          </label>
+        </div>
+
+        @if (form.controls.counterpartyMode.value === 'party') {
+          <label class="block text-sm font-medium text-ink">
+            Search {{ partyLabel().toLowerCase() }}
+            <input type="search" class="field mt-1" [value]="partySearch()" (input)="partySearch.set($any($event.target).value)" />
+          </label>
+          <label class="block text-sm font-medium text-ink">
+            {{ partyLabel() }}
+            <select class="field mt-1" formControlName="counterpartyId">
+              <option value="">Select</option>
+              @for (party of visibleParties(); track party.id) {
+                <option [value]="party.id">{{ party.name }}</option>
+              }
+            </select>
+          </label>
+        } @else {
+          <label class="block text-sm font-medium text-ink">
+            Name
+            <input type="text" class="field mt-1" [attr.maxlength]="nameMax" formControlName="counterpartyName" />
+          </label>
+        }
+      </section>
+
+      <section class="space-y-4">
+        <h2 class="text-lg font-semibold text-ink">Origin</h2>
+        <div class="grid gap-4 md:grid-cols-2">
+          <label class="block text-sm font-medium text-ink">
+            Source
+            <select class="field mt-1" formControlName="sourceType" (change)="sourceChanged()">
+              @for (type of sourceTypes(); track type) {
+                <option [value]="type">{{ sourceTypeLabel(type) }}</option>
+              }
+            </select>
+          </label>
+          @if (form.controls.sourceType.value !== 'Manual') {
+            <label class="block text-sm font-medium text-ink">
+              {{ kind() === 'payable' ? 'Purchase number' : 'Order number' }}
+              <input type="search" class="field mt-1" formControlName="sourceNumber" (input)="sourceNumberChanged()" />
+            </label>
+          }
+        </div>
+        @if (form.controls.sourceType.value !== 'Manual') {
+          <button type="button" class="btn-secondary" [disabled]="isLookingUp()" (click)="findSource()">
+            {{ isLookingUp() ? 'Looking up...' : 'Find document' }}
+          </button>
+          @if (sourceError()) {
+            <p class="text-sm text-danger" role="alert">{{ sourceError() }}</p>
+          }
+          @if (sourceMatch(); as match) {
+            <div class="rounded-lg border border-line bg-surface/60 p-4 text-sm text-ink">
+              <p>{{ match.number }} · {{ match.partyName }}</p>
+              <p class="mt-1">Reference amount {{ match.referenceAmount | currency: 'BRL' }}</p>
+              <button type="button" class="btn-secondary mt-3" (click)="useReferenceAmount()">Use reference amount</button>
+            </div>
+          }
+        }
+      </section>
+
+      <section class="space-y-4">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 class="text-lg font-semibold text-ink">Installments</h2>
+            <p class="mt-1 text-sm text-muted">The installment amounts must equal the total. Splitting writes the amounts into the fields.</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" class="btn-secondary" (click)="addInstallment()">Add installment</button>
+            <button type="button" class="btn-secondary" (click)="splitTotal()">Split total evenly</button>
+          </div>
+        </div>
+        <label class="block max-w-xs text-sm font-medium text-ink">
+          Total amount
+          <input type="number" min="0.01" step="0.01" class="field mt-1" formControlName="totalAmount" />
+        </label>
+        <div class="space-y-3">
+          @for (installment of installments.controls; track $index) {
+            <div class="grid gap-3 rounded-lg border border-line p-4 md:grid-cols-4" [formGroup]="installment">
+              <label class="block text-sm font-medium text-ink">
+                Number
+                <input type="number" min="1" step="1" class="field mt-1" formControlName="installmentNumber" />
+              </label>
+              <label class="block text-sm font-medium text-ink">
+                Due date
+                <input type="date" class="field mt-1" formControlName="dueDate" />
+              </label>
+              <label class="block text-sm font-medium text-ink">
+                Amount
+                <input type="number" min="0.01" step="0.01" class="field mt-1" formControlName="amount" />
+              </label>
+              <div class="flex items-end">
+                <button type="button" class="btn-secondary" [disabled]="installments.length === 1" (click)="removeInstallment($index)">
+                  Remove
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+        <p class="text-sm text-muted">
+          Installment total
+          @if (installmentTotal() === null) {
+            could not be calculated.
+          } @else {
+            {{ installmentTotal() | currency: 'BRL' }}
+          }
+        </p>
+      </section>
+
+      <label class="block text-sm font-medium text-ink">
+        Notes
+        <textarea class="field mt-1 min-h-24" [attr.maxlength]="notesMax" formControlName="notes"></textarea>
+      </label>
+
+      @if (formError()) {
+        <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">{{ formError() }}</div>
+      }
+
+      @if (!locked()) {
+        <button type="submit" class="btn-primary" [disabled]="isSaving()">{{ isSaving() ? 'Saving...' : 'Save title' }}</button>
+      }
+    </form>
+  }
+</section>

@@ -1,0 +1,75 @@
+<section class="space-y-6">
+  <div>
+    <h1 class="text-3xl font-semibold tracking-tight text-ink">Settlements</h1>
+    <p class="mt-2 max-w-2xl text-sm text-muted">Recorded payments and receipts. This list cannot be edited.</p>
+  </div>
+
+  <app-finance-period-filter (applied)="applyRange($event)" />
+  <div class="grid gap-3 md:grid-cols-2">
+    <label class="block text-sm font-medium text-ink">
+      Type
+      <select class="field mt-1" [value]="type()" (change)="type.set($any($event.target).value); reload()">
+        <option value="">All</option>
+        <option value="Payable">Payable</option>
+        <option value="Receivable">Receivable</option>
+      </select>
+    </label>
+    <label class="block text-sm font-medium text-ink">
+      Account
+      <select class="field mt-1" [value]="cashAccountId()" (change)="cashAccountId.set($any($event.target).value); reload()">
+        <option value="">All accounts</option>
+        @for (account of accounts(); track account.id) {
+          <option [value]="account.id">{{ account.name }}</option>
+        }
+      </select>
+    </label>
+  </div>
+
+  <p class="text-sm text-muted">{{ totalItems() }} settlements</p>
+
+  @if (isLoading()) {
+    <p class="text-sm text-muted" aria-busy="true">Loading settlements...</p>
+  } @else if (loadError()) {
+    <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">{{ loadError() }}</div>
+  } @else if (settlements().length === 0) {
+    <p class="rounded-md border border-line bg-surface px-4 py-3 text-sm text-muted" role="status">No settlements match the current filters.</p>
+  } @else {
+    <div class="overflow-x-auto rounded-xl border border-line bg-panel">
+      <table class="min-w-full text-left text-sm">
+        <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
+          <tr>
+            <th class="px-4 py-3 font-medium">Date</th>
+            <th class="px-4 py-3 font-medium">Method</th>
+            <th class="px-4 py-3 font-medium">Account</th>
+            <th class="px-4 py-3 font-medium">Settled</th>
+            <th class="px-4 py-3 font-medium">Discount</th>
+            <th class="px-4 py-3 font-medium">Interest</th>
+            <th class="px-4 py-3 font-medium">Fine</th>
+            <th class="px-4 py-3 font-medium">Cash</th>
+            <th class="px-4 py-3 font-medium">Reference</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (settlement of settlements(); track settlement.id) {
+            <tr class="border-b border-line last:border-0">
+              <td class="px-4 py-3">{{ settlement.occurredAtUtc | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td class="px-4 py-3">{{ paymentMethodLabel(settlement.paymentMethod) }}</td>
+              <td class="px-4 py-3">{{ accountName(settlement.cashAccountId) }}</td>
+              <td class="px-4 py-3">{{ settlement.settledPrincipalAmount | currency: 'BRL' }}</td>
+              <td class="px-4 py-3">{{ settlement.discountAmount | currency: 'BRL' }}</td>
+              <td class="px-4 py-3">{{ settlement.interestAmount | currency: 'BRL' }}</td>
+              <td class="px-4 py-3">{{ settlement.fineAmount | currency: 'BRL' }}</td>
+              <td class="px-4 py-3">{{ settlement.cashAmount | currency: 'BRL' }}</td>
+              <td class="px-4 py-3">{{ settlement.reference || '—' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="flex flex-wrap items-center gap-3">
+      <button type="button" class="btn-secondary" [disabled]="page() <= 1" (click)="goToPage(page() - 1)">Previous</button>
+      <span class="text-sm text-muted">Page {{ page() }} of {{ totalPages() }}</span>
+      <button type="button" class="btn-secondary" [disabled]="page() >= totalPages()" (click)="goToPage(page() + 1)">Next</button>
+    </div>
+  }
+</section>

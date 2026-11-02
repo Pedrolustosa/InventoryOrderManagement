@@ -33,7 +33,20 @@ internal static class RolePermissionDefaults
         Permissions.Purchases.UpdateDraft,
         Permissions.Purchases.Send,
         Permissions.Purchases.Receive,
-        Permissions.Purchases.Cancel
+        Permissions.Purchases.Cancel,
+        Permissions.Finance.View,
+        Permissions.Finance.PayablesCreate,
+        Permissions.Finance.PayablesUpdate,
+        Permissions.Finance.PayablesCancel,
+        Permissions.Finance.PayablesSettle,
+        Permissions.Finance.ReceivablesCreate,
+        Permissions.Finance.ReceivablesUpdate,
+        Permissions.Finance.ReceivablesCancel,
+        Permissions.Finance.ReceivablesSettle,
+        Permissions.Finance.CashAccountsView,
+        Permissions.Finance.CashAccountsManage,
+        Permissions.Finance.CashFlowView,
+        Permissions.Finance.ReportsView
     ];
 
     private static readonly string[] InventoryOperator =
@@ -46,7 +59,12 @@ internal static class RolePermissionDefaults
         Permissions.Inventory.Adjust,
         Permissions.Inventory.MinimumStockUpdate,
         Permissions.Purchases.View,
-        Permissions.Purchases.Receive
+        Permissions.Purchases.Receive,
+        Permissions.Finance.View,
+        Permissions.Finance.PayablesCreate,
+        Permissions.Finance.PayablesUpdate,
+        Permissions.Finance.PayablesSettle,
+        Permissions.Finance.CashAccountsView
     ];
 
     private static readonly string[] SalesOperator =
@@ -59,7 +77,13 @@ internal static class RolePermissionDefaults
         Permissions.Orders.Confirm,
         Permissions.Orders.Ship,
         Permissions.Orders.Deliver,
-        Permissions.Orders.Cancel
+        Permissions.Orders.Cancel,
+        Permissions.Finance.View,
+        Permissions.Finance.ReceivablesCreate,
+        Permissions.Finance.ReceivablesUpdate,
+        Permissions.Finance.ReceivablesCancel,
+        Permissions.Finance.ReceivablesSettle,
+        Permissions.Finance.CashAccountsView
     ];
 
     private static readonly string[] Viewer =
@@ -71,7 +95,11 @@ internal static class RolePermissionDefaults
         Permissions.Inventory.View,
         Permissions.Orders.View,
         Permissions.Reports.View,
-        Permissions.Purchases.View
+        Permissions.Purchases.View,
+        Permissions.Finance.View,
+        Permissions.Finance.CashAccountsView,
+        Permissions.Finance.CashFlowView,
+        Permissions.Finance.ReportsView
     ];
 
     public static IReadOnlyList<string> For(string roleName) => roleName switch

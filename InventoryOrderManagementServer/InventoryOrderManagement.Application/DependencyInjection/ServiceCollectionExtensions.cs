@@ -1,3 +1,4 @@
+using InventoryOrderManagement.Application.Finance;
 using InventoryOrderManagement.Application.Categories;
 using InventoryOrderManagement.Application.Customers;
 using InventoryOrderManagement.Application.Identity;
@@ -85,6 +86,34 @@ public static class ServiceCollectionExtensions
         services.AddScoped<GetPurchaseReceiptsUseCase>();
         services.AddScoped<GetPurchaseReceiptByIdUseCase>();
         services.AddScoped<CancelPurchaseOrderUseCase>();
+        services.AddSingleton(TimeProvider.System);
+        services.AddScoped<FinancialPartyResolver>();
+        services.AddScoped<FinancialTitleEditor>();
+        services.AddScoped<SettleFinancialInstallmentCommand>();
+        services.AddScoped<CreatePayableUseCase>();
+        services.AddScoped<GetAllPayablesUseCase>();
+        services.AddScoped<GetPayableByIdUseCase>();
+        services.AddScoped<UpdatePayableUseCase>();
+        services.AddScoped<CancelPayableUseCase>();
+        services.AddScoped<SettlePayableInstallmentUseCase>();
+        services.AddScoped<CreateReceivableUseCase>();
+        services.AddScoped<GetAllReceivablesUseCase>();
+        services.AddScoped<GetReceivableByIdUseCase>();
+        services.AddScoped<UpdateReceivableUseCase>();
+        services.AddScoped<CancelReceivableUseCase>();
+        services.AddScoped<SettleReceivableInstallmentUseCase>();
+        services.AddScoped<CreateCashAccountUseCase>();
+        services.AddScoped<GetAllCashAccountsUseCase>();
+        services.AddScoped<GetCashAccountByIdUseCase>();
+        services.AddScoped<UpdateCashAccountUseCase>();
+        services.AddScoped<DeactivateCashAccountUseCase>();
+        services.AddScoped<GetCashAccountBalanceUseCase>();
+        services.AddScoped<GetFinancialSettlementsUseCase>();
+        services.AddScoped<GetCashMovementsUseCase>();
+        services.AddScoped<GetFinanceDashboardUseCase>();
+        services.AddScoped<GetRealizedCashFlowUseCase>();
+        services.AddScoped<GetProjectedCashFlowUseCase>();
+        services.AddScoped<GetFinancialAgingReportUseCase>();
 
         return services;
     }
