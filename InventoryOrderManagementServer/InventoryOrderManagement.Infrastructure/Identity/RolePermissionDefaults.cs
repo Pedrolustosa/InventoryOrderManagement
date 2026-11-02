@@ -27,7 +27,13 @@ internal static class RolePermissionDefaults
         Permissions.Orders.Ship,
         Permissions.Orders.Deliver,
         Permissions.Orders.Cancel,
-        Permissions.Reports.View
+        Permissions.Reports.View,
+        Permissions.Purchases.View,
+        Permissions.Purchases.Create,
+        Permissions.Purchases.UpdateDraft,
+        Permissions.Purchases.Send,
+        Permissions.Purchases.Receive,
+        Permissions.Purchases.Cancel
     ];
 
     private static readonly string[] InventoryOperator =
@@ -38,7 +44,9 @@ internal static class RolePermissionDefaults
         Permissions.Inventory.Receive,
         Permissions.Inventory.Exit,
         Permissions.Inventory.Adjust,
-        Permissions.Inventory.MinimumStockUpdate
+        Permissions.Inventory.MinimumStockUpdate,
+        Permissions.Purchases.View,
+        Permissions.Purchases.Receive
     ];
 
     private static readonly string[] SalesOperator =
@@ -62,7 +70,8 @@ internal static class RolePermissionDefaults
         Permissions.Customers.View,
         Permissions.Inventory.View,
         Permissions.Orders.View,
-        Permissions.Reports.View
+        Permissions.Reports.View,
+        Permissions.Purchases.View
     ];
 
     public static IReadOnlyList<string> For(string roleName) => roleName switch

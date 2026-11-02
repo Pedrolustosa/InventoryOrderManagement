@@ -61,6 +61,11 @@ export const routes: Routes = [
         loadChildren: () => import('./features/orders/orders.routes').then((m) => m.ORDERS_ROUTES),
       },
       {
+        path: 'purchases',
+        canActivate: [permissionGuard('Purchases.View')],
+        loadChildren: () => import('./features/purchases/purchases.routes').then((m) => m.PURCHASES_ROUTES),
+      },
+      {
         path: 'reports',
         canActivate: [permissionGuard('Reports.View')],
         loadChildren: () => import('./features/reports/reports.routes').then((m) => m.REPORTS_ROUTES),

@@ -79,10 +79,11 @@ if (app.Environment.IsDevelopment())
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<InventoryDbContext>();
     dbContext.Database.Migrate();
-    await DevelopmentDataSeeder.SeedAsync(dbContext);
     // Identity:Bootstrap:Email, Identity:Bootstrap:Password and Identity:Bootstrap:DisplayName
     // belong in User Secrets or environment variables, never in appsettings.json.
+    // Roles are created first so the development seeder can add the demo sign-in accounts.
     await IdentitySeeder.SeedAsync(scope.ServiceProvider);
+    await DevelopmentDataSeeder.SeedAsync(dbContext, scope.ServiceProvider);
 }
 
 app.UseExceptionHandler();

@@ -1,0 +1,171 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">Purchase Details</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">Supplier, items, receipts and the status stored by the server.</p>
+    </div>
+    <a routerLink="/purchases" class="btn-secondary">Back to purchases</a>
+  </div>
+
+  @if (successMessage()) {
+    <div class="rounded-md border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent-ink" role="status">
+      {{ successMessage() }}
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="flex items-center gap-3 text-muted" aria-busy="true">
+      <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
+      <span>Loading purchase order...</span>
+    </div>
+  } @else if (loadError()) {
+    <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
+      {{ loadError() }}
+    </div>
+  } @else if (order(); as current) {
+    <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <h2 class="text-lg font-semibold text-ink">Purchase Information</h2>
+          <dl class="mt-4 grid gap-3 sm:grid-cols-2">
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">Purchase Number</dt>
+              <dd class="mt-1 text-sm font-medium text-ink">{{ current.purchaseOrderNumber }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">Supplier</dt>
+              <dd class="mt-1 text-sm font-medium text-ink">{{ current.supplierName }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">Status</dt>
+              <dd class="mt-1">
+                <span [class]="statusClass(current)">{{ statusLabel(current) }}</span>
+              </dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-muted">Created At</dt>
+              <dd class="mt-1 text-sm text-ink">{{ current.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd>
+            </div>
+            @if (current.sentAtUtc) {
+              <div>
+                <dt class="text-xs uppercase tracking-wide text-muted">Sent At</dt>
+                <dd class="mt-1 text-sm text-ink">{{ current.sentAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd>
+              </div>
+            }
+            @if (current.receivedAtUtc) {
+              <div>
+                <dt class="text-xs uppercase tracking-wide text-muted">Received At</dt>
+                <dd class="mt-1 text-sm text-ink">{{ current.receivedAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd>
+              </div>
+            }
+            @if (current.cancelledAtUtc) {
+              <div>
+                <dt class="text-xs uppercase tracking-wide text-muted">Cancelled At</dt>
+                <dd class="mt-1 text-sm text-ink">{{ current.cancelledAtUtc | date: 'dd/MM/yyyy HH:mm' }}</dd>
+              </div>
+            }
+          </dl>
+          @if (current.notes) {
+            <p class="mt-4 text-sm text-ink">{{ current.notes }}</p>
+          }
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          @if (canEdit()) {
+            <a *hasPermission="'Purchases.UpdateDraft'" class="btn-secondary" [routerLink]="['/purchases', current.id, 'edit']">
+              Edit
+            </a>
+          }
+          @if (canSend()) {
+            <button *hasPermission="'Purchases.Send'" type="button" class="btn-primary" (click)="openAction('send')">
+              Send Purchase
+            </button>
+          }
+          @if (canReceive()) {
+            <a *hasPermission="'Purchases.Receive'" class="btn-primary" [routerLink]="['/purchases', current.id, 'receive']">
+              Receive
+            </a>
+          }
+          @if (canCancel()) {
+            <button *hasPermission="'Purchases.Cancel'" type="button" class="btn-secondary text-danger" (click)="openAction('cancel')">
+              Cancel
+            </button>
+          }
+        </div>
+      </div>
+    </section>
+
+    @if (pendingAction(); as action) {
+      <app-purchase-action-dialog
+        [action]="action"
+        [purchaseOrderNumber]="current.purchaseOrderNumber"
+        [supplierName]="current.supplierName"
+        [subtotal]="current.subtotal"
+        [receivedSummary]="receivedSummary()"
+        [isSubmitting]="isActing()"
+        [errorMessage]="actionError()"
+        (confirmed)="confirmAction($event)"
+        (dismissed)="closeAction()"
+      />
+    }
+
+    <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
+      <h2 class="text-lg font-semibold text-ink">Items</h2>
+      <div class="mt-4 overflow-x-auto">
+        <table class="min-w-full text-left text-sm">
+          <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
+            <tr>
+              <th class="px-3 py-2 font-semibold">SKU</th>
+              <th class="px-3 py-2 font-semibold">Product</th>
+              <th class="px-3 py-2 font-semibold">Ordered</th>
+              <th class="px-3 py-2 font-semibold">Received</th>
+              <th class="px-3 py-2 font-semibold">Pending</th>
+              <th class="px-3 py-2 font-semibold">Unit Cost</th>
+              <th class="px-3 py-2 font-semibold">Line Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of current.items; track item.id) {
+              <tr class="border-b border-line/70 last:border-0">
+                <td class="px-3 py-2 text-ink">{{ item.productSku }}</td>
+                <td class="px-3 py-2 text-ink">{{ item.productName }}</td>
+                <td class="px-3 py-2 text-ink">{{ item.orderedQuantity }}</td>
+                <td class="px-3 py-2 text-ink">{{ item.receivedQuantity }}</td>
+                <td class="px-3 py-2 text-ink">{{ item.pendingQuantity }}</td>
+                <td class="px-3 py-2 text-ink">{{ item.unitCost | currency: 'BRL' }}</td>
+                <td class="px-3 py-2 text-ink">{{ item.lineTotal | currency: 'BRL' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="rounded-xl border border-accent/30 bg-accent/5 p-5">
+      <h2 class="text-lg font-semibold text-ink">Financial Summary</h2>
+      <dl class="mt-4 grid gap-3 sm:grid-cols-2">
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-muted">Lines</dt>
+          <dd class="mt-1 text-xl font-semibold text-ink">{{ totalItems() }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs uppercase tracking-wide text-muted">Subtotal</dt>
+          <dd class="mt-1 text-xl font-semibold text-ink">{{ current.subtotal | currency: 'BRL' }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    @if (current.status === 'Cancelled') {
+      <section class="rounded-xl border border-danger/30 bg-panel p-5 shadow-sm">
+        <h2 class="text-lg font-semibold text-ink">Cancellation</h2>
+        <p class="mt-3 text-sm text-ink">{{ current.cancellationReason }}</p>
+      </section>
+    }
+
+    <app-purchase-receipt-history
+      [receipts]="receipts()"
+      [isLoading]="receiptsLoading()"
+      [errorMessage]="receiptsError()"
+    />
+  }
+</section>

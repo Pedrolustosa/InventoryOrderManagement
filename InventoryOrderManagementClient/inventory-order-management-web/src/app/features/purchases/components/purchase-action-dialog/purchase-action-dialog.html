@@ -1,0 +1,48 @@
+<section class="rounded-xl border border-line bg-panel p-5 shadow-sm sm:p-6" role="dialog" aria-labelledby="purchase-action-title">
+  <h2 id="purchase-action-title" class="text-lg font-semibold text-ink">{{ title() }}</h2>
+
+  @if (action() === 'send') {
+    <p class="mt-2 text-sm text-muted">
+      Purchase order <span class="font-medium text-ink">{{ purchaseOrderNumber() }}</span> for
+      <span class="font-medium text-ink">{{ supplierName() }}</span>, subtotal
+      <span class="font-medium text-ink">{{ subtotal() | currency: 'BRL' }}</span>. After sending, the supplier, items,
+      quantities and costs can no longer be edited.
+    </p>
+  } @else {
+    <p class="mt-2 text-sm text-muted">
+      Cancel purchase order <span class="font-medium text-ink">{{ purchaseOrderNumber() }}</span> from
+      <span class="font-medium text-ink">{{ supplierName() }}</span>.
+      @if (receivedSummary()) {
+        {{ receivedSummary() }}
+      }
+      Products already received stay in stock. Pending quantities can no longer be received. A reason is required.
+    </p>
+    <label class="mt-4 block text-sm font-medium text-ink" for="purchase-cancellation-reason">Reason</label>
+    <textarea
+      id="purchase-cancellation-reason"
+      class="field mt-1 min-h-24"
+      [formControl]="reason"
+      [attr.maxlength]="reasonMaxLength"
+    ></textarea>
+    @if (reasonError()) {
+      <p class="mt-1 text-sm text-danger">{{ reasonError() }}</p>
+    }
+  }
+
+  @if (errorMessage()) {
+    <div class="mt-4 rounded-md border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger" role="alert">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <div class="mt-5 flex flex-wrap gap-3">
+    <button type="button" class="btn-primary" [disabled]="isSubmitting()" (click)="submit()">
+      @if (isSubmitting()) {
+        Processing...
+      } @else {
+        {{ title() }}
+      }
+    </button>
+    <button type="button" class="btn-secondary" [disabled]="isSubmitting()" (click)="dismiss()">Keep purchase order</button>
+  </div>
+</section>
