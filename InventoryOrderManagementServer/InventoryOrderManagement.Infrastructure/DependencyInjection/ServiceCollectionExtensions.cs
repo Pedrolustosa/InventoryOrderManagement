@@ -38,6 +38,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IPurchaseOrderRepository, PurchaseOrderRepository>();
         services.AddScoped<IPurchaseReceiptRepository, PurchaseReceiptRepository>();
+        services.AddScoped<IFinancialTitleRepository, FinancialTitleRepository>();
+        services.AddScoped<IFinancialSettlementRepository, FinancialSettlementRepository>();
+        services.AddScoped<ICashAccountRepository, CashAccountRepository>();
+        services.AddScoped<ICashMovementRepository, CashMovementRepository>();
         services.AddScoped<IInventoryReportsQuery, InventoryReportsQuery>();
         services.AddScoped<IStockMovementsReportsQuery, StockMovementsReportsQuery>();
         services.AddScoped<IOrderReportsQuery, OrderReportsQuery>();

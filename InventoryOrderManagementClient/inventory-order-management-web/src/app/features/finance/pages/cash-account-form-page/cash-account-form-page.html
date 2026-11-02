@@ -1,0 +1,42 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">{{ mode() === 'edit' ? 'Edit cash account' : 'New cash account' }}</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">The opening balance may be negative. After the first movement, the server rejects changes to it.</p>
+    </div>
+    <a class="btn-secondary" routerLink="/finance/cash-accounts">Back</a>
+  </div>
+
+  @if (isLoading()) {
+    <p class="text-sm text-muted" aria-busy="true">Loading account...</p>
+  } @else if (loadError()) {
+    <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">{{ loadError() }}</div>
+  } @else {
+    <form class="max-w-xl space-y-4" [formGroup]="form" (ngSubmit)="submit()">
+      <label class="block text-sm font-medium text-ink">
+        Name
+        <input type="text" class="field mt-1" [attr.maxlength]="nameMax" formControlName="name" />
+      </label>
+      <label class="block text-sm font-medium text-ink">
+        Type
+        <select class="field mt-1" formControlName="accountType">
+          @for (type of types; track type) {
+            <option [value]="type">{{ cashAccountTypeLabel(type) }}</option>
+          }
+        </select>
+      </label>
+      <label class="block text-sm font-medium text-ink">
+        Opening balance
+        <input type="number" step="0.01" class="field mt-1" formControlName="openingBalance" />
+      </label>
+      <label class="block text-sm font-medium text-ink">
+        Opening date
+        <input type="date" class="field mt-1" formControlName="openingBalanceDate" />
+      </label>
+      @if (formError()) {
+        <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">{{ formError() }}</div>
+      }
+      <button type="submit" class="btn-primary" [disabled]="isSaving()">{{ isSaving() ? 'Saving...' : 'Save account' }}</button>
+    </form>
+  }
+</section>

@@ -10,7 +10,12 @@ export type NavIconName =
   | 'user'
   | 'shield'
   | 'key'
-  | 'scroll';
+  | 'scroll'
+  | 'wallet'
+  | 'bank'
+  | 'swap'
+  | 'receipt'
+  | 'clock';
 
 export interface NavigationItem {
   label: string;
@@ -40,6 +45,19 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
       { label: 'Inventory', route: '/inventory', icon: 'archive', permission: 'Inventory.View' },
       { label: 'Purchases', route: '/purchases', icon: 'bag', permission: 'Purchases.View' },
       { label: 'Orders', route: '/orders', icon: 'clipboard', permission: 'Orders.View' },
+    ],
+  },
+  {
+    label: 'Finance',
+    items: [
+      { label: 'Dashboard', route: '/finance/dashboard', icon: 'wallet', permission: 'Finance.Reports.View' },
+      { label: 'Payables', route: '/finance/payables', icon: 'receipt', permission: 'Finance.View' },
+      { label: 'Receivables', route: '/finance/receivables', icon: 'receipt', permission: 'Finance.View' },
+      { label: 'Cash accounts', route: '/finance/cash-accounts', icon: 'bank', permission: 'Finance.CashAccounts.View' },
+      { label: 'Cash flow', route: '/finance/cash-flow', icon: 'chart', permission: 'Finance.CashFlow.View' },
+      { label: 'Cash movements', route: '/finance/cash-movements', icon: 'swap', permission: 'Finance.CashFlow.View' },
+      { label: 'Settlements', route: '/finance/settlements', icon: 'receipt', permission: 'Finance.View' },
+      { label: 'Aging', route: '/finance/reports/aging', icon: 'clock', permission: 'Finance.Reports.View' },
     ],
   },
   {

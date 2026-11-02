@@ -1,0 +1,204 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">{{ heading() }}</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">Balances and statuses come from the server.</p>
+    </div>
+    <a class="btn-secondary" [routerLink]="collectionPath()">Back</a>
+  </div>
+
+  @if (notice()) {
+    <div class="rounded-md border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent-ink" role="status">{{ notice() }}</div>
+  }
+
+  @if (isLoading() && !title()) {
+    <div class="flex items-center gap-3 text-muted" aria-busy="true">
+      <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
+      <span>Loading title...</span>
+    </div>
+  } @else if (loadError()) {
+    <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">{{ loadError() }}</div>
+  } @else if (title(); as current) {
+    <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <dl class="grid gap-3 sm:grid-cols-2">
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Number</dt>
+            <dd class="mt-1 text-sm font-medium text-ink">{{ current.titleNumber }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Counterparty</dt>
+            <dd class="mt-1 text-sm font-medium text-ink">{{ current.counterpartyName }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Description</dt>
+            <dd class="mt-1 text-sm text-ink">{{ current.description }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Status</dt>
+            <dd class="mt-1"><app-financial-status [status]="current.status" /></dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Issue date</dt>
+            <dd class="mt-1 text-sm text-ink">{{ current.issueDate | dateOnly }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Document</dt>
+            <dd class="mt-1 text-sm text-ink">{{ current.documentNumber || '—' }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Origin</dt>
+            <dd class="mt-1 text-sm text-ink">
+              {{ sourceTypeLabel(current.sourceType) }}
+              @if (current.sourceReference) {
+                · {{ current.sourceReference }}
+              }
+            </dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Original</dt>
+            <dd class="mt-1 text-sm text-ink">{{ current.totalAmount | currency: 'BRL' }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Settled</dt>
+            <dd class="mt-1 text-sm text-ink">{{ current.settledPrincipalAmount | currency: 'BRL' }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-muted">Outstanding</dt>
+            <dd class="mt-1 text-sm text-ink">{{ current.outstandingBalance | currency: 'BRL' }}</dd>
+          </div>
+        </dl>
+        <div class="flex flex-wrap gap-2">
+          @if (canEditTitle(current)) {
+            <a *hasPermission="updatePermission()" class="btn-secondary" [routerLink]="[collectionPath(), current.id, 'edit']">Edit</a>
+          }
+          @if (canCancelTitle(current)) {
+            <button *hasPermission="cancelPermission()" type="button" class="btn-secondary" (click)="openCancel()">Cancel</button>
+          }
+        </div>
+      </div>
+      @if (current.notes) {
+        <p class="mt-4 text-sm text-ink">{{ current.notes }}</p>
+      }
+      @if (current.cancellationReason) {
+        <p class="mt-4 text-sm text-ink">Cancellation: {{ current.cancellationReason }}</p>
+      }
+    </section>
+
+    @if (cancelOpen()) {
+      <section class="rounded-xl border border-line bg-panel p-5 shadow-sm" role="dialog" aria-labelledby="cancel-title">
+        <h2 id="cancel-title" class="text-lg font-semibold text-ink">Cancel title</h2>
+        <p class="mt-2 text-sm text-muted">
+          Outstanding balance {{ current.outstandingBalance | currency: 'BRL' }} will leave the open totals. Settlements
+          already recorded stay in the history. This does not create a cash movement.
+        </p>
+        <label class="mt-4 block text-sm font-medium text-ink" for="cancel-reason">Reason</label>
+        <textarea id="cancel-reason" class="field mt-1 min-h-24" [formControl]="reason" [attr.maxlength]="reasonMax"></textarea>
+        @if (reason.touched && reason.invalid) {
+          <p class="mt-1 text-sm text-danger">A reason is required.</p>
+        }
+        @if (actionError()) {
+          <p class="mt-3 text-sm text-danger" role="alert">{{ actionError() }}</p>
+        }
+        <div class="mt-4 flex flex-wrap gap-2">
+          <button type="button" class="btn-primary" [disabled]="isActing()" (click)="confirmCancel()">
+            {{ isActing() ? 'Cancelling...' : 'Confirm cancellation' }}
+          </button>
+          <button type="button" class="btn-secondary" [disabled]="isActing()" (click)="closeCancel()">Close</button>
+        </div>
+      </section>
+    }
+
+    @if (settlementInstallment(); as installment) {
+      <app-settlement-form
+        [kind]="kind()"
+        [titleNumber]="current.titleNumber"
+        [counterpartyName]="current.counterpartyName"
+        [installment]="installment"
+        [accounts]="accounts()"
+        [isSubmitting]="isActing()"
+        [errorMessage]="actionError()"
+        (confirmed)="confirmSettlement($event)"
+        (dismissed)="closeSettlement()"
+      />
+    }
+
+    <section class="space-y-3">
+      <h2 class="text-lg font-semibold text-ink">Installments</h2>
+      <div class="overflow-x-auto rounded-xl border border-line bg-panel">
+        <table class="min-w-full text-left text-sm">
+          <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
+            <tr>
+              <th class="px-4 py-3 font-medium">Number</th>
+              <th class="px-4 py-3 font-medium">Due date</th>
+              <th class="px-4 py-3 font-medium">Original</th>
+              <th class="px-4 py-3 font-medium">Settled</th>
+              <th class="px-4 py-3 font-medium">Outstanding</th>
+              <th class="px-4 py-3 font-medium">Status</th>
+              <th class="px-4 py-3 font-medium">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (installment of current.installments; track installment.id) {
+              <tr class="border-b border-line last:border-0">
+                <td class="px-4 py-3">{{ installment.installmentNumber }}</td>
+                <td class="px-4 py-3">{{ installment.dueDate | dateOnly }}</td>
+                <td class="px-4 py-3">{{ installment.amount | currency: 'BRL' }}</td>
+                <td class="px-4 py-3">{{ installment.settledPrincipalAmount | currency: 'BRL' }}</td>
+                <td class="px-4 py-3">{{ installment.outstandingBalance | currency: 'BRL' }}</td>
+                <td class="px-4 py-3"><app-financial-status [status]="installment.status" /></td>
+                <td class="px-4 py-3">
+                  @if (canSettleInstallment(current, installment)) {
+                    <button *hasPermission="settlePermission()" type="button" class="text-sm font-medium text-accent" (click)="openSettlement(installment)">
+                      {{ kind() === 'payable' ? 'Pay' : 'Receive' }}
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="text-lg font-semibold text-ink">{{ kind() === 'payable' ? 'Payments' : 'Receipts' }}</h2>
+      @if (current.settlements.length === 0) {
+        <p class="rounded-md border border-line bg-surface px-4 py-3 text-sm text-muted" role="status">No settlements yet.</p>
+      } @else {
+        <div class="overflow-x-auto rounded-xl border border-line bg-panel">
+          <table class="min-w-full text-left text-sm">
+            <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
+              <tr>
+                <th class="px-4 py-3 font-medium">Date</th>
+                <th class="px-4 py-3 font-medium">Method</th>
+                <th class="px-4 py-3 font-medium">Account</th>
+                <th class="px-4 py-3 font-medium">Settled</th>
+                <th class="px-4 py-3 font-medium">Discount</th>
+                <th class="px-4 py-3 font-medium">Interest</th>
+                <th class="px-4 py-3 font-medium">Fine</th>
+                <th class="px-4 py-3 font-medium">Cash</th>
+                <th class="px-4 py-3 font-medium">Reference</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (settlement of current.settlements; track settlement.id) {
+                <tr class="border-b border-line last:border-0">
+                  <td class="px-4 py-3">{{ settlement.occurredAtUtc | date: 'dd/MM/yyyy HH:mm' }}</td>
+                  <td class="px-4 py-3">{{ paymentMethodLabel(settlement.paymentMethod) }}</td>
+                  <td class="px-4 py-3">{{ accountName(settlement.cashAccountId) }}</td>
+                  <td class="px-4 py-3">{{ settlement.settledPrincipalAmount | currency: 'BRL' }}</td>
+                  <td class="px-4 py-3">{{ settlement.discountAmount | currency: 'BRL' }}</td>
+                  <td class="px-4 py-3">{{ settlement.interestAmount | currency: 'BRL' }}</td>
+                  <td class="px-4 py-3">{{ settlement.fineAmount | currency: 'BRL' }}</td>
+                  <td class="px-4 py-3">{{ settlement.cashAmount | currency: 'BRL' }}</td>
+                  <td class="px-4 py-3">{{ settlement.reference || '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  }
+</section>

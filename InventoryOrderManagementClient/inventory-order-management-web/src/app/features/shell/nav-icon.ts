@@ -74,6 +74,29 @@ import { NavIconName } from './navigation';
           <path d="M10 9h6" />
           <path d="M10 13h6" />
         }
+        @case ('wallet') {
+          <path d="M3 7h18v12H3z" />
+          <path d="M3 10h18" />
+          <path d="M16 14h2" />
+        }
+        @case ('bank') {
+          <path d="M4 10h16" />
+          <path d="M6 10v7M10 10v7M14 10v7M18 10v7" />
+          <path d="M3 17h18" />
+          <path d="M12 3l9 5H3l9-5z" />
+        }
+        @case ('swap') {
+          <path d="M7 7h11l-3-3" />
+          <path d="M17 17H6l3 3" />
+        }
+        @case ('receipt') {
+          <path d="M7 3h10v18l-2-1-2 1-2-1-2 1-2-1V3z" />
+          <path d="M9 8h6M9 12h6" />
+        }
+        @case ('clock') {
+          <circle cx="12" cy="12" r="8" />
+          <path d="M12 8v5l3 2" />
+        }
       }
     </svg>
   `,

@@ -1,3 +1,5 @@
+import { FINANCE_LANDING, resolveFinanceReturn } from './finance-landing';
+
 export const APP_MODULES = [
   { path: '/products', permission: 'Products.View' },
   { path: '/categories', permission: 'Categories.View' },
@@ -11,6 +13,7 @@ export const APP_MODULES = [
   { path: '/roles', permission: 'Roles.View' },
   { path: '/permissions', permission: 'Roles.View' },
   { path: '/audit', permission: 'Security.Audit.View' },
+  ...FINANCE_LANDING,
 ] as const;
 
 export function firstAllowedPath(permissions: readonly string[]): string {
@@ -20,6 +23,11 @@ export function firstAllowedPath(permissions: readonly string[]): string {
 export function resolveReturnUrl(permissions: readonly string[], returnUrl: string | null): string {
   if (!returnUrl || !returnUrl.startsWith('/') || returnUrl.startsWith('//')) {
     return firstAllowedPath(permissions);
+  }
+
+  const financeReturn = resolveFinanceReturn(permissions, returnUrl);
+  if (financeReturn) {
+    return financeReturn;
   }
 
   const module = APP_MODULES.find(

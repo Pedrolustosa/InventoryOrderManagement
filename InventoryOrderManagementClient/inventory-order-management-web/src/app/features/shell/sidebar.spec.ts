@@ -64,7 +64,7 @@ describe('Sidebar', () => {
   it('shows every permitted group', async () => {
     const root = await render();
 
-    expect(groups(root)).toEqual(['Catalog', 'Operations', 'Analysis', 'Administration']);
+    expect(groups(root)).toEqual(['Catalog', 'Operations', 'Finance', 'Analysis', 'Administration']);
     expect(labels(root)).toEqual([
       'Products',
       'Categories',
@@ -73,6 +73,14 @@ describe('Sidebar', () => {
       'Inventory',
       'Purchases',
       'Orders',
+      'Dashboard',
+      'Payables',
+      'Receivables',
+      'Cash accounts',
+      'Cash flow',
+      'Cash movements',
+      'Settlements',
+      'Aging',
       'Reports',
       'Users',
       'Roles',

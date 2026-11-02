@@ -1,0 +1,133 @@
+<section class="space-y-8">
+  <div>
+    <h1 class="text-3xl font-semibold tracking-tight text-ink">Cash flow</h1>
+    <p class="mt-2 max-w-2xl text-sm text-muted">
+      Realized amounts are recorded movements. Projected amounts are open installments. They are not added together.
+    </p>
+  </div>
+
+  <app-finance-period-filter (applied)="applyRange($event)" />
+
+  <div class="grid gap-3 md:grid-cols-2">
+    <label class="block text-sm font-medium text-ink">
+      Grouping
+      <select class="field mt-1" [value]="grouping()" (change)="grouping.set($any($event.target).value); reload()">
+        @for (option of groupings; track option) {
+          <option [value]="option">{{ groupingLabel(option) }}</option>
+        }
+      </select>
+    </label>
+    <label class="block text-sm font-medium text-ink">
+      Realized account
+      <select class="field mt-1" [value]="cashAccountId()" (change)="cashAccountId.set($any($event.target).value); reload()">
+        <option value="">All accounts</option>
+        @for (account of accounts(); track account.id) {
+          <option [value]="account.id">{{ account.name }}</option>
+        }
+      </select>
+    </label>
+  </div>
+  <p class="text-sm text-muted">The account filter applies only to the realized flow. The projected flow has no account.</p>
+
+  @if (isLoading()) {
+    <p class="text-sm text-muted" aria-busy="true">Loading cash flow...</p>
+  } @else if (loadError()) {
+    <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">{{ loadError() }}</div>
+  }
+
+  <section class="space-y-4">
+    <h2 class="text-lg font-semibold text-ink">Realized</h2>
+    @if (realized(); as flow) {
+      <dl class="grid gap-3 sm:grid-cols-3">
+        <div class="rounded-xl border border-line bg-panel p-4">
+          <dt class="text-xs uppercase tracking-wide text-muted">Inflows</dt>
+          <dd class="mt-2 text-xl font-semibold text-emerald-800">{{ flow.inflows | currency: 'BRL' }}</dd>
+        </div>
+        <div class="rounded-xl border border-line bg-panel p-4">
+          <dt class="text-xs uppercase tracking-wide text-muted">Outflows</dt>
+          <dd class="mt-2 text-xl font-semibold text-danger">{{ flow.outflows | currency: 'BRL' }}</dd>
+        </div>
+        <div class="rounded-xl border border-line bg-panel p-4">
+          <dt class="text-xs uppercase tracking-wide text-muted">Net</dt>
+          <dd class="mt-2 text-xl font-semibold text-ink">{{ flow.net | currency: 'BRL' }}</dd>
+        </div>
+      </dl>
+      <app-report-chart [model]="realizedChart()!" />
+      <div class="overflow-x-auto rounded-xl border border-line bg-panel">
+        <table class="min-w-full text-left text-sm">
+          <caption class="sr-only">Realized buckets</caption>
+          <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
+            <tr>
+              <th class="px-4 py-3 font-medium">Period</th>
+              <th class="px-4 py-3 font-medium">Inflows</th>
+              <th class="px-4 py-3 font-medium">Outflows</th>
+              <th class="px-4 py-3 font-medium">Net</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (bucket of flow.buckets; track bucket.periodStart) {
+              <tr class="border-b border-line last:border-0">
+                <td class="px-4 py-3">{{ bucket.periodStart | dateOnly }}</td>
+                <td class="px-4 py-3 text-emerald-800">{{ bucket.inflows | currency: 'BRL' }}</td>
+                <td class="px-4 py-3 text-danger">{{ bucket.outflows | currency: 'BRL' }}</td>
+                <td class="px-4 py-3">{{ bucket.net | currency: 'BRL' }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td class="px-4 py-3 text-muted" colspan="4">No realized movements in this period.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <section class="space-y-4">
+    <h2 class="text-lg font-semibold text-ink">Projected</h2>
+    @if (projected(); as flow) {
+      <dl class="grid gap-3 sm:grid-cols-3">
+        <div class="rounded-xl border border-line bg-panel p-4">
+          <dt class="text-xs uppercase tracking-wide text-muted">Expected inflows</dt>
+          <dd class="mt-2 text-xl font-semibold text-emerald-800">{{ flow.inflows | currency: 'BRL' }}</dd>
+        </div>
+        <div class="rounded-xl border border-line bg-panel p-4">
+          <dt class="text-xs uppercase tracking-wide text-muted">Expected outflows</dt>
+          <dd class="mt-2 text-xl font-semibold text-danger">{{ flow.outflows | currency: 'BRL' }}</dd>
+        </div>
+        <div class="rounded-xl border border-line bg-panel p-4">
+          <dt class="text-xs uppercase tracking-wide text-muted">Projected net</dt>
+          <dd class="mt-2 text-xl font-semibold text-ink">{{ flow.net | currency: 'BRL' }}</dd>
+        </div>
+      </dl>
+      <app-report-chart [model]="projectedChart()!" />
+      <div class="overflow-x-auto rounded-xl border border-line bg-panel">
+        <table class="min-w-full text-left text-sm">
+          <caption class="sr-only">Projected buckets</caption>
+          <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
+            <tr>
+              <th class="px-4 py-3 font-medium">Due period</th>
+              <th class="px-4 py-3 font-medium">Inflows</th>
+              <th class="px-4 py-3 font-medium">Outflows</th>
+              <th class="px-4 py-3 font-medium">Net</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (bucket of flow.buckets; track bucket.periodStart) {
+              <tr class="border-b border-line last:border-0">
+                <td class="px-4 py-3">{{ bucket.periodStart | dateOnly }}</td>
+                <td class="px-4 py-3 text-emerald-800">{{ bucket.inflows | currency: 'BRL' }}</td>
+                <td class="px-4 py-3 text-danger">{{ bucket.outflows | currency: 'BRL' }}</td>
+                <td class="px-4 py-3">{{ bucket.net | currency: 'BRL' }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td class="px-4 py-3 text-muted" colspan="4">No open installments in this due-date window.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</section>

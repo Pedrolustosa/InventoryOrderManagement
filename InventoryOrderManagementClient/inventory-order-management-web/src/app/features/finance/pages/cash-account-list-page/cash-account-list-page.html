@@ -1,0 +1,51 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight text-ink">Cash accounts</h1>
+      <p class="mt-2 max-w-2xl text-sm text-muted">Current balances are calculated by the server. Accounts are not deleted.</p>
+    </div>
+    <a *hasPermission="'Finance.CashAccounts.Manage'" routerLink="/finance/cash-accounts/new" class="btn-primary">New account</a>
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex items-center gap-3 text-muted" aria-busy="true">
+      <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
+      <span>Loading accounts...</span>
+    </div>
+  } @else if (loadError()) {
+    <div class="rounded-md border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">{{ loadError() }}</div>
+  } @else if (accounts().length === 0) {
+    <p class="rounded-md border border-line bg-surface px-4 py-3 text-sm text-muted" role="status">There are no cash accounts yet.</p>
+  } @else {
+    <div class="overflow-x-auto rounded-xl border border-line bg-panel">
+      <table class="min-w-full text-left text-sm">
+        <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
+          <tr>
+            <th class="px-4 py-3 font-medium">Name</th>
+            <th class="px-4 py-3 font-medium">Type</th>
+            <th class="px-4 py-3 font-medium">Opening balance</th>
+            <th class="px-4 py-3 font-medium">Opening date</th>
+            <th class="px-4 py-3 font-medium">Current balance</th>
+            <th class="px-4 py-3 font-medium">Status</th>
+            <th class="px-4 py-3 font-medium">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (account of accounts(); track account.id) {
+            <tr class="border-b border-line last:border-0">
+              <td class="px-4 py-3 font-medium text-ink">{{ account.name }}</td>
+              <td class="px-4 py-3">{{ cashAccountTypeLabel(account.accountType) }}</td>
+              <td class="px-4 py-3">{{ account.openingBalance | currency: 'BRL' }}</td>
+              <td class="px-4 py-3">{{ account.openingBalanceDate | dateOnly }}</td>
+              <td class="px-4 py-3">{{ account.currentBalance | currency: 'BRL' }}</td>
+              <td class="px-4 py-3">{{ account.isActive ? 'Active' : 'Inactive' }}</td>
+              <td class="px-4 py-3">
+                <a class="text-sm font-medium text-accent" [routerLink]="['/finance/cash-accounts', account.id]">View</a>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

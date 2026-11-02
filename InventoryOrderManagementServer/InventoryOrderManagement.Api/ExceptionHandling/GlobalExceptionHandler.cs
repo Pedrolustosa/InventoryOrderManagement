@@ -180,6 +180,38 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                 StatusCodes.Status400BadRequest,
                 "Invalid purchase period",
                 invalidPurchasePeriodException.Message),
+            FinancialTitleNotFoundException financialTitleNotFoundException => (
+                StatusCodes.Status404NotFound,
+                "Financial title not found",
+                financialTitleNotFoundException.Message),
+            FinancialInstallmentNotFoundException financialInstallmentNotFoundException => (
+                StatusCodes.Status404NotFound,
+                "Financial installment not found",
+                financialInstallmentNotFoundException.Message),
+            CashAccountNotFoundException cashAccountNotFoundException => (
+                StatusCodes.Status404NotFound,
+                "Cash account not found",
+                cashAccountNotFoundException.Message),
+            InactiveCashAccountException inactiveCashAccountException => (
+                StatusCodes.Status409Conflict,
+                "Inactive cash account",
+                inactiveCashAccountException.Message),
+            DuplicateFinancialDocumentException duplicateFinancialDocumentException => (
+                StatusCodes.Status409Conflict,
+                "Duplicate financial document",
+                duplicateFinancialDocumentException.Message),
+            InactiveSupplierFinanceException inactiveSupplierFinanceException => (
+                StatusCodes.Status409Conflict,
+                "Inactive supplier",
+                inactiveSupplierFinanceException.Message),
+            InactiveCustomerFinanceException inactiveCustomerFinanceException => (
+                StatusCodes.Status409Conflict,
+                "Inactive customer",
+                inactiveCustomerFinanceException.Message),
+            FinancialConflictException financialConflictException => (
+                StatusCodes.Status409Conflict,
+                "Financial conflict",
+                financialConflictException.Message),
             InvalidReportRequestException invalidReportRequestException => (
                 StatusCodes.Status400BadRequest,
                 "Invalid report request",
