@@ -34,6 +34,14 @@ const routes: Routes = [
           { path: 'inventory', component: HomeRedirect },
         ],
       },
+      {
+        path: 'returns',
+        children: [
+          { path: '', component: HomeRedirect },
+          { path: 'customer', component: HomeRedirect },
+          { path: 'supplier', component: HomeRedirect },
+        ],
+      },
     ],
   },
 ];
@@ -61,6 +69,12 @@ describe('Sidebar', () => {
 
   function groups(root: HTMLElement): string[] {
     return [...root.querySelectorAll('nav[aria-label="Main"] h2')].map((heading) => heading.textContent?.trim() ?? '');
+  }
+
+  function activeLabels(root: HTMLElement): string[] {
+    return [...root.querySelectorAll('nav[aria-label="Main"] a[aria-current="page"]')].map(
+      (link) => link.getAttribute('aria-label') ?? '',
+    );
   }
 
   it('shows every permitted group', async () => {
@@ -114,6 +128,29 @@ describe('Sidebar', () => {
     const root = await render(undefined, '/reports/inventory');
 
     expect(root.querySelector('a[aria-label="Reports"]')?.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('highlights only Returns on /returns', async () => {
+    const root = await render(undefined, '/returns');
+
+    expect(activeLabels(root)).toEqual(['Returns']);
+    expect(root.querySelector('a[aria-label="Returns"]')?.classList.contains('sidebar-link-active')).toBe(true);
+  });
+
+  it('highlights only Customer returns on /returns/customer', async () => {
+    const root = await render(undefined, '/returns/customer');
+
+    expect(activeLabels(root)).toEqual(['Customer returns']);
+    expect(root.querySelector('a[aria-label="Returns"]')?.getAttribute('aria-current')).toBeNull();
+    expect(root.querySelector('a[aria-label="Supplier returns"]')?.getAttribute('aria-current')).toBeNull();
+  });
+
+  it('highlights only Supplier returns on /returns/supplier', async () => {
+    const root = await render(undefined, '/returns/supplier');
+
+    expect(activeLabels(root)).toEqual(['Supplier returns']);
+    expect(root.querySelector('a[aria-label="Returns"]')?.getAttribute('aria-current')).toBeNull();
+    expect(root.querySelector('a[aria-label="Customer returns"]')?.getAttribute('aria-current')).toBeNull();
   });
 
   it('hides an item the user cannot view', async () => {

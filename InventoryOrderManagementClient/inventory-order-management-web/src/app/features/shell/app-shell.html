@@ -9,7 +9,8 @@
   }
 
   <app-sidebar
-    class="fixed top-0 left-0 z-40 h-dvh border-r border-[var(--iom-primary-dark)] transition-transform duration-200 lg:sticky lg:z-0 lg:translate-x-0"
+    class="fixed top-0 left-0 z-40 h-dvh border-r transition-transform duration-200 lg:sticky lg:z-0 lg:translate-x-0"
+    style="border-color: var(--sidebar-border)"
     [class.-translate-x-full]="!desktop() && !mobileOpen()"
     [class.translate-x-0]="desktop() || mobileOpen()"
     [class.w-64]="!desktop() || !collapsed()"

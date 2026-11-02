@@ -1,8 +1,9 @@
-import { Component, inject, input, output, signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/services/auth.service';
 import { AppLanguage, LanguageService } from '../../core/i18n/language.service';
+import { ThemeService } from '../../core/theme/theme.service';
 import { PageHeading } from './page-heading';
 
 @Component({
@@ -16,6 +17,7 @@ import { PageHeading } from './page-heading';
 export class Navbar {
   private readonly auth = inject(AuthService);
   private readonly languageService = inject(LanguageService);
+  private readonly themeService = inject(ThemeService);
 
   readonly menuExpanded = input(false);
   readonly menuLabel = input('SHELL.OPEN_MENU');
@@ -24,10 +26,19 @@ export class Navbar {
 
   readonly currentUser = this.auth.currentUser;
   readonly language = this.languageService.language;
+  readonly theme = this.themeService.theme;
+  readonly isDark = computed(() => this.theme() === 'dark');
+  readonly themeToggleLabelKey = computed(() =>
+    this.isDark() ? 'SHELL.THEME_TOGGLE_TO_LIGHT' : 'SHELL.THEME_TOGGLE_TO_DARK',
+  );
   readonly accountOpen = signal(false);
 
   setLanguage(language: AppLanguage): void {
     this.languageService.setLanguage(language);
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
   }
 
   toggleAccount(): void {

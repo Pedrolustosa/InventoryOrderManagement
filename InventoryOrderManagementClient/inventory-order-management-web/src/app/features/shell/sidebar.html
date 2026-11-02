@@ -1,6 +1,7 @@
-<div class="flex h-full flex-col bg-[var(--iom-primary-dark)] text-white">
+<div class="sidebar-shell flex h-full flex-col">
   <div
-    class="flex h-16 items-center border-b border-white/10 px-3"
+    class="flex h-16 items-center border-b px-3"
+    style="border-color: var(--sidebar-border)"
     [class.justify-center]="collapsed()"
     [class.gap-3]="!collapsed()"
   >
@@ -12,7 +13,7 @@
       [attr.alt]="'AUTH.LOGO_ALT' | translate"
     />
     @if (!collapsed()) {
-      <p class="min-w-0 truncate text-sm font-semibold tracking-wide text-white">
+      <p class="min-w-0 truncate text-sm font-semibold tracking-wide" style="color: var(--sidebar-text)">
         {{ 'COMMON.APP_NAME' | translate }}
       </p>
     }
@@ -22,7 +23,10 @@
     @for (group of groups(); track group.labelKey) {
       <section>
         @if (!collapsed()) {
-          <h2 class="px-3 text-xs font-semibold uppercase tracking-[0.14em] text-white/55">
+          <h2
+            class="px-3 text-xs font-semibold uppercase tracking-[0.14em]"
+            style="color: var(--sidebar-text-muted)"
+          >
             {{ group.labelKey | translate }}
           </h2>
         }
@@ -31,11 +35,10 @@
             <li>
               <a
                 [routerLink]="item.route"
-                routerLinkActive="bg-[var(--iom-primary-light)] text-[var(--iom-primary-dark)]"
-                [routerLinkActiveOptions]="{ exact: false }"
-                ariaCurrentWhenActive="page"
-                class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+                class="sidebar-link"
+                [class.sidebar-link-active]="isActive(item.route)"
                 [class.justify-center]="collapsed()"
+                [attr.aria-current]="isActive(item.route) ? 'page' : null"
                 [attr.aria-label]="item.labelKey | translate"
                 [attr.title]="collapsed() ? (item.labelKey | translate) : null"
                 (click)="navigated.emit()"
