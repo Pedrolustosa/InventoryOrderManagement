@@ -25,6 +25,7 @@ Badges from [Badges4-README.md-Profile](https://github.com/alexandresanlim/Badge
 ## Table of contents
 
 - [About](#about)
+- [Technical documentation](#technical-documentation)
 - [Technical goals](#technical-goals)
 - [Tech stack](#tech-stack)
 - [Architecture](#architecture)
@@ -44,6 +45,19 @@ Badges from [Badges4-README.md-Profile](https://github.com/alexandresanlim/Badge
 - [Skills demonstrated](#skills-demonstrated)
 - [License and contributing](#license-and-contributing)
 - [Author](#author)
+
+---
+
+## Technical documentation
+
+Detailed docs live under [`docs/`](docs/README.md):
+
+| Document | Content |
+|---|---|
+| [Architecture](docs/architecture.md) | Layers, request flow, module map |
+| [Backend](docs/backend.md) | .NET solution, domain, Infrastructure, tests |
+| [Frontend](docs/frontend.md) | Angular SPA, routes, auth, i18n |
+| [API](docs/api.md) | REST endpoints, permissions, HTTP codes |
 
 ---
 
@@ -181,6 +195,7 @@ flowchart TD
 InventoryOrderManagement/
 │
 ├── InventoryOrderManagementServer/
+│   ├── README.md
 │   ├── InventoryOrderManagement.Api/
 │   ├── InventoryOrderManagement.Application/
 │   ├── InventoryOrderManagement.Domain/
@@ -192,11 +207,19 @@ InventoryOrderManagement/
 │   └── InventoryOrderManagement.slnx
 │
 ├── InventoryOrderManagementClient/
+│   ├── README.md
 │   └── inventory-order-management-web/
 │       ├── src/app/features/
 │       ├── src/environments/
 │       ├── package.json
 │       └── angular.json
+│
+├── docs/
+│   ├── README.md
+│   ├── architecture.md
+│   ├── backend.md
+│   ├── frontend.md
+│   └── api.md
 │
 ├── .gitignore
 └── README.md
@@ -204,6 +227,7 @@ InventoryOrderManagement/
 
 - **Server**: .NET solution with Clean Architecture and test projects.
 - **Client**: Angular standalone SPA with domain features (`products`, `orders`, `shipping`, `finance`, and others).
+- **Docs**: Technical documentation (architecture, backend, frontend, API).
 
 ---
 
