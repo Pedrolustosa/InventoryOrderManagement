@@ -196,14 +196,16 @@ InventoryOrderManagement/
 │
 ├── InventoryOrderManagementServer/
 │   ├── README.md
-│   ├── InventoryOrderManagement.Api/
-│   ├── InventoryOrderManagement.Application/
-│   ├── InventoryOrderManagement.Domain/
-│   ├── InventoryOrderManagement.Infrastructure/
-│   ├── InventoryOrderManagement.Domain.UnitTests/
-│   ├── InventoryOrderManagement.Application.UnitTests/
-│   ├── InventoryOrderManagement.Api.IntegrationTests/
-│   ├── InventoryOrderManagement.Infrastructure.IntegrationTests/
+│   ├── src/
+│   │   ├── InventoryOrderManagement.Api/
+│   │   ├── InventoryOrderManagement.Application/
+│   │   ├── InventoryOrderManagement.Domain/
+│   │   └── InventoryOrderManagement.Infrastructure/
+│   ├── tests/
+│   │   ├── InventoryOrderManagement.Domain.UnitTests/
+│   │   ├── InventoryOrderManagement.Application.UnitTests/
+│   │   ├── InventoryOrderManagement.Api.IntegrationTests/
+│   │   └── InventoryOrderManagement.Infrastructure.IntegrationTests/
 │   └── InventoryOrderManagement.slnx
 │
 ├── InventoryOrderManagementClient/
@@ -274,10 +276,10 @@ cd InventoryOrderManagementServer
 
 dotnet restore InventoryOrderManagement.slnx
 dotnet build InventoryOrderManagement.slnx
-dotnet run --project InventoryOrderManagement.Api --launch-profile http
+dotnet run --project src/InventoryOrderManagement.Api --launch-profile http
 ```
 
-With the `http` profile (`Properties/launchSettings.json`):
+With the `http` profile (`src/InventoryOrderManagement.Api/Properties/launchSettings.json`):
 
 - API: `http://localhost:5237`
 - Swagger UI (Development): `http://localhost:5237/swagger`
@@ -314,7 +316,7 @@ Keep Backend and Frontend running together. CORS allows `http://localhost:4200` 
 
 ### Backend
 
-`InventoryOrderManagement.Api/appsettings.json`:
+`src/InventoryOrderManagement.Api/appsettings.json`:
 
 ```json
 {
@@ -353,7 +355,7 @@ The client uses authentication cookies and the `X-XSRF-TOKEN` antiforgery header
 
 Persistence uses **SQLite** through EF Core 10. Migrations live under:
 
-`InventoryOrderManagement.Infrastructure/Persistence/Migrations/`
+`src/InventoryOrderManagement.Infrastructure/Persistence/Migrations/`
 
 ### Automatic apply
 
@@ -365,24 +367,24 @@ In Development, `Program.cs` calls `dbContext.Database.Migrate()` on startup.
 cd InventoryOrderManagementServer
 
 dotnet ef migrations add MigrationName \
-  --project InventoryOrderManagement.Infrastructure \
-  --startup-project InventoryOrderManagement.Api
+  --project src/InventoryOrderManagement.Infrastructure \
+  --startup-project src/InventoryOrderManagement.Api
 
 dotnet ef database update \
-  --project InventoryOrderManagement.Infrastructure \
-  --startup-project InventoryOrderManagement.Api
+  --project src/InventoryOrderManagement.Infrastructure \
+  --startup-project src/InventoryOrderManagement.Api
 ```
 
 ### Package Manager Console (Visual Studio)
 
 ```powershell
 Add-Migration MigrationName `
-  -Project InventoryOrderManagement.Infrastructure `
-  -StartupProject InventoryOrderManagement.Api
+  -Project src/InventoryOrderManagement.Infrastructure `
+  -StartupProject src/InventoryOrderManagement.Api
 
 Update-Database `
-  -Project InventoryOrderManagement.Infrastructure `
-  -StartupProject InventoryOrderManagement.Api
+  -Project src/InventoryOrderManagement.Infrastructure `
+  -StartupProject src/InventoryOrderManagement.Api
 ```
 
 Do not commit the physical database file; rely on migrations and seeding.
@@ -438,7 +440,7 @@ Errors follow `ProblemDetails`. Enums are serialized as strings (`JsonStringEnum
 
 `DevelopmentDataSeeder` creates demo sign-in accounts for local exploration. Details live in:
 
-`InventoryOrderManagement.Infrastructure/Persistence/Seeding/DevelopmentDataSeeder.cs`
+`src/InventoryOrderManagement.Infrastructure/Persistence/Seeding/DevelopmentDataSeeder.cs`
 
 It also seeds in-app notifications (low stock, order confirmed, shipment failed, return awaiting inspection) for each active demo user, so the Navbar bell and `/notifications` page can be exercised after login.
 
@@ -466,7 +468,7 @@ dotnet test InventoryOrderManagement.slnx
 Example filter:
 
 ```bash
-dotnet test InventoryOrderManagement.Api.IntegrationTests --filter "FullyQualifiedName~Shipment"
+dotnet test tests/InventoryOrderManagement.Api.IntegrationTests --filter "FullyQualifiedName~Shipment"
 ```
 
 ### Frontend (Vitest via Angular)

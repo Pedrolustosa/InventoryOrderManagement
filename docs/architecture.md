@@ -124,7 +124,7 @@ Notable decisions:
 | Repository + Unit of Work | Application abstractions → Infrastructure |
 | One use case per operation | Scoped classes in Application (no MediatR) |
 | Factory / transition methods | Domain entities |
-| Composition root | `Api/Program.cs` |
+| Composition root | `src/InventoryOrderManagement.Api/Program.cs` |
 | Feature-based SPA | `src/app/features/*` with lazy routes |
 | Permission-based UI | Guards + `*hasPermission` (real boundary on the server) |
 
