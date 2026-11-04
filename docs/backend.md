@@ -1,10 +1,12 @@
 # Backend — InventoryOrderManagementServer
 
-.NET 10 (`net10.0`) Clean Architecture solution. Entry point: `InventoryOrderManagement.Api/Program.cs`.
+.NET 10 (`net10.0`) Clean Architecture solution. Entry point: `src/InventoryOrderManagement.Api/Program.cs`.
 
 ## Solution structure
 
 File: `InventoryOrderManagementServer/InventoryOrderManagement.slnx`
+
+Production projects live under `src/`; test projects under `tests/`.
 
 | Project | Role |
 |---------|------|
@@ -24,7 +26,7 @@ cd InventoryOrderManagementServer
 
 dotnet restore InventoryOrderManagement.slnx
 dotnet build InventoryOrderManagement.slnx
-dotnet run --project InventoryOrderManagement.Api --launch-profile http
+dotnet run --project src/InventoryOrderManagement.Api --launch-profile http
 ```
 
 | Resource | URL |
@@ -41,7 +43,7 @@ In Development, startup:
 
 ### Connection string
 
-`InventoryOrderManagement.Api/appsettings.json`:
+`src/InventoryOrderManagement.Api/appsettings.json`:
 
 ```json
 {
@@ -65,12 +67,12 @@ Identity:Bootstrap:DisplayName
 cd InventoryOrderManagementServer
 
 dotnet ef migrations add MigrationName \
-  --project InventoryOrderManagement.Infrastructure \
-  --startup-project InventoryOrderManagement.Api
+  --project src/InventoryOrderManagement.Infrastructure \
+  --startup-project src/InventoryOrderManagement.Api
 
 dotnet ef database update \
-  --project InventoryOrderManagement.Infrastructure \
-  --startup-project InventoryOrderManagement.Api
+  --project src/InventoryOrderManagement.Infrastructure \
+  --startup-project src/InventoryOrderManagement.Api
 ```
 
 ## Domain
@@ -224,16 +226,16 @@ dotnet test InventoryOrderManagement.slnx
 Example filter:
 
 ```bash
-dotnet test InventoryOrderManagement.Api.IntegrationTests --filter "FullyQualifiedName~Shipment"
+dotnet test tests/InventoryOrderManagement.Api.IntegrationTests --filter "FullyQualifiedName~Shipment"
 ```
 
 ## Entry-point files
 
 | File | Use |
 |------|-----|
-| `Api/Program.cs` | Host and pipeline |
-| `Application/DependencyInjection/ServiceCollectionExtensions.cs` | Application DI |
-| `Infrastructure/DependencyInjection/ServiceCollectionExtensions.cs` | Infrastructure DI |
-| `Infrastructure/Persistence/InventoryDbContext.cs` | EF model |
-| `Application/Security/Permissions.cs` | Permissions |
-| `Infrastructure/Persistence/Seeding/DevelopmentDataSeeder.cs` | Demo data |
+| `src/.../Api/Program.cs` | Host and pipeline |
+| `src/.../Application/DependencyInjection/ServiceCollectionExtensions.cs` | Application DI |
+| `src/.../Infrastructure/DependencyInjection/ServiceCollectionExtensions.cs` | Infrastructure DI |
+| `src/.../Infrastructure/Persistence/InventoryDbContext.cs` | EF model |
+| `src/.../Application/Security/Permissions.cs` | Permissions |
+| `src/.../Infrastructure/Persistence/Seeding/DevelopmentDataSeeder.cs` | Demo data |

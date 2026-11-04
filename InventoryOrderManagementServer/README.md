@@ -10,15 +10,18 @@ For the full-stack overview, see the [repository README](../README.md). Deeper t
 
 ```text
 InventoryOrderManagementServer/
-├── InventoryOrderManagement.Api/
-├── InventoryOrderManagement.Application/
-├── InventoryOrderManagement.Domain/
-├── InventoryOrderManagement.Infrastructure/
-├── InventoryOrderManagement.Domain.UnitTests/
-├── InventoryOrderManagement.Application.UnitTests/
-├── InventoryOrderManagement.Api.IntegrationTests/
-├── InventoryOrderManagement.Infrastructure.IntegrationTests/
-└── InventoryOrderManagement.slnx
+├── src/
+│   ├── InventoryOrderManagement.Api/
+│   ├── InventoryOrderManagement.Application/
+│   ├── InventoryOrderManagement.Domain/
+│   └── InventoryOrderManagement.Infrastructure/
+├── tests/
+│   ├── InventoryOrderManagement.Domain.UnitTests/
+│   ├── InventoryOrderManagement.Application.UnitTests/
+│   ├── InventoryOrderManagement.Api.IntegrationTests/
+│   └── InventoryOrderManagement.Infrastructure.IntegrationTests/
+├── InventoryOrderManagement.slnx
+└── README.md
 ```
 
 | Project | Role |
@@ -43,7 +46,7 @@ cd InventoryOrderManagementServer
 
 dotnet restore InventoryOrderManagement.slnx
 dotnet build InventoryOrderManagement.slnx
-dotnet run --project InventoryOrderManagement.Api --launch-profile http
+dotnet run --project src/InventoryOrderManagement.Api --launch-profile http
 ```
 
 | Resource | URL |
@@ -64,7 +67,7 @@ On Api start in Development:
 
 ## Configuration
 
-`InventoryOrderManagement.Api/appsettings.json`:
+`src/InventoryOrderManagement.Api/appsettings.json`:
 
 ```json
 {
@@ -90,15 +93,15 @@ Identity:Bootstrap:DisplayName
 cd InventoryOrderManagementServer
 
 dotnet ef migrations add MigrationName \
-  --project InventoryOrderManagement.Infrastructure \
-  --startup-project InventoryOrderManagement.Api
+  --project src/InventoryOrderManagement.Infrastructure \
+  --startup-project src/InventoryOrderManagement.Api
 
 dotnet ef database update \
-  --project InventoryOrderManagement.Infrastructure \
-  --startup-project InventoryOrderManagement.Api
+  --project src/InventoryOrderManagement.Infrastructure \
+  --startup-project src/InventoryOrderManagement.Api
 ```
 
-Migrations live under `InventoryOrderManagement.Infrastructure/Persistence/Migrations/`.
+Migrations live under `src/InventoryOrderManagement.Infrastructure/Persistence/Migrations/`.
 
 ## Authentication and authorization
 
@@ -146,7 +149,7 @@ dotnet test InventoryOrderManagement.slnx
 Example filter:
 
 ```bash
-dotnet test InventoryOrderManagement.Api.IntegrationTests --filter "FullyQualifiedName~Shipment"
+dotnet test tests/InventoryOrderManagement.Api.IntegrationTests --filter "FullyQualifiedName~Shipment"
 ```
 
 | Project | Scope |
