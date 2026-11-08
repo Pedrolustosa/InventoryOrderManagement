@@ -102,8 +102,147 @@ Same pattern as Categories.
 | POST | `/{id}/ship` | Orders.Ship |
 | POST | `/{id}/deliver` | Orders.Deliver |
 | POST | `/{id}/cancel` | Orders.Cancel |
+| GET | `/{id}/timeline` | Orders.View (+ Finance.View / Returns.View per module) |
 
 With an active shipment, legacy `ship`/`deliver` may return **409** — use the `/shipments` flow.
+
+### Order timeline — `GET /orders/{id}/timeline`
+
+Read-only, chronological history of a sales order across **Order, Stock, Shipment, Finance and Return**.
+
+- **200** `OrderTimelineDto`; **404** ProblemDetails for an unknown order; **403** without `Orders.View`.
+- `Finance` entries are returned only with `Finance.View`, and `Return` entries only with `Returns.View`; the other
+  modules are always included. Without those permissions the data is not even queried.
+- Ascending by `occurredAtUtc` (UTC, `Z`); events recorded at the same instant follow the business flow
+  (e.g. `order.confirmed` → `stock.reserved` → `shipment.dispatched` → `stock.issued` → `finance.receivable_created`).
+- No translated text: `eventType` and `status` are **stable codes** for the client to translate. `summary` holds
+  structured data and omits fields that do not apply.
+- Links: `referenceType` + `referenceId` is one of `Order`, `Shipment`, `Product` (stock entries), `FinancialTitle`
+  (`summary.titleType` says receivable/payable), `ReturnRequest`.
+- `performedBy` (`userId`, `displayName`) is filled when the source records the user: shipment status changes,
+  settlements, manual titles and return creation. Order transitions and stock movements do not record a user, so
+  it is `null` for them.
+- Performance: no-tracking projections with a fixed number of queries regardless of timeline size (at most 7:
+  order, shipment history, stock movements, returns, titles, settlements, user names).
+
+**Event types**
+
+| Module | `eventType` | `status` (resulting) |
+|--------|-------------|----------------------|
+| Order | `order.created`, `order.confirmed`, `order.shipped`, `order.delivered`, `order.cancelled` | Order status |
+| Stock | `stock.reserved`, `stock.reservation_released`, `stock.issued`, `stock.cancellation_returned` (legacy), `stock.return_restocked`, `stock.return_quarantined`, `stock.return_lost`, `stock.exchange_issued` | — |
+| Shipment | `shipment.created`, `shipment.dispatched`, `shipment.in_transit`, `shipment.failed`, `shipment.resumed`, `shipment.delivered` | Shipment status |
+| Finance | `finance.receivable_created`, `finance.refund_created` (payable to the customer from a return), `finance.difference_created` (exchange price difference receivable), `finance.settled` (cash settlement), `finance.abated` (return credit), `finance.title_cancelled` | Title status after the event (`PartiallyPaid`/`Paid` on settlements) |
+| Return | `return.requested` (`summary.returnType` tells an exchange), `return.received`, `return.completed`, `return.rejected`, `return.cancelled` | Return status |
+
+Customer returns have no separate approval step: completing the inspection is the approval (`return.completed`) or
+the refusal (`return.rejected`).
+
+**Example** (real response from the integration test, trimmed to some entries):
+
+```json
+{
+  "orderId": "f1f73a6e-6781-4d96-a594-38dd4cfe7464",
+  "orderNumber": "ORD-20261108-B3893D26",
+  "currentStatus": "Delivered",
+  "entries": [
+    {
+      "occurredAtUtc": "2026-11-08T15:33:43.7014316Z",
+      "module": "Order",
+      "eventType": "order.confirmed",
+      "status": "Confirmed",
+      "summary": { "amount": 200 },
+      "referenceType": "Order",
+      "referenceId": "f1f73a6e-6781-4d96-a594-38dd4cfe7464",
+      "performedBy": null
+    },
+    {
+      "occurredAtUtc": "2026-11-08T15:33:43.7083509Z",
+      "module": "Stock",
+      "eventType": "stock.reserved",
+      "status": null,
+      "summary": {
+        "productId": "7071c5de-dd64-4872-a7db-18f0a40e2252",
+        "productSku": "TIMELINE-FLOW",
+        "productName": "Product timeline-flow",
+        "quantity": 4
+      },
+      "referenceType": "Product",
+      "referenceId": "7071c5de-dd64-4872-a7db-18f0a40e2252",
+      "performedBy": null
+    },
+    {
+      "occurredAtUtc": "2026-11-08T15:33:43.9492705Z",
+      "module": "Shipment",
+      "eventType": "shipment.dispatched",
+      "status": "Shipped",
+      "summary": { "carrierName": "Acme" },
+      "referenceType": "Shipment",
+      "referenceId": "fc967bf3-bf09-49ba-a51b-0f76fe5951e0",
+      "performedBy": { "userId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "displayName": null }
+    },
+    {
+      "occurredAtUtc": "2026-11-08T15:33:44.0340329Z",
+      "module": "Finance",
+      "eventType": "finance.receivable_created",
+      "status": "Pending",
+      "summary": {
+        "amount": 200,
+        "dueDate": "2026-12-08",
+        "titleNumber": "FT-20261108-3C524145",
+        "titleType": "Receivable"
+      },
+      "referenceType": "FinancialTitle",
+      "referenceId": "3895fbb7-b13a-4fd3-b0a1-534eff899873",
+      "performedBy": null
+    },
+    {
+      "occurredAtUtc": "2026-11-08T15:33:44.5028116Z",
+      "module": "Finance",
+      "eventType": "finance.settled",
+      "status": "PartiallyPaid",
+      "summary": {
+        "amount": 80,
+        "titleNumber": "FT-20261108-3C524145",
+        "titleType": "Receivable",
+        "paymentMethod": "Pix"
+      },
+      "referenceType": "FinancialTitle",
+      "referenceId": "3895fbb7-b13a-4fd3-b0a1-534eff899873",
+      "performedBy": { "userId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "displayName": null }
+    },
+    {
+      "occurredAtUtc": "2026-11-08T15:33:45.1605594Z",
+      "module": "Return",
+      "eventType": "return.completed",
+      "status": "Completed",
+      "summary": {
+        "amount": 50,
+        "returnNumber": "RET-20261108-C450EBE2",
+        "returnType": "CustomerReturn"
+      },
+      "referenceType": "ReturnRequest",
+      "referenceId": "04da0abc-931d-4771-845e-7d526e72c2f6",
+      "performedBy": null
+    },
+    {
+      "occurredAtUtc": "2026-11-08T15:33:45.2166002Z",
+      "module": "Finance",
+      "eventType": "finance.abated",
+      "status": "PartiallyPaid",
+      "summary": {
+        "amount": 50,
+        "titleNumber": "FT-20261108-3C524145",
+        "titleType": "Receivable",
+        "paymentMethod": "ReturnCredit"
+      },
+      "referenceType": "FinancialTitle",
+      "referenceId": "3895fbb7-b13a-4fd3-b0a1-534eff899873",
+      "performedBy": null
+    }
+  ]
+}
+```
 
 ## Purchases
 

@@ -2,6 +2,7 @@ using InventoryOrderManagement.Application.Abstractions.Dashboard;
 using InventoryOrderManagement.Application.Abstractions.Events;
 using InventoryOrderManagement.Application.Abstractions.Identity;
 using InventoryOrderManagement.Application.Abstractions.Notifications;
+using InventoryOrderManagement.Application.Abstractions.Orders;
 using InventoryOrderManagement.Application.Abstractions.Persistence;
 using InventoryOrderManagement.Application.Abstractions.Reports;
 using InventoryOrderManagement.Application.Finance;
@@ -58,6 +59,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IOrderReportsQuery, OrderReportsQuery>();
         services.AddScoped<ISalesReportsQuery, SalesReportsQuery>();
         services.AddScoped<IDashboardQuery, DashboardQuery>();
+        services.AddScoped<IOrderTimelineQuery, OrderTimelineQuery>();
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddOptions<FinanceOptions>()

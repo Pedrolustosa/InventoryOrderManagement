@@ -51,6 +51,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<CreateOrderUseCase>();
         services.AddScoped<UpdateDraftOrderUseCase>();
         services.AddScoped<GetOrderByIdUseCase>();
+        services.AddScoped<GetOrderTimelineUseCase>();
         services.AddScoped<GetAllOrdersUseCase>();
         services.AddScoped<ConfirmOrderUseCase>();
         services.AddScoped<ShipOrderUseCase>();
