@@ -136,6 +136,9 @@ public class Order : AggregateRoot
         Touch();
     }
 
+    /// <summary>
+    /// Only Draft and Confirmed orders can be cancelled. Shipped or delivered goods are handled by a return.
+    /// </summary>
     public void Cancel(string reason)
     {
         if (Status is not (OrderStatus.Draft or OrderStatus.Confirmed))
@@ -143,10 +146,17 @@ public class Order : AggregateRoot
             throw new InvalidOrderStatusException(Status);
         }
 
+        var previousStatus = Status;
         CancellationReason = NormalizeReason(reason);
         Status = OrderStatus.Cancelled;
         CancelledAtUtc = DateTime.UtcNow;
         Touch();
+
+        RaiseDomainEvent(new OrderCancelledDomainEvent(
+            Id,
+            previousStatus,
+            _items.Select(item => new OrderCancelledItem(item.ProductId, item.Quantity)).ToList(),
+            CancelledAtUtc.Value));
     }
 
         public void RegisterCustomerReturn(IReadOnlyList<(Guid OrderItemId, int Quantity)> lines)

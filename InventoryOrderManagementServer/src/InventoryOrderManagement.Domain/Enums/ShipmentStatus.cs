@@ -6,5 +6,8 @@ public enum ShipmentStatus
     Shipped = 1,
     InTransit = 2,
     Delivered = 3,
-    Failed = 4
+    Failed = 4,
+
+    /// <summary>The order was cancelled before the shipment left (only from Preparing).</summary>
+    Cancelled = 5
 }
