@@ -4,6 +4,8 @@ import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
+import { FinancialTitleSummary } from '../../../finance/models/financial-title.model';
+import { FinanceService } from '../../../finance/services/finance.service';
 import { InventoryService } from '../../../inventory/services/inventory.service';
 import { ShipmentsService } from '../../../shipping/services/shipments.service';
 import { Order } from '../../models/order.model';
@@ -31,6 +33,9 @@ describe('OrderDetailsPage', () => {
   };
   let shipmentsService: {
     getByOrderId: ReturnType<typeof vi.fn>;
+  };
+  let financeService: {
+    getTitles: ReturnType<typeof vi.fn>;
   };
 
   afterEach(() => {
@@ -80,7 +85,13 @@ describe('OrderDetailsPage', () => {
   async function setup(
     order: Order,
     linkedShipment: { id: string; orderId: string } | null = null,
+    receivable: FinancialTitleSummary | null = null,
   ): Promise<ReturnType<typeof createToastServiceSpy>> {
+    financeService = {
+      getTitles: vi.fn().mockReturnValue(
+        of({ items: receivable ? [receivable] : [], page: 1, pageSize: 1, totalCount: receivable ? 1 : 0 }),
+      ),
+    };
     ordersService = {
       getOrderById: vi.fn().mockReturnValue(of(order)),
       confirmOrder: vi.fn(),
@@ -99,6 +110,7 @@ describe('OrderDetailsPage', () => {
         provideRouter([]),
         { provide: OrdersService, useValue: ordersService },
         { provide: ShipmentsService, useValue: shipmentsService },
+        { provide: FinanceService, useValue: financeService },
         {
           provide: InventoryService,
           useValue: { getInventoryBalances: vi.fn().mockReturnValue(of([])) },
@@ -133,6 +145,36 @@ describe('OrderDetailsPage', () => {
     expect(text).toContain('Order Created');
     expect(component.order()?.subtotal).toBe(199.8);
     expect(text).toContain('199,80');
+  });
+
+  it('should show the receivable generated on dispatch with a link to finance', async () => {
+    await setup(buildOrder('Shipped'), null, {
+      id: 'title-1',
+      titleNumber: 'FT-20261108-ABCD1234',
+      description: 'Receivable for sales order ORD-20261101-AAAA1111',
+      counterpartyType: 'Customer',
+      counterpartyId: 'customer-1',
+      counterpartyName: 'Historical John',
+      sourceType: 'SalesOrder',
+      documentNumber: 'SO-ORD-20261101-AAAA1111',
+      issueDate: '2026-11-08',
+      totalAmount: 199.8,
+      outstandingBalance: 199.8,
+      status: 'Pending',
+      installmentCount: 1,
+      dueDate: '2026-12-08',
+    });
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(financeService.getTitles).toHaveBeenCalledWith(
+      'receivable',
+      expect.objectContaining({ sourceId: 'order-1' }),
+    );
+    expect(element.textContent).toContain('FT-20261108-ABCD1234');
+    expect(element.textContent).toContain('08/12/2026');
+    expect(element.querySelector('app-financial-status')).not.toBeNull();
+    const link = element.querySelector('a[href="/finance/receivables/title-1"]');
+    expect(link).not.toBeNull();
   });
 
   it('should show the cancellation reason', async () => {

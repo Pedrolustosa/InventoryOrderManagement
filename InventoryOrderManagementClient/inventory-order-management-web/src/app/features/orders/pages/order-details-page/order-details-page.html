@@ -201,6 +201,36 @@
               <dd class="mt-1 text-xl font-semibold text-ink">{{ current.subtotal | currency: 'BRL' }}</dd>
             </div>
           </dl>
+          @if (receivable(); as title) {
+            <div class="mt-5 border-t border-accent/20 pt-4">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <p class="text-sm font-semibold text-ink">{{ 'SHIPPING.DETAILS.RECEIVABLE_TITLE' | translate }}</p>
+                <a class="btn-secondary !px-2.5 !py-1 text-xs" [routerLink]="['/finance/receivables', title.id]">
+                  {{ 'SHIPPING.DETAILS.OPEN_RECEIVABLE' | translate }}
+                </a>
+              </div>
+              <dl class="mt-3 grid gap-3 text-sm">
+                <div>
+                  <dt class="text-xs uppercase tracking-wide text-muted">{{ 'SHIPPING.DETAILS.RECEIVABLE_NUMBER' | translate }}</dt>
+                  <dd class="mt-1 font-medium text-ink">{{ title.titleNumber }}</dd>
+                </div>
+                <div>
+                  <dt class="text-xs uppercase tracking-wide text-muted">{{ 'SHIPPING.DETAILS.RECEIVABLE_AMOUNT' | translate }}</dt>
+                  <dd class="mt-1 font-medium text-ink">{{ title.totalAmount | currency: 'BRL' }}</dd>
+                </div>
+                <div>
+                  <dt class="text-xs uppercase tracking-wide text-muted">{{ 'SHIPPING.DETAILS.RECEIVABLE_DUE' | translate }}</dt>
+                  <dd class="mt-1 font-medium text-ink">
+                    {{ title.dueDate ? (title.dueDate | date: 'dd/MM/yyyy') : '—' }}
+                  </dd>
+                </div>
+                <div>
+                  <dt class="text-xs uppercase tracking-wide text-muted">{{ 'SHIPPING.DETAILS.RECEIVABLE_STATUS' | translate }}</dt>
+                  <dd class="mt-1"><app-financial-status [status]="title.status" /></dd>
+                </div>
+              </dl>
+            </div>
+          }
         </section>
 
         <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">

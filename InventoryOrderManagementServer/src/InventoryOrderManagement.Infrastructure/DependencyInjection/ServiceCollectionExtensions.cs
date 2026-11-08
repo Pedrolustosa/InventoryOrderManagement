@@ -4,6 +4,7 @@ using InventoryOrderManagement.Application.Abstractions.Identity;
 using InventoryOrderManagement.Application.Abstractions.Notifications;
 using InventoryOrderManagement.Application.Abstractions.Persistence;
 using InventoryOrderManagement.Application.Abstractions.Reports;
+using InventoryOrderManagement.Application.Finance;
 using InventoryOrderManagement.Infrastructure.Events;
 using InventoryOrderManagement.Infrastructure.Identity;
 using InventoryOrderManagement.Infrastructure.Identity.Entities;
@@ -59,6 +60,12 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IDashboardQuery, DashboardQuery>();
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddOptions<FinanceOptions>()
+            .Bind(configuration.GetSection(FinanceOptions.SectionName))
+            .Validate(
+                options => options.DefaultReceivableDays is >= 0 and <= FinanceOptions.MaxReceivableDays,
+                $"{FinanceOptions.SectionName}:DefaultReceivableDays must be between 0 and {FinanceOptions.MaxReceivableDays}.")
+            .ValidateOnStart();
 
         
                 services.AddIdentity<ApplicationUser, ApplicationRole>(options =>

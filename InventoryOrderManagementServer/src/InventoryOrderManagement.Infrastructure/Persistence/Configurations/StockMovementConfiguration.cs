@@ -61,6 +61,11 @@ public class StockMovementConfiguration : IEntityTypeConfiguration<StockMovement
             .HasForeignKey(movement => movement.OrderId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasOne<Shipment>()
+            .WithMany()
+            .HasForeignKey(movement => movement.ShipmentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasOne<PurchaseOrder>()
             .WithMany()
             .HasForeignKey(movement => movement.PurchaseOrderId)
@@ -85,6 +90,11 @@ public class StockMovementConfiguration : IEntityTypeConfiguration<StockMovement
         builder.HasIndex(movement => movement.SupplierId);
         builder.HasIndex(movement => movement.CreatedAtUtc);
         builder.HasIndex(movement => movement.OrderId);
+
+        // A dispatched shipment issues each product at most once (idempotency backstop).
+        builder.HasIndex(movement => new { movement.ShipmentId, movement.ProductId })
+            .IsUnique()
+            .HasFilter("\"ShipmentId\" IS NOT NULL");
         builder.HasIndex(movement => movement.PurchaseOrderId);
         builder.HasIndex(movement => movement.PurchaseReceiptId);
         builder.HasIndex(movement => movement.ReturnRequestId);

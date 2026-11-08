@@ -1,5 +1,6 @@
 using InventoryOrderManagement.Domain.Abstractions;
 using InventoryOrderManagement.Domain.Enums;
+using InventoryOrderManagement.Domain.Events;
 using InventoryOrderManagement.Domain.Exceptions;
 
 namespace InventoryOrderManagement.Domain.Entities;
@@ -103,8 +104,12 @@ public class Shipment : AggregateRoot
         Touch();
     }
 
-    public void Dispatch(string? notes, Guid? changedByUserId)
+    public void Dispatch(
+        string? notes,
+        Guid? changedByUserId,
+        IReadOnlyList<ShipmentDispatchedItem> items)
     {
+        ArgumentNullException.ThrowIfNull(items);
         EnsureStatus(ShipmentStatus.Preparing);
 
         if (string.IsNullOrWhiteSpace(CarrierName))
@@ -119,6 +124,12 @@ public class Shipment : AggregateRoot
         Notes = NormalizeOptional(notes, NotesMaxLength, "Notes") ?? Notes;
         AppendHistory(previous, Status, notes, changedByUserId);
         Touch();
+
+        RaiseDomainEvent(new ShipmentDispatchedDomainEvent(
+            Id,
+            OrderId,
+            items.ToList(),
+            ShippedAtUtc.Value));
     }
 
     public void SetInTransit(string? notes, Guid? changedByUserId)

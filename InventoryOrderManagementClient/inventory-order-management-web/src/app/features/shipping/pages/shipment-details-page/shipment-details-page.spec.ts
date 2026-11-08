@@ -8,6 +8,8 @@ import { AuthService } from '../../../../core/auth/services/auth.service';
 import { permittedAuth, permittedUser } from '../../../../core/auth/testing/permitted-auth';
 import { ToastService } from '../../../../core/notifications/toast.service';
 import { createToastServiceSpy } from '../../../../core/notifications/testing/toast-testing';
+import { FinancialTitleSummary } from '../../../finance/models/financial-title.model';
+import { FinanceService } from '../../../finance/services/finance.service';
 import { OrdersService } from '../../../orders/services/orders.service';
 import { Shipment } from '../../models/shipment.model';
 import { ShipmentsService } from '../../services/shipments.service';
@@ -24,6 +26,9 @@ describe('ShipmentDetailsPage', () => {
     getById: ReturnType<typeof vi.fn>;
     getHistory: ReturnType<typeof vi.fn>;
     dispatch: ReturnType<typeof vi.fn>;
+  };
+  let financeService: {
+    getTitles: ReturnType<typeof vi.fn>;
   };
 
   function buildShipment(status: Shipment['status'] = 'Preparing'): Shipment {
@@ -67,18 +72,28 @@ describe('ShipmentDetailsPage', () => {
     };
   }
 
-  async function setup(shipment: Shipment, permissions?: string[]): Promise<void> {
+  async function setup(
+    shipment: Shipment,
+    permissions?: string[],
+    receivable: FinancialTitleSummary | null = null,
+  ): Promise<void> {
     shipmentsService = {
       getById: vi.fn().mockReturnValue(of(shipment)),
       getHistory: vi.fn().mockReturnValue(of(shipment.history)),
       dispatch: vi.fn().mockReturnValue(of({ ...shipment, status: 'Shipped' })),
     };
+    financeService = {
+      getTitles: vi.fn().mockReturnValue(
+        of({ items: receivable ? [receivable] : [], page: 1, pageSize: 1, totalCount: receivable ? 1 : 0 }),
+      ),
+    };
 
     await TestBed.configureTestingModule({
       imports: [ShipmentDetailsPage],
-      providers: [...provideTestTranslate(), 
+      providers: [...provideTestTranslate(),
         provideRouter([]),
         { provide: ShipmentsService, useValue: shipmentsService },
+        { provide: FinanceService, useValue: financeService },
         {
           provide: OrdersService,
           useValue: {
@@ -135,6 +150,36 @@ describe('ShipmentDetailsPage', () => {
     expect(text).toContain('Preparing');
     expect(component.canDispatch()).toBe(true);
     expect(component.canDeliver()).toBe(false);
+  });
+
+  it('should show the generated receivable with a link to finance', async () => {
+    const shipment = buildShipment('Shipped');
+    await setup(shipment, undefined, {
+      id: 'title-9',
+      titleNumber: 'FT-20261108-FFFF0000',
+      description: 'Receivable for sales order',
+      counterpartyType: 'Customer',
+      counterpartyId: shipment.customerId,
+      counterpartyName: 'Customer',
+      sourceType: 'SalesOrder',
+      documentNumber: 'SO-ORDER',
+      issueDate: '2026-11-08',
+      totalAmount: 50,
+      outstandingBalance: 50,
+      status: 'Pending',
+      installmentCount: 1,
+      dueDate: '2026-12-08',
+    });
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(financeService.getTitles).toHaveBeenCalledWith(
+      'receivable',
+      expect.objectContaining({ sourceId: shipment.orderId }),
+    );
+    expect(element.textContent).toContain('FT-20261108-FFFF0000');
+    expect(element.textContent).toContain('08/12/2026');
+    expect(element.querySelector('app-financial-status')).not.toBeNull();
+    expect(element.querySelector('a[href="/finance/receivables/title-9"]')).not.toBeNull();
   });
 
   it('should show advance actions for shipped shipments', async () => {

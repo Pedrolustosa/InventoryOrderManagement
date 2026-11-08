@@ -17,6 +17,8 @@ public sealed class FinancialTitleQuery
 
     public Guid? CounterpartyId { get; init; }
 
+    public Guid? SourceId { get; init; }
+
     public string? DocumentNumber { get; init; }
 
     public DateOnly? IssueFrom { get; init; }
@@ -214,6 +216,7 @@ internal static class FinancialTitleList
             {
                 Type = type,
                 CounterpartyId = query?.CounterpartyId,
+                SourceId = query?.SourceId,
                 DocumentNumber = string.IsNullOrWhiteSpace(query?.DocumentNumber) ? null : query.DocumentNumber.Trim(),
                 IssueFrom = query?.IssueFrom,
                 IssueTo = query?.IssueTo,

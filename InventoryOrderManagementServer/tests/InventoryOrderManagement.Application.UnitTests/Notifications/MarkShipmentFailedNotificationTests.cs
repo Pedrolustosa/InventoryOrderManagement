@@ -50,7 +50,7 @@ public class MarkShipmentFailedNotificationTests
             "TRK-1",
             null,
             Guid.NewGuid());
-        shipment.Dispatch(null, null);
+        shipment.Dispatch(null, null, []);
 
         _shipments.GetTrackedByIdAsync(shipment.Id, Arg.Any<CancellationToken>()).Returns(shipment);
         _orders.GetByIdAsync(order.Id, Arg.Any<CancellationToken>()).Returns(order);

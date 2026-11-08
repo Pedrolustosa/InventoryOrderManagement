@@ -198,6 +198,8 @@ public sealed class FinancialTitleSummaryResponse
 
     public required int InstallmentCount { get; init; }
 
+    public DateOnly? DueDate { get; init; }
+
     public static FinancialTitleSummaryResponse From(FinancialTitle title, DateOnly today) => new()
     {
         Id = title.Id,
@@ -212,6 +214,9 @@ public sealed class FinancialTitleSummaryResponse
         TotalAmount = title.TotalAmount,
         OutstandingBalance = title.OutstandingBalance,
         Status = title.StatusOn(today),
-        InstallmentCount = title.Installments.Count
+        InstallmentCount = title.Installments.Count,
+        DueDate = title.Installments.OrderBy(installment => installment.DueDate)
+            .Select(installment => (DateOnly?)installment.DueDate)
+            .FirstOrDefault()
     };
 }

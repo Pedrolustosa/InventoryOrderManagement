@@ -423,6 +423,10 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                         .IsUnique()
                         .HasFilter("\"DocumentNumber\" IS NOT NULL AND \"CounterpartyId\" IS NULL");
 
+                    b.HasIndex("Type", "SourceType", "SourceId")
+                        .IsUnique()
+                        .HasFilter("\"Type\" = 'Receivable' AND \"SourceType\" = 'SalesOrder' AND \"SourceId\" IS NOT NULL");
+
                     b.ToTable("FinancialTitles", (string)null);
                 });
 
@@ -1249,6 +1253,9 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("ReturnRequestId")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("ShipmentId")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid?>("SupplierId")
                         .HasColumnType("TEXT");
 
@@ -1269,6 +1276,10 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                     b.HasIndex("SupplierId");
 
                     b.HasIndex("ProductId", "CreatedAtUtc");
+
+                    b.HasIndex("ShipmentId", "ProductId")
+                        .IsUnique()
+                        .HasFilter("\"ShipmentId\" IS NOT NULL");
 
                     b.ToTable("StockMovements", null, t =>
                         {
@@ -2037,6 +2048,11 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                     b.HasOne("InventoryOrderManagement.Domain.Entities.ReturnRequest", null)
                         .WithMany()
                         .HasForeignKey("ReturnRequestId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("InventoryOrderManagement.Domain.Entities.Shipment", null)
+                        .WithMany()
+                        .HasForeignKey("ShipmentId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("InventoryOrderManagement.Domain.Entities.Supplier", null)

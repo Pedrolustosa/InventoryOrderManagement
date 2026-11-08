@@ -126,7 +126,23 @@ Preparing → Shipped → InTransit → Delivered
 - Confirm requires Draft with ≥1 item; cancel limited to Draft/Confirmed.
 - `RegisterCustomerReturn` only on Delivered orders.
 - Shipment dispatch requires a carrier; history in `ShipmentStatusHistory`.
-- Inventory: `Receive` / `Issue` / `AdjustTo`; `InsufficientStockException` and optimistic concurrency.
+- Inventory: `Receive` / `Issue` / `AdjustTo` / `Reserve` / `Release` / `ConsumeReservation`; `InsufficientStockException` and optimistic concurrency.
+- Order confirmation reserves stock (`OrderConfirmedHandler`, `OrderReservation` movements).
+- Shipment dispatch (`ShipmentDispatchedDomainEvent` → `ShipmentDispatchedHandler`, transactional, same
+  transaction as the Shipment → Dispatched and Order → Shipped changes):
+  - A shipment always covers the whole order (one shipment per order).
+  - Stock is decided **per order** from its own movements, never from the product-wide reserved total:
+    net reservation covers the item → `ConsumeReservation` (OnHand and Reserved drop together);
+    no reservation (legacy order) → `Issue` directly, validating `AvailableQuantity`;
+    partial reservation → 409.
+    Orders confirmed before reservations existed already had an `OrderExit` at confirmation
+    (`ShipmentId` null); for them nothing is issued again.
+  - Each issue is an `OrderExit` movement linked to `OrderId` and `ShipmentId`.
+  - One receivable per sales order (`SourceType = SalesOrder`, `SourceId = OrderId`), for the order subtotal,
+    one installment due `Finance:DefaultReceivableDays` (default 30) after issue. Orders and customers have no payment terms.
+  - Idempotency: filtered unique indexes on `StockMovements (ShipmentId, ProductId)` and
+    `FinancialTitles (Type, SourceType, SourceId)` for sales-order receivables, plus existence checks in the handler.
+  - Any failure (stock, receivable, concurrency) rolls everything back and returns 409 ProblemDetails.
 - Financial title: derived status; settle creates a settlement and possibly cash movement.
 
 Key files: `Domain/Entities/*.cs`, enums in `Domain/Enums/`.

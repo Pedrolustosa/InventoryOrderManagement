@@ -90,6 +90,26 @@ public class InventoryBalance : AggregateRoot
         IncrementVersion();
     }
 
+    public void ConsumeReservation(int quantity)
+    {
+        EnsurePositiveQuantity(quantity);
+
+        if (quantity > ReservedQuantity)
+        {
+            throw new DomainException(
+                $"Cannot consume {quantity} reserved units. Only {ReservedQuantity} are reserved.");
+        }
+
+        if (quantity > QuantityOnHand)
+        {
+            throw new InsufficientStockException(QuantityOnHand, quantity);
+        }
+
+        QuantityOnHand -= quantity;
+        ReservedQuantity -= quantity;
+        IncrementVersion();
+    }
+
     public StockQuantityChange? AdjustTo(int newQuantity)
     {
         if (newQuantity < 0)

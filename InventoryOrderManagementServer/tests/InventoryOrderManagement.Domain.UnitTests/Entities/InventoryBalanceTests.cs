@@ -56,4 +56,43 @@ public class InventoryBalanceTests
         Assert.Equal(2, balance.ReservedQuantity);
         Assert.Equal(6, balance.AvailableQuantity);
     }
+
+    [Fact]
+    public void ConsumeReservation_WithSufficientReserved_ReducesOnHandAndReserved()
+    {
+        var balance = InventoryBalance.Create(Guid.NewGuid());
+        balance.Receive(10);
+        balance.Reserve(4);
+
+        balance.ConsumeReservation(3);
+
+        Assert.Equal(7, balance.QuantityOnHand);
+        Assert.Equal(1, balance.ReservedQuantity);
+        Assert.Equal(6, balance.AvailableQuantity);
+    }
+
+    [Fact]
+    public void ConsumeReservation_GreaterThanReserved_ThrowsDomainException()
+    {
+        var balance = InventoryBalance.Create(Guid.NewGuid());
+        balance.Receive(10);
+        balance.Reserve(2);
+
+        var exception = Assert.Throws<DomainException>(() => balance.ConsumeReservation(3));
+
+        Assert.Contains("reserved", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(10, balance.QuantityOnHand);
+        Assert.Equal(2, balance.ReservedQuantity);
+    }
+
+    [Fact]
+    public void ConsumeReservation_WithNonPositiveQuantity_ThrowsDomainException()
+    {
+        var balance = InventoryBalance.Create(Guid.NewGuid());
+        balance.Receive(5);
+        balance.Reserve(2);
+
+        Assert.Throws<DomainException>(() => balance.ConsumeReservation(0));
+        Assert.Throws<DomainException>(() => balance.ConsumeReservation(-1));
+    }
 }
