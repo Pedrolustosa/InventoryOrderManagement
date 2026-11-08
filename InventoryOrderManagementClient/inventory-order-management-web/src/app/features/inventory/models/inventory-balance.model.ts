@@ -11,16 +11,26 @@ export interface InventoryBalance {
 
 export type StockStatus = 'out-of-stock' | 'low-stock' | 'in-stock';
 
-export function stockStatus(balance: Pick<InventoryBalance, 'quantityOnHand' | 'minimumStockLevel'>): StockStatus {
+/**
+ * Out of stock when nothing is on hand; low stock when a minimum is configured and the AVAILABLE quantity
+ * (on hand minus reserved) is below it — the same rule the server uses for alerts, filters and reports.
+ */
+export function stockStatus(
+  balance: Pick<InventoryBalance, 'quantityOnHand' | 'availableQuantity' | 'minimumStockLevel'>,
+): StockStatus {
   if (balance.quantityOnHand === 0) {
     return 'out-of-stock';
   }
 
-  if (balance.quantityOnHand <= balance.minimumStockLevel) {
+  if (isBelowMinimum(balance.availableQuantity, balance.minimumStockLevel)) {
     return 'low-stock';
   }
 
   return 'in-stock';
+}
+
+export function isBelowMinimum(availableQuantity: number, minimumStockLevel: number): boolean {
+  return minimumStockLevel > 0 && availableQuantity < minimumStockLevel;
 }
 
 export function stockStatusLabel(status: StockStatus): string {
