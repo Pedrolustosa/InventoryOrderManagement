@@ -1,6 +1,6 @@
 # Documentation — InventoryOrderManagement
 
-Technical documentation for the full-stack inventory, purchasing, sales, finance, returns, and shipping management system.
+Technical documentation for the full-stack inventory, purchasing, sales, finance, returns, shipping, and operational dashboard management system.
 
 The [root README](../README.md) covers the overview, stack, and how to run the apps. This folder goes deeper into architecture, backend, frontend, and API.
 
@@ -43,8 +43,16 @@ Created by `DevelopmentDataSeeder` — **local Development only**:
 | `sales@localhost` | `Sales!Access123` | SalesOperator |
 | `viewer@localhost` | `Viewer!Access123` | Viewer |
 
+## Package READMEs
+
+- [Root README](../README.md) — overview, quick start, demo accounts
+- [Server README](../InventoryOrderManagementServer/README.md) — API runbook
+- [Client README](../InventoryOrderManagementClient/README.md) — SPA runbook
+
 ## Quick links
 
+- SPA (Development): `http://localhost:4200`
+- Operational dashboard: `http://localhost:4200/dashboard` (`Reports.View`)
 - Swagger (Development): `http://localhost:5237/swagger`
 - API prefix: `/api`
 - Default UI language: `pt-BR` (runtime switch to `en`)

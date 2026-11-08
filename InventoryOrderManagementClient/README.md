@@ -74,7 +74,7 @@ Keep Backend and Frontend running together. CORS on the Api allows `localhost:42
 | `@ngx-translate` | Runtime i18n (`pt-BR` default / `en`) |
 | Reactive Forms | Create/edit and workflow forms |
 | Signals + RxJS | UI state and HTTP streams |
-| Chart.js | Reports / finance charts |
+| Chart.js | Dashboard, reports, and finance charts |
 | ngx-toastr | Toast feedback |
 | Vitest + jsdom | Unit tests |
 
@@ -85,6 +85,7 @@ Authenticated area uses `AppShell` with `authGuard` and `passwordChangedGuard`. 
 | Path | Feature |
 |---|---|
 | `/login`, `/change-password`, `/access-denied` | Auth pages |
+| `/dashboard` | Operational dashboard (KPIs, charts, low stock, recent orders) |
 | `/products`, `/categories`, `/suppliers`, `/customers` | Catalog |
 | `/inventory` | Stock balances and movements |
 | `/orders` | Sales orders |
@@ -92,11 +93,11 @@ Authenticated area uses `AppShell` with `authGuard` and `passwordChangedGuard`. 
 | `/shipping` | Shipments |
 | `/returns` | Customer / supplier returns |
 | `/finance/*` | Payables, receivables, cash, aging |
-| `/reports/*` | Operational and sales reports |
+| `/reports/*` | Stock and sales reports (separate from `/dashboard`) |
 | `/notifications` | In-app notification center |
 | `/users`, `/roles`, `/permissions`, `/audit` | Access management |
 
-Home redirects to the first module allowed by the signed-in user's permissions.
+Home redirects to the first module allowed by the signed-in user's permissions. Users with `Reports.View` prefer `/dashboard` over `/reports` when that is their first matching module.
 
 ## Authentication
 
@@ -137,7 +138,7 @@ npm test
 Example include filter:
 
 ```bash
-npx ng test --watch=false --include=**/shipping/**/*.spec.ts
+npx ng test --watch=false --include=**/dashboard/**/*.spec.ts
 ```
 
 E2E is not configured in this project.
