@@ -4,7 +4,8 @@ import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../../environments/environment';
 import { CreateOrderRequest } from '../models/create-order-request.model';
 import { Order, OrderCreated, OrderSummary } from '../models/order.model';
-import { OrdersService } from './orders.service';
+import { OrderTimeline } from '../models/order-timeline.model';
+import { OrdersRequestError, OrdersService } from './orders.service';
 import { provideTestTranslate } from '../../../core/i18n/testing/provide-test-translate';
 
 
@@ -260,5 +261,49 @@ describe('OrdersService', () => {
     httpMock.expectOne(ordersUrl).error(new ProgressEvent('error'));
 
     expect(message).toBe('Unable to reach the API. Check if the server is running.');
+  });
+
+  it('should get the order timeline from the timeline endpoint', () => {
+    const timeline: OrderTimeline = {
+      orderId,
+      orderNumber: order.orderNumber,
+      currentStatus: 'Confirmed',
+      entries: [
+        {
+          occurredAtUtc: '2026-11-08T10:00:00Z',
+          module: 'Stock',
+          eventType: 'stock.reserved',
+          status: null,
+          summary: { productId: order.items[0].productId, quantity: 2 },
+          referenceType: 'Product',
+          referenceId: order.items[0].productId,
+          performedBy: null,
+        },
+      ],
+    };
+    let actual: OrderTimeline | undefined;
+
+    service.getTimeline(orderId).subscribe((response) => {
+      actual = response;
+    });
+
+    const req = httpMock.expectOne(`${ordersUrl}/${orderId}/timeline`);
+    expect(req.request.method).toBe('GET');
+    req.flush(timeline);
+
+    expect(actual).toEqual(timeline);
+    expect(actual?.entries[0].module).toBe('Stock');
+  });
+
+  it('should keep the HTTP status when the timeline order is not found', () => {
+    let failure: unknown;
+    service.getTimeline(orderId).subscribe({ error: (error: unknown) => (failure = error) });
+
+    httpMock
+      .expectOne(`${ordersUrl}/${orderId}/timeline`)
+      .flush({ title: 'Order not found' }, { status: 404, statusText: 'Not Found' });
+
+    expect(failure).toBeInstanceOf(OrdersRequestError);
+    expect((failure as OrdersRequestError).status).toBe(404);
   });
 });
