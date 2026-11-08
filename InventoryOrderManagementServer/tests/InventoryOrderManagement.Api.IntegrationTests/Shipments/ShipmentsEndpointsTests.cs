@@ -4,6 +4,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using InventoryOrderManagement.Api.IntegrationTests.Products;
 using InventoryOrderManagement.Application.Customers.Dtos;
+using InventoryOrderManagement.Application.Finance.Dtos;
+using InventoryOrderManagement.Application.Inventory.Dtos;
 using InventoryOrderManagement.Application.Orders.Dtos;
 using InventoryOrderManagement.Application.Products.Dtos;
 using InventoryOrderManagement.Application.Purchases.Dtos;
@@ -83,6 +85,100 @@ public class ShipmentsEndpointsTests : IClassFixture<ProductsApiFactory>
             $"/api/shipments/{created.Id}/history",
             JsonOptions);
         Assert.Equal(delivered.History.Count, history!.Count);
+    }
+
+    [Fact]
+    public async Task Dispatch_IssuesStock_CreatesReceivable_AndShipsOrder()
+    {
+        var order = await SeedConfirmedOrderAsync("ship-stock-fin");
+        var productId = order.Items.Single().ProductId;
+
+        var reserved = await GetBalanceAsync(productId);
+        Assert.Equal(10, reserved.QuantityOnHand);
+        Assert.Equal(2, reserved.ReservedQuantity);
+
+        var created = await CreateShipmentAsync(order.Id, "Acme");
+        var dispatchResponse = await _client.PostAsJsonAsync(
+            $"/api/shipments/{created.Id}/dispatch",
+            new ShipmentNotesRequest());
+        Assert.Equal(HttpStatusCode.OK, dispatchResponse.StatusCode);
+
+        var balance = await GetBalanceAsync(productId);
+        Assert.Equal(8, balance.QuantityOnHand);
+        Assert.Equal(0, balance.ReservedQuantity);
+        Assert.Equal(8, balance.AvailableQuantity);
+
+        var movements = await _client.GetFromJsonAsync<List<StockMovementResponse>>(
+            $"/api/inventory/products/{productId}/movements",
+            JsonOptions);
+        var exit = Assert.Single(movements!, movement => movement.MovementType == StockMovementType.OrderExit);
+        Assert.Equal(order.Id, exit.OrderId);
+        Assert.Equal(2, exit.Quantity);
+
+        var receivables = await GetReceivablesForOrderAsync(order.Id);
+        var title = Assert.Single(receivables.Items);
+        Assert.Equal(order.Subtotal, title.TotalAmount);
+        Assert.Equal(order.CustomerId, title.CounterpartyId);
+        Assert.Equal(FinancialTitleStatus.Pending, title.Status);
+        Assert.Equal(title.IssueDate.AddDays(30), title.DueDate);
+
+        var shippedOrder = await _client.GetFromJsonAsync<OrderResponse>($"/api/orders/{order.Id}", JsonOptions);
+        Assert.Equal(OrderStatus.Shipped, shippedOrder!.Status);
+
+        var repeat = await _client.PostAsJsonAsync($"/api/shipments/{created.Id}/dispatch", new ShipmentNotesRequest());
+        Assert.Equal(HttpStatusCode.Conflict, repeat.StatusCode);
+        Assert.Single((await GetReceivablesForOrderAsync(order.Id)).Items);
+        Assert.Equal(8, (await GetBalanceAsync(productId)).QuantityOnHand);
+    }
+
+    [Fact]
+    public async Task Dispatch_WhenReceivableCreationFails_RollsBackEverything()
+    {
+        var order = await SeedConfirmedOrderAsync("ship-rollback");
+        var productId = order.Items.Single().ProductId;
+        var created = await CreateShipmentAsync(order.Id, "Acme");
+
+        // A manual receivable already uses the document number the dispatch would generate.
+        (await _client.PostAsJsonAsync("/api/finance/receivables", new CreateReceivableRequest
+        {
+            Description = "Manual receivable",
+            CustomerId = order.CustomerId,
+            SourceType = FinancialSourceType.Manual,
+            DocumentNumber = $"SO-{order.OrderNumber}",
+            IssueDate = new DateOnly(2026, 11, 1),
+            TotalAmount = 10m,
+            Installments =
+            [
+                new FinancialInstallmentRequest { InstallmentNumber = 1, DueDate = new DateOnly(2026, 12, 1), Amount = 10m }
+            ]
+        })).EnsureSuccessStatusCode();
+
+        var response = await _client.PostAsJsonAsync(
+            $"/api/shipments/{created.Id}/dispatch",
+            new ShipmentNotesRequest());
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        var problem = await response.Content.ReadFromJsonAsync<Microsoft.AspNetCore.Mvc.ProblemDetails>(JsonOptions);
+        Assert.Equal((int)HttpStatusCode.Conflict, problem!.Status);
+        Assert.Contains($"SO-{order.OrderNumber}", problem.Detail);
+
+        var balance = await GetBalanceAsync(productId);
+        Assert.Equal(10, balance.QuantityOnHand);
+        Assert.Equal(2, balance.ReservedQuantity);
+
+        var movements = await _client.GetFromJsonAsync<List<StockMovementResponse>>(
+            $"/api/inventory/products/{productId}/movements",
+            JsonOptions);
+        Assert.DoesNotContain(movements!, movement => movement.MovementType == StockMovementType.OrderExit);
+
+        Assert.Empty((await GetReceivablesForOrderAsync(order.Id)).Items);
+
+        var shipment = await _client.GetFromJsonAsync<ShipmentResponse>($"/api/shipments/{created.Id}", JsonOptions);
+        Assert.Equal(ShipmentStatus.Preparing, shipment!.Status);
+        Assert.Null(shipment.ShippedAtUtc);
+
+        var unchangedOrder = await _client.GetFromJsonAsync<OrderResponse>($"/api/orders/{order.Id}", JsonOptions);
+        Assert.Equal(OrderStatus.Confirmed, unchangedOrder!.Status);
     }
 
     [Fact]
@@ -186,6 +282,16 @@ public class ShipmentsEndpointsTests : IClassFixture<ProductsApiFactory>
         var response = await client.GetAsync("/api/shipments");
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
+
+    private async Task<InventoryBalanceResponse> GetBalanceAsync(Guid productId) =>
+        (await _client.GetFromJsonAsync<InventoryBalanceResponse>(
+            $"/api/inventory/balances/{productId}",
+            JsonOptions))!;
+
+    private async Task<PagedResult<FinancialTitleSummaryResponse>> GetReceivablesForOrderAsync(Guid orderId) =>
+        (await _client.GetFromJsonAsync<PagedResult<FinancialTitleSummaryResponse>>(
+            $"/api/finance/receivables?sourceId={orderId}&page=1&pageSize=10",
+            JsonOptions))!;
 
     private async Task<ShipmentResponse> CreateShipmentAsync(Guid orderId, string? carrierName)
     {
