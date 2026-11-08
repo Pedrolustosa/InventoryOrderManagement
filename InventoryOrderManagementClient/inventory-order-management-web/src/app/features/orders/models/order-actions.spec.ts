@@ -1,6 +1,6 @@
 import { canCancel, canConfirm, canDeliver, canEdit, canShip } from './order-actions';
 import { estimateLineTotal, estimateSubtotal } from './order-estimate';
-import { buildOrderTimeline } from './order-timeline';
+import { buildOrderTimeline } from './order-status-progress';
 
 describe('order actions', () => {
   it('allows edit, confirm, and cancel only for drafts', () => {

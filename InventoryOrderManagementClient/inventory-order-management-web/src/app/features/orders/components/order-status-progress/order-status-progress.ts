@@ -3,14 +3,14 @@ import { TranslatePipe } from '@ngx-translate/core';
 
 import { Component, computed, input } from '@angular/core';
 import { Order } from '../../models/order.model';
-import { buildOrderTimeline } from '../../models/order-timeline';
+import { buildOrderTimeline } from '../../models/order-status-progress';
 
 @Component({
-  selector: 'app-order-timeline',
+  selector: 'app-order-status-progress',
   imports: [DatePipe, TranslatePipe],
-  templateUrl: './order-timeline.html',
+  templateUrl: './order-status-progress.html',
 })
-export class OrderTimeline {
+export class OrderStatusProgress {
   readonly order = input.required<Order>();
 
   readonly steps = computed(() => buildOrderTimeline(this.order()));

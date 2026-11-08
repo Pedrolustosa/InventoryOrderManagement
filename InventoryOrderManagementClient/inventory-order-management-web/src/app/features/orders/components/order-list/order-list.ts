@@ -5,7 +5,7 @@ import { HasPermissionDirective } from '../../../../shared/directives/has-permis
 import { Component, input, output } from '@angular/core';
 import { canCancel, canConfirm, canDeliver, canEdit, canShip } from '../../models/order-actions';
 import { OrderSummary } from '../../models/order.model';
-import { OrderStatus, orderStatusLabel } from '../../models/order-status.model';
+import { OrderStatus, orderStatusClass, orderStatusLabel } from '../../models/order-status.model';
 
 @Component({
   selector: 'app-order-list',
@@ -38,17 +38,6 @@ export class OrderList {
   }
 
   statusClass(status: OrderStatus): string {
-    switch (status) {
-      case 'Draft':
-        return 'badge-inactive';
-      case 'Confirmed':
-        return 'badge-active';
-      case 'Shipped':
-        return 'inline-flex rounded-full bg-sky-100 px-2.5 py-1 text-xs font-semibold text-sky-900';
-      case 'Delivered':
-        return 'inline-flex rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-900';
-      case 'Cancelled':
-        return 'inline-flex rounded-full bg-danger/10 px-2.5 py-1 text-xs font-semibold text-danger';
-    }
+    return orderStatusClass(status);
   }
 }
