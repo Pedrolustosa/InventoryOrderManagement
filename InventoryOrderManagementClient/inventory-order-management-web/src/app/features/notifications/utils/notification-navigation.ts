@@ -15,7 +15,9 @@ export function isSafeInternalNotificationRoute(targetRoute: string | null | und
     return false;
   }
 
-  return ALLOWED_PREFIXES.some((prefix) => route === prefix || route.startsWith(`${prefix}/`));
+  // Query strings and fragments (e.g. /inventory?productId=...) are allowed; only the path is matched.
+  const path = route.split(/[?#]/, 1)[0];
+  return ALLOWED_PREFIXES.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
 }
 
 export function normalizeNotificationRoute(targetRoute: string): string {

@@ -26,7 +26,8 @@ public sealed class InventoryReportsQuery : IInventoryReportsQuery
             InactiveProducts = await products.CountAsync(product => !product.IsActive, cancellationToken),
             TotalUnitsInStock = await balances.SumAsync(balance => (int?)balance.QuantityOnHand, cancellationToken) ?? 0,
             LowStockProducts = await balances.CountAsync(
-                balance => balance.QuantityOnHand <= balance.MinimumStockLevel,
+                balance => balance.MinimumStockLevel > 0
+                    && balance.QuantityOnHand - balance.ReservedQuantity < balance.MinimumStockLevel,
                 cancellationToken),
             OutOfStockProducts = await balances.CountAsync(
                 balance => balance.QuantityOnHand == 0,
@@ -57,11 +58,11 @@ public sealed class InventoryReportsQuery : IInventoryReportsQuery
 
         if (filter.IsLowStock == true)
         {
-            rows = rows.Where(row => row.QuantityOnHand <= row.MinimumStockLevel);
+            rows = rows.Where(row => row.MinimumStockLevel > 0 && row.QuantityOnHand - row.ReservedQuantity < row.MinimumStockLevel);
         }
         else if (filter.IsLowStock == false)
         {
-            rows = rows.Where(row => row.QuantityOnHand > row.MinimumStockLevel);
+            rows = rows.Where(row => row.MinimumStockLevel <= 0 || row.QuantityOnHand - row.ReservedQuantity >= row.MinimumStockLevel);
         }
 
         rows = rows.OrderBy(row => row.ProductName).ThenBy(row => row.Sku);
@@ -73,7 +74,7 @@ public sealed class InventoryReportsQuery : IInventoryReportsQuery
         LowStockReportFilter filter,
         CancellationToken cancellationToken = default)
     {
-        var rows = Source().Where(row => row.QuantityOnHand <= row.MinimumStockLevel);
+        var rows = Source().Where(row => row.MinimumStockLevel > 0 && row.QuantityOnHand - row.ReservedQuantity < row.MinimumStockLevel);
 
         if (filter.CategoryId.HasValue)
         {
@@ -88,7 +89,7 @@ public sealed class InventoryReportsQuery : IInventoryReportsQuery
         rows = filter.SortBy switch
         {
             LowStockSort.Difference => rows
-                .OrderByDescending(row => row.MinimumStockLevel - row.QuantityOnHand)
+                .OrderByDescending(row => row.MinimumStockLevel - (row.QuantityOnHand - row.ReservedQuantity))
                 .ThenBy(row => row.ProductName),
             LowStockSort.Name => rows.OrderBy(row => row.ProductName).ThenBy(row => row.Sku),
             LowStockSort.Sku => rows.OrderBy(row => row.Sku),
@@ -114,6 +115,7 @@ public sealed class InventoryReportsQuery : IInventoryReportsQuery
                 CategoryId = product.CategoryId,
                 CategoryName = category.Name,
                 QuantityOnHand = balance.QuantityOnHand,
+                ReservedQuantity = balance.ReservedQuantity,
                 MinimumStockLevel = balance.MinimumStockLevel,
                 IsActive = product.IsActive
             };
@@ -136,6 +138,7 @@ public sealed class InventoryReportsQuery : IInventoryReportsQuery
                 ProductName = row.ProductName,
                 CategoryName = row.CategoryName,
                 QuantityOnHand = row.QuantityOnHand,
+                ReservedQuantity = row.ReservedQuantity,
                 MinimumStockLevel = row.MinimumStockLevel,
                 IsActive = row.IsActive
             })
@@ -157,6 +160,8 @@ public sealed class InventoryReportsQuery : IInventoryReportsQuery
         public string CategoryName { get; set; } = null!;
 
         public int QuantityOnHand { get; set; }
+
+        public int ReservedQuantity { get; set; }
 
         public int MinimumStockLevel { get; set; }
 

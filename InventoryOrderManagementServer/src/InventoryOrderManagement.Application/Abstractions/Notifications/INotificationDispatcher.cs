@@ -2,16 +2,6 @@ namespace InventoryOrderManagement.Application.Abstractions.Notifications;
 
 public interface INotificationDispatcher
 {
-    Task NotifyLowStockAsync(
-        Guid productId,
-        string productName,
-        string productSku,
-        int previousQuantity,
-        int newQuantity,
-        int minimumStockLevel,
-        Guid stockMovementId,
-        CancellationToken cancellationToken = default);
-
     Task NotifyOrderConfirmedAsync(
         Guid orderId,
         string orderNumber,

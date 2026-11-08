@@ -63,29 +63,20 @@ public sealed class AuthorizeSupplierReturnUseCase
 public sealed class DispatchSupplierReturnUseCase
 {
     private readonly IReturnRequestRepository _returnRepository;
-    private readonly IInventoryRepository _inventoryRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISecurityAuditWriter _auditWriter;
     private readonly ICurrentUser _currentUser;
-    private readonly INotificationDispatcher _notificationDispatcher;
-    private readonly ILogger<DispatchSupplierReturnUseCase> _logger;
 
     public DispatchSupplierReturnUseCase(
         IReturnRequestRepository returnRepository,
-        IInventoryRepository inventoryRepository,
         IUnitOfWork unitOfWork,
         ISecurityAuditWriter auditWriter,
-        ICurrentUser currentUser,
-        INotificationDispatcher notificationDispatcher,
-        ILogger<DispatchSupplierReturnUseCase> logger)
+        ICurrentUser currentUser)
     {
         _returnRepository = returnRepository;
-        _inventoryRepository = inventoryRepository;
         _unitOfWork = unitOfWork;
         _auditWriter = auditWriter;
         _currentUser = currentUser;
-        _notificationDispatcher = notificationDispatcher;
-        _logger = logger;
     }
 
     public async Task<ReturnResponse> ExecuteAsync(
@@ -110,11 +101,6 @@ public sealed class DispatchSupplierReturnUseCase
             entity.Dispatch(request.Notes, request.DispatchReference);
         }, cancellationToken);
 
-        var lowStockChanges = await ReturnLowStockChanges.CollectAsync(
-            _inventoryRepository,
-            returnRequestId,
-            cancellationToken);
-
         var updated = await _returnRepository.GetByIdAsync(returnRequestId, cancellationToken)
             ?? throw new ReturnNotFoundException(returnRequestId);
 
@@ -123,12 +109,6 @@ public sealed class DispatchSupplierReturnUseCase
             _currentUser,
             SecurityActions.SupplierReturnDispatched,
             updated.Id,
-            cancellationToken);
-
-        await NotificationDispatch.TryNotifyLowStockAsync(
-            _notificationDispatcher,
-            _logger,
-            lowStockChanges,
             cancellationToken);
 
         return ReturnResponse.FromEntity(updated);

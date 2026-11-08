@@ -44,8 +44,8 @@ public sealed class GetInventoryReportUseCase
                 QuantityOnHand = row.QuantityOnHand,
                 MinimumStockLevel = row.MinimumStockLevel,
                 IsActive = row.IsActive,
-                IsLowStock = StockStatusClassifier.IsLowStock(row.QuantityOnHand, row.MinimumStockLevel),
-                StockStatus = StockStatusClassifier.Classify(row.QuantityOnHand, row.MinimumStockLevel)
+                IsLowStock = StockStatusClassifier.IsLowStock(row.QuantityOnHand, row.ReservedQuantity, row.MinimumStockLevel),
+                StockStatus = StockStatusClassifier.Classify(row.QuantityOnHand, row.ReservedQuantity, row.MinimumStockLevel)
             })
             .ToList();
 

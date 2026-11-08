@@ -1,3 +1,5 @@
+using InventoryOrderManagement.Domain.Inventory;
+
 namespace InventoryOrderManagement.Application.Inventory;
 
 public sealed class InventoryBalanceDetails
@@ -18,5 +20,5 @@ public sealed class InventoryBalanceDetails
 
     public required int MinimumStockLevel { get; init; }
 
-    public bool IsLowStock => QuantityOnHand <= MinimumStockLevel;
+    public bool IsLowStock => StockLevels.IsBelowMinimum(AvailableQuantity, MinimumStockLevel);
 }

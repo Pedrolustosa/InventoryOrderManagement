@@ -62,6 +62,9 @@ public static class Permissions
         public const string Exit = "Inventory.Exit";
         public const string Adjust = "Inventory.Adjust";
         public const string MinimumStockUpdate = "Inventory.MinimumStock.Update";
+
+        /// <summary>Receives the in-app alert when a product falls below its minimum stock.</summary>
+        public const string LowStockAlerts = "Inventory.LowStockAlerts";
     }
 
     public static class Orders
@@ -171,6 +174,7 @@ public static class Permissions
         Inventory.Exit,
         Inventory.Adjust,
         Inventory.MinimumStockUpdate,
+        Inventory.LowStockAlerts,
         Orders.View,
         Orders.Create,
         Orders.UpdateDraft,

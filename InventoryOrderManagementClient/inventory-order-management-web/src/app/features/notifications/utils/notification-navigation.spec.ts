@@ -15,4 +15,11 @@ describe('isSafeInternalNotificationRoute', () => {
     expect(isSafeInternalNotificationRoute('/products')).toBe(false);
     expect(isSafeInternalNotificationRoute('\\inventory')).toBe(false);
   });
+
+  it('accepts a query string on an allowed path, such as the low-stock product link', () => {
+    expect(isSafeInternalNotificationRoute('/inventory?productId=abc')).toBe(true);
+    expect(isSafeInternalNotificationRoute('/orders/abc#items')).toBe(true);
+    expect(isSafeInternalNotificationRoute('/products?productId=abc')).toBe(false);
+    expect(isSafeInternalNotificationRoute('/inventoryX?productId=abc')).toBe(false);
+  });
 });

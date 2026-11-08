@@ -127,6 +127,23 @@ Preparing → Shipped → InTransit → Delivered
 - `RegisterCustomerReturn` only on Delivered orders.
 - Shipment dispatch requires a carrier; history in `ShipmentStatusHistory`.
 - Inventory: `Receive` / `Issue` / `AdjustTo` / `Reserve` / `Release` / `ConsumeReservation`; `InsufficientStockException` and optimistic concurrency.
+- Low stock (single rule `Domain/Inventory/StockLevels`): a product is below its minimum when the minimum is
+  greater than zero and **Available** (on hand − reserved) is lower than it. The same rule drives `IsLowStock`,
+  the balance filter, inventory/low-stock reports, the dashboard count and the web badge.
+  - Every `InventoryBalance` change goes through one `ApplyChange` method, which raises
+    `StockBelowMinimumDomainEvent(ProductId, Available, MinimumStock, OccurredOnUtc)` only on the downward
+    crossing (was not below → is below). Staying below raises nothing; going back up re-arms it. Reservations
+    (order confirmation) lower Available; consuming a reservation on dispatch does not.
+  - `LowStockNotificationHandler` (`IDomainEventHandler`, **after commit**) notifies active users holding
+    `Inventory.LowStockAlerts` (default: Administrator, Manager, InventoryOperator; not Viewer), linking to
+    `/inventory?productId={id}`. It skips a user who still has an **unread** low-stock notification for the
+    product. Failures are logged and never undo the stock change.
+  - Limitation: no outbox. If notifying fails, or the process stops between commit and the handler, the alert
+    is lost (only logged) and not retried.
+- Domain events: `UnitOfWork` dispatches transactional handlers in rounds until no aggregate has pending events,
+  so events raised inside a handler (e.g. stock events while confirming, dispatching or completing a return) are
+  handled too. Post-commit handlers are isolated: a failure is logged and never turns a committed operation
+  into an error. A synchronous throw from any handler surfaces its own exception, not the reflection wrapper.
 - Order confirmation reserves stock (`OrderConfirmedHandler`, `OrderReservation` movements).
 - Shipment dispatch (`ShipmentDispatchedDomainEvent` → `ShipmentDispatchedHandler`, transactional, same
   transaction as the Shipment → Dispatched and Order → Shipped changes):

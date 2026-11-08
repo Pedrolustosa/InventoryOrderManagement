@@ -31,12 +31,7 @@ public sealed class UnitOfWork : IUnitOfWork
         {
             await operation(cancellationToken);
 
-            var domainEvents = CollectDomainEvents();
-
-            if (domainEvents.Count > 0)
-            {
-                await _domainEventDispatcher.DispatchTransactionalAsync(domainEvents, cancellationToken);
-            }
+            var domainEvents = await DispatchTransactionalCascadeAsync(cancellationToken);
 
             await _dbContext.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
@@ -51,6 +46,33 @@ public sealed class UnitOfWork : IUnitOfWork
             throw new InventoryConcurrencyException(exception);
         }
     }
+
+    /// <summary>
+    /// Runs transactional handlers until no aggregate has pending events, so events raised by a handler
+    /// (for example stock events raised while a shipment handler issues stock) are handled in the same
+    /// transaction and later dispatched after commit. Returns every event raised in this unit of work.
+    /// </summary>
+    private async Task<List<IDomainEvent>> DispatchTransactionalCascadeAsync(CancellationToken cancellationToken)
+    {
+        var allEvents = new List<IDomainEvent>();
+
+        for (var round = 0; round < MaxDispatchRounds; round++)
+        {
+            var domainEvents = CollectDomainEvents();
+            if (domainEvents.Count == 0)
+            {
+                return allEvents;
+            }
+
+            allEvents.AddRange(domainEvents);
+            await _domainEventDispatcher.DispatchTransactionalAsync(domainEvents, cancellationToken);
+        }
+
+        throw new InvalidOperationException(
+            $"Domain events kept being raised after {MaxDispatchRounds} dispatch rounds; check for handler cycles.");
+    }
+
+    private const int MaxDispatchRounds = 10;
 
     private List<IDomainEvent> CollectDomainEvents()
     {

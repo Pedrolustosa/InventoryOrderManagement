@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { Observable, forkJoin } from 'rxjs';
@@ -48,6 +49,9 @@ export class InventoryPage implements OnInit {
   private readonly productsService = inject(ProductsService);
   private readonly suppliersService = inject(SuppliersService);
   private readonly categoriesService = inject(CategoriesService);
+  private readonly route = inject(ActivatedRoute, { optional: true });
+  /** Product to open once balances load, e.g. when arriving from a low-stock notification. */
+  private pendingProductId: string | null = null;
 
   readonly movementTypes = STOCK_MOVEMENT_TYPES;
 
@@ -140,6 +144,7 @@ export class InventoryPage implements OnInit {
   });
 
   ngOnInit(): void {
+    this.pendingProductId = this.route?.snapshot.queryParamMap.get('productId') ?? null;
     this.loadCatalog();
     this.loadBalances();
     this.loadMovements();
@@ -340,6 +345,15 @@ export class InventoryPage implements OnInit {
     });
   }
 
+  private openPendingProduct(balances: InventoryBalance[]): void {
+    const productId = this.pendingProductId;
+    this.pendingProductId = null;
+    const balance = productId ? balances.find((item) => item.productId === productId) : undefined;
+    if (balance) {
+      this.openDetail(balance);
+    }
+  }
+
   private loadBalances(): void {
     this.isLoading.set(true);
     this.loadError.set(null);
@@ -348,6 +362,7 @@ export class InventoryPage implements OnInit {
       next: (balances) => {
         this.balances.set(balances);
         this.isLoading.set(false);
+        this.openPendingProduct(balances);
       },
       error: (error: Error) => {
         this.loadError.set(error.message);

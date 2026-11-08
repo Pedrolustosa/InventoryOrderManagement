@@ -1,5 +1,6 @@
 using InventoryOrderManagement.Application.Abstractions.Persistence;
 using InventoryOrderManagement.Domain.Entities;
+using InventoryOrderManagement.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace InventoryOrderManagement.Infrastructure.Persistence.Repositories;
@@ -54,8 +55,35 @@ public sealed class UserNotificationRepository : IUserNotificationRepository
         }
 
         await _dbContext.UserNotifications.AddRangeAsync(notifications, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        try
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch
+        {
+            // Never leave unsaved notifications tracked: a later SaveChanges in the same request would retry them.
+            foreach (var notification in notifications)
+            {
+                _dbContext.Entry(notification).State = EntityState.Detached;
+            }
+
+            throw;
+        }
     }
+
+    public Task<bool> ExistsUnreadAsync(
+        Guid recipientUserId,
+        NotificationType type,
+        Guid relatedEntityId,
+        CancellationToken cancellationToken = default) =>
+        _dbContext.UserNotifications.AsNoTracking()
+            .AnyAsync(
+                notification => notification.RecipientUserId == recipientUserId
+                    && notification.Type == type
+                    && notification.RelatedEntityId == relatedEntityId
+                    && !notification.IsRead,
+                cancellationToken);
 
     public async Task<int> MarkAllUnreadAsReadAsync(
         Guid recipientUserId,
