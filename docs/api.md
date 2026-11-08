@@ -212,6 +212,16 @@ Receivables use the equivalent `Finance.Receivables.*` policies.
 | GET | `/products/best-sellers` |
 | GET | `/sales/by-customer` |
 
+## Operational dashboard — `/dashboard` · `Reports.View`
+
+Consolidated home KPIs. Does not replace Stock Reports or `GET /finance/dashboard`.
+
+| Method | Route | Notes |
+|--------|-------|-------|
+| GET | `/summary` | Nested cards. Optional `startDateUtc`, `endDateUtc`, `period`. Period applies to sales/purchase commercial metrics; stock/parties/shipping/returns are snapshots. `finance` omitted without `Finance.Reports.View`. `notifications` is unread for the current user only (`Notifications.View`). Shipping counts are shipment records. `products.lowStock` is positive qty at/below minimum (excludes out-of-stock). |
+| GET | `/trends` | Requires `groupBy` (`Day`/`Week`/`Month`). Sales by `ConfirmedAtUtc`; purchases by `SentAtUtc`. |
+| GET | `/recent-orders` | Optional `take` (1–50, default 10). |
+
 ## Security / IAM
 
 ### Users — `/users`

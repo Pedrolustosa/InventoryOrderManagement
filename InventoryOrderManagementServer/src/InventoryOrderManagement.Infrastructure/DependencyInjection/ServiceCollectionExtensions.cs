@@ -1,3 +1,4 @@
+using InventoryOrderManagement.Application.Abstractions.Dashboard;
 using InventoryOrderManagement.Application.Abstractions.Identity;
 using InventoryOrderManagement.Application.Abstractions.Notifications;
 using InventoryOrderManagement.Application.Abstractions.Persistence;
@@ -53,6 +54,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IStockMovementsReportsQuery, StockMovementsReportsQuery>();
         services.AddScoped<IOrderReportsQuery, OrderReportsQuery>();
         services.AddScoped<ISalesReportsQuery, SalesReportsQuery>();
+        services.AddScoped<IDashboardQuery, DashboardQuery>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         

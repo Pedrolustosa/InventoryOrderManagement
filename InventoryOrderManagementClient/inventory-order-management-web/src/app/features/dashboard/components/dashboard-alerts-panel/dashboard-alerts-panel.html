@@ -1,0 +1,10 @@
+<section class="space-y-3 rounded-xl border border-line bg-panel p-4" *hasPermission="'Notifications.View'">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <h2 class="text-lg font-semibold text-ink">{{ 'DASHBOARD.SECTIONS.ALERTS' | translate }}</h2>
+    <a routerLink="/notifications" class="btn-secondary text-sm">
+      {{ 'DASHBOARD.ACTIONS.OPEN_NOTIFICATIONS' | translate }}
+    </a>
+  </div>
+  <p class="text-sm text-muted">{{ 'DASHBOARD.ALERTS.UNREAD' | translate }}</p>
+  <p class="text-3xl font-semibold text-ink">{{ unreadCount() | number }}</p>
+</section>

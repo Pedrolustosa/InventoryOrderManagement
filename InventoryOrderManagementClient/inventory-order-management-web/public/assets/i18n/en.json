@@ -137,6 +137,7 @@
     "CASH_MOVEMENTS": "Cash movements",
     "SETTLEMENTS": "Settlements",
     "AGING": "Aging",
+    "DASHBOARD": "Dashboard",
     "REPORTS": "Reports",
     "USERS": "Users",
     "ROLES": "Roles",
@@ -258,6 +259,7 @@
     "FINANCE_CASH_MOVEMENTS": "Cash movements",
     "FINANCE_SETTLEMENTS": "Settlements",
     "FINANCE_AGING": "Aging",
+    "DASHBOARD": "Dashboard",
     "REPORTS": "Reports",
     "REPORTS_OVERVIEW": "Overview",
     "REPORTS_INVENTORY": "Inventory",
@@ -1705,6 +1707,94 @@
       "NOT_FOUND_DASHBOARD": "Dashboard was not found.",
       "NOT_FOUND_CASH_FLOW": "Cash flow was not found.",
       "NOT_FOUND_AGING": "Aging report was not found."
+    }
+  },
+  "DASHBOARD": {
+    "TITLE": "Operational dashboard",
+    "SUBTITLE": "Period-scoped sales and purchases with live stock, shipping, and finance snapshots.",
+    "UPDATED_AT": "Generated at",
+    "ACTIONS": {
+      "REFRESH": "Refresh",
+      "RETRY": "Retry",
+      "OPEN_INVENTORY": "Open inventory",
+      "OPEN_ORDERS": "Open orders",
+      "OPEN_NOTIFICATIONS": "Open notifications"
+    },
+    "STATES": {
+      "LOADING": "Loading dashboard…",
+      "NO_LOW_STOCK": "No low-stock products.",
+      "NO_RECENT_ORDERS": "No recent orders."
+    },
+    "NOTES": {
+      "PERIOD_SCOPE": "Sales, purchases, and trends follow the selected period. Stock, parties, shipping, and returns are current snapshots.",
+      "CONFIRMED_VALUE": "Confirmed order value in the selected period.",
+      "STOCK_SNAPSHOT": "Stock counts are a current snapshot, not period-scoped."
+    },
+    "SECTIONS": {
+      "CATALOG": "Catalog",
+      "SALES": "Sales",
+      "PURCHASES": "Purchases",
+      "STOCK": "Stock",
+      "OPERATIONS": "Operations",
+      "FINANCE": "Finance",
+      "CHARTS": "Charts",
+      "LOW_STOCK": "Low stock",
+      "RECENT_ORDERS": "Recent orders",
+      "ALERTS": "Alerts"
+    },
+    "KPIS": {
+      "ACTIVE_PRODUCTS": "Active products",
+      "ACTIVE_CUSTOMERS": "Active customers",
+      "ACTIVE_SUPPLIERS": "Active suppliers",
+      "CONFIRMED_ORDERS": "Confirmed orders",
+      "CONFIRMED_VALUE": "Confirmed value",
+      "PURCHASES_SENT": "Purchases sent",
+      "PURCHASES_PENDING": "Purchases pending",
+      "PURCHASES_COMPLETED": "Purchases completed",
+      "PURCHASES_VALUE": "Purchase commercial value",
+      "LOW_STOCK": "Low stock",
+      "OUT_OF_STOCK": "Out of stock",
+      "SHIPMENTS_PENDING": "Shipments pending",
+      "RETURNS_PENDING": "Returns pending",
+      "RETURNS_INSPECTION": "Awaiting inspection",
+      "PAYABLES_PENDING": "Payables pending",
+      "OVERDUE_PAYABLES": "Overdue payables",
+      "RECEIVABLES_PENDING": "Receivables pending",
+      "OVERDUE_RECEIVABLES": "Overdue receivables"
+    },
+    "CHARTS": {
+      "SALES_PURCHASES": "Sales vs purchases",
+      "SALES": "Sales",
+      "PURCHASES": "Purchases",
+      "ORDERS_BY_STATUS": "Orders by status",
+      "STOCK_MIX": "Stock mix",
+      "STOCK_NORMAL": "Normal",
+      "STOCK_LOW": "Low",
+      "STOCK_OUT": "Out of stock",
+      "FINANCE_OPEN": "Open finance amounts",
+      "AXIS_PERIOD": "Period",
+      "AXIS_VALUE_BRL": "Amount (BRL)",
+      "AXIS_STATUS": "Status",
+      "AXIS_ORDERS": "Orders",
+      "AXIS_PRODUCTS": "Products"
+    },
+    "TABLE": {
+      "PRODUCT": "Product",
+      "SKU": "SKU",
+      "ON_HAND": "On hand",
+      "MINIMUM": "Minimum",
+      "STATUS": "Status",
+      "ORDER": "Order",
+      "CUSTOMER": "Customer",
+      "CREATED": "Created",
+      "AMOUNT": "Amount"
+    },
+    "STOCK": {
+      "LOW": "Low",
+      "OUT": "Out"
+    },
+    "ALERTS": {
+      "UNREAD": "Unread notifications"
     }
   },
   "REPORTS": {

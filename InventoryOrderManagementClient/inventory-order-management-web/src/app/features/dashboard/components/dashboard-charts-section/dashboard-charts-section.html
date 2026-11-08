@@ -1,0 +1,19 @@
+<section class="space-y-4">
+  <h2 class="text-lg font-semibold text-ink">{{ 'DASHBOARD.SECTIONS.CHARTS' | translate }}</h2>
+  <div class="grid gap-4 lg:grid-cols-2">
+    <div class="rounded-xl border border-line bg-panel p-4">
+      <app-report-chart [model]="salesPurchasesChart()" />
+    </div>
+    <div class="rounded-xl border border-line bg-panel p-4">
+      <app-report-chart [model]="ordersChart()" />
+    </div>
+    <div class="rounded-xl border border-line bg-panel p-4">
+      <app-report-chart [model]="stockChart()" />
+    </div>
+    @if (financeChart(); as financeModel) {
+      <div class="rounded-xl border border-line bg-panel p-4">
+        <app-report-chart [model]="financeModel" />
+      </div>
+    }
+  </div>
+</section>

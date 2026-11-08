@@ -135,7 +135,20 @@ Prefix: `/api`. Interactive docs: Swagger in Development.
 | Shipping / returns | `/api/shipments`, `/returns` |
 | Finance | `/api/finance/payables`, `/receivables`, `/cash-accounts`, … |
 | Reports / notifications | `/api/reports`, `/notifications` |
+| Operational dashboard | `/api/dashboard/summary`, `/trends`, `/recent-orders` |
 | Security | `/api/users`, `/roles`, `/permissions`, `/security/audit-logs` |
+
+### Operational dashboard
+
+Policy: `Reports.View`. Period params: `startDateUtc`, `endDateUtc`, `period` (same presets as reports). Period filters sales/purchase commercial metrics; catalog, stock, shipping, and returns counts are current snapshots.
+
+| Endpoint | Notes |
+|---|---|
+| `GET /api/dashboard/summary` | Consolidated cards (products, parties, orders, purchases, shipping, returns). `finance` only if the user has `Finance.Reports.View`. `notifications.unread` only for the current user with `Notifications.View`. Shipping counts are **shipment records**, not unique orders. |
+| `GET /api/dashboard/trends` | Combined sales (`ConfirmedAtUtc`) + purchases (`SentAtUtc`) by `groupBy` Day/Week/Month |
+| `GET /api/dashboard/recent-orders` | Latest orders (`take` 1–50, default 10) |
+
+Drill-down detail stays on existing endpoints: `/api/reports/*`, `/api/finance/dashboard`, `/api/reports/inventory/low-stock`.
 
 Errors use `ProblemDetails`. Enums serialize as strings. Full route and permission map: [docs/api.md](../docs/api.md).
 

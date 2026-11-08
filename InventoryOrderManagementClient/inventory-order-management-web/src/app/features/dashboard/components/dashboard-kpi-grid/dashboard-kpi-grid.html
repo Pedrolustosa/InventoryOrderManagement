@@ -1,0 +1,119 @@
+@let data = summary();
+
+<section class="space-y-6">
+  <div class="space-y-3">
+    <h2 class="text-lg font-semibold text-ink">{{ 'DASHBOARD.SECTIONS.CATALOG' | translate }}</h2>
+    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">{{ 'DASHBOARD.KPIS.ACTIVE_PRODUCTS' | translate }}</p>
+        <p class="mt-1 text-2xl font-semibold text-ink">{{ data.products.active | number }}</p>
+      </article>
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">{{ 'DASHBOARD.KPIS.ACTIVE_CUSTOMERS' | translate }}</p>
+        <p class="mt-1 text-2xl font-semibold text-ink">{{ data.customers.active | number }}</p>
+      </article>
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">{{ 'DASHBOARD.KPIS.ACTIVE_SUPPLIERS' | translate }}</p>
+        <p class="mt-1 text-2xl font-semibold text-ink">{{ data.suppliers.active | number }}</p>
+      </article>
+    </div>
+  </div>
+
+  <div class="space-y-3">
+    <h2 class="text-lg font-semibold text-ink">{{ 'DASHBOARD.SECTIONS.SALES' | translate }}</h2>
+    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">{{ 'DASHBOARD.KPIS.CONFIRMED_ORDERS' | translate }}</p>
+        <p class="mt-1 text-2xl font-semibold text-accent-ink">{{ data.orders.confirmedInPeriod | number }}</p>
+      </article>
+      <article class="rounded-xl border border-line bg-panel px-4 py-3 sm:col-span-2">
+        <p class="text-xs uppercase tracking-wide text-muted">{{ 'DASHBOARD.KPIS.CONFIRMED_VALUE' | translate }}</p>
+        <p class="mt-1 text-2xl font-semibold text-ink">{{ data.orders.confirmedOrderValue | currency: 'BRL' }}</p>
+        <p class="mt-1 text-xs text-muted">{{ 'DASHBOARD.NOTES.CONFIRMED_VALUE' | translate }}</p>
+      </article>
+    </div>
+  </div>
+
+  <div class="space-y-3">
+    <h2 class="text-lg font-semibold text-ink">{{ 'DASHBOARD.SECTIONS.PURCHASES' | translate }}</h2>
+    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">{{ 'DASHBOARD.KPIS.PURCHASES_SENT' | translate }}</p>
+        <p class="mt-1 text-2xl font-semibold text-ink">{{ data.purchases.sentInPeriod | number }}</p>
+      </article>
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">{{ 'DASHBOARD.KPIS.PURCHASES_PENDING' | translate }}</p>
+        <p class="mt-1 text-2xl font-semibold text-ink">{{ data.purchases.pending | number }}</p>
+      </article>
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">{{ 'DASHBOARD.KPIS.PURCHASES_COMPLETED' | translate }}</p>
+        <p class="mt-1 text-2xl font-semibold text-ink">{{ data.purchases.completed | number }}</p>
+      </article>
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">{{ 'DASHBOARD.KPIS.PURCHASES_VALUE' | translate }}</p>
+        <p class="mt-1 text-2xl font-semibold text-ink">{{ data.purchases.commercialValue | currency: 'BRL' }}</p>
+      </article>
+    </div>
+  </div>
+
+  <div class="space-y-3">
+    <h2 class="text-lg font-semibold text-ink">{{ 'DASHBOARD.SECTIONS.STOCK' | translate }}</h2>
+    <div class="grid gap-3 sm:grid-cols-2">
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">{{ 'DASHBOARD.KPIS.LOW_STOCK' | translate }}</p>
+        <p class="mt-1 text-2xl font-semibold text-accent-ink">{{ data.products.lowStock | number }}</p>
+      </article>
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">{{ 'DASHBOARD.KPIS.OUT_OF_STOCK' | translate }}</p>
+        <p class="mt-1 text-2xl font-semibold text-danger">{{ data.products.outOfStock | number }}</p>
+      </article>
+    </div>
+    <p class="text-xs text-muted">{{ 'DASHBOARD.NOTES.STOCK_SNAPSHOT' | translate }}</p>
+  </div>
+
+  <div class="space-y-3">
+    <h2 class="text-lg font-semibold text-ink">{{ 'DASHBOARD.SECTIONS.OPERATIONS' | translate }}</h2>
+    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">{{ 'DASHBOARD.KPIS.SHIPMENTS_PENDING' | translate }}</p>
+        <p class="mt-1 text-2xl font-semibold text-ink">{{ data.shipping.pending | number }}</p>
+      </article>
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">{{ 'DASHBOARD.KPIS.RETURNS_PENDING' | translate }}</p>
+        <p class="mt-1 text-2xl font-semibold text-ink">{{ data.returns.pending | number }}</p>
+      </article>
+      <article class="rounded-xl border border-line bg-panel px-4 py-3">
+        <p class="text-xs uppercase tracking-wide text-muted">{{ 'DASHBOARD.KPIS.RETURNS_INSPECTION' | translate }}</p>
+        <p class="mt-1 text-2xl font-semibold text-ink">{{ data.returns.awaitingInspection | number }}</p>
+      </article>
+    </div>
+  </div>
+
+  @if (data.finance; as finance) {
+    <div class="space-y-3" *hasPermission="'Finance.Reports.View'">
+      <h2 class="text-lg font-semibold text-ink">{{ 'DASHBOARD.SECTIONS.FINANCE' | translate }}</h2>
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <article class="rounded-xl border border-line bg-panel px-4 py-3">
+          <p class="text-xs uppercase tracking-wide text-muted">{{ 'DASHBOARD.KPIS.PAYABLES_PENDING' | translate }}</p>
+          <p class="mt-1 text-2xl font-semibold text-ink">{{ finance.payablesPending | number }}</p>
+          <p class="mt-1 text-sm text-muted">{{ finance.payablesPendingAmount | currency: 'BRL' }}</p>
+        </article>
+        <article class="rounded-xl border border-line bg-panel px-4 py-3">
+          <p class="text-xs uppercase tracking-wide text-muted">{{ 'DASHBOARD.KPIS.OVERDUE_PAYABLES' | translate }}</p>
+          <p class="mt-1 text-2xl font-semibold text-danger">{{ finance.overduePayables | number }}</p>
+          <p class="mt-1 text-sm text-danger">{{ finance.overduePayablesAmount | currency: 'BRL' }}</p>
+        </article>
+        <article class="rounded-xl border border-line bg-panel px-4 py-3">
+          <p class="text-xs uppercase tracking-wide text-muted">{{ 'DASHBOARD.KPIS.RECEIVABLES_PENDING' | translate }}</p>
+          <p class="mt-1 text-2xl font-semibold text-ink">{{ finance.receivablesPending | number }}</p>
+          <p class="mt-1 text-sm text-muted">{{ finance.receivablesPendingAmount | currency: 'BRL' }}</p>
+        </article>
+        <article class="rounded-xl border border-line bg-panel px-4 py-3">
+          <p class="text-xs uppercase tracking-wide text-muted">{{ 'DASHBOARD.KPIS.OVERDUE_RECEIVABLES' | translate }}</p>
+          <p class="mt-1 text-2xl font-semibold text-danger">{{ finance.overdueReceivables | number }}</p>
+          <p class="mt-1 text-sm text-danger">{{ finance.overdueReceivablesAmount | currency: 'BRL' }}</p>
+        </article>
+      </div>
+    </div>
+  }
+</section>

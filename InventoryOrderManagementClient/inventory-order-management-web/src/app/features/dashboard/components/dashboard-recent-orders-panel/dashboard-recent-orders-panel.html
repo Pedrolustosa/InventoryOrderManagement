@@ -1,0 +1,57 @@
+<section class="space-y-3 rounded-xl border border-line bg-panel p-4">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <h2 class="text-lg font-semibold text-ink">{{ 'DASHBOARD.SECTIONS.RECENT_ORDERS' | translate }}</h2>
+    <a *hasPermission="'Orders.View'" routerLink="/orders" class="btn-secondary text-sm">
+      {{ 'DASHBOARD.ACTIONS.OPEN_ORDERS' | translate }}
+    </a>
+  </div>
+
+  @if (loading()) {
+    <div class="flex items-center gap-3 py-4 text-muted" aria-busy="true">
+      <span class="inline-block size-5 animate-spin rounded-full border-2 border-line border-t-accent"></span>
+      <span>{{ 'DASHBOARD.STATES.LOADING' | translate }}</span>
+    </div>
+  } @else if (error()) {
+    <div role="alert">
+      <p class="text-sm text-danger">{{ error() }}</p>
+      <button type="button" class="btn-secondary mt-3 text-sm" (click)="retry.emit()">
+        {{ 'DASHBOARD.ACTIONS.RETRY' | translate }}
+      </button>
+    </div>
+  } @else if (items().length === 0) {
+    <p class="text-sm text-muted">{{ 'DASHBOARD.STATES.NO_RECENT_ORDERS' | translate }}</p>
+  } @else {
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-left text-sm">
+        <thead class="text-xs uppercase tracking-wide text-muted">
+          <tr>
+            <th class="px-2 py-2 font-medium">{{ 'DASHBOARD.TABLE.ORDER' | translate }}</th>
+            <th class="px-2 py-2 font-medium">{{ 'DASHBOARD.TABLE.CUSTOMER' | translate }}</th>
+            <th class="px-2 py-2 font-medium">{{ 'DASHBOARD.TABLE.CREATED' | translate }}</th>
+            <th class="px-2 py-2 font-medium">{{ 'DASHBOARD.TABLE.AMOUNT' | translate }}</th>
+            <th class="px-2 py-2 font-medium">{{ 'DASHBOARD.TABLE.STATUS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of items(); track item.orderId) {
+            <tr class="border-t border-line">
+              <td class="px-2 py-2">
+                @if (canViewOrders()) {
+                  <a [routerLink]="['/orders', item.orderId]" class="font-medium text-accent-ink hover:underline">
+                    {{ item.orderNumber }}
+                  </a>
+                } @else {
+                  <span class="font-medium text-ink">{{ item.orderNumber }}</span>
+                }
+              </td>
+              <td class="px-2 py-2 text-ink">{{ item.customerName }}</td>
+              <td class="px-2 py-2 text-muted">{{ item.createdAtUtc | date: 'short' }}</td>
+              <td class="px-2 py-2 text-ink">{{ item.totalAmount | currency: 'BRL' }}</td>
+              <td class="px-2 py-2 text-ink">{{ statusKey(item.status) | translate }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
