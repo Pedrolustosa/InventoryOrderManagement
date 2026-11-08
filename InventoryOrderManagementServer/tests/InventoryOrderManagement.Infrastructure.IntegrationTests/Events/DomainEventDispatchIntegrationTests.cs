@@ -26,6 +26,8 @@ public class DomainEventDispatchIntegrationTests : IDisposable
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IDomainEventHandler<CategorySavedTestEvent>, CategorySavedTestHandler>();
+        services.AddScoped<ITransactionalDomainEventHandler<CascadeTriggerTestEvent>, CascadeTriggerTestHandler>();
+        services.AddScoped<IDomainEventHandler<CascadeFollowUpTestEvent>, CascadeFollowUpTestHandler>();
         services.AddSingleton<HandlerProbe>();
 
         _serviceProvider = services.BuildServiceProvider();
@@ -61,6 +63,24 @@ public class DomainEventDispatchIntegrationTests : IDisposable
             .SingleOrDefaultAsync(category => category.Id == categoryId);
         Assert.NotNull(persisted);
         Assert.Equal("Domain Event Category", persisted.Name);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_EventRaisedByATransactionalHandler_IsDispatchedAfterCommit()
+    {
+        using var scope = _serviceProvider.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<InventoryDbContext>();
+        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        var probe = scope.ServiceProvider.GetRequiredService<HandlerProbe>();
+
+        await unitOfWork.ExecuteAsync(async cancellationToken =>
+        {
+            var category = Category.Create("Cascade Category", "integration");
+            RaiseDomainEvent(category, new CascadeTriggerTestEvent(category.Id, DateTime.UtcNow));
+            await dbContext.Categories.AddAsync(category, cancellationToken);
+        });
+
+        Assert.Equal(1, probe.FollowUpCount);
     }
 
     public void Dispose()
@@ -101,8 +121,34 @@ public class DomainEventDispatchIntegrationTests : IDisposable
 
     private sealed record CategorySavedTestEvent(Guid CategoryId, DateTime OccurredOnUtc) : IDomainEvent;
 
+    private sealed record CascadeTriggerTestEvent(Guid CategoryId, DateTime OccurredOnUtc) : IDomainEvent;
+
+    private sealed record CascadeFollowUpTestEvent(Guid CategoryId, DateTime OccurredOnUtc) : IDomainEvent;
+
+    /// <summary>Raises a follow-up event on a tracked aggregate, as stock handlers do on InventoryBalance.</summary>
+    private sealed class CascadeTriggerTestHandler(InventoryDbContext dbContext) : ITransactionalDomainEventHandler<CascadeTriggerTestEvent>
+    {
+        public Task HandleAsync(CascadeTriggerTestEvent domainEvent, CancellationToken cancellationToken = default)
+        {
+            var category = dbContext.Categories.Local.Single(item => item.Id == domainEvent.CategoryId);
+            RaiseDomainEvent(category, new CascadeFollowUpTestEvent(category.Id, DateTime.UtcNow));
+            return Task.CompletedTask;
+        }
+    }
+
+    private sealed class CascadeFollowUpTestHandler(HandlerProbe probe) : IDomainEventHandler<CascadeFollowUpTestEvent>
+    {
+        public Task HandleAsync(CascadeFollowUpTestEvent domainEvent, CancellationToken cancellationToken = default)
+        {
+            probe.FollowUpCount++;
+            return Task.CompletedTask;
+        }
+    }
+
     private sealed class HandlerProbe
     {
+        public int FollowUpCount { get; set; }
+
         public int CallCount { get; set; }
 
         public Guid LastCategoryId { get; set; }

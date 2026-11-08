@@ -33,6 +33,48 @@ public class DomainEventDispatcherTests
         Assert.Same(eventA, eventAHandler2.LastEvent);
     }
 
+    [Fact]
+    public async Task DispatchAsync_AfterCommit_IsolatesAFailingHandler()
+    {
+        var after = new RecordingHandler<EventA>();
+        var services = new ServiceCollection();
+        services.AddSingleton<IDomainEventHandler<EventA>>(new ThrowingHandler<EventA>());
+        services.AddSingleton<IDomainEventHandler<EventA>>(after);
+        await using var provider = services.BuildServiceProvider();
+        var dispatcher = new DomainEventDispatcher(provider);
+
+        var exception = await Record.ExceptionAsync(() => dispatcher.DispatchAsync([new EventA(DateTime.UtcNow)]));
+
+        Assert.Null(exception);
+        Assert.Equal(1, after.CallCount);
+    }
+
+    [Fact]
+    public async Task DispatchTransactionalAsync_PropagatesAFailingHandler()
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton<ITransactionalDomainEventHandler<EventA>>(new ThrowingTransactionalHandler<EventA>());
+        await using var provider = services.BuildServiceProvider();
+        var dispatcher = new DomainEventDispatcher(provider);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => dispatcher.DispatchTransactionalAsync([new EventA(DateTime.UtcNow)]));
+    }
+
+    private sealed class ThrowingHandler<TEvent> : IDomainEventHandler<TEvent>
+        where TEvent : IDomainEvent
+    {
+        public Task HandleAsync(TEvent domainEvent, CancellationToken cancellationToken = default) =>
+            throw new InvalidOperationException("Handler failed.");
+    }
+
+    private sealed class ThrowingTransactionalHandler<TEvent> : ITransactionalDomainEventHandler<TEvent>
+        where TEvent : IDomainEvent
+    {
+        public Task HandleAsync(TEvent domainEvent, CancellationToken cancellationToken = default) =>
+            throw new InvalidOperationException("Handler failed.");
+    }
+
     private sealed record EventA(DateTime OccurredOnUtc) : IDomainEvent;
 
     private sealed record EventB(DateTime OccurredOnUtc) : IDomainEvent;

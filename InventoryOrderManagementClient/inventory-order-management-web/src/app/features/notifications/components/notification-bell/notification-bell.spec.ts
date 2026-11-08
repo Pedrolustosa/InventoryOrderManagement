@@ -1,4 +1,6 @@
+import { registerLocaleData } from '@angular/common';
 import { provideHttpClient } from '@angular/common/http';
+import localePt from '@angular/common/locales/pt';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -13,6 +15,9 @@ import { NotificationSeverity, NotificationType } from '../../models/notificatio
 import { UserNotification } from '../../models/notification.model';
 import { NotificationsStateService } from '../../services/notifications-state.service';
 import { NotificationBell } from './notification-bell';
+
+// The bell renders dates with the pt-BR locale; register it here instead of relying on another spec.
+registerLocaleData(localePt, 'pt-BR');
 
 describe('NotificationBell', () => {
   let httpMock: HttpTestingController;
