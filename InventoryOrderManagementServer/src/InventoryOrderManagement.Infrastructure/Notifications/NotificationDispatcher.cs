@@ -1,6 +1,5 @@
 using InventoryOrderManagement.Application.Abstractions.Notifications;
 using InventoryOrderManagement.Application.Abstractions.Persistence;
-using InventoryOrderManagement.Application.Notifications;
 using InventoryOrderManagement.Application.Security;
 using InventoryOrderManagement.Domain.Entities;
 using InventoryOrderManagement.Domain.Enums;
@@ -25,43 +24,7 @@ public sealed class NotificationDispatcher : INotificationDispatcher
         _logger = logger;
     }
 
-    public Task NotifyLowStockAsync(
-        Guid productId,
-        string productName,
-        string productSku,
-        int previousQuantity,
-        int newQuantity,
-        int minimumStockLevel,
-        Guid stockMovementId,
-        CancellationToken cancellationToken = default)
-    {
-        if (!LowStockNotificationRules.ShouldNotify(previousQuantity, newQuantity, minimumStockLevel))
-        {
-            return Task.CompletedTask;
-        }
-
-        var critical = LowStockNotificationRules.IsCritical(newQuantity);
-        var severity = critical ? NotificationSeverity.Critical : NotificationSeverity.Warning;
-        var title = critical ? "Product out of stock" : "Low stock detected";
-        var message = critical
-            ? $"Product '{productName}' ({productSku}) is out of stock."
-            : $"Product '{productName}' ({productSku}) is at or below the minimum stock level ({minimumStockLevel}). Current quantity: {newQuantity}.";
-
-        return DispatchAsync(
-            Permissions.Inventory.View,
-            userId => UserNotification.Create(
-                userId,
-                NotificationType.LowStockDetected,
-                severity,
-                title,
-                message,
-                $"LowStockDetected:{stockMovementId}:{userId}",
-                "Product",
-                productId,
-                "/inventory",
-                DateTime.UtcNow),
-            cancellationToken);
-    }
+    // Low-stock alerts are raised by InventoryBalance and handled by LowStockNotificationHandler after commit.
 
     public Task NotifyOrderConfirmedAsync(
         Guid orderId,

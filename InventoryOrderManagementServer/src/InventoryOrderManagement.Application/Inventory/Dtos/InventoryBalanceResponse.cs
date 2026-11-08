@@ -1,4 +1,5 @@
 using InventoryOrderManagement.Application.Inventory;
+using InventoryOrderManagement.Domain.Entities;
 
 namespace InventoryOrderManagement.Application.Inventory.Dtos;
 
@@ -39,20 +40,18 @@ public sealed class InventoryBalanceResponse
         Guid productId,
         string sku,
         string productName,
-        int quantityOnHand,
-        int minimumStockLevel,
-        int reservedQuantity = 0)
+        InventoryBalance balance)
     {
         return new InventoryBalanceResponse
         {
             ProductId = productId,
             Sku = sku,
             ProductName = productName,
-            QuantityOnHand = quantityOnHand,
-            ReservedQuantity = reservedQuantity,
-            AvailableQuantity = quantityOnHand - reservedQuantity,
-            MinimumStockLevel = minimumStockLevel,
-            IsLowStock = quantityOnHand <= minimumStockLevel
+            QuantityOnHand = balance.QuantityOnHand,
+            ReservedQuantity = balance.ReservedQuantity,
+            AvailableQuantity = balance.AvailableQuantity,
+            MinimumStockLevel = balance.MinimumStockLevel,
+            IsLowStock = balance.IsLowStock
         };
     }
 }

@@ -43,6 +43,8 @@ public sealed class InventoryBalanceRow
 
     public int QuantityOnHand { get; init; }
 
+    public int ReservedQuantity { get; init; }
+
     public int MinimumStockLevel { get; init; }
 
     public bool IsActive { get; init; }

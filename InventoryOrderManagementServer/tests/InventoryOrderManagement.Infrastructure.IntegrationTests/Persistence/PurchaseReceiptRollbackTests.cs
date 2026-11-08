@@ -58,9 +58,7 @@ public class PurchaseReceiptRollbackTests : IDisposable
             new ThrowingInventoryRepository(_dbContext),
             new UnitOfWork(_dbContext, new DomainEventDispatcher(new ServiceCollection().BuildServiceProvider())),
             new NoAudit(),
-            new NoUser(),
-            new NoNotifications(),
-            NullLogger<ReceivePurchaseOrderUseCase>.Instance);
+            new NoUser());
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecuteAsync(
             order.Id,
@@ -153,44 +151,5 @@ public class PurchaseReceiptRollbackTests : IDisposable
         public Guid? UserId { get; } = Guid.NewGuid();
 
         public IReadOnlySet<string> Permissions { get; } = new HashSet<string>();
-    }
-
-    private sealed class NoNotifications : INotificationDispatcher
-    {
-        public Task NotifyLowStockAsync(
-            Guid productId,
-            string productName,
-            string productSku,
-            int previousQuantity,
-            int newQuantity,
-            int minimumStockLevel,
-            Guid stockMovementId,
-            CancellationToken cancellationToken = default)
-            => Task.CompletedTask;
-
-        public Task NotifyOrderConfirmedAsync(
-            Guid orderId,
-            string orderNumber,
-            string customerName,
-            DateTime confirmedAtUtc,
-            CancellationToken cancellationToken = default)
-            => Task.CompletedTask;
-
-        public Task NotifyShipmentFailedAsync(
-            Guid shipmentId,
-            string orderNumber,
-            Guid shipmentStatusHistoryId,
-            string failureReason,
-            DateTime failedAtUtc,
-            CancellationToken cancellationToken = default)
-            => Task.CompletedTask;
-
-        public Task NotifyReturnAwaitingInspectionAsync(
-            Guid returnId,
-            string returnNumber,
-            string customerName,
-            DateTime receivedAtUtc,
-            CancellationToken cancellationToken = default)
-            => Task.CompletedTask;
     }
 }

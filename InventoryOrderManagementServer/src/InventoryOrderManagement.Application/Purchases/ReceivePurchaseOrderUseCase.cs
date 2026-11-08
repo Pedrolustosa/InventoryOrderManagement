@@ -1,13 +1,10 @@
 using InventoryOrderManagement.Application.Abstractions.Identity;
-using InventoryOrderManagement.Application.Abstractions.Notifications;
 using InventoryOrderManagement.Application.Abstractions.Persistence;
 using InventoryOrderManagement.Application.Exceptions;
-using InventoryOrderManagement.Application.Notifications;
 using InventoryOrderManagement.Application.Purchases.Dtos;
 using InventoryOrderManagement.Application.Security;
 using InventoryOrderManagement.Domain.Entities;
 using InventoryOrderManagement.Domain.Exceptions;
-using Microsoft.Extensions.Logging;
 
 namespace InventoryOrderManagement.Application.Purchases;
 
@@ -23,8 +20,6 @@ public sealed class ReceivePurchaseOrderUseCase
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISecurityAuditWriter _auditWriter;
     private readonly ICurrentUser _currentUser;
-    private readonly INotificationDispatcher _notificationDispatcher;
-    private readonly ILogger<ReceivePurchaseOrderUseCase> _logger;
 
     public ReceivePurchaseOrderUseCase(
         IPurchaseOrderRepository purchaseOrderRepository,
@@ -34,9 +29,7 @@ public sealed class ReceivePurchaseOrderUseCase
         IInventoryRepository inventoryRepository,
         IUnitOfWork unitOfWork,
         ISecurityAuditWriter auditWriter,
-        ICurrentUser currentUser,
-        INotificationDispatcher notificationDispatcher,
-        ILogger<ReceivePurchaseOrderUseCase> logger)
+        ICurrentUser currentUser)
     {
         _purchaseOrderRepository = purchaseOrderRepository;
         _purchaseReceiptRepository = purchaseReceiptRepository;
@@ -46,8 +39,6 @@ public sealed class ReceivePurchaseOrderUseCase
         _unitOfWork = unitOfWork;
         _auditWriter = auditWriter;
         _currentUser = currentUser;
-        _notificationDispatcher = notificationDispatcher;
-        _logger = logger;
     }
 
     public async Task<PurchaseReceiptResponse> ExecuteAsync(
@@ -63,7 +54,6 @@ public sealed class ReceivePurchaseOrderUseCase
         }
 
         PurchaseReceipt? created = null;
-        var lowStockChanges = new List<LowStockChange>();
 
         await _unitOfWork.ExecuteAsync(async ct =>
         {
@@ -134,14 +124,6 @@ public sealed class ReceivePurchaseOrderUseCase
                     request.Notes);
 
                 await _inventoryRepository.AddMovementAsync(movement, ct);
-                lowStockChanges.Add(new LowStockChange(
-                    receiptItem.ProductId,
-                    receiptItem.ProductName,
-                    receiptItem.ProductSku,
-                    previousQuantity,
-                    balance.QuantityOnHand,
-                    balance.MinimumStockLevel,
-                    movement.Id));
             }
 
             created = receipt;
@@ -149,11 +131,6 @@ public sealed class ReceivePurchaseOrderUseCase
 
         var saved = created ?? throw new InvalidOperationException("Purchase receipt was not recorded.");
         await PurchaseAudit.WriteAsync(_auditWriter, _currentUser, SecurityActions.PurchaseReceiptCreated, saved.PurchaseOrderId, cancellationToken);
-        await NotificationDispatch.TryNotifyLowStockAsync(
-            _notificationDispatcher,
-            _logger,
-            lowStockChanges,
-            cancellationToken);
         return PurchaseReceiptResponse.FromReceipt(saved);
     }
 

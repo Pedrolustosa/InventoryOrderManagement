@@ -24,6 +24,13 @@ public interface IUserNotificationRepository
         CancellationToken cancellationToken = default);
 
     Task<bool> ExistsByEventKeyAsync(string eventKey, CancellationToken cancellationToken = default);
+
+    /// <summary>True when the user still has an unread notification of this type about the entity.</summary>
+    Task<bool> ExistsUnreadAsync(
+        Guid recipientUserId,
+        NotificationType type,
+        Guid relatedEntityId,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class UserNotificationQuery

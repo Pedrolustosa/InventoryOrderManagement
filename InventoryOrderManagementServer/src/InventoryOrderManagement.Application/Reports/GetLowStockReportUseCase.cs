@@ -41,7 +41,7 @@ public sealed class GetLowStockReportUseCase
                 CategoryName = row.CategoryName,
                 QuantityOnHand = row.QuantityOnHand,
                 MinimumStockLevel = row.MinimumStockLevel,
-                StockDifference = row.MinimumStockLevel - row.QuantityOnHand
+                StockDifference = row.MinimumStockLevel - (row.QuantityOnHand - row.ReservedQuantity)
             })
             .ToList();
 

@@ -55,11 +55,13 @@ public class InventoryRepository : IInventoryRepository
 
         if (isLowStock == true)
         {
-            rows = rows.Where(row => row.balance.QuantityOnHand <= row.balance.MinimumStockLevel);
+            rows = rows.Where(row => row.balance.MinimumStockLevel > 0
+                && row.balance.QuantityOnHand - row.balance.ReservedQuantity < row.balance.MinimumStockLevel);
         }
         else if (isLowStock == false)
         {
-            rows = rows.Where(row => row.balance.QuantityOnHand > row.balance.MinimumStockLevel);
+            rows = rows.Where(row => row.balance.MinimumStockLevel <= 0
+                || row.balance.QuantityOnHand - row.balance.ReservedQuantity >= row.balance.MinimumStockLevel);
         }
 
         return await rows
