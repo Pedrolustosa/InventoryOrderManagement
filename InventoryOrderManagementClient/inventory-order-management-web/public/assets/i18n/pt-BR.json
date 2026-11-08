@@ -980,6 +980,47 @@
           "Rejected": "Recusada",
           "Cancelled": "Cancelada"
         }
+      },
+      "STEP": {
+        "DETAILS_LABEL": "Detalhes do evento",
+        "PERFORMED_BY": "por {{name}}",
+        "SHOW_MORE": "Ver mais {{count}}",
+        "SHOW_LESS": "Ver menos",
+        "DETAILS": {
+          "PRODUCT": "Produto",
+          "SKU": "SKU",
+          "QUANTITY": "Quantidade",
+          "CARRIER": "Transportadora",
+          "TRACKING": "Código de rastreio",
+          "TITLE_NUMBER": "Título",
+          "TITLE_TYPE": "Tipo",
+          "AMOUNT": "Valor",
+          "ORDER_AMOUNT": "Valor do pedido",
+          "SETTLED_AMOUNT": "Valor baixado",
+          "DUE_DATE": "Vencimento",
+          "PAYMENT_METHOD": "Forma de pagamento",
+          "RETURN_NUMBER": "Devolução",
+          "RETURN_TYPE": "Tipo",
+          "ESTIMATED_AMOUNT": "Valor estimado"
+        },
+        "TONES": {
+          "success": "Concluído",
+          "info": "Atualização",
+          "warning": "Atenção",
+          "danger": "Cancelado"
+        },
+        "LINKS": {
+          "Shipment": "Ver remessa",
+          "FinancialTitle": "Ver título financeiro",
+          "ReturnRequest": "Ver devolução",
+          "Product": "Ver estoque do produto"
+        },
+        "REFERENCES": {
+          "Shipment": "Remessa vinculada",
+          "FinancialTitle": "Título financeiro vinculado",
+          "ReturnRequest": "Devolução vinculada",
+          "Product": "Produto vinculado"
+        }
       }
     }
   },

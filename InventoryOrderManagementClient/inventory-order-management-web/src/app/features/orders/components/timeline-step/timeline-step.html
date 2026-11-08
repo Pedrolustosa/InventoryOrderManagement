@@ -1,10 +1,20 @@
-<div class="flex min-w-0 items-start gap-3" [attr.data-module]="entry().module">
+@let step = view();
+<article class="flex min-w-0 items-start gap-3" [attr.data-module]="entry().module" [attr.data-tone]="step.tone">
   <span
-    class="relative z-10 inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-line bg-panel text-accent-ink"
+    class="relative z-10 inline-flex size-8 shrink-0 items-center justify-center rounded-full border-2 bg-panel"
+    [class.border-line]="step.tone === 'neutral'"
+    [class.text-accent-ink]="step.tone === 'neutral' || step.tone === 'info'"
+    [class.border-sky-300]="step.tone === 'info'"
+    [class.border-emerald-400]="step.tone === 'success'"
+    [class.text-emerald-700]="step.tone === 'success'"
+    [class.border-amber-400]="step.tone === 'warning'"
+    [class.text-amber-700]="step.tone === 'warning'"
+    [class.border-danger]="step.tone === 'danger'"
+    [class.text-danger]="step.tone === 'danger'"
     aria-hidden="true"
-    [attr.data-icon]="entry().module"
+    [attr.data-icon]="step.icon"
   >
-    @switch (entry().module) {
+    @switch (step.icon) {
       @case ('Order') {
         <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.75">
           <path d="M5 7h14l-1 12H6L5 7zm3-3h8l1 3H7l1-3z" stroke-linejoin="round" />
@@ -39,17 +49,121 @@
     }
   </span>
 
-  <div class="min-w-0 flex-1 pt-1">
-    <p class="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm">
+  <div class="min-w-0 flex-1 rounded-lg border border-line bg-surface/40 px-3 py-2">
+    <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm">
       <span class="font-medium break-words text-ink" data-testid="step-title">{{ title() }}</span>
       <span class="text-xs font-semibold uppercase tracking-wide text-muted">{{ moduleLabel() }}</span>
-    </p>
+      @if (step.tone !== 'neutral') {
+        <span
+          class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold"
+          [class.bg-sky-100]="step.tone === 'info'"
+          [class.text-sky-900]="step.tone === 'info'"
+          [class.bg-emerald-100]="step.tone === 'success'"
+          [class.text-emerald-900]="step.tone === 'success'"
+          [class.bg-amber-100]="step.tone === 'warning'"
+          [class.text-amber-900]="step.tone === 'warning'"
+          [class.bg-danger/10]="step.tone === 'danger'"
+          [class.text-danger]="step.tone === 'danger'"
+          data-testid="step-tone"
+          [attr.data-tone-icon]="step.tone"
+        >
+          <svg viewBox="0 0 24 24" class="size-3" fill="none" stroke="currentColor" stroke-width="2.25" aria-hidden="true">
+            @switch (step.tone) {
+              @case ('success') {
+                <path d="m5 12 4 4 10-10" stroke-linecap="round" stroke-linejoin="round" />
+              }
+              @case ('warning') {
+                <path d="M12 4 2 20h20L12 4zm0 6v4m0 3h.01" stroke-linecap="round" stroke-linejoin="round" />
+              }
+              @case ('danger') {
+                <path d="m6 6 12 12M18 6 6 18" stroke-linecap="round" />
+              }
+              @default {
+                <path d="M12 11v6m0-10h.01" stroke-linecap="round" />
+              }
+            }
+          </svg>
+          {{ ('ORDERS.TIMELINE.STEP.TONES.' + step.tone) | translate }}
+        </span>
+      }
+    </div>
+
     <p class="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-muted">
       <time [attr.datetime]="entry().occurredAtUtc">{{ entry().occurredAtUtc | date: 'shortTime' : undefined : localeId() }}</time>
       @if (statusText(); as status) {
         <span aria-hidden="true">·</span>
         <span data-testid="step-status">{{ status }}</span>
       }
+      @if (step.performedBy; as author) {
+        <span aria-hidden="true">·</span>
+        <span data-testid="step-performed-by">{{ 'ORDERS.TIMELINE.STEP.PERFORMED_BY' | translate: { name: author } }}</span>
+      }
     </p>
+
+    @if (step.details.length > 0) {
+      <dl
+        [id]="detailsId"
+        class="mt-2 grid gap-x-4 gap-y-1 text-xs sm:grid-cols-2"
+        [attr.aria-label]="'ORDERS.TIMELINE.STEP.DETAILS_LABEL' | translate"
+        data-testid="step-details"
+      >
+        @for (detail of visibleDetails(); track detail.labelKey) {
+          <div class="min-w-0" [attr.data-detail]="detail.labelKey">
+            <dt class="text-muted">{{ detail.labelKey | translate }}</dt>
+            <dd class="font-medium text-ink" [class.break-all]="detail.kind === 'code'" [class.break-words]="detail.kind !== 'code'">
+              @switch (detail.kind) {
+                @case ('currency') {
+                  {{ detail.value | currency: 'BRL' : 'symbol' : undefined : localeId() }}
+                }
+                @case ('date') {
+                  <time [attr.datetime]="detail.value">{{ detail.value | date: 'mediumDate' : 'UTC' : localeId() }}</time>
+                }
+                @case ('quantity') {
+                  {{ detail.value | number : undefined : localeId() }}
+                }
+                @case ('translated') {
+                  {{ $any(detail.value) | translate }}
+                }
+                @case ('code') {
+                  <span class="font-mono">{{ detail.value }}</span>
+                }
+                @default {
+                  {{ detail.value }}
+                }
+              }
+            </dd>
+          </div>
+        }
+      </dl>
+      @if (hiddenDetailCount() > 0) {
+        <button
+          type="button"
+          class="mt-1 text-xs font-semibold text-accent-ink underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          [attr.aria-expanded]="expanded()"
+          [attr.aria-controls]="detailsId"
+          data-testid="step-toggle"
+          (click)="toggleDetails()"
+        >
+          {{ (expanded() ? 'ORDERS.TIMELINE.STEP.SHOW_LESS' : 'ORDERS.TIMELINE.STEP.SHOW_MORE') | translate: { count: hiddenDetailCount() } }}
+        </button>
+      }
+    }
+
+    @if (step.link; as link) {
+      <p class="mt-2 text-xs">
+        @if (canFollowLink()) {
+          <a
+            [routerLink]="link.commands"
+            [queryParams]="link.queryParams"
+            class="font-semibold text-accent-ink underline-offset-2 hover:underline"
+            data-testid="step-link"
+          >
+            {{ link.labelKey | translate }}
+          </a>
+        } @else {
+          <span class="text-muted" data-testid="step-link-text">{{ link.textKey | translate }}</span>
+        }
+      </p>
+    }
   </div>
-</div>
+</article>

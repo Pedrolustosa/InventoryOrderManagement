@@ -980,6 +980,47 @@
           "Rejected": "Rejected",
           "Cancelled": "Cancelled"
         }
+      },
+      "STEP": {
+        "DETAILS_LABEL": "Event details",
+        "PERFORMED_BY": "by {{name}}",
+        "SHOW_MORE": "Show {{count}} more",
+        "SHOW_LESS": "Show less",
+        "DETAILS": {
+          "PRODUCT": "Product",
+          "SKU": "SKU",
+          "QUANTITY": "Quantity",
+          "CARRIER": "Carrier",
+          "TRACKING": "Tracking code",
+          "TITLE_NUMBER": "Title",
+          "TITLE_TYPE": "Type",
+          "AMOUNT": "Amount",
+          "ORDER_AMOUNT": "Order amount",
+          "SETTLED_AMOUNT": "Amount settled",
+          "DUE_DATE": "Due date",
+          "PAYMENT_METHOD": "Payment method",
+          "RETURN_NUMBER": "Return",
+          "RETURN_TYPE": "Type",
+          "ESTIMATED_AMOUNT": "Estimated amount"
+        },
+        "TONES": {
+          "success": "Done",
+          "info": "Update",
+          "warning": "Attention",
+          "danger": "Cancelled"
+        },
+        "LINKS": {
+          "Shipment": "View shipment",
+          "FinancialTitle": "View financial title",
+          "ReturnRequest": "View return",
+          "Product": "View product stock"
+        },
+        "REFERENCES": {
+          "Shipment": "Linked shipment",
+          "FinancialTitle": "Linked financial title",
+          "ReturnRequest": "Linked return",
+          "Product": "Linked product"
+        }
       }
     }
   },
