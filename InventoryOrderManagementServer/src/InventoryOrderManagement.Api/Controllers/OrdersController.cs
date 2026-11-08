@@ -21,6 +21,7 @@ public sealed class OrdersController : ControllerBase
     private readonly ShipOrderUseCase _shipOrderUseCase;
     private readonly DeliverOrderUseCase _deliverOrderUseCase;
     private readonly CancelOrderUseCase _cancelOrderUseCase;
+    private readonly GetOrderTimelineUseCase _getOrderTimelineUseCase;
 
     public OrdersController(
         CreateOrderUseCase createOrderUseCase,
@@ -30,7 +31,8 @@ public sealed class OrdersController : ControllerBase
         ConfirmOrderUseCase confirmOrderUseCase,
         ShipOrderUseCase shipOrderUseCase,
         DeliverOrderUseCase deliverOrderUseCase,
-        CancelOrderUseCase cancelOrderUseCase)
+        CancelOrderUseCase cancelOrderUseCase,
+        GetOrderTimelineUseCase getOrderTimelineUseCase)
     {
         _createOrderUseCase = createOrderUseCase;
         _getAllOrdersUseCase = getAllOrdersUseCase;
@@ -40,6 +42,7 @@ public sealed class OrdersController : ControllerBase
         _shipOrderUseCase = shipOrderUseCase;
         _deliverOrderUseCase = deliverOrderUseCase;
         _cancelOrderUseCase = cancelOrderUseCase;
+        _getOrderTimelineUseCase = getOrderTimelineUseCase;
     }
 
     [Authorize(Policy = Permissions.Orders.Create)]
@@ -91,6 +94,21 @@ public sealed class OrdersController : ControllerBase
     {
         var order = await _getOrderByIdUseCase.ExecuteAsync(id, cancellationToken);
         return Ok(order);
+    }
+
+    /// <summary>
+    /// Chronological history of the order across order, stock, shipment, finance and returns. Entries carry
+    /// stable event codes for the client to translate. Finance entries require Finance.View and return entries
+    /// Returns.View; they are omitted otherwise.
+    /// </summary>
+    [Authorize(Policy = Permissions.Orders.View)]
+    [HttpGet("{id:guid}/timeline")]
+    [ProducesResponseType(typeof(OrderTimelineDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<OrderTimelineDto>> GetTimeline(Guid id, CancellationToken cancellationToken)
+    {
+        var timeline = await _getOrderTimelineUseCase.ExecuteAsync(id, cancellationToken);
+        return Ok(timeline);
     }
 
     [Authorize(Policy = Permissions.Orders.UpdateDraft)]
