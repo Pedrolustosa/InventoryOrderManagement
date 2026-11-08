@@ -77,6 +77,9 @@ public class StockMovement : AggregateRoot
             or StockMovementType.OrderReservationRelease
             or StockMovementType.PurchaseEntry
             or StockMovementType.CustomerReturnEntry
+            or StockMovementType.CustomerReturnQuarantine
+            or StockMovementType.CustomerReturnLoss
+            or StockMovementType.ExchangeReplacementExit
             or StockMovementType.SupplierReturnExit)
         {
             throw new DomainException("This movement type must be created with its own reference.");
@@ -285,7 +288,8 @@ public class StockMovement : AggregateRoot
         int quantity,
         int previousQuantity,
         int newQuantity,
-        string? reason)
+        string? reason,
+        StockMovementType movementType = StockMovementType.CustomerReturnEntry)
     {
         if (productId == Guid.Empty)
         {
@@ -317,7 +321,19 @@ public class StockMovement : AggregateRoot
             throw new DomainException("Stock quantities cannot be negative.");
         }
 
-        EnsureResult(previousQuantity + quantity, newQuantity, "customer return entry");
+        switch (movementType)
+        {
+            case StockMovementType.CustomerReturnEntry:
+                EnsureResult(previousQuantity + quantity, newQuantity, "customer return entry");
+                break;
+            case StockMovementType.CustomerReturnQuarantine:
+            case StockMovementType.CustomerReturnLoss:
+                // Record only: quarantined or discarded units never reach the sellable balance.
+                EnsureResult(previousQuantity, newQuantity, "customer return quarantine/loss record");
+                break;
+            default:
+                throw new DomainException("This movement type is not a customer return movement.");
+        }
 
         return Build(
             productId,
@@ -327,7 +343,58 @@ public class StockMovement : AggregateRoot
             purchaseReceiptId: null,
             returnRequestId,
             returnItemId,
-            StockMovementType.CustomerReturnEntry,
+            movementType,
+            quantity,
+            previousQuantity,
+            newQuantity,
+            NormalizeReason(reason, required: false));
+    }
+
+    public static StockMovement CreateForExchangeReplacement(
+        Guid productId,
+        Guid orderId,
+        Guid returnRequestId,
+        int quantity,
+        int previousQuantity,
+        int newQuantity,
+        string? reason)
+    {
+        if (productId == Guid.Empty)
+        {
+            throw new DomainException("Product is required.");
+        }
+
+        if (orderId == Guid.Empty)
+        {
+            throw new DomainException("Order is required.");
+        }
+
+        if (returnRequestId == Guid.Empty)
+        {
+            throw new DomainException("Return request is required.");
+        }
+
+        if (quantity <= 0)
+        {
+            throw new DomainException("Quantity must be a positive integer.");
+        }
+
+        if (previousQuantity < 0 || newQuantity < 0)
+        {
+            throw new DomainException("Stock quantities cannot be negative.");
+        }
+
+        EnsureResult(previousQuantity - quantity, newQuantity, "exchange replacement exit");
+
+        return Build(
+            productId,
+            supplierId: null,
+            orderId,
+            purchaseOrderId: null,
+            purchaseReceiptId: null,
+            returnRequestId,
+            returnItemId: null,
+            StockMovementType.ExchangeReplacementExit,
             quantity,
             previousQuantity,
             newQuantity,
