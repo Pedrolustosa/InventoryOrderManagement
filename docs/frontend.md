@@ -48,7 +48,7 @@ Bootstrap: `main.ts` → `bootstrapApplication(App, appConfig)`. No classic `NgM
 | Tailwind CSS 4 | Utility-first + `--iom-*` tokens |
 | Inter (`@fontsource/inter`) | Typography |
 | `@ngx-translate` | Bilingual UI (`pt-BR` default / `en`) |
-| Chart.js | Reports and finance |
+| Chart.js | Dashboard, reports, and finance |
 | ngx-toastr | Feedback |
 | Signals + RxJS | Local state and HTTP |
 | Reactive Forms | Forms and validation |
@@ -68,14 +68,15 @@ Routes in `src/app/app.routes.ts`:
 | Shell (`AppShell`) | `authGuard` + `passwordChangedGuard` |
 | Lazy features | `permissionGuard('X.Y')` per module |
 
-Home (`homeGuard`) redirects to the first module allowed by the user's permissions.
+Home (`homeGuard`) redirects to the first module allowed by the user's permissions (`APP_MODULES` in `core/auth/landing.ts`). `/dashboard` is listed before `/reports`, so users whose first match is `Reports.View` land on the operational dashboard.
 
-Filtered navigation: `features/shell/navigation.ts` (`NAVIGATION_GROUPS`).
+Filtered navigation: `features/shell/navigation.ts` (`NAVIGATION_GROUPS`). Analysis group: **Dashboard** (`/dashboard`) then **Reports** (`/reports`).
 
 ### Features and main routes
 
 | Feature | Base | Highlights |
 |---------|------|------------|
+| `dashboard` | `/dashboard` | KPIs, Chart.js trends/status, low stock, recent orders, alerts |
 | `products` | `/products` | List + form |
 | `categories` / `suppliers` / `customers` | `/…` | List, detail, deactivate |
 | `inventory` | `/inventory` | Receive, exit, adjust, minimum, movements |
@@ -83,8 +84,8 @@ Filtered navigation: `features/shell/navigation.ts` (`NAVIGATION_GROUPS`).
 | `purchases` | `/purchases` | Draft, send, receive, receipts |
 | `shipping` | `/shipping` | Create, details, dispatch/advance |
 | `returns` | `/returns` | Customer/supplier flows |
-| `finance` | `/finance/*` | Dashboard, titles, cash, aging |
-| `reports` | `/reports/*` | Overview, inventory, orders, best-sellers |
+| `finance` | `/finance/*` | Finance dashboard, titles, cash, aging |
+| `reports` | `/reports/*` | Stock/sales overview, inventory, orders, best-sellers |
 | `notifications` | `/notifications` | Center + Navbar bell |
 | `access-management` | `/users`, `/roles`, `/permissions`, `/audit` | IAM |
 
@@ -138,7 +139,8 @@ Pattern: `@Injectable({ providedIn: 'root' })` + `HttpClient` + `environment.api
 | ShipmentsService | `/shipments` |
 | ReturnsService | `/returns` |
 | FinanceService | `/finance` |
-| ReportsService | `/reports` |
+| DashboardService | `/dashboard` |
+| ReportsService | `/reports` (also low-stock for the dashboard panel) |
 | NotificationsService | `/notifications` |
 | Users / Roles / Permissions / Audit | `/users`, `/roles`, `/permissions`, `/security/audit-logs` |
 
@@ -152,13 +154,13 @@ Typed errors via `ProblemDetails` (`core/models/problem-details.model.ts`).
 - Default / fallback: `pt-BR`
 - Persistence: `localStorage` key `app-language`
 - Dynamic Angular locale (`DynamicLocaleId`) + shell remount
-- Namespaces: `COMMON`, `NAVIGATION`, `AUTH`, `ORDERS`, `FINANCE`, `REPORTS`, etc.
+- Namespaces: `COMMON`, `NAVIGATION`, `AUTH`, `ORDERS`, `FINANCE`, `DASHBOARD`, `REPORTS`, etc.
 - Currency remains **BRL** even when the UI is English
 
 ## State
 
 - **Signals** for auth, loading, filters, theme/language
-- **No NgRx** — root services + light stores (`NotificationsStateService`, `ReportPeriodStore`)
+- **No NgRx** — root services + light stores (`NotificationsStateService`, `ReportPeriodStore`; dashboard reuses the reports period store on its route)
 - Reactive forms with `FormBuilder` / `inject()`
 
 ## Tests
@@ -175,7 +177,7 @@ npm test
 Example:
 
 ```bash
-npx ng test --watch=false --include=**/shipping/**/*.spec.ts
+npx ng test --watch=false --include=**/dashboard/**/*.spec.ts
 ```
 
 E2E is not configured in this project.

@@ -13,12 +13,11 @@ A portfolio application that demonstrates software engineering practices, Clean 
   <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
   <img src="https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=Swagger&logoColor=white" alt="Swagger" />
   <img src="https://img.shields.io/badge/Vitest-%236E9F18?style=for-the-badge&logo=Vitest&logoColor=%23fcd703" alt="Vitest" />
+  <img src="https://img.shields.io/badge/xUnit-391C5C?style=for-the-badge&logo=xunit&logoColor=white" alt="xUnit" />
   <img src="https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white" alt="npm" />
   <img src="https://img.shields.io/badge/GIT-E44C30?style=for-the-badge&logo=git&logoColor=white" alt="Git" />
   <img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
 </p>
-
-Badges from [Badges4-README.md-Profile](https://github.com/alexandresanlim/Badges4-README.md-Profile).
 
 ---
 
@@ -32,6 +31,7 @@ Badges from [Badges4-README.md-Profile](https://github.com/alexandresanlim/Badge
 - [Repository structure](#repository-structure)
 - [Features](#features)
 - [Prerequisites](#prerequisites)
+- [Quick start](#quick-start)
 - [Run the backend](#run-the-backend)
 - [Run the frontend](#run-the-frontend)
 - [Environment configuration](#environment-configuration)
@@ -48,6 +48,41 @@ Badges from [Badges4-README.md-Profile](https://github.com/alexandresanlim/Badge
 
 ---
 
+## About
+
+**InventoryOrderManagement** is a full-stack system for operational management of catalog, inventory, purchases, sales, finance, returns/exchanges, shipping/delivery, and an operational dashboard.
+
+It addresses the basic flow of a business that needs to:
+
+- manage products, categories, suppliers, and customers;
+- control stock receipts, issues, and minimum levels;
+- register purchase orders and sales orders;
+- track financial titles and cash movements;
+- handle customer/supplier returns and the shipping lifecycle;
+- monitor KPIs, trends, low stock, and recent orders on a home dashboard;
+- administer users, roles, and permissions.
+
+The SPA is bilingual (`pt-BR` default / `en`), uses light/dark theme, and keeps currency as **BRL**. The API serves English notification titles/messages; UI labels come from the i18n catalogs.
+
+The audience is developers, technical recruiters, and reviewers looking for a full-stack portfolio with emphasis on architecture and code quality.
+
+The goal is to apply Clean Architecture, DDD where applicable, REST APIs, an Angular SPA, and automated tests end to end — not to ship a complete enterprise ERP.
+
+### In scope
+
+- End-to-end operational flows (catalog → stock → purchases/sales → shipping/returns → finance)
+- Permission-based access, cookie auth, CSRF, ProblemDetails
+- Operational dashboard, stock/sales reports, and in-app notifications
+- Automated tests on API and SPA layers
+
+### Out of scope (by design)
+
+- Multi-company / multi-warehouse WMS, tax/fiscal compliance, production MRP
+- Docker Compose, CI/CD, and hardened production hosting (see [Roadmap](#roadmap))
+- E2E browser suite (Vitest unit tests cover the SPA)
+
+---
+
 ## Technical documentation
 
 Detailed docs live under [`docs/`](docs/README.md):
@@ -59,24 +94,7 @@ Detailed docs live under [`docs/`](docs/README.md):
 | [Frontend](docs/frontend.md) | Angular SPA, routes, auth, i18n |
 | [API](docs/api.md) | REST endpoints, permissions, HTTP codes |
 
----
-
-## About
-
-**InventoryOrderManagement** is a full-stack system for operational management of catalog, inventory, purchases, sales, finance, returns/exchanges, and shipping/delivery.
-
-It addresses the basic flow of a business that needs to:
-
-- manage products, categories, suppliers, and customers;
-- control stock receipts, issues, and minimum levels;
-- register purchase orders and sales orders;
-- track financial titles and cash movements;
-- handle customer/supplier returns and the shipping lifecycle;
-- administer users, roles, and permissions.
-
-The audience is developers, technical recruiters, and reviewers looking for a full-stack portfolio with emphasis on architecture and code quality.
-
-The goal is to apply Clean Architecture, DDD where applicable, REST APIs, an Angular SPA, and automated tests end to end — not to ship a complete enterprise ERP.
+Package READMEs: [Server](InventoryOrderManagementServer/README.md) · [Client](InventoryOrderManagementClient/README.md).
 
 ---
 
@@ -126,7 +144,7 @@ The goal is to apply Clean Architecture, DDD where applicable, REST APIs, an Ang
 | Angular Router | Navigation and lazy-loaded features |
 | Reactive Forms | Forms and validation |
 | Signals and RxJS | Local state and async streams |
-| Chart.js | Charts in reports/finance |
+| Chart.js | Charts in dashboard, reports, and finance |
 | Vitest + jsdom | Angular unit tests |
 
 ### Tooling
@@ -227,8 +245,8 @@ InventoryOrderManagement/
 └── README.md
 ```
 
-- **Server**: .NET solution with Clean Architecture and test projects.
-- **Client**: Angular standalone SPA with domain features (`products`, `orders`, `shipping`, `finance`, and others).
+- **Server**: .NET solution with Clean Architecture and test projects — details in [InventoryOrderManagementServer/README.md](InventoryOrderManagementServer/README.md).
+- **Client**: Angular standalone SPA with domain features (`dashboard`, `products`, `orders`, `shipping`, `finance`, and others) — details in [InventoryOrderManagementClient/README.md](InventoryOrderManagementClient/README.md).
 - **Docs**: Technical documentation (architecture, backend, frontend, API).
 
 ---
@@ -246,7 +264,8 @@ Legend: **Implemented** means Backend and Frontend exist and can be used togethe
 | Inventory Management | Implemented | Balances, movements, minimum stock |
 | Order Management | Implemented | Sales orders (Draft → Confirmed → Shipped → Delivered / Cancelled) |
 | Purchase Management | Implemented | Purchase orders, send, receive, cancel |
-| Stock / Sales Reports | Implemented | Reports and indicators via API + Angular feature |
+| Operational Dashboard | Implemented | Home KPIs, sales/purchases trends, low stock, recent orders (`/dashboard` + `/api/dashboard/*`) |
+| Stock / Sales Reports | Implemented | Stock/sales report module via API + Angular feature (separate from the operational dashboard) |
 | User and Access Management | Implemented | Users, roles, permissions, security audit |
 | Finance Management | Implemented | Payables, receivables, cash accounts, cash flow, settlements, aging |
 | Returns & Exchanges | Implemented | Customer/supplier returns and workflows |
@@ -266,6 +285,17 @@ Legend: **Implemented** means Backend and Frontend exist and can be used togethe
 
 - Node.js compatible with Angular 22 (current LTS recommended, typically Node 20+)
 - npm (the project declares `packageManager: npm@12.2.0`)
+
+---
+
+## Quick start
+
+1. Start the API (`http` profile) — see [Run the backend](#run-the-backend).
+2. Start the SPA — see [Run the frontend](#run-the-frontend).
+3. Open `http://localhost:4200` and sign in with a [demo account](#demo-accounts-development-only).
+4. Explore `/dashboard` (needs `Reports.View`), then catalog, orders, shipping, finance, and reports as allowed by the role.
+
+Keep both processes running. CORS allows the SPA origin with credentials.
 
 ---
 
@@ -409,8 +439,10 @@ Representative groups (not exhaustive):
 | Operations | `/api/inventory`, `/api/orders`, `/api/purchase-orders` |
 | Shipping | `/api/shipments` |
 | Returns | `/api/returns` |
-| Finance | `/api/payables`, `/api/receivables`, `/api/cash-accounts`, … |
-| Security | `/api/users`, `/api/roles`, `/api/permissions`, `/api/security-audit` |
+| Finance | `/api/finance/payables`, `/api/finance/receivables`, `/api/finance/cash-accounts`, … |
+| Dashboard / reports | `/api/dashboard/*`, `/api/reports/*` |
+| Notifications | `/api/notifications` |
+| Security | `/api/users`, `/api/roles`, `/api/permissions`, `/api/security/audit-logs` |
 
 Errors follow `ProblemDetails`. Enums are serialized as strings (`JsonStringEnumConverter`).
 
@@ -438,11 +470,19 @@ Errors follow `ProblemDetails`. Enums are serialized as strings (`JsonStringEnum
 
 ### Demo accounts (Development only)
 
-`DevelopmentDataSeeder` creates demo sign-in accounts for local exploration. Details live in:
+`DevelopmentDataSeeder` creates these accounts on Api startup in Development:
 
-`src/InventoryOrderManagement.Infrastructure/Persistence/Seeding/DevelopmentDataSeeder.cs`
+| Email | Password | Role |
+|---|---|---|
+| `admin.demo@localhost` | `Admin!Access123` | Administrator |
+| `manager@localhost` | `Manager!Access123` | Manager |
+| `inventory@localhost` | `Inventory!Op123` | InventoryOperator |
+| `sales@localhost` | `Sales!Access123` | SalesOperator |
+| `viewer@localhost` | `Viewer!Access123` | Viewer |
 
-It also seeds in-app notifications (low stock, order confirmed, shipment failed, return awaiting inspection) for each active demo user, so the Navbar bell and `/notifications` page can be exercised after login.
+Source: `InventoryOrderManagementServer/src/InventoryOrderManagement.Infrastructure/Persistence/Seeding/DevelopmentDataSeeder.cs`.
+
+The seeder also creates in-app notifications (low stock, order confirmed, shipment failed, return awaiting inspection) for each active demo user, so the Navbar bell and `/notifications` can be exercised after login.
 
 Use them only for local Development / portfolio demos — never in production.
 
@@ -482,7 +522,7 @@ npm test
 Example include:
 
 ```bash
-npx ng test --watch=false --include=**/shipping/**/*.spec.ts
+npx ng test --watch=false --include=**/dashboard/**/*.spec.ts
 ```
 
 This README does not claim coverage percentages or continuous-run results; run the commands above in your environment.
@@ -491,26 +531,7 @@ This README does not claim coverage percentages or continuous-run results; run t
 
 ## Screenshots
 
-There is no versioned `docs/images` folder with official captures yet.
-
-Suggested layout when you add them:
-
-```text
-docs/images/
-  products.png
-  inventory.png
-  orders.png
-  shipping.png
-  finance.png
-```
-
-Example markdown after real files exist:
-
-```markdown
-### Orders
-
-![Order Management](docs/images/orders.png)
-```
+Official captures are not versioned yet. When available, place them under `docs/images/` (for example `dashboard.png`, `orders.png`, `shipping.png`, `finance.png`) and link them from this section.
 
 ---
 
@@ -524,6 +545,7 @@ Example markdown after real files exist:
 - **Fine-grained permissions**: claim policies reused by the Angular UI.
 - **Idempotent seeding**: `DevelopmentDataSeeder` is safe to re-run in Development.
 - **Feature-based frontend**: typed HTTP services, lazy routes, reactive forms, inline status banners.
+- **Operational dashboard vs reports**: `/dashboard` is the home KPI surface; `/reports` remains the stock/sales reports module. Finance has its own `/finance/dashboard`.
 - **Order × Shipment consistency**: when a shipment exists, legacy order ship/deliver returns 409 and the UI routes to the shipping workflow.
 
 ---
@@ -585,9 +607,9 @@ There is no `LICENSE` file at the repository root. The license is **not defined 
 
 ## Author
 
-**Pedro Lustosa**
+**Pedro Lustosa** — Software Engineer (Full Stack · .NET · Angular)
 
 - GitHub: [Pedrolustosa](https://github.com/Pedrolustosa)
+- Portfolio: [pedro-portfolio-blue.vercel.app](https://pedro-portfolio-blue.vercel.app/)
+- Email: [pedroeternalss@gmail.com](mailto:pedroeternalss@gmail.com)
 - Repository: [InventoryOrderManagement](https://github.com/Pedrolustosa/InventoryOrderManagement)
-
-> Optionally add LinkedIn or a public email here for your portfolio profile.

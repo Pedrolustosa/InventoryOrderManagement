@@ -148,7 +148,8 @@ Pattern: **one use case per operation** (scoped class), no MediatR.
 | Shipments | Create, Dispatch, InTransit, Deliver, Fail, Resume |
 | Returns | Customer/supplier flows + inspection |
 | Finance | Payables/Receivables, cash accounts, aging, cash-flow |
-| Reports | Dashboard, inventory, orders, best-sellers, sales |
+| Operational dashboard | Summary, trends, recent orders (`GetOperationalDashboardSummaryUseCase`, …) |
+| Reports | Stock/sales dashboard summary, inventory, orders, best-sellers, sales |
 | Identity | Login, users, roles, permissions, audit |
 | Notifications | List, unread, mark-read |
 
@@ -156,6 +157,7 @@ Pattern: **one use case per operation** (scoped class), no MediatR.
 
 - Persistence: `IUnitOfWork`, per-aggregate repositories (`IOrderRepository`, …)
 - Identity: `ICurrentUser`, `IUserAccountService`, `IRoleAccountService`, audit
+- Dashboard: `IDashboardQuery` → Infrastructure `DashboardQuery`
 - Reports: `IInventoryReportsQuery`, `IOrderReportsQuery`, …
 - Notifications: `INotificationDispatcher`, `INotificationRecipientResolver`
 
@@ -172,7 +174,7 @@ Registration: `AddInfrastructure`.
 | Configurations | Fluent API under `Persistence/Configurations/` |
 | Migrations | `Persistence/Migrations/` |
 | Repositories | `Persistence/Repositories/` |
-| Reports | `Persistence/Queries/` |
+| Reports / dashboard | `Persistence/Queries/` (`DashboardQuery`, report queries) |
 | Seed | `IdentitySeeder`, `DevelopmentDataSeeder` |
 
 ### Identity
@@ -221,12 +223,12 @@ dotnet test InventoryOrderManagement.slnx
 | Domain.UnitTests | Transitions and invariants |
 | Application.UnitTests | Use cases and notifications |
 | Infrastructure.IntegrationTests | Repos, settlements, rollback |
-| Api.IntegrationTests | HTTP (products, purchases, finance, returns, shipments, …) |
+| Api.IntegrationTests | HTTP (products, purchases, finance, returns, shipments, dashboard, …) |
 
 Example filter:
 
 ```bash
-dotnet test tests/InventoryOrderManagement.Api.IntegrationTests --filter "FullyQualifiedName~Shipment"
+dotnet test tests/InventoryOrderManagement.Api.IntegrationTests --filter "FullyQualifiedName~Dashboard"
 ```
 
 ## Entry-point files

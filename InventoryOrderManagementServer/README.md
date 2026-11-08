@@ -1,6 +1,6 @@
 # InventoryOrderManagementServer
 
-.NET 10 REST API for inventory, purchasing, sales, shipping, returns, finance, and access management.
+.NET 10 REST API for inventory, purchasing, sales, shipping, returns, finance, operational dashboard, and access management.
 
 Built with Clean Architecture (Domain, Application, Infrastructure, Api), ASP.NET Core Identity (cookie + CSRF), EF Core 10 + SQLite, and permission-based authorization.
 
@@ -29,7 +29,7 @@ InventoryOrderManagementServer/
 | `Api` | Controllers, middleware, OpenAPI/Swagger, CORS, composition root |
 | `Application` | Use cases, DTOs, permissions, persistence/identity abstractions |
 | `Domain` | Entities, enums, value objects, business rules |
-| `Infrastructure` | EF Core, Identity, repositories, seeding, report queries |
+| `Infrastructure` | EF Core, Identity, repositories, seeding, dashboard/report queries |
 | `*.UnitTests` / `*.IntegrationTests` | xUnit coverage by layer |
 
 Dependency direction: **Api → Application + Infrastructure**; **Infrastructure → Application + Domain**; **Application → Domain**.
@@ -134,8 +134,8 @@ Prefix: `/api`. Interactive docs: Swagger in Development.
 | Operations | `/api/inventory`, `/orders`, `/purchase-orders` |
 | Shipping / returns | `/api/shipments`, `/returns` |
 | Finance | `/api/finance/payables`, `/receivables`, `/cash-accounts`, … |
-| Reports / notifications | `/api/reports`, `/notifications` |
 | Operational dashboard | `/api/dashboard/summary`, `/trends`, `/recent-orders` |
+| Reports / notifications | `/api/reports`, `/notifications` |
 | Security | `/api/users`, `/roles`, `/permissions`, `/security/audit-logs` |
 
 ### Operational dashboard

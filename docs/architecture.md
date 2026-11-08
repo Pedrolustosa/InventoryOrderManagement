@@ -2,7 +2,7 @@
 
 ## System goal
 
-Full-stack portfolio application for operational management: catalog, inventory, sales/purchase orders, shipping, returns, finance, and access administration.
+Full-stack portfolio application for operational management: catalog, inventory, sales/purchase orders, shipping, returns, finance, operational dashboard, and access administration.
 
 The emphasis is Clean Architecture, explicit domain rules, and cookie-based REST integration between Angular and ASP.NET Core — not a complete enterprise ERP.
 
@@ -72,6 +72,7 @@ flowchart LR
     Fin[Finance]
     Sec[Security]
     Notif[Notifications]
+    Dash[OperationalDashboard]
     Rep[Reports]
 
     Catalog --> Stock
@@ -87,6 +88,11 @@ flowchart LR
     Sales --> Notif
     Ship --> Notif
     Returns --> Notif
+    Stock --> Dash
+    Sales --> Dash
+    Purchases --> Dash
+    Fin --> Dash
+    Notif --> Dash
     Stock --> Rep
     Sales --> Rep
     Fin --> Rep
@@ -102,7 +108,8 @@ flowchart LR
 | Shipping | Shipment synced with Order | `/shipping` |
 | Returns | Customer and supplier flows | `/returns` |
 | Finance | Titles, cash, aging | `/finance` |
-| Reports | Dedicated queries | `/reports` |
+| Operational dashboard | `IDashboardQuery` + `/api/dashboard/*` | `/dashboard` (home surface; `Reports.View`) |
+| Reports | Dedicated stock/sales queries | `/reports` (separate from `/dashboard`) |
 | Users / roles / audit | Identity + audit log | `/users`, `/roles`, `/permissions`, `/audit` |
 | In-app notifications | Permission-based dispatcher | Navbar + `/notifications` |
 
