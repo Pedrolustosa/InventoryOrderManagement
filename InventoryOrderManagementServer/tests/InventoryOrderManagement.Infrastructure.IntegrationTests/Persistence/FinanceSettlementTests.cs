@@ -5,6 +5,8 @@ using InventoryOrderManagement.Application.Finance.Dtos;
 using InventoryOrderManagement.Domain.Entities;
 using InventoryOrderManagement.Domain.Enums;
 using InventoryOrderManagement.Domain.Exceptions;
+using InventoryOrderManagement.Infrastructure.Events;
+using Microsoft.Extensions.DependencyInjection;
 using InventoryOrderManagement.Infrastructure.Persistence;
 using InventoryOrderManagement.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -36,7 +38,7 @@ public class FinanceSettlementTests : IDisposable
         var editor = Editor(_dbContext);
         var account = await new CreateCashAccountUseCase(
             new CashAccountRepository(_dbContext),
-            new UnitOfWork(_dbContext),
+            new UnitOfWork(_dbContext, new DomainEventDispatcher(new ServiceCollection().BuildServiceProvider())),
             new NoAudit(),
             new NoUser(),
             TimeProvider.System).ExecuteAsync(new CreateCashAccountRequest
@@ -75,7 +77,7 @@ public class FinanceSettlementTests : IDisposable
         var editor = Editor(_dbContext);
         var account = await new CreateCashAccountUseCase(
             new CashAccountRepository(_dbContext),
-            new UnitOfWork(_dbContext),
+            new UnitOfWork(_dbContext, new DomainEventDispatcher(new ServiceCollection().BuildServiceProvider())),
             new NoAudit(),
             new NoUser(),
             TimeProvider.System).ExecuteAsync(new CreateCashAccountRequest
@@ -93,7 +95,7 @@ public class FinanceSettlementTests : IDisposable
             new FinancialSettlementRepository(_dbContext),
             new CashAccountRepository(_dbContext),
             new ThrowingMovementRepository(),
-            new UnitOfWork(_dbContext),
+            new UnitOfWork(_dbContext, new DomainEventDispatcher(new ServiceCollection().BuildServiceProvider())),
             new NoAudit(),
             new NoUser(),
             TimeProvider.System);
@@ -119,7 +121,7 @@ public class FinanceSettlementTests : IDisposable
         var editor = Editor(_dbContext);
         var account = await new CreateCashAccountUseCase(
             new CashAccountRepository(_dbContext),
-            new UnitOfWork(_dbContext),
+            new UnitOfWork(_dbContext, new DomainEventDispatcher(new ServiceCollection().BuildServiceProvider())),
             new NoAudit(),
             new NoUser(),
             TimeProvider.System).ExecuteAsync(new CreateCashAccountRequest
@@ -163,7 +165,7 @@ public class FinanceSettlementTests : IDisposable
     private static FinancialTitleEditor Editor(InventoryDbContext dbContext) =>
         new(
             new FinancialTitleRepository(dbContext),
-            new UnitOfWork(dbContext),
+            new UnitOfWork(dbContext, new DomainEventDispatcher(new ServiceCollection().BuildServiceProvider())),
             new FinancialPartyResolver(
                 new SupplierRepository(dbContext),
                 new CustomerRepository(dbContext),
@@ -179,7 +181,7 @@ public class FinanceSettlementTests : IDisposable
             new FinancialSettlementRepository(dbContext),
             new CashAccountRepository(dbContext),
             new CashMovementRepository(dbContext),
-            new UnitOfWork(dbContext),
+            new UnitOfWork(dbContext, new DomainEventDispatcher(new ServiceCollection().BuildServiceProvider())),
             new NoAudit(),
             new NoUser(),
             TimeProvider.System);

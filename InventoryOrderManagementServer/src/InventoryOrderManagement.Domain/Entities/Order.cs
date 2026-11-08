@@ -1,10 +1,11 @@
+using InventoryOrderManagement.Domain.Abstractions;
 using InventoryOrderManagement.Domain.Enums;
 using InventoryOrderManagement.Domain.Exceptions;
 using InventoryOrderManagement.Domain.ValueObjects;
 
 namespace InventoryOrderManagement.Domain.Entities;
 
-public class Order
+public class Order : AggregateRoot
 {
     public const int OrderNumberMaxLength = 32;
     public const int CancellationReasonMaxLength = 300;

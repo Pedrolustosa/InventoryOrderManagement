@@ -1,9 +1,10 @@
+using InventoryOrderManagement.Domain.Abstractions;
 using InventoryOrderManagement.Domain.Enums;
 using InventoryOrderManagement.Domain.Exceptions;
 
 namespace InventoryOrderManagement.Domain.Entities;
 
-public class UserNotification
+public class UserNotification : AggregateRoot
 {
     public const int TitleMaxLength = 200;
     public const int MessageMaxLength = 1000;

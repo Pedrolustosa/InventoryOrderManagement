@@ -1,10 +1,11 @@
+using InventoryOrderManagement.Domain.Abstractions;
 using InventoryOrderManagement.Domain.Enums;
 using InventoryOrderManagement.Domain.Exceptions;
 using InventoryOrderManagement.Domain.Finance;
 
 namespace InventoryOrderManagement.Domain.Entities;
 
-public class FinancialSettlement
+public class FinancialSettlement : AggregateRoot
 {
     public const int ReferenceMaxLength = 80;
     public const int NotesMaxLength = 500;

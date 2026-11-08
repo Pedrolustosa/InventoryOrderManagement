@@ -1,9 +1,10 @@
+using InventoryOrderManagement.Domain.Abstractions;
 using InventoryOrderManagement.Domain.Enums;
 using InventoryOrderManagement.Domain.Exceptions;
 
 namespace InventoryOrderManagement.Domain.Entities;
 
-public class Shipment
+public class Shipment : AggregateRoot
 {
     public const int CarrierNameMaxLength = 200;
     public const int TrackingCodeMaxLength = 80;

@@ -1,12 +1,13 @@
-using System.Net.Mail;
-using System.Text;
+using InventoryOrderManagement.Domain.Abstractions;
 using InventoryOrderManagement.Domain.Enums;
 using InventoryOrderManagement.Domain.Exceptions;
 using InventoryOrderManagement.Domain.ValueObjects;
+using System.Net.Mail;
+using System.Text;
 
 namespace InventoryOrderManagement.Domain.Entities;
 
-public class Customer
+public class Customer : AggregateRoot
 {
     public const int NameMaxLength = 150;
     public const int EmailMaxLength = 254;

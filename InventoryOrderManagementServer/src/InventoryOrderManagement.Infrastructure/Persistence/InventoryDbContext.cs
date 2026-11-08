@@ -1,3 +1,4 @@
+using InventoryOrderManagement.Domain.Abstractions;
 using InventoryOrderManagement.Domain.Entities;
 using InventoryOrderManagement.Infrastructure.Identity;
 using InventoryOrderManagement.Infrastructure.Identity.Entities;
@@ -63,5 +64,14 @@ public class InventoryDbContext : IdentityDbContext<ApplicationUser, Application
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(InventoryDbContext).Assembly);
+
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (typeof(AggregateRoot).IsAssignableFrom(entityType.ClrType))
+            {
+                modelBuilder.Entity(entityType.ClrType)
+                    .Ignore(nameof(AggregateRoot.DomainEvents));
+            }
+        }
     }
 }

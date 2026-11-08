@@ -1,3 +1,4 @@
+using InventoryOrderManagement.Application.Abstractions.Events;
 using InventoryOrderManagement.Application.Finance;
 using InventoryOrderManagement.Application.Categories;
 using InventoryOrderManagement.Application.Customers;
@@ -20,6 +21,8 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
+        RegisterDomainEventHandlers(services);
+
         services.AddScoped<CreateProductUseCase>();
         services.AddScoped<GetAllProductsUseCase>();
         services.AddScoped<CreateCategoryUseCase>();
@@ -152,5 +155,21 @@ public static class ServiceCollectionExtensions
         services.AddScoped<MarkAllNotificationsAsReadUseCase>();
 
         return services;
+    }
+
+    private static void RegisterDomainEventHandlers(IServiceCollection services)
+    {
+        var handlerInterface = typeof(IDomainEventHandler<>);
+        var handlerTypes = typeof(ServiceCollectionExtensions).Assembly
+            .GetTypes()
+            .Where(type => type is { IsAbstract: false, IsInterface: false })
+            .SelectMany(type => type.GetInterfaces()
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerInterface)
+                .Select(i => (Implementation: type, Service: i)));
+
+        foreach (var (implementation, service) in handlerTypes)
+        {
+            services.AddScoped(service, implementation);
+        }
     }
 }

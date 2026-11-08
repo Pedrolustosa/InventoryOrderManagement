@@ -1,10 +1,11 @@
+using InventoryOrderManagement.Domain.Abstractions;
 using InventoryOrderManagement.Domain.Enums;
 using InventoryOrderManagement.Domain.Exceptions;
 using InventoryOrderManagement.Domain.Finance;
 
 namespace InventoryOrderManagement.Domain.Entities;
 
-public class CashAccount
+public class CashAccount : AggregateRoot
 {
     public const int NameMaxLength = 150;
 
