@@ -1,4 +1,4 @@
-export const RETURN_TYPES = ['CustomerReturn', 'SupplierReturn'] as const;
+export const RETURN_TYPES = ['CustomerReturn', 'SupplierReturn', 'Exchange'] as const;
 export type ReturnType = (typeof RETURN_TYPES)[number];
 
 export const RETURN_STATUSES = [
@@ -46,7 +46,7 @@ export const RETURN_FINANCIAL_TREATMENTS = [
 ] as const;
 export type ReturnFinancialTreatment = (typeof RETURN_FINANCIAL_TREATMENTS)[number];
 
-export const RETURN_FINANCIAL_STATUSES = ['None', 'Pending'] as const;
+export const RETURN_FINANCIAL_STATUSES = ['None', 'Pending', 'Processed'] as const;
 export type ReturnFinancialStatus = (typeof RETURN_FINANCIAL_STATUSES)[number];
 
 export function returnTypeLabel(type: ReturnType): string {
@@ -100,4 +100,9 @@ export function customerFinancialTreatments(): ReturnFinancialTreatment[] {
 
 export function supplierFinancialTreatments(): ReturnFinancialTreatment[] {
   return ['None', 'SupplierCredit', 'SupplierRefund'];
+}
+
+/** Customer returns and exchanges share the receive/inspection workflow. */
+export function isCustomerSideReturn(type: ReturnType): boolean {
+  return type === 'CustomerReturn' || type === 'Exchange';
 }

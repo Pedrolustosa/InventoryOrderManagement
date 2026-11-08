@@ -176,6 +176,36 @@
       </div>
     </section>
 
+    @if (current.replacementItems?.length) {
+      <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
+        <h2 class="text-lg font-semibold text-ink">{{ 'RETURNS.DETAILS.SECTION_REPLACEMENTS' | translate }}</h2>
+        <div class="mt-4 overflow-x-auto">
+          <table class="min-w-full text-left text-sm">
+            <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
+              <tr>
+                <th class="px-3 py-2">{{ 'RETURNS.FORM.COL_PRODUCT' | translate }}</th>
+                <th class="px-3 py-2">{{ 'RETURNS.FORM.COL_SKU' | translate }}</th>
+                <th class="px-3 py-2">{{ 'RETURNS.DETAILS.COL_QUANTITY' | translate }}</th>
+                <th class="px-3 py-2">{{ 'RETURNS.FORM.COL_UNIT_VALUE' | translate }}</th>
+                <th class="px-3 py-2">{{ 'RETURNS.FORM.COL_LINE_TOTAL' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of current.replacementItems; track item.id) {
+                <tr class="border-b border-line/70 last:border-0">
+                  <td class="px-3 py-2 text-ink">{{ item.productName }}</td>
+                  <td class="px-3 py-2 text-ink">{{ item.productSku }}</td>
+                  <td class="px-3 py-2">{{ item.quantity }}</td>
+                  <td class="whitespace-nowrap px-3 py-2">{{ item.unitPriceSnapshot | currency: 'BRL' }}</td>
+                  <td class="whitespace-nowrap px-3 py-2">{{ item.lineAmount | currency: 'BRL' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
     <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
       <h2 class="text-lg font-semibold text-ink">{{ 'RETURNS.DETAILS.SECTION_FINANCIAL' | translate }}</h2>
       <p class="mt-1 text-sm text-muted">
@@ -195,12 +225,55 @@
           <dd class="mt-1 text-sm text-ink">{{ current.estimatedFinancialAmount | currency: 'BRL' }}</dd>
         </div>
         <div>
-          <dt class="text-xs uppercase tracking-wide text-muted">{{ 'RETURNS.DETAILS.LINKED_TITLE' | translate }}</dt>
-          <dd class="mt-1 text-sm text-ink">
-            {{ current.financialTitleId || ('RETURNS.DETAILS.NOT_LINKED' | translate) }}
-          </dd>
+          <dt class="text-xs uppercase tracking-wide text-muted">{{ 'RETURNS.DETAILS.ADJUSTED_AMOUNT' | translate }}</dt>
+          <dd class="mt-1 text-sm text-ink">{{ (current.financialAdjustedAmount ?? 0) | currency: 'BRL' }}</dd>
         </div>
       </dl>
+
+      <h3 class="mt-5 text-sm font-semibold text-ink">{{ 'RETURNS.DETAILS.FINANCIAL_TITLES' | translate }}</h3>
+      @if (titlesLoading()) {
+        <p class="mt-2 text-sm text-muted">{{ 'RETURNS.DETAILS.LOADING_TITLES' | translate }}</p>
+      } @else if (titles().length === 0) {
+        <p class="mt-2 text-sm text-muted">{{ 'RETURNS.DETAILS.NOT_LINKED' | translate }}</p>
+      } @else {
+        <div class="mt-2 overflow-x-auto">
+          <table class="min-w-full text-left text-sm">
+            <thead class="border-b border-line text-xs uppercase tracking-wide text-muted">
+              <tr>
+                <th class="px-3 py-2">{{ 'RETURNS.DETAILS.COL_TITLE_ROLE' | translate }}</th>
+                <th class="px-3 py-2">{{ 'RETURNS.DETAILS.COL_TITLE_NUMBER' | translate }}</th>
+                <th class="px-3 py-2">{{ 'RETURNS.DETAILS.COL_TITLE_KIND' | translate }}</th>
+                <th class="px-3 py-2">{{ 'RETURNS.DETAILS.COL_TITLE_AMOUNT' | translate }}</th>
+                <th class="px-3 py-2">{{ 'RETURNS.DETAILS.COL_TITLE_DUE' | translate }}</th>
+                <th class="px-3 py-2">{{ 'RETURNS.DETAILS.COL_TITLE_STATUS' | translate }}</th>
+                <th class="px-3 py-2"><span class="sr-only">{{ 'RETURNS.DETAILS.OPEN_TITLE' | translate }}</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (entry of titles(); track entry.title.id) {
+                <tr class="border-b border-line/70 last:border-0">
+                  <td class="px-3 py-2 text-ink">{{ ('RETURNS.DETAILS.TITLE_ROLE_' + entry.role) | translate }}</td>
+                  <td class="px-3 py-2 font-medium text-ink">{{ entry.title.titleNumber }}</td>
+                  <td class="px-3 py-2 text-ink">
+                    {{ (entry.kind === 'payable' ? 'STATUS.FINANCE_KIND.Payable' : 'STATUS.FINANCE_KIND.Receivable') | translate }}
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-2">{{ entry.title.totalAmount | currency: 'BRL' }}</td>
+                  <td class="whitespace-nowrap px-3 py-2">{{ entry.dueDate ? (entry.dueDate | date: 'dd/MM/yyyy') : '—' }}</td>
+                  <td class="px-3 py-2"><app-financial-status [status]="entry.title.status" /></td>
+                  <td class="px-3 py-2 text-right">
+                    <a
+                      class="btn-secondary !px-2.5 !py-1 text-xs"
+                      [routerLink]="['/finance', entry.kind === 'payable' ? 'payables' : 'receivables', entry.title.id]"
+                    >
+                      {{ 'RETURNS.DETAILS.OPEN_TITLE' | translate }}
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
       @if (current.financialNotes) {
         <p class="mt-3 text-sm text-ink"><span class="text-muted">{{ 'RETURNS.DETAILS.NOTES' | translate }}</span> {{ current.financialNotes }}</p>
       }
