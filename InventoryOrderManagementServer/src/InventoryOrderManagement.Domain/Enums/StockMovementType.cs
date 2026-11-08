@@ -10,5 +10,7 @@ public enum StockMovementType
     OrderCancellationReturn = 5,
     PurchaseEntry = 6,
     CustomerReturnEntry = 7,
-    SupplierReturnExit = 8
+    SupplierReturnExit = 8,
+    OrderReservation = 9,
+    OrderReservationRelease = 10
 }

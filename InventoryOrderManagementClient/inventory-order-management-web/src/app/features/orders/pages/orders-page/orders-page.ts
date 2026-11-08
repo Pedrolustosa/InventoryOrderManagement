@@ -141,6 +141,7 @@ export class OrdersPage implements OnInit {
       error: (error: Error) => {
         this.isActing.set(false);
         this.actionError.set(error.message);
+        this.toast.error(error.message);
       },
     });
   }

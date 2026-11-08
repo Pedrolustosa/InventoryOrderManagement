@@ -70,6 +70,7 @@ public class InventoryRepository : IInventoryRepository
                 ProductName = row.product.Name,
                 ProductIsActive = row.product.IsActive,
                 QuantityOnHand = row.balance.QuantityOnHand,
+                ReservedQuantity = row.balance.ReservedQuantity,
                 MinimumStockLevel = row.balance.MinimumStockLevel
             })
             .ToListAsync(cancellationToken);

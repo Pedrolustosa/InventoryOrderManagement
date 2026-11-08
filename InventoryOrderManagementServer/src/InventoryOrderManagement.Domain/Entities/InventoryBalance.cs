@@ -14,9 +14,13 @@ public class InventoryBalance : AggregateRoot
 
     public int QuantityOnHand { get; private set; }
 
+    public int ReservedQuantity { get; private set; }
+
     public int MinimumStockLevel { get; private set; }
 
     public int Version { get; private set; }
+
+    public int AvailableQuantity => QuantityOnHand - ReservedQuantity;
 
     public bool IsLowStock => QuantityOnHand <= MinimumStockLevel;
 
@@ -31,6 +35,7 @@ public class InventoryBalance : AggregateRoot
         {
             ProductId = productId,
             QuantityOnHand = 0,
+            ReservedQuantity = 0,
             MinimumStockLevel = 0,
             Version = 0
         };
@@ -58,11 +63,44 @@ public class InventoryBalance : AggregateRoot
         IncrementVersion();
     }
 
-        public StockQuantityChange? AdjustTo(int newQuantity)
+    public void Reserve(int quantity)
+    {
+        EnsurePositiveQuantity(quantity);
+
+        if (quantity > AvailableQuantity)
+        {
+            throw new InsufficientStockException(AvailableQuantity, quantity);
+        }
+
+        ReservedQuantity += quantity;
+        IncrementVersion();
+    }
+
+    public void Release(int quantity)
+    {
+        EnsurePositiveQuantity(quantity);
+
+        if (quantity > ReservedQuantity)
+        {
+            throw new DomainException(
+                $"Cannot release {quantity} units. Only {ReservedQuantity} are reserved.");
+        }
+
+        ReservedQuantity -= quantity;
+        IncrementVersion();
+    }
+
+    public StockQuantityChange? AdjustTo(int newQuantity)
     {
         if (newQuantity < 0)
         {
             throw new DomainException("Physical quantity cannot be negative.");
+        }
+
+        if (newQuantity < ReservedQuantity)
+        {
+            throw new DomainException(
+                $"Physical quantity cannot be below reserved quantity ({ReservedQuantity}).");
         }
 
         if (newQuantity == QuantityOnHand)

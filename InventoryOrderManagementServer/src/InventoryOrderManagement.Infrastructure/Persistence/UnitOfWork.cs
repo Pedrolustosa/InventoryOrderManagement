@@ -32,6 +32,12 @@ public sealed class UnitOfWork : IUnitOfWork
             await operation(cancellationToken);
 
             var domainEvents = CollectDomainEvents();
+
+            if (domainEvents.Count > 0)
+            {
+                await _domainEventDispatcher.DispatchTransactionalAsync(domainEvents, cancellationToken);
+            }
+
             await _dbContext.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 

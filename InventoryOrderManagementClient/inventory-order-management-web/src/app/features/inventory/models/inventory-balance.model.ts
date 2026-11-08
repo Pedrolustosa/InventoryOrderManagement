@@ -3,6 +3,8 @@ export interface InventoryBalance {
   sku: string;
   productName: string;
   quantityOnHand: number;
+  reservedQuantity: number;
+  availableQuantity: number;
   minimumStockLevel: number;
   isLowStock: boolean;
 }

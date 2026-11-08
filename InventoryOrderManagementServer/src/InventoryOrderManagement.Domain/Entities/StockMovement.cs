@@ -71,6 +71,8 @@ public class StockMovement : AggregateRoot
 
         if (movementType is StockMovementType.OrderExit
             or StockMovementType.OrderCancellationReturn
+            or StockMovementType.OrderReservation
+            or StockMovementType.OrderReservationRelease
             or StockMovementType.PurchaseEntry
             or StockMovementType.CustomerReturnEntry
             or StockMovementType.SupplierReturnExit)
@@ -137,7 +139,10 @@ public class StockMovement : AggregateRoot
             throw new DomainException("Order is required.");
         }
 
-        if (movementType is not (StockMovementType.OrderExit or StockMovementType.OrderCancellationReturn))
+        if (movementType is not (StockMovementType.OrderExit
+            or StockMovementType.OrderCancellationReturn
+            or StockMovementType.OrderReservation
+            or StockMovementType.OrderReservationRelease))
         {
             throw new DomainException("This movement type is not an order movement.");
         }
@@ -152,13 +157,20 @@ public class StockMovement : AggregateRoot
             throw new DomainException("Stock quantities cannot be negative.");
         }
 
-        if (movementType == StockMovementType.OrderExit)
+        switch (movementType)
         {
-            EnsureResult(previousQuantity - quantity, newQuantity, "order exit");
-        }
-        else
-        {
-            EnsureResult(previousQuantity + quantity, newQuantity, "order cancellation return");
+            case StockMovementType.OrderExit:
+                EnsureResult(previousQuantity - quantity, newQuantity, "order exit");
+                break;
+            case StockMovementType.OrderCancellationReturn:
+                EnsureResult(previousQuantity + quantity, newQuantity, "order cancellation return");
+                break;
+            case StockMovementType.OrderReservation:
+                EnsureResult(previousQuantity + quantity, newQuantity, "order reservation");
+                break;
+            case StockMovementType.OrderReservationRelease:
+                EnsureResult(previousQuantity - quantity, newQuantity, "order reservation release");
+                break;
         }
 
         return Build(

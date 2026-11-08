@@ -146,7 +146,7 @@ export class OrderForm {
   }
 
   availableStock(productId: string): number {
-    return this.balances().find((balance) => balance.productId === productId)?.quantityOnHand ?? 0;
+    return this.balances().find((balance) => balance.productId === productId)?.availableQuantity ?? 0;
   }
 
   lineTotal(item: DraftLine): number {

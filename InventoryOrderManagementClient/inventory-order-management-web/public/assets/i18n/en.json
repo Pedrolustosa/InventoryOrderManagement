@@ -366,7 +366,9 @@
       "OrderCancellationReturn": "Order Cancellation Return",
       "PurchaseEntry": "Purchase Entry",
       "CustomerReturnEntry": "Customer Return Entry",
-      "SupplierReturnExit": "Supplier Return Exit"
+      "SupplierReturnExit": "Supplier Return Exit",
+      "OrderReservation": "Order Reservation",
+      "OrderReservationRelease": "Order Reservation Release"
     },
     "FINANCE_TITLE": {
       "Pending": "Pending",
@@ -648,6 +650,8 @@
       "COL_SKU": "SKU",
       "COL_PRODUCT": "Product",
       "COL_QTY": "Quantity On Hand",
+      "COL_RESERVED": "Reserved",
+      "COL_AVAILABLE": "Available",
       "COL_MIN": "Minimum Stock",
       "COL_STATUS": "Stock Status",
       "COL_ACTIONS": "Actions",

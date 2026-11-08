@@ -14,6 +14,9 @@ public class InventoryBalanceConfiguration : IEntityTypeConfiguration<InventoryB
                 "CK_InventoryBalances_QuantityOnHand",
                 "\"QuantityOnHand\" >= 0");
             table.HasCheckConstraint(
+                "CK_InventoryBalances_ReservedQuantity",
+                "\"ReservedQuantity\" >= 0");
+            table.HasCheckConstraint(
                 "CK_InventoryBalances_MinimumStockLevel",
                 "\"MinimumStockLevel\" >= 0");
         });
@@ -22,6 +25,12 @@ public class InventoryBalanceConfiguration : IEntityTypeConfiguration<InventoryB
 
         builder.Property(balance => balance.QuantityOnHand)
             .IsRequired();
+
+        builder.Property(balance => balance.ReservedQuantity)
+            .IsRequired()
+            .HasDefaultValue(0);
+
+        builder.Ignore(balance => balance.AvailableQuantity);
 
         builder.Property(balance => balance.MinimumStockLevel)
             .IsRequired();
