@@ -125,6 +125,9 @@ public class PurchaseReceiptRollbackTests : IDisposable
         public Task AddMovementAsync(StockMovement movement, CancellationToken cancellationToken = default)
             => throw new InvalidOperationException("Stock movement failed.");
 
+        public Task<bool> ExistsReturnMovementAsync(Guid returnRequestId, CancellationToken cancellationToken = default)
+            => _inner.ExistsReturnMovementAsync(returnRequestId, cancellationToken);
+
         public Task<bool> ExistsShipmentExitAsync(Guid shipmentId, CancellationToken cancellationToken = default)
             => _inner.ExistsShipmentExitAsync(shipmentId, cancellationToken);
 

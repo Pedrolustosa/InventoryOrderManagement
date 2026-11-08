@@ -266,6 +266,7 @@ public static class SecurityActions
     public const string CashAccountDeactivated = "CashAccountDeactivated";
     public const string CustomerReturnCreated = "CustomerReturnCreated";
     public const string SupplierReturnCreated = "SupplierReturnCreated";
+    public const string ExchangeReturnCreated = "ExchangeReturnCreated";
     public const string ReturnUpdated = "ReturnUpdated";
     public const string CustomerReturnReceived = "CustomerReturnReceived";
     public const string ReturnInspectionStarted = "ReturnInspectionStarted";

@@ -33,4 +33,13 @@ describe('return actions', () => {
     expect(canDispatchReturn('SupplierReturn', 'Draft')).toBe(false);
     expect(canCancelReturn('SupplierReturn', 'Dispatched')).toBe(false);
   });
+
+  it('should run exchanges through the customer receive and inspection workflow', () => {
+    expect(canReceiveReturn('Exchange', 'Draft')).toBe(true);
+    expect(canStartInspection('Exchange', 'Received')).toBe(true);
+    expect(canCompleteInspection('Exchange', 'UnderInspection')).toBe(true);
+    expect(canCancelReturn('Exchange', 'Received')).toBe(true);
+    expect(canAuthorizeReturn('Exchange', 'Draft')).toBe(false);
+    expect(canDispatchReturn('Exchange', 'Authorized')).toBe(false);
+  });
 });

@@ -23,6 +23,7 @@ public class ReturnRequestRepository : IReturnRequestRepository
         return _dbContext.ReturnRequests
             .AsNoTracking()
             .Include(entity => entity.Items)
+            .Include(entity => entity.ReplacementItems)
             .FirstOrDefaultAsync(entity => entity.Id == id, cancellationToken);
     }
 
@@ -30,6 +31,7 @@ public class ReturnRequestRepository : IReturnRequestRepository
     {
         return _dbContext.ReturnRequests
             .Include(entity => entity.Items)
+            .Include(entity => entity.ReplacementItems)
             .FirstOrDefaultAsync(entity => entity.Id == id, cancellationToken);
     }
 
@@ -49,6 +51,8 @@ public class ReturnRequestRepository : IReturnRequestRepository
         var returns = _dbContext.ReturnRequests
             .AsNoTracking()
             .Include(entity => entity.Items)
+            .Include(entity => entity.ReplacementItems)
+            .AsSplitQuery()
             .AsQueryable();
 
         if (query.Type.HasValue)

@@ -316,7 +316,8 @@
     },
     "RETURN_TYPE": {
       "CustomerReturn": "Devolução de cliente",
-      "SupplierReturn": "Devolução a fornecedor"
+      "SupplierReturn": "Devolução a fornecedor",
+      "Exchange": "Troca"
     },
     "RETURN_REASON": {
       "Defective": "Defeituoso",
@@ -347,7 +348,8 @@
     },
     "RETURN_FINANCIAL_STATUS": {
       "None": "Nenhum",
-      "Pending": "Pendente"
+      "Pending": "Pendente",
+      "Processed": "Processado"
     },
     "INVENTORY_STOCK": {
       "OutOfStock": "Sem estoque",
@@ -368,7 +370,10 @@
       "CustomerReturnEntry": "Entrada por devolução de cliente",
       "SupplierReturnExit": "Saída por devolução a fornecedor",
       "OrderReservation": "Reserva por pedido",
-      "OrderReservationRelease": "Liberação de reserva por pedido"
+      "OrderReservationRelease": "Liberação de reserva por pedido",
+      "CustomerReturnQuarantine": "Devolução de cliente (quarentena)",
+      "CustomerReturnLoss": "Devolução de cliente (perda)",
+      "ExchangeReplacementExit": "Reposição de troca"
     },
     "FINANCE_TITLE": {
       "Pending": "Pendente",
@@ -384,7 +389,8 @@
       "CreditCard": "Cartão de crédito",
       "DebitCard": "Cartão de débito",
       "Check": "Cheque",
-      "Other": "Outro"
+      "Other": "Outro",
+      "ReturnCredit": "Crédito de devolução"
     },
     "CASH_ACCOUNT_TYPE": {
       "Cash": "Caixa",
@@ -395,7 +401,8 @@
     "FINANCE_SOURCE": {
       "Manual": "Manual",
       "PurchaseOrder": "Pedido de compra",
-      "SalesOrder": "Pedido de venda"
+      "SalesOrder": "Pedido de venda",
+      "Return": "Devolução"
     },
     "CASH_MOVEMENT_DIRECTION": {
       "Inflow": "Entrada",
@@ -1350,7 +1357,7 @@
       "COL_CONDITION": "Condição",
       "COL_DISPATCHED": "Despachado",
       "SECTION_FINANCIAL": "Intenção financeira",
-      "FINANCIAL_HINT": "Somente exibição. Devoluções não criam baixas aqui; títulos financeiros ficam pendentes até o vínculo pelo servidor.",
+      "FINANCIAL_HINT": "Ao concluir a devolução, o título original é abatido (ou cancelado) e o valor já pago vira um novo título.",
       "TREATMENT": "Tratamento",
       "FINANCIAL_STATUS": "Status",
       "ESTIMATED_FINANCIAL": "Valor financeiro estimado",
@@ -1369,7 +1376,21 @@
       "COL_NEW": "Novo",
       "COL_DATE": "Data",
       "NOT_FOUND": "Devolução não encontrada.",
-      "SUCCESS_CANCELLED": "Devolução {{number}} cancelada."
+      "SUCCESS_CANCELLED": "Devolução {{number}} cancelada.",
+      "ADJUSTED_AMOUNT": "Abatido do título original",
+      "FINANCIAL_TITLES": "Títulos financeiros",
+      "LOADING_TITLES": "Carregando títulos financeiros…",
+      "COL_TITLE_ROLE": "Papel",
+      "COL_TITLE_NUMBER": "Título",
+      "COL_TITLE_KIND": "Tipo",
+      "COL_TITLE_AMOUNT": "Valor",
+      "COL_TITLE_DUE": "Vencimento",
+      "COL_TITLE_STATUS": "Status",
+      "OPEN_TITLE": "Abrir título",
+      "TITLE_ROLE_ADJUSTED": "Abatido / cancelado",
+      "TITLE_ROLE_GENERATED": "Gerado pela devolução",
+      "SECTION_REPLACEMENTS": "Itens de reposição",
+      "COL_QUANTITY": "Quantidade"
     },
     "DIALOGS": {
       "CANCEL_TITLE": "Cancelar devolução",

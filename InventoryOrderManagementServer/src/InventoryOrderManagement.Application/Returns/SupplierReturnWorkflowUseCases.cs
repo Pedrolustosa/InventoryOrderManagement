@@ -63,7 +63,6 @@ public sealed class AuthorizeSupplierReturnUseCase
 public sealed class DispatchSupplierReturnUseCase
 {
     private readonly IReturnRequestRepository _returnRepository;
-    private readonly IPurchaseOrderRepository _purchaseOrderRepository;
     private readonly IInventoryRepository _inventoryRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISecurityAuditWriter _auditWriter;
@@ -73,7 +72,6 @@ public sealed class DispatchSupplierReturnUseCase
 
     public DispatchSupplierReturnUseCase(
         IReturnRequestRepository returnRepository,
-        IPurchaseOrderRepository purchaseOrderRepository,
         IInventoryRepository inventoryRepository,
         IUnitOfWork unitOfWork,
         ISecurityAuditWriter auditWriter,
@@ -82,7 +80,6 @@ public sealed class DispatchSupplierReturnUseCase
         ILogger<DispatchSupplierReturnUseCase> logger)
     {
         _returnRepository = returnRepository;
-        _purchaseOrderRepository = purchaseOrderRepository;
         _inventoryRepository = inventoryRepository;
         _unitOfWork = unitOfWork;
         _auditWriter = auditWriter;
@@ -98,8 +95,8 @@ public sealed class DispatchSupplierReturnUseCase
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var lowStockChanges = new List<LowStockChange>();
-
+        // Stock, purchase-order return quantities and finance are applied by ReturnCompletedHandler in this
+        // same transaction when the dispatch completes the return.
         await _unitOfWork.ExecuteAsync(async ct =>
         {
             var entity = await _returnRepository.GetTrackedByIdAsync(returnRequestId, ct)
@@ -110,46 +107,13 @@ public sealed class DispatchSupplierReturnUseCase
                 throw new DomainException("This operation applies only to supplier returns.");
             }
 
-            var purchaseOrder = await _purchaseOrderRepository.GetTrackedByIdAsync(entity.PurchaseOrderId!.Value, ct)
-                ?? throw new PurchaseOrderNotFoundException(entity.PurchaseOrderId!.Value);
-
-            var returnLines = entity.Items
-                .Select(item => (item.PurchaseOrderItemId!.Value, item.RequestedQuantity))
-                .ToList();
-
-            purchaseOrder.RegisterSupplierReturn(returnLines);
-
-            foreach (var item in entity.Items.OrderBy(item => item.ProductId))
-            {
-                var balance = await _inventoryRepository.GetTrackedByProductIdAsync(item.ProductId, ct)
-                    ?? throw new InventoryBalanceNotFoundException(item.ProductId);
-
-                var previous = balance.QuantityOnHand;
-                balance.Issue(item.RequestedQuantity);
-                var movement = StockMovement.CreateForSupplierReturn(
-                    item.ProductId,
-                    entity.SupplierId!.Value,
-                    entity.PurchaseOrderId!.Value,
-                    entity.Id,
-                    item.Id,
-                    item.RequestedQuantity,
-                    previous,
-                    balance.QuantityOnHand,
-                    $"Supplier return {entity.ReturnNumber}");
-
-                await _inventoryRepository.AddMovementAsync(movement, ct);
-                lowStockChanges.Add(new LowStockChange(
-                    item.ProductId,
-                    item.ProductName,
-                    item.ProductSku,
-                    previous,
-                    balance.QuantityOnHand,
-                    balance.MinimumStockLevel,
-                    movement.Id));
-            }
-
             entity.Dispatch(request.Notes, request.DispatchReference);
         }, cancellationToken);
+
+        var lowStockChanges = await ReturnLowStockChanges.CollectAsync(
+            _inventoryRepository,
+            returnRequestId,
+            cancellationToken);
 
         var updated = await _returnRepository.GetByIdAsync(returnRequestId, cancellationToken)
             ?? throw new ReturnNotFoundException(returnRequestId);

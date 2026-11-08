@@ -54,7 +54,7 @@ public sealed class UpdateReturnUseCase
             EnsureCanUpdate(entity.Type);
 
             List<ReturnItem> items;
-            if (entity.Type == ReturnType.CustomerReturn)
+            if (entity.Type is ReturnType.CustomerReturn or ReturnType.Exchange)
             {
                 var order = await _orderRepository.GetByIdAsync(entity.OrderId!.Value, ct)
                     ?? throw new OrderNotFoundException(entity.OrderId!.Value);
@@ -107,7 +107,7 @@ public sealed class UpdateReturnUseCase
 
     private void EnsureCanUpdate(ReturnType type)
     {
-        var required = type == ReturnType.CustomerReturn
+        var required = type is ReturnType.CustomerReturn or ReturnType.Exchange
             ? Permissions.Returns.CustomerCreate
             : Permissions.Returns.SupplierCreate;
 

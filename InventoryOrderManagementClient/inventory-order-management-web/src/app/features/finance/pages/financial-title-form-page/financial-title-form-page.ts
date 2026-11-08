@@ -81,8 +81,8 @@ export class FinancialTitleFormPage implements OnInit {
   readonly collectionPath = computed(() => titleCollectionPath(this.kind()));
   readonly sourceTypes = computed(() =>
     this.kind() === 'payable'
-      ? FINANCIAL_SOURCE_TYPES.filter((type) => type !== 'SalesOrder')
-      : FINANCIAL_SOURCE_TYPES.filter((type) => type !== 'PurchaseOrder'),
+      ? FINANCIAL_SOURCE_TYPES.filter((type) => type !== 'SalesOrder' && type !== 'Return')
+      : FINANCIAL_SOURCE_TYPES.filter((type) => type !== 'PurchaseOrder' && type !== 'Return'),
   );
   readonly visibleParties = computed(() => {
     const term = this.partySearch().trim().toLowerCase();

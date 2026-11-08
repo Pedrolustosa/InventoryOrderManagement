@@ -7,6 +7,7 @@ import { localDateTimeInput, localDateTimeToUtc } from '../../models/finance-dat
 import { CashPreview, cashPreview, fromCents, toCents } from '../../models/finance-money';
 import {
   FINANCIAL_PAYMENT_METHODS,
+  MANUAL_PAYMENT_METHODS,
   FinanceKind,
   FinancialPaymentMethod,
   paymentMethodLabel,
@@ -32,7 +33,7 @@ export class SettlementForm {
   readonly confirmed = output<SettleInstallmentRequest>();
   readonly dismissed = output<void>();
 
-  readonly methods = FINANCIAL_PAYMENT_METHODS;
+  readonly methods = MANUAL_PAYMENT_METHODS;
   readonly paymentMethodLabel = paymentMethodLabel;
   readonly notesMax = FINANCE_NOTES_MAX;
   readonly referenceMax = SETTLEMENT_REFERENCE_MAX;

@@ -80,6 +80,20 @@ public class ReturnRequestConfiguration : IEntityTypeConfiguration<ReturnRequest
         builder.Property(entity => entity.FinancialNotes)
             .HasMaxLength(ReturnRequest.FinancialNotesMaxLength);
 
+        builder.Property(entity => entity.FinancialAdjustedAmount)
+            .IsRequired()
+            .HasPrecision(18, 2);
+
+        builder.HasOne<FinancialTitle>()
+            .WithMany()
+            .HasForeignKey(entity => entity.FinancialTitleId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<FinancialTitle>()
+            .WithMany()
+            .HasForeignKey(entity => entity.AdjustedFinancialTitleId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.Property(entity => entity.AuthorizationReference)
             .HasMaxLength(ReturnRequest.AuthorizationReferenceMaxLength);
 
@@ -123,5 +137,15 @@ public class ReturnRequestConfiguration : IEntityTypeConfiguration<ReturnRequest
 
         builder.Navigation(entity => entity.Items)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.HasMany(entity => entity.ReplacementItems)
+            .WithOne()
+            .HasForeignKey(item => item.ReturnRequestId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(entity => entity.ReplacementItems)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Ignore(entity => entity.IsCustomerSide);
     }
 }

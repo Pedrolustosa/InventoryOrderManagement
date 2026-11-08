@@ -7,6 +7,11 @@ namespace InventoryOrderManagement.Domain.Entities;
 
 public sealed record FinancialSettlementResult(FinancialSettlement Settlement, CashMovement? Movement);
 
+public sealed record FinancialReturnCreditResult(
+    decimal AppliedAmount,
+    bool Cancelled,
+    IReadOnlyList<FinancialSettlement> Settlements);
+
 public class FinancialTitle : AggregateRoot
 {
     public const int TitleNumberMaxLength = 32;
@@ -184,6 +189,80 @@ public class FinancialTitle : AggregateRoot
         CancelledAtUtc = cancelledAtUtc;
         Touch(cancelledAtUtc);
     }
+
+    /// <summary>
+    /// Reverses up to <paramref name="amount"/> of the outstanding balance because of a completed return.
+    /// A title with no settlements whose whole balance is reversed is cancelled; otherwise the reversal is
+    /// recorded as cash-less <see cref="FinancialPaymentMethod.ReturnCredit"/> settlements, oldest installment
+    /// first, so the settlement history is preserved and nothing is deleted. The part of the amount above the
+    /// outstanding balance (already paid) is not applied and is reported back for a refund title.
+    /// </summary>
+    public FinancialReturnCreditResult ApplyReturnCredit(
+        decimal amount,
+        Guid returnRequestId,
+        string returnNumber,
+        DateTime nowUtc)
+    {
+        if (CancelledAtUtc.HasValue)
+        {
+            throw new FinancialConflictException("A cancelled financial title cannot be credited by a return.");
+        }
+
+        if (returnRequestId == Guid.Empty)
+        {
+            throw new DomainException("Return request is required.");
+        }
+
+        var requested = Money.Require(amount, "Return credit amount");
+        var applied = Math.Min(requested, OutstandingBalance);
+        if (applied == 0)
+        {
+            return new FinancialReturnCreditResult(0m, Cancelled: false, []);
+        }
+
+        if (!HasSettlements && applied == TotalAmount)
+        {
+            Cancel($"Reversed by return {returnNumber}.", nowUtc);
+            return new FinancialReturnCreditResult(applied, Cancelled: true, []);
+        }
+
+        var settlements = new List<FinancialSettlement>();
+        var remaining = applied;
+        foreach (var installment in _installments
+                     .Where(item => item.OutstandingBalance > 0)
+                     .OrderBy(item => item.DueDate)
+                     .ThenBy(item => item.InstallmentNumber)
+                     .ToList())
+        {
+            if (remaining == 0)
+            {
+                break;
+            }
+
+            var chunk = Math.Min(remaining, installment.OutstandingBalance);
+            var result = SettleInstallment(
+                installment.Id,
+                cashAccountId: null,
+                FinancialPaymentMethod.ReturnCredit,
+                chunk,
+                discountAmount: 0m,
+                interestAmount: 0m,
+                fineAmount: 0m,
+                nowUtc,
+                reference: returnNumber,
+                notes: $"Credit from return {returnNumber}.",
+                idempotencyKey: ReturnCreditKey(returnRequestId, installment.Id),
+                nowUtc,
+                createdByUserId: null);
+            settlements.Add(result.Settlement);
+            remaining = Money.Round(remaining - chunk);
+        }
+
+        return new FinancialReturnCreditResult(applied, Cancelled: false, settlements);
+    }
+
+    public static string ReturnCreditKey(Guid returnRequestId, Guid installmentId) =>
+        $"return:{returnRequestId:N}:{installmentId:N}";
 
     public FinancialSettlementResult SettleInstallment(
         Guid installmentId,

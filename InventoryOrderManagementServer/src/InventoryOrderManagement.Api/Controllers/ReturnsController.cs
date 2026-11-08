@@ -18,6 +18,7 @@ public sealed class ReturnsController : ControllerBase
 {
     private readonly CreateCustomerReturnUseCase _createCustomerReturnUseCase;
     private readonly CreateSupplierReturnUseCase _createSupplierReturnUseCase;
+    private readonly CreateExchangeReturnUseCase _createExchangeReturnUseCase;
     private readonly GetAllReturnsUseCase _getAllReturnsUseCase;
     private readonly GetReturnByIdUseCase _getReturnByIdUseCase;
     private readonly UpdateReturnUseCase _updateReturnUseCase;
@@ -35,6 +36,7 @@ public sealed class ReturnsController : ControllerBase
     public ReturnsController(
         CreateCustomerReturnUseCase createCustomerReturnUseCase,
         CreateSupplierReturnUseCase createSupplierReturnUseCase,
+        CreateExchangeReturnUseCase createExchangeReturnUseCase,
         GetAllReturnsUseCase getAllReturnsUseCase,
         GetReturnByIdUseCase getReturnByIdUseCase,
         UpdateReturnUseCase updateReturnUseCase,
@@ -51,6 +53,7 @@ public sealed class ReturnsController : ControllerBase
     {
         _createCustomerReturnUseCase = createCustomerReturnUseCase;
         _createSupplierReturnUseCase = createSupplierReturnUseCase;
+        _createExchangeReturnUseCase = createExchangeReturnUseCase;
         _getAllReturnsUseCase = getAllReturnsUseCase;
         _getReturnByIdUseCase = getReturnByIdUseCase;
         _updateReturnUseCase = updateReturnUseCase;
@@ -77,6 +80,20 @@ public sealed class ReturnsController : ControllerBase
         CancellationToken cancellationToken)
     {
         var created = await _createCustomerReturnUseCase.ExecuteAsync(request, cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+    }
+
+    [Authorize(Policy = Permissions.Returns.CustomerCreate)]
+    [HttpPost("exchange")]
+    [ProducesResponseType(typeof(ReturnResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<ReturnResponse>> CreateExchange(
+        [FromBody] CreateExchangeReturnRequest request,
+        CancellationToken cancellationToken)
+    {
+        var created = await _createExchangeReturnUseCase.ExecuteAsync(request, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 

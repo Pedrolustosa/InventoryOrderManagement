@@ -2,9 +2,14 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Observable, catchError, forkJoin, map, of } from 'rxjs';
 import { ToastService } from '../../../../core/notifications/toast.service';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { SecurityAuditLog } from '../../../access-management/audit/models/audit.model';
+import { FinancialStatus } from '../../../finance/components/financial-status/financial-status';
+import { FinanceKind } from '../../../finance/models/finance.enums';
+import { FinancialTitleSummary } from '../../../finance/models/financial-title.model';
+import { FinanceService } from '../../../finance/services/finance.service';
 import { movementTypeLabel } from '../../../inventory/models/stock-movement-type.model';
 import { ReturnCancelDialog } from '../../components/return-cancel-dialog/return-cancel-dialog';
 import {
@@ -17,6 +22,7 @@ import {
   editPermissionFor,
 } from '../../models/return-actions';
 import {
+  isCustomerSideReturn,
   returnFinancialStatusLabel,
   returnFinancialTreatmentLabel,
   returnItemConditionLabel,
@@ -28,9 +34,25 @@ import {
 import { ReturnRequest, ReturnStockMovement, returnCounterpartName } from '../../models/return.model';
 import { ReturnsRequestError, ReturnsService } from '../../services/returns.service';
 
+/** A financial title the return abated/cancelled (ADJUSTED) or generated (GENERATED). */
+export interface ReturnFinancialTitleEntry {
+  role: 'ADJUSTED' | 'GENERATED';
+  kind: FinanceKind;
+  title: FinancialTitleSummary;
+  dueDate: string | null;
+}
+
 @Component({
   selector: 'app-return-details-page',
-  imports: [RouterLink, CurrencyPipe, DatePipe, ReturnCancelDialog, HasPermissionDirective, TranslatePipe],
+  imports: [
+    RouterLink,
+    CurrencyPipe,
+    DatePipe,
+    ReturnCancelDialog,
+    HasPermissionDirective,
+    TranslatePipe,
+    FinancialStatus,
+  ],
   templateUrl: './return-details-page.html',
 })
 export class ReturnDetailsPage implements OnInit {
@@ -38,13 +60,16 @@ export class ReturnDetailsPage implements OnInit {
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
   private readonly returnsService = inject(ReturnsService);
+  private readonly financeService = inject(FinanceService);
 
   readonly ret = signal<ReturnRequest | null>(null);
   readonly history = signal<SecurityAuditLog[]>([]);
   readonly movements = signal<ReturnStockMovement[]>([]);
+  readonly titles = signal<ReturnFinancialTitleEntry[]>([]);
   readonly isLoading = signal(true);
   readonly historyLoading = signal(false);
   readonly movementsLoading = signal(false);
+  readonly titlesLoading = signal(false);
   readonly isActing = signal(false);
   readonly loadError = signal<string | null>(null);
   readonly historyError = signal<string | null>(null);
@@ -80,7 +105,10 @@ export class ReturnDetailsPage implements OnInit {
     const current = this.ret();
     return current ? editPermissionFor(current.type) : 'Returns.Customer.Create';
   });
-  readonly isCustomer = computed(() => this.ret()?.type === 'CustomerReturn');
+  readonly isCustomer = computed(() => {
+    const current = this.ret();
+    return current ? isCustomerSideReturn(current.type) : false;
+  });
 
   constructor() {
     const state = this.router.getCurrentNavigation()?.extras.state as
@@ -159,11 +187,64 @@ export class ReturnDetailsPage implements OnInit {
         this.isLoading.set(false);
         this.loadHistory(ret.id);
         this.loadMovements(ret.id);
+        this.loadTitles(ret);
       },
       error: (error: ReturnsRequestError) => {
         this.loadError.set(error.message);
         this.isLoading.set(false);
       },
+    });
+  }
+
+  private loadTitles(ret: ReturnRequest): void {
+    this.titlesLoading.set(true);
+
+    // The abated original is the order receivable (customer side) or the purchase payable (supplier).
+    const adjustedKind: FinanceKind = isCustomerSideReturn(ret.type) ? 'receivable' : 'payable';
+    const adjusted$: Observable<ReturnFinancialTitleEntry[]> = ret.adjustedFinancialTitleId
+      ? this.financeService.getTitle(adjustedKind, ret.adjustedFinancialTitleId).pipe(
+          map((title) => [
+            {
+              role: 'ADJUSTED' as const,
+              kind: adjustedKind,
+              title,
+              dueDate: [...title.installments].sort((a, b) => a.dueDate.localeCompare(b.dueDate))[0]?.dueDate ?? null,
+            },
+          ]),
+          catchError(() => of([])),
+        )
+      : of([]);
+
+    // Generated titles carry the return as their source; refunds are payables, credits/differences receivables.
+    const generated = (kind: FinanceKind): Observable<ReturnFinancialTitleEntry[]> =>
+      this.financeService
+        .getTitles(kind, {
+          status: null,
+          counterpartyId: null,
+          sourceId: ret.id,
+          documentNumber: null,
+          issueFrom: null,
+          issueTo: null,
+          dueFrom: null,
+          dueTo: null,
+          page: 1,
+          pageSize: 10,
+        })
+        .pipe(
+          map((page) =>
+            page.items.map((title) => ({
+              role: 'GENERATED' as const,
+              kind,
+              title,
+              dueDate: title.dueDate ?? null,
+            })),
+          ),
+          catchError(() => of([])),
+        );
+
+    forkJoin([adjusted$, generated('payable'), generated('receivable')]).subscribe((groups) => {
+      this.titles.set(groups.flat());
+      this.titlesLoading.set(false);
     });
   }
 

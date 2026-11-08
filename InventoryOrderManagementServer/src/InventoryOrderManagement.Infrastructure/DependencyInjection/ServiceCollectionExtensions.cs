@@ -65,6 +65,9 @@ public static class ServiceCollectionExtensions
             .Validate(
                 options => options.DefaultReceivableDays is >= 0 and <= FinanceOptions.MaxReceivableDays,
                 $"{FinanceOptions.SectionName}:DefaultReceivableDays must be between 0 and {FinanceOptions.MaxReceivableDays}.")
+            .Validate(
+                options => options.DefaultReturnTitleDays is >= 0 and <= FinanceOptions.MaxReceivableDays,
+                $"{FinanceOptions.SectionName}:DefaultReturnTitleDays must be between 0 and {FinanceOptions.MaxReceivableDays}.")
             .ValidateOnStart();
 
         

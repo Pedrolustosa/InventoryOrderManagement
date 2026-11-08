@@ -1,11 +1,14 @@
 using InventoryOrderManagement.Domain.Abstractions;
 using InventoryOrderManagement.Domain.Enums;
+using InventoryOrderManagement.Domain.Events;
 using InventoryOrderManagement.Domain.Exceptions;
 
 namespace InventoryOrderManagement.Domain.Entities;
 
 public class ReturnRequest : AggregateRoot
 {
+    private readonly List<ReturnReplacementItem> _replacementItems = [];
+
     public const int ReturnNumberMaxLength = 32;
     public const int ReasonDescriptionMaxLength = 300;
     public const int NotesMaxLength = 500;
@@ -61,6 +64,12 @@ public class ReturnRequest : AggregateRoot
 
     public string? FinancialNotes { get; private set; }
 
+    /// <summary>Original title (sales-order receivable or purchase-order payable) abated or cancelled by the return.</summary>
+    public Guid? AdjustedFinancialTitleId { get; private set; }
+
+    /// <summary>Amount abated from (or cancelled on) the original title.</summary>
+    public decimal FinancialAdjustedAmount { get; private set; }
+
     public string? AuthorizationReference { get; private set; }
 
     public string? DispatchReference { get; private set; }
@@ -88,6 +97,11 @@ public class ReturnRequest : AggregateRoot
     public int Version { get; private set; }
 
     public IReadOnlyCollection<ReturnItem> Items => _items;
+
+    public IReadOnlyCollection<ReturnReplacementItem> ReplacementItems => _replacementItems;
+
+    /// <summary>Customer returns and exchanges share the receive/inspection workflow.</summary>
+    public bool IsCustomerSide => Type is ReturnType.CustomerReturn or ReturnType.Exchange;
 
     public static ReturnRequest CreateCustomer(
         string returnNumber,
@@ -130,6 +144,52 @@ public class ReturnRequest : AggregateRoot
         request.CustomerName = NormalizePartyName(customerName, "Customer name");
         request.OrderId = orderId;
         request.SourceReference = NormalizeSourceReference(sourceReference);
+        return request;
+    }
+
+    public static ReturnRequest CreateExchange(
+        string returnNumber,
+        Guid customerId,
+        string customerName,
+        Guid orderId,
+        string sourceReference,
+        ReturnReason reason,
+        string? reasonDescription,
+        string? notes,
+        ReturnFinancialTreatment financialTreatment,
+        string? financialNotes,
+        Guid? createdByUserId,
+        IReadOnlyList<ReturnItem> items,
+        IReadOnlyList<ReturnReplacementItem> replacementItems)
+    {
+        if (customerId == Guid.Empty)
+        {
+            throw new DomainException("Customer is required.");
+        }
+
+        if (orderId == Guid.Empty)
+        {
+            throw new DomainException("Sales order is required.");
+        }
+
+        EnsureCustomerFinancialTreatment(financialTreatment);
+
+        var request = CreateCore(
+            returnNumber,
+            ReturnType.Exchange,
+            reason,
+            reasonDescription,
+            notes,
+            financialTreatment,
+            financialNotes,
+            createdByUserId,
+            items);
+
+        request.CustomerId = customerId;
+        request.CustomerName = NormalizePartyName(customerName, "Customer name");
+        request.OrderId = orderId;
+        request.SourceReference = NormalizeSourceReference(sourceReference);
+        request.ReplaceReplacementItems(replacementItems);
         return request;
     }
 
@@ -187,7 +247,7 @@ public class ReturnRequest : AggregateRoot
     {
         EnsureStatus(ReturnStatus.Draft);
 
-        if (Type == ReturnType.CustomerReturn)
+        if (IsCustomerSide)
         {
             EnsureCustomerFinancialTreatment(financialTreatment);
         }
@@ -309,6 +369,24 @@ public class ReturnRequest : AggregateRoot
         var accepted = _items.Sum(item => item.AcceptedQuantity);
         Status = accepted > 0 ? ReturnStatus.Completed : ReturnStatus.Rejected;
         Touch();
+
+        if (Status == ReturnStatus.Completed)
+        {
+            RaiseCompleted(
+                _items
+                    .Where(item => item.AcceptedQuantity > 0)
+                    .Select(item => new ReturnCompletedItem(
+                        item.Id,
+                        item.ProductId,
+                        item.AcceptedQuantity,
+                        item.RestockedQuantity,
+                        item.QuarantinedQuantity,
+                        item.DiscardedQuantity,
+                        item.Condition,
+                        item.UnitValueSnapshot))
+                    .ToList(),
+                CompletedAtUtc!.Value);
+        }
     }
 
     public void Authorize(string? notes, string? authorizationReference)
@@ -352,11 +430,74 @@ public class ReturnRequest : AggregateRoot
         Status = ReturnStatus.Dispatched;
         DispatchedAtUtc = DateTime.UtcNow;
         Touch();
+
+        RaiseCompleted(
+            _items
+                .Select(item => new ReturnCompletedItem(
+                    item.Id,
+                    item.ProductId,
+                    item.DispatchedQuantity,
+                    RestockedQuantity: 0,
+                    QuarantinedQuantity: 0,
+                    DiscardedQuantity: 0,
+                    item.Condition,
+                    item.UnitValueSnapshot))
+                .ToList(),
+            DispatchedAtUtc.Value);
+    }
+
+    /// <summary>
+    /// Records the financial reversal applied by the completion handler. Applies once: a processed return
+    /// cannot be reversed again.
+    /// </summary>
+    public void MarkFinanciallyProcessed(
+        Guid? adjustedFinancialTitleId,
+        decimal adjustedAmount,
+        Guid? generatedFinancialTitleId)
+    {
+        if (Status is not (ReturnStatus.Completed or ReturnStatus.Dispatched))
+        {
+            throw new InvalidReturnStatusException(Status);
+        }
+
+        if (FinancialStatus != ReturnFinancialStatus.Pending)
+        {
+            throw new ReturnConflictException("The financial reversal of this return was already processed.");
+        }
+
+        if (adjustedAmount < 0)
+        {
+            throw new DomainException("Adjusted amount cannot be negative.");
+        }
+
+        AdjustedFinancialTitleId = adjustedFinancialTitleId;
+        FinancialAdjustedAmount = decimal.Round(adjustedAmount, 2, MidpointRounding.AwayFromZero);
+        FinancialTitleId = generatedFinancialTitleId;
+        FinancialStatus = ReturnFinancialStatus.Processed;
+        Touch();
+    }
+
+    private void RaiseCompleted(IReadOnlyList<ReturnCompletedItem> items, DateTime occurredOnUtc)
+    {
+        RaiseDomainEvent(new ReturnCompletedDomainEvent(
+            Id,
+            Type,
+            OrderId,
+            PurchaseOrderId,
+            items,
+            _replacementItems
+                .Select(item => new ReturnCompletedReplacement(
+                    item.Id,
+                    item.ProductId,
+                    item.Quantity,
+                    item.UnitPriceSnapshot))
+                .ToList(),
+            occurredOnUtc));
     }
 
     public void Cancel(string reason)
     {
-        if (Type == ReturnType.CustomerReturn)
+        if (IsCustomerSide)
         {
             if (Status is not (ReturnStatus.Draft or ReturnStatus.Received))
             {
@@ -425,7 +566,7 @@ public class ReturnRequest : AggregateRoot
                 throw new DomainException("The same product cannot appear more than once on a return.");
             }
 
-            if (Type == ReturnType.CustomerReturn)
+            if (IsCustomerSide)
             {
                 if (item.OrderItemId is null || item.PurchaseOrderItemId is not null)
                 {
@@ -459,7 +600,43 @@ public class ReturnRequest : AggregateRoot
         }
 
         EstimatedAmount = decimal.Round(_items.Sum(item => item.LineEstimatedAmount), 2, MidpointRounding.AwayFromZero);
-        EstimatedFinancialAmount = EstimatedAmount;
+        RecalculateFinancialEstimate();
+    }
+
+    private void ReplaceReplacementItems(IReadOnlyList<ReturnReplacementItem> replacementItems)
+    {
+        if (replacementItems is null || replacementItems.Count == 0)
+        {
+            throw new DomainException("An exchange must contain at least one replacement item.");
+        }
+
+        var seenProducts = new HashSet<Guid>();
+        foreach (var item in replacementItems)
+        {
+            ArgumentNullException.ThrowIfNull(item);
+
+            if (!seenProducts.Add(item.ProductId))
+            {
+                throw new DomainException("The same replacement product cannot appear more than once on an exchange.");
+            }
+        }
+
+        _replacementItems.Clear();
+        foreach (var item in replacementItems)
+        {
+            item.AssignReturnRequest(Id);
+            _replacementItems.Add(item);
+        }
+
+        RecalculateFinancialEstimate();
+    }
+
+    private void RecalculateFinancialEstimate()
+    {
+        // Exchanges settle only the price difference between replacements and returned items.
+        EstimatedFinancialAmount = Type == ReturnType.Exchange
+            ? Math.Abs(_replacementItems.Sum(item => item.LineAmount) - EstimatedAmount)
+            : EstimatedAmount;
     }
 
     private void ApplyReason(ReturnReason reason, string? reasonDescription)
@@ -490,7 +667,8 @@ public class ReturnRequest : AggregateRoot
         }
 
         FinancialTreatment = treatment;
-        FinancialStatus = treatment == ReturnFinancialTreatment.None
+        // An exchange always settles its price difference; other returns follow the chosen treatment.
+        FinancialStatus = treatment == ReturnFinancialTreatment.None && Type != ReturnType.Exchange
             ? ReturnFinancialStatus.None
             : ReturnFinancialStatus.Pending;
         FinancialNotes = NormalizeOptional(financialNotes, FinancialNotesMaxLength, "Financial notes");
@@ -499,7 +677,7 @@ public class ReturnRequest : AggregateRoot
 
     private void EnsureCustomer()
     {
-        if (Type != ReturnType.CustomerReturn)
+        if (!IsCustomerSide)
         {
             throw new DomainException("This operation applies only to customer returns.");
         }

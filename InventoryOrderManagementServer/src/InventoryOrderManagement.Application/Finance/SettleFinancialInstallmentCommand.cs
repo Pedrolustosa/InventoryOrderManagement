@@ -49,6 +49,11 @@ public sealed class SettleFinancialInstallmentCommand
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
+        if (request.PaymentMethod == FinancialPaymentMethod.ReturnCredit)
+        {
+            throw new FinancialConflictException("Return credits are applied by the system when a return completes.");
+        }
+
         var key = string.IsNullOrWhiteSpace(request.IdempotencyKey) ? null : request.IdempotencyKey.Trim();
         var replay = await FindReplayAsync(key, titleId, installmentId, request.SettledPrincipalAmount, cancellationToken);
         if (replay is not null)

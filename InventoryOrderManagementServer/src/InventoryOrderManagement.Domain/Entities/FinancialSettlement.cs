@@ -78,7 +78,14 @@ public class FinancialSettlement : AggregateRoot
             throw new DomainException("Discount cannot exceed the settled principal amount.");
         }
 
-        var cashAmount = Money.Round(principal - discount + interest + fine);
+        // A return credit abates principal without moving cash.
+        var isReturnCredit = paymentMethod == FinancialPaymentMethod.ReturnCredit;
+        if (isReturnCredit && (discount > 0 || interest > 0 || fine > 0 || cashAccountId is not null))
+        {
+            throw new DomainException("A return credit cannot carry discount, interest, fine or a cash account.");
+        }
+
+        var cashAmount = isReturnCredit ? 0m : Money.Round(principal - discount + interest + fine);
         if (cashAmount < 0)
         {
             throw new DomainException("The cash amount cannot be negative.");

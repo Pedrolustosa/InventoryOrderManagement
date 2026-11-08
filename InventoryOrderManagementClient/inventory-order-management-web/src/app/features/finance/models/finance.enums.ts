@@ -4,7 +4,7 @@ export type FinancialTitleType = (typeof FINANCIAL_TITLE_TYPES)[number];
 export const FINANCIAL_COUNTERPARTY_TYPES = ['Supplier', 'Customer', 'Other'] as const;
 export type FinancialCounterpartyType = (typeof FINANCIAL_COUNTERPARTY_TYPES)[number];
 
-export const FINANCIAL_SOURCE_TYPES = ['Manual', 'PurchaseOrder', 'SalesOrder'] as const;
+export const FINANCIAL_SOURCE_TYPES = ['Manual', 'PurchaseOrder', 'SalesOrder', 'Return'] as const;
 export type FinancialSourceType = (typeof FINANCIAL_SOURCE_TYPES)[number];
 
 export const FINANCIAL_STATUSES = ['Pending', 'PartiallyPaid', 'Paid', 'Overdue', 'Cancelled'] as const;
@@ -19,8 +19,12 @@ export const FINANCIAL_PAYMENT_METHODS = [
   'DebitCard',
   'Check',
   'Other',
+  'ReturnCredit',
 ] as const;
 export type FinancialPaymentMethod = (typeof FINANCIAL_PAYMENT_METHODS)[number];
+
+/** Methods a user can pick; ReturnCredit is applied only by the system when a return completes. */
+export const MANUAL_PAYMENT_METHODS = FINANCIAL_PAYMENT_METHODS.filter((method) => method !== 'ReturnCredit');
 
 export const CASH_ACCOUNT_TYPES = ['Cash', 'CheckingAccount', 'SavingsAccount', 'Other'] as const;
 export type CashAccountType = (typeof CASH_ACCOUNT_TYPES)[number];

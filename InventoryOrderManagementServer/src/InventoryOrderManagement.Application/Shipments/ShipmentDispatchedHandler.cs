@@ -162,7 +162,7 @@ public sealed class ShipmentDispatchedHandler : ITransactionalDomainEventHandler
         var now = _timeProvider.GetUtcNow().UtcDateTime;
         var issueDate = DateOnly.FromDateTime(now);
         var dueDate = issueDate.AddDays(_financeOptions.DefaultReceivableDays);
-        var titleNumber = await NextTitleNumberAsync(now, cancellationToken);
+        var titleNumber = await FinancialTitleNumbers.NextAsync(_financialTitleRepository, now, cancellationToken);
         var documentNumber = $"SO-{order.OrderNumber}";
 
         var title = FinancialTitle.Create(
@@ -189,19 +189,5 @@ public sealed class ShipmentDispatchedHandler : ITransactionalDomainEventHandler
         }
 
         await _financialTitleRepository.AddAsync(title, cancellationToken);
-    }
-
-    private async Task<string> NextTitleNumberAsync(DateTime utcNow, CancellationToken cancellationToken)
-    {
-        for (var attempt = 0; attempt < 8; attempt++)
-        {
-            var candidate = $"FT-{utcNow:yyyyMMdd}-{Guid.NewGuid().ToString("N")[..8].ToUpperInvariant()}";
-            if (!await _financialTitleRepository.ExistsByNumberAsync(candidate, cancellationToken))
-            {
-                return candidate;
-            }
-        }
-
-        throw new ShipmentConflictException("A receivable number could not be generated for the shipment.");
     }
 }

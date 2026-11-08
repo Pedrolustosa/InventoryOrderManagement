@@ -99,5 +99,10 @@ public class StockMovementConfiguration : IEntityTypeConfiguration<StockMovement
         builder.HasIndex(movement => movement.PurchaseReceiptId);
         builder.HasIndex(movement => movement.ReturnRequestId);
         builder.HasIndex(movement => movement.ReturnItemId);
+
+        // A completed return moves (or records) each product at most once per movement type.
+        builder.HasIndex(movement => new { movement.ReturnRequestId, movement.ProductId, movement.MovementType })
+            .IsUnique()
+            .HasFilter("\"ReturnRequestId\" IS NOT NULL");
     }
 }

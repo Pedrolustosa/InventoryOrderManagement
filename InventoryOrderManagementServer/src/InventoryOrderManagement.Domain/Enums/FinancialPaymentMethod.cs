@@ -8,5 +8,8 @@ public enum FinancialPaymentMethod
     CreditCard = 3,
     DebitCard = 4,
     Check = 5,
-    Other = 6
+    Other = 6,
+
+    /// <summary>System-only abatement of an open title by a completed return. Moves no cash.</summary>
+    ReturnCredit = 7
 }

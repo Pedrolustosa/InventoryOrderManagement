@@ -10,6 +10,9 @@ export const STOCK_MOVEMENT_TYPES = [
   'SupplierReturnExit',
   'OrderReservation',
   'OrderReservationRelease',
+  'CustomerReturnQuarantine',
+  'CustomerReturnLoss',
+  'ExchangeReplacementExit',
 ] as const;
 
 export type StockMovementType = (typeof STOCK_MOVEMENT_TYPES)[number];

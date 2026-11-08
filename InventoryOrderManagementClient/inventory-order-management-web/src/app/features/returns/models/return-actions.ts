@@ -1,19 +1,19 @@
-import { ReturnStatus, ReturnType } from './return.enums';
+import { ReturnStatus, ReturnType, isCustomerSideReturn } from './return.enums';
 
 export function canEditReturn(type: ReturnType, status: ReturnStatus): boolean {
   return status === 'Draft';
 }
 
 export function canReceiveReturn(type: ReturnType, status: ReturnStatus): boolean {
-  return type === 'CustomerReturn' && status === 'Draft';
+  return isCustomerSideReturn(type) && status === 'Draft';
 }
 
 export function canStartInspection(type: ReturnType, status: ReturnStatus): boolean {
-  return type === 'CustomerReturn' && status === 'Received';
+  return isCustomerSideReturn(type) && status === 'Received';
 }
 
 export function canCompleteInspection(type: ReturnType, status: ReturnStatus): boolean {
-  return type === 'CustomerReturn' && status === 'UnderInspection';
+  return isCustomerSideReturn(type) && status === 'UnderInspection';
 }
 
 export function canInspectReturn(type: ReturnType, status: ReturnStatus): boolean {
@@ -29,7 +29,7 @@ export function canDispatchReturn(type: ReturnType, status: ReturnStatus): boole
 }
 
 export function canCancelReturn(type: ReturnType, status: ReturnStatus): boolean {
-  if (type === 'CustomerReturn') {
+  if (isCustomerSideReturn(type)) {
     return status === 'Draft' || status === 'Received';
   }
 
@@ -37,5 +37,5 @@ export function canCancelReturn(type: ReturnType, status: ReturnStatus): boolean
 }
 
 export function editPermissionFor(type: ReturnType): string {
-  return type === 'CustomerReturn' ? 'Returns.Customer.Create' : 'Returns.Supplier.Create';
+  return isCustomerSideReturn(type) ? 'Returns.Customer.Create' : 'Returns.Supplier.Create';
 }

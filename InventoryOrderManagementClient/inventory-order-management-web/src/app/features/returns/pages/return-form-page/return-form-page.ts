@@ -18,6 +18,7 @@ import {
   ReturnReason,
   ReturnType,
   customerFinancialTreatments,
+  isCustomerSideReturn,
   returnReasonLabel,
   returnFinancialTreatmentLabel,
   supplierFinancialTreatments,
@@ -360,7 +361,7 @@ export class ReturnFormPage implements OnInit {
           financialNotes: current.financialNotes ?? '',
         });
 
-        const sourceId = current.type === 'CustomerReturn' ? current.orderId : current.purchaseOrderId;
+        const sourceId = isCustomerSideReturn(current.type) ? current.orderId : current.purchaseOrderId;
         this.selectedSourceId.set(sourceId ?? '');
         if (sourceId) {
           this.loadEligibleItemsForEdit(sourceId, current);
@@ -378,7 +379,7 @@ export class ReturnFormPage implements OnInit {
   private loadEligibleItemsForEdit(sourceId: string, current: ReturnRequest): void {
     this.isLoadingItems.set(true);
     const request =
-      current.type === 'CustomerReturn'
+      isCustomerSideReturn(current.type)
         ? this.returnsService.getCustomerEligibleItems(sourceId)
         : this.returnsService.getSupplierEligibleItems(sourceId);
 
@@ -386,7 +387,7 @@ export class ReturnFormPage implements OnInit {
       next: (items) => {
         const bySource = new Map(items.map((item) => [item.sourceItemId, item]));
         for (const line of current.items) {
-          const sourceItemId = (current.type === 'CustomerReturn' ? line.orderItemId : line.purchaseOrderItemId) ?? '';
+          const sourceItemId = (isCustomerSideReturn(current.type) ? line.orderItemId : line.purchaseOrderItemId) ?? '';
           const existing = bySource.get(sourceItemId);
           if (existing) {
             bySource.set(sourceItemId, {
@@ -410,7 +411,7 @@ export class ReturnFormPage implements OnInit {
         this.eligibleItems.set([...bySource.values()].filter((item) => item.availableToReturn > 0));
         const qty: Record<string, string> = {};
         for (const line of current.items) {
-          const sourceItemId = (current.type === 'CustomerReturn' ? line.orderItemId : line.purchaseOrderItemId) ?? '';
+          const sourceItemId = (isCustomerSideReturn(current.type) ? line.orderItemId : line.purchaseOrderItemId) ?? '';
           if (sourceItemId) {
             qty[sourceItemId] = String(line.requestedQuantity);
           }
