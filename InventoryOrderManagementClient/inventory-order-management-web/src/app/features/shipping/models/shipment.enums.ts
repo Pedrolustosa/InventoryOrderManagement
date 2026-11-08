@@ -4,6 +4,7 @@ export const SHIPMENT_STATUSES = [
   'InTransit',
   'Delivered',
   'Failed',
+  'Cancelled',
 ] as const;
 
 export type ShipmentStatus = (typeof SHIPMENT_STATUSES)[number];
@@ -24,5 +25,7 @@ export function shipmentStatusClass(status: ShipmentStatus): string {
       return 'inline-flex rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-900';
     case 'Failed':
       return 'inline-flex rounded-full bg-danger/10 px-2.5 py-1 text-xs font-semibold text-danger';
+    case 'Cancelled':
+      return 'inline-flex rounded-full bg-ink/10 px-2.5 py-1 text-xs font-semibold text-ink';
   }
 }

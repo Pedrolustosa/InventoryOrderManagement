@@ -301,7 +301,8 @@
       "Shipped": "Shipped",
       "InTransit": "In transit",
       "Delivered": "Delivered",
-      "Failed": "Failed"
+      "Failed": "Failed",
+      "Cancelled": "Cancelled"
     },
     "RETURN": {
       "Draft": "Draft",
@@ -937,7 +938,8 @@
           "in_transit": "Shipment in transit",
           "failed": "Delivery failed",
           "resumed": "Delivery resumed",
-          "delivered": "Shipment delivered"
+          "delivered": "Shipment delivered",
+          "cancelled": "Shipment cancelled"
         },
         "finance": {
           "receivable_created": "Receivable created",
@@ -961,7 +963,8 @@
           "Shipped": "Shipped",
           "InTransit": "In transit",
           "Delivered": "Delivered",
-          "Failed": "Failed"
+          "Failed": "Failed",
+          "Cancelled": "Cancelled"
         },
         "Finance": {
           "Pending": "Pending",

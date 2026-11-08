@@ -301,7 +301,8 @@
       "Shipped": "Despachado",
       "InTransit": "Em trânsito",
       "Delivered": "Entregue",
-      "Failed": "Falhou"
+      "Failed": "Falhou",
+      "Cancelled": "Cancelada"
     },
     "RETURN": {
       "Draft": "Rascunho",
@@ -937,7 +938,8 @@
           "in_transit": "Remessa em trânsito",
           "failed": "Falha na entrega",
           "resumed": "Entrega retomada",
-          "delivered": "Remessa entregue"
+          "delivered": "Remessa entregue",
+          "cancelled": "Remessa cancelada"
         },
         "finance": {
           "receivable_created": "Título a receber criado",
@@ -961,7 +963,8 @@
           "Shipped": "Despachada",
           "InTransit": "Em trânsito",
           "Delivered": "Entregue",
-          "Failed": "Falhou"
+          "Failed": "Falhou",
+          "Cancelled": "Cancelada"
         },
         "Finance": {
           "Pending": "Pendente",

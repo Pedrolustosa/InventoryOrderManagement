@@ -128,6 +128,10 @@ export class OrderDetailsPage implements OnInit {
         if (action === 'confirm' || action === 'cancel') {
           this.loadAvailability(updated);
         }
+        if (action === 'cancel') {
+          // A shipment still being prepared is cancelled together with the order.
+          this.loadLinkedShipment(updated.id);
+        }
       },
       error: (error: Error) => {
         this.isActing.set(false);
