@@ -1,0 +1,55 @@
+<div class="flex min-w-0 items-start gap-3" [attr.data-module]="entry().module">
+  <span
+    class="relative z-10 inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-line bg-panel text-accent-ink"
+    aria-hidden="true"
+    [attr.data-icon]="entry().module"
+  >
+    @switch (entry().module) {
+      @case ('Order') {
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.75">
+          <path d="M5 7h14l-1 12H6L5 7zm3-3h8l1 3H7l1-3z" stroke-linejoin="round" />
+        </svg>
+      }
+      @case ('Stock') {
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.75">
+          <path d="M12 3 4 7v10l8 4 8-4V7l-8-4zm0 0v18M4 7l8 4 8-4" stroke-linejoin="round" />
+        </svg>
+      }
+      @case ('Shipment') {
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.75">
+          <path d="M3 7h11v10H3zM14 10h4l3 3v4h-7V10zM6 20a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm11 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" stroke-linejoin="round" />
+        </svg>
+      }
+      @case ('Finance') {
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.75">
+          <rect x="3" y="6" width="18" height="12" rx="2" />
+          <path d="M3 10h18M7 15h3" stroke-linecap="round" />
+        </svg>
+      }
+      @case ('Return') {
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.75">
+          <path d="M9 7H5v4M5 11a7 7 0 1 0 2-4.9" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      }
+      @default {
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.75">
+          <circle cx="12" cy="12" r="9" />
+        </svg>
+      }
+    }
+  </span>
+
+  <div class="min-w-0 flex-1 pt-1">
+    <p class="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm">
+      <span class="font-medium break-words text-ink" data-testid="step-title">{{ title() }}</span>
+      <span class="text-xs font-semibold uppercase tracking-wide text-muted">{{ moduleLabel() }}</span>
+    </p>
+    <p class="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-muted">
+      <time [attr.datetime]="entry().occurredAtUtc">{{ entry().occurredAtUtc | date: 'shortTime' : undefined : localeId() }}</time>
+      @if (statusText(); as status) {
+        <span aria-hidden="true">·</span>
+        <span data-testid="step-status">{{ status }}</span>
+      }
+    </p>
+  </div>
+</div>

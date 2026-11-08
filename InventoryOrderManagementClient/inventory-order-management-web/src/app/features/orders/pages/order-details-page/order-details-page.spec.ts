@@ -30,6 +30,7 @@ describe('OrderDetailsPage', () => {
     shipOrder: ReturnType<typeof vi.fn>;
     deliverOrder: ReturnType<typeof vi.fn>;
     cancelOrder: ReturnType<typeof vi.fn>;
+    getTimeline: ReturnType<typeof vi.fn>;
   };
   let shipmentsService: {
     getByOrderId: ReturnType<typeof vi.fn>;
@@ -98,6 +99,9 @@ describe('OrderDetailsPage', () => {
       shipOrder: vi.fn(),
       deliverOrder: vi.fn(),
       cancelOrder: vi.fn(),
+      getTimeline: vi.fn().mockReturnValue(
+        of({ orderId: order.id, orderNumber: order.orderNumber, currentStatus: order.status, entries: [] }),
+      ),
     };
     shipmentsService = {
       getByOrderId: vi.fn().mockReturnValue(of(linkedShipment)),

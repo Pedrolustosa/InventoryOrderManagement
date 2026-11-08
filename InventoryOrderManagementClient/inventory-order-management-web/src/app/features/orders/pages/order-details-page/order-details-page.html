@@ -238,5 +238,11 @@
         </section>
       </div>
     </div>
+
+    <app-order-timeline
+      *hasPermission="'Orders.View'"
+      [orderId]="current.id"
+      [revision]="current.status + (current.updatedAtUtc ?? '')"
+    />
   }
 </section>

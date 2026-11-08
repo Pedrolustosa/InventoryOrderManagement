@@ -893,6 +893,94 @@
       "ORDER_NUMBER_PLACEHOLDER": "Número completo do pedido",
       "CUSTOMER": "Cliente",
       "ALL_CUSTOMERS": "Todos os clientes"
+    },
+    "TIMELINE": {
+      "TITLE": "Linha do tempo",
+      "SUBTITLE": "Tudo o que aconteceu com este pedido em estoque, remessa, financeiro e devoluções.",
+      "FILTER_LABEL": "Filtrar por módulo",
+      "FILTER_ALL": "Todos",
+      "LOADING": "Carregando a linha do tempo do pedido…",
+      "NOT_FOUND": "Pedido não encontrado. Ele pode ter sido removido ou o link está incorreto.",
+      "BACK_TO_LIST": "Voltar para pedidos",
+      "ERROR": "Não foi possível carregar a linha do tempo do pedido.",
+      "RETRY": "Tentar novamente",
+      "EMPTY": "Nenhuma atividade registrada para este pedido ainda.",
+      "EMPTY_FILTER": "Nenhuma atividade para o módulo selecionado.",
+      "MODULES": {
+        "Order": "Pedido",
+        "Stock": "Estoque",
+        "Shipment": "Remessa",
+        "Finance": "Financeiro",
+        "Return": "Devolução"
+      },
+      "EVENTS": {
+        "order": {
+          "created": "Pedido criado",
+          "confirmed": "Pedido confirmado",
+          "shipped": "Pedido enviado",
+          "delivered": "Pedido entregue",
+          "cancelled": "Pedido cancelado"
+        },
+        "stock": {
+          "reserved": "Estoque reservado",
+          "reservation_released": "Reserva de estoque liberada",
+          "issued": "Baixa de estoque",
+          "cancellation_returned": "Estoque devolvido após cancelamento",
+          "return_restocked": "Itens devolvidos voltaram ao estoque",
+          "return_quarantined": "Itens devolvidos em quarentena",
+          "return_lost": "Itens devolvidos baixados como perda",
+          "exchange_issued": "Itens de troca enviados"
+        },
+        "shipment": {
+          "created": "Remessa criada",
+          "dispatched": "Remessa despachada",
+          "in_transit": "Remessa em trânsito",
+          "failed": "Falha na entrega",
+          "resumed": "Entrega retomada",
+          "delivered": "Remessa entregue"
+        },
+        "finance": {
+          "receivable_created": "Título a receber criado",
+          "refund_created": "Reembolso ao cliente criado",
+          "difference_created": "Diferença de troca a receber",
+          "settled": "Pagamento recebido",
+          "abated": "Valor abatido pela devolução",
+          "title_cancelled": "Título financeiro cancelado"
+        },
+        "return": {
+          "requested": "Devolução solicitada",
+          "received": "Devolução recebida",
+          "completed": "Devolução concluída",
+          "rejected": "Devolução recusada",
+          "cancelled": "Devolução cancelada"
+        }
+      },
+      "STATUS": {
+        "Shipment": {
+          "Preparing": "Em preparação",
+          "Shipped": "Despachada",
+          "InTransit": "Em trânsito",
+          "Delivered": "Entregue",
+          "Failed": "Falhou"
+        },
+        "Finance": {
+          "Pending": "Pendente",
+          "PartiallyPaid": "Pago parcialmente",
+          "Paid": "Pago",
+          "Overdue": "Vencido",
+          "Cancelled": "Cancelado"
+        },
+        "Return": {
+          "Draft": "Solicitada",
+          "Authorized": "Autorizada",
+          "Received": "Recebida",
+          "UnderInspection": "Em inspeção",
+          "Completed": "Concluída",
+          "Dispatched": "Despachada",
+          "Rejected": "Recusada",
+          "Cancelled": "Cancelada"
+        }
+      }
     }
   },
   "PURCHASES": {
