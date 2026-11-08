@@ -1,3 +1,4 @@
+using InventoryOrderManagement.Domain.Abstractions;
 using InventoryOrderManagement.Domain.Enums;
 using InventoryOrderManagement.Domain.Exceptions;
 using InventoryOrderManagement.Domain.Finance;
@@ -6,7 +7,7 @@ namespace InventoryOrderManagement.Domain.Entities;
 
 public sealed record FinancialSettlementResult(FinancialSettlement Settlement, CashMovement? Movement);
 
-public class FinancialTitle
+public class FinancialTitle : AggregateRoot
 {
     public const int TitleNumberMaxLength = 32;
     public const int DescriptionMaxLength = 200;

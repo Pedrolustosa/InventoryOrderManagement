@@ -1,9 +1,10 @@
+using InventoryOrderManagement.Domain.Abstractions;
 using InventoryOrderManagement.Domain.Enums;
 using InventoryOrderManagement.Domain.Exceptions;
 
 namespace InventoryOrderManagement.Domain.Entities;
 
-public class InventoryBalance
+public class InventoryBalance : AggregateRoot
 {
     private InventoryBalance()
     {

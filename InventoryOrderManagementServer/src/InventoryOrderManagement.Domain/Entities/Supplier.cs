@@ -1,10 +1,11 @@
+using InventoryOrderManagement.Domain.Abstractions;
+using InventoryOrderManagement.Domain.Exceptions;
 using System.Net.Mail;
 using System.Text;
-using InventoryOrderManagement.Domain.Exceptions;
 
 namespace InventoryOrderManagement.Domain.Entities;
 
-public class Supplier
+public class Supplier : AggregateRoot
 {
     public const int NameMaxLength = 150;
     public const int ContactNameMaxLength = 100;

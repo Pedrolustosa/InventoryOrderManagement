@@ -6,6 +6,8 @@ using InventoryOrderManagement.Application.Purchases;
 using InventoryOrderManagement.Application.Purchases.Dtos;
 using InventoryOrderManagement.Domain.Entities;
 using InventoryOrderManagement.Domain.Enums;
+using InventoryOrderManagement.Infrastructure.Events;
+using Microsoft.Extensions.DependencyInjection;
 using InventoryOrderManagement.Infrastructure.Persistence;
 using InventoryOrderManagement.Infrastructure.Persistence.Configurations;
 using InventoryOrderManagement.Infrastructure.Persistence.Repositories;
@@ -54,7 +56,7 @@ public class PurchaseReceiptRollbackTests : IDisposable
             new SupplierRepository(_dbContext),
             new ProductRepository(_dbContext),
             new ThrowingInventoryRepository(_dbContext),
-            new UnitOfWork(_dbContext),
+            new UnitOfWork(_dbContext, new DomainEventDispatcher(new ServiceCollection().BuildServiceProvider())),
             new NoAudit(),
             new NoUser(),
             new NoNotifications(),

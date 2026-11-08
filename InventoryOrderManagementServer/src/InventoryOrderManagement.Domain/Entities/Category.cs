@@ -1,8 +1,9 @@
+using InventoryOrderManagement.Domain.Abstractions;
 using InventoryOrderManagement.Domain.Exceptions;
 
 namespace InventoryOrderManagement.Domain.Entities;
 
-public class Category
+public class Category : AggregateRoot
 {
     public const int NameMaxLength = 100;
     public const int DescriptionMaxLength = 300;

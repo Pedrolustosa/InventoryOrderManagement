@@ -1,8 +1,9 @@
+using InventoryOrderManagement.Domain.Abstractions;
 using InventoryOrderManagement.Domain.Exceptions;
 
 namespace InventoryOrderManagement.Domain.Entities;
 
-public class Product
+public class Product : AggregateRoot
 {
     public const int SkuMaxLength = 50;
     public const int NameMaxLength = 150;

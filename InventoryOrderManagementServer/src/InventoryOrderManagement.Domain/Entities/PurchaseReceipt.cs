@@ -1,8 +1,9 @@
+using InventoryOrderManagement.Domain.Abstractions;
 using InventoryOrderManagement.Domain.Exceptions;
 
 namespace InventoryOrderManagement.Domain.Entities;
 
-public class PurchaseReceipt
+public class PurchaseReceipt : AggregateRoot
 {
     public const int ReceiptNumberMaxLength = 32;
     public const int NotesMaxLength = 500;

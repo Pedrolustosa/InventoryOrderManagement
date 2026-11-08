@@ -1,9 +1,10 @@
+using InventoryOrderManagement.Domain.Abstractions;
 using InventoryOrderManagement.Domain.Enums;
 using InventoryOrderManagement.Domain.Exceptions;
 
 namespace InventoryOrderManagement.Domain.Entities;
 
-public class ReturnRequest
+public class ReturnRequest : AggregateRoot
 {
     public const int ReturnNumberMaxLength = 32;
     public const int ReasonDescriptionMaxLength = 300;
