@@ -23,6 +23,24 @@ public interface IInventoryRepository
 
     Task AddMovementAsync(StockMovement movement, CancellationToken cancellationToken = default);
 
+    /// <summary>True when the shipment already issued stock (an OrderExit linked to it exists).</summary>
+    Task<bool> ExistsShipmentExitAsync(
+        Guid shipmentId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// True when the order has an OrderExit not linked to a shipment, i.e. stock issued at confirmation
+    /// by the pre-reservation flow.
+    /// </summary>
+    Task<bool> ExistsLegacyOrderExitAsync(
+        Guid orderId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>Net reserved quantity per product for the order (reservations minus releases).</summary>
+    Task<IReadOnlyDictionary<Guid, int>> GetNetReservedByProductAsync(
+        Guid orderId,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<StockMovementDetails>> GetMovementsAsync(
         StockMovementQuery query,
         CancellationToken cancellationToken = default);

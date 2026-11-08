@@ -1,6 +1,7 @@
 using InventoryOrderManagement.Application.Abstractions.Persistence;
 using InventoryOrderManagement.Application.Finance;
 using InventoryOrderManagement.Domain.Entities;
+using InventoryOrderManagement.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace InventoryOrderManagement.Infrastructure.Persistence.Repositories;
@@ -34,6 +35,17 @@ public class FinancialTitleRepository : IFinancialTitleRepository
         return _dbContext.FinancialTitles.AnyAsync(title => title.TitleNumber == titleNumber, cancellationToken);
     }
 
+    public Task<bool> ExistsReceivableForSalesOrderAsync(
+        Guid orderId,
+        CancellationToken cancellationToken = default)
+    {
+        return _dbContext.FinancialTitles.AnyAsync(
+            title => title.Type == FinancialTitleType.Receivable
+                && title.SourceType == FinancialSourceType.SalesOrder
+                && title.SourceId == orderId,
+            cancellationToken);
+    }
+
     public Task<bool> DocumentExistsAsync(FinancialTitle title, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(title.DocumentNumber))
@@ -65,6 +77,11 @@ public class FinancialTitleRepository : IFinancialTitleRepository
         if (filter.CounterpartyId.HasValue)
         {
             titles = titles.Where(title => title.CounterpartyId == filter.CounterpartyId.Value);
+        }
+
+        if (filter.SourceId.HasValue)
+        {
+            titles = titles.Where(title => title.SourceId == filter.SourceId.Value);
         }
 
         if (!string.IsNullOrWhiteSpace(filter.DocumentNumber))

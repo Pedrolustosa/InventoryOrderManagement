@@ -53,7 +53,11 @@ public sealed class DispatchShipmentUseCase
 
             EnsureOrderCompatibleWithDispatch(order);
 
-            shipment.Dispatch(request.Notes, _currentUser.UserId);
+            var dispatchedItems = order.Items
+                .Select(item => new Domain.Events.ShipmentDispatchedItem(item.ProductId, item.Quantity))
+                .ToList();
+
+            shipment.Dispatch(request.Notes, _currentUser.UserId, dispatchedItems);
             order.Ship();
             updated = shipment;
         }, cancellationToken);

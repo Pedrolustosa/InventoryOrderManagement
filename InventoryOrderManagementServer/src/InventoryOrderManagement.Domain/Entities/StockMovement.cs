@@ -20,6 +20,8 @@ public class StockMovement : AggregateRoot
 
     public Guid? OrderId { get; private set; }
 
+    public Guid? ShipmentId { get; private set; }
+
     public Guid? PurchaseOrderId { get; private set; }
 
     public Guid? PurchaseReceiptId { get; private set; }
@@ -186,6 +188,36 @@ public class StockMovement : AggregateRoot
             previousQuantity,
             newQuantity,
             NormalizeReason(reason, required: true));
+    }
+
+    /// <summary>
+    /// Creates the stock exit recorded when a shipment is dispatched. The movement is linked to both the
+    /// sales order and the shipment, so a shipment can never issue stock twice for the same product.
+    /// </summary>
+    public static StockMovement CreateForShipment(
+        Guid productId,
+        Guid orderId,
+        Guid shipmentId,
+        int quantity,
+        int previousQuantity,
+        int newQuantity,
+        string reason)
+    {
+        if (shipmentId == Guid.Empty)
+        {
+            throw new DomainException("Shipment is required.");
+        }
+
+        var movement = CreateForOrder(
+            productId,
+            orderId,
+            StockMovementType.OrderExit,
+            quantity,
+            previousQuantity,
+            newQuantity,
+            reason);
+        movement.ShipmentId = shipmentId;
+        return movement;
     }
 
     public static StockMovement CreateForPurchase(

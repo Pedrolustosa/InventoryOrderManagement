@@ -1,5 +1,6 @@
 using InventoryOrderManagement.Application.Finance;
 using InventoryOrderManagement.Domain.Entities;
+using InventoryOrderManagement.Domain.Enums;
 
 namespace InventoryOrderManagement.Application.Abstractions.Persistence;
 
@@ -12,6 +13,10 @@ public interface IFinancialTitleRepository
     Task<FinancialTitle?> GetTrackedByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     Task<bool> ExistsByNumberAsync(string titleNumber, CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsReceivableForSalesOrderAsync(
+        Guid orderId,
+        CancellationToken cancellationToken = default);
 
     Task<bool> DocumentExistsAsync(
         FinancialTitle title,

@@ -42,6 +42,11 @@ public class FinancialTitleConfiguration : IEntityTypeConfiguration<FinancialTit
             .HasMaxLength(32);
         builder.HasIndex(title => title.SourceId);
 
+        builder.HasIndex(title => new { title.Type, title.SourceType, title.SourceId })
+            .IsUnique()
+            .HasFilter(
+                "\"Type\" = 'Receivable' AND \"SourceType\" = 'SalesOrder' AND \"SourceId\" IS NOT NULL");
+
         builder.Property(title => title.SourceReference)
             .HasMaxLength(FinancialTitle.SourceReferenceMaxLength);
 

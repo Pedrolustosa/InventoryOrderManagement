@@ -1,5 +1,6 @@
 using InventoryOrderManagement.Domain.Entities;
 using InventoryOrderManagement.Domain.Enums;
+using InventoryOrderManagement.Domain.Events;
 using InventoryOrderManagement.Domain.Exceptions;
 
 namespace InventoryOrderManagement.Domain.UnitTests.Entities;
@@ -22,21 +23,42 @@ public class ShipmentTests
     {
         var shipment = CreateShipment(carrierName: null);
 
-        Assert.Throws<DomainException>(() => shipment.Dispatch(null, null));
+        Assert.Throws<DomainException>(() => shipment.Dispatch(null, null, []));
 
         shipment.UpdateInformation("Acme Logistics", "TRACK-1", null);
-        shipment.Dispatch("Left warehouse", Guid.NewGuid());
+        var productId = Guid.NewGuid();
+        shipment.Dispatch(
+            "Left warehouse",
+            Guid.NewGuid(),
+            [new ShipmentDispatchedItem(productId, 2)]);
 
         Assert.Equal(ShipmentStatus.Shipped, shipment.Status);
         Assert.NotNull(shipment.ShippedAtUtc);
         Assert.Equal(2, shipment.History.Count);
+        var domainEvent = Assert.Single(shipment.DomainEvents);
+        var dispatched = Assert.IsType<ShipmentDispatchedDomainEvent>(domainEvent);
+        Assert.Equal(shipment.Id, dispatched.ShipmentId);
+        Assert.Equal(shipment.OrderId, dispatched.OrderId);
+        Assert.Equal(productId, Assert.Single(dispatched.Items).ProductId);
+    }
+
+    [Fact]
+    public void Dispatch_FromShipped_ThrowsAndDoesNotRaiseEvent()
+    {
+        var shipment = CreateReadyToDispatch();
+        shipment.Dispatch(null, null, [new ShipmentDispatchedItem(Guid.NewGuid(), 1)]);
+        shipment.ClearDomainEvents();
+
+        Assert.Throws<InvalidShipmentStatusException>(() =>
+            shipment.Dispatch(null, null, [new ShipmentDispatchedItem(Guid.NewGuid(), 1)]));
+        Assert.Empty(shipment.DomainEvents);
     }
 
     [Fact]
     public void HappyPath_Shipped_InTransit_Delivered()
     {
         var shipment = CreateReadyToDispatch();
-        shipment.Dispatch(null, null);
+        shipment.Dispatch(null, null, []);
         shipment.SetInTransit("On the road", null);
         shipment.MarkAsDelivered("Signed", null);
 
@@ -49,7 +71,7 @@ public class ShipmentTests
     public void CanDeliverDirectlyFromShipped()
     {
         var shipment = CreateReadyToDispatch();
-        shipment.Dispatch(null, null);
+        shipment.Dispatch(null, null, []);
         shipment.MarkAsDelivered(null, null);
 
         Assert.Equal(ShipmentStatus.Delivered, shipment.Status);
@@ -59,7 +81,7 @@ public class ShipmentTests
     public void Failed_RequiresReason_AndCanResume()
     {
         var shipment = CreateReadyToDispatch();
-        shipment.Dispatch(null, null);
+        shipment.Dispatch(null, null, []);
 
         Assert.Throws<DomainException>(() => shipment.MarkAsFailed(" ", null, null));
 
@@ -76,7 +98,7 @@ public class ShipmentTests
     public void UpdateInformation_OnlyWhilePreparing()
     {
         var shipment = CreateReadyToDispatch();
-        shipment.Dispatch(null, null);
+        shipment.Dispatch(null, null, []);
 
         Assert.Throws<InvalidShipmentStatusException>(() =>
             shipment.UpdateInformation("Other", null, null));

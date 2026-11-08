@@ -8,6 +8,8 @@ public sealed class StockMovementQuery
 
     public Guid? SupplierId { get; init; }
 
+    public Guid? OrderId { get; init; }
+
     public Guid? ReturnRequestId { get; init; }
 
     public StockMovementType? MovementType { get; init; }

@@ -1,6 +1,7 @@
 using InventoryOrderManagement.Application.Abstractions.Persistence;
 using InventoryOrderManagement.Application.Inventory;
 using InventoryOrderManagement.Domain.Entities;
+using InventoryOrderManagement.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace InventoryOrderManagement.Infrastructure.Persistence.Repositories;
@@ -86,6 +87,49 @@ public class InventoryRepository : IInventoryRepository
         await _dbContext.StockMovements.AddAsync(movement, cancellationToken);
     }
 
+    public Task<bool> ExistsShipmentExitAsync(
+        Guid shipmentId,
+        CancellationToken cancellationToken = default)
+    {
+        return _dbContext.StockMovements.AnyAsync(
+            movement => movement.ShipmentId == shipmentId
+                && movement.MovementType == StockMovementType.OrderExit,
+            cancellationToken);
+    }
+
+    public Task<bool> ExistsLegacyOrderExitAsync(
+        Guid orderId,
+        CancellationToken cancellationToken = default)
+    {
+        return _dbContext.StockMovements.AnyAsync(
+            movement => movement.OrderId == orderId
+                && movement.ShipmentId == null
+                && movement.MovementType == StockMovementType.OrderExit,
+            cancellationToken);
+    }
+
+    public async Task<IReadOnlyDictionary<Guid, int>> GetNetReservedByProductAsync(
+        Guid orderId,
+        CancellationToken cancellationToken = default)
+    {
+        var rows = await _dbContext.StockMovements
+            .AsNoTracking()
+            .Where(movement => movement.OrderId == orderId
+                && (movement.MovementType == StockMovementType.OrderReservation
+                    || movement.MovementType == StockMovementType.OrderReservationRelease))
+            .GroupBy(movement => movement.ProductId)
+            .Select(group => new
+            {
+                ProductId = group.Key,
+                Net = group.Sum(movement => movement.MovementType == StockMovementType.OrderReservation
+                    ? movement.Quantity
+                    : -movement.Quantity)
+            })
+            .ToListAsync(cancellationToken);
+
+        return rows.ToDictionary(row => row.ProductId, row => Math.Max(0, row.Net));
+    }
+
     public async Task<IReadOnlyList<StockMovementDetails>> GetMovementsAsync(
         StockMovementQuery query,
         CancellationToken cancellationToken = default)
@@ -109,6 +153,11 @@ public class InventoryRepository : IInventoryRepository
         if (query.SupplierId.HasValue)
         {
             rows = rows.Where(row => row.movement.SupplierId == query.SupplierId.Value);
+        }
+
+        if (query.OrderId.HasValue)
+        {
+            rows = rows.Where(row => row.movement.OrderId == query.OrderId.Value);
         }
 
         if (query.ReturnRequestId.HasValue)

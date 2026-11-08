@@ -9,6 +9,8 @@ public sealed class FinancialTitleListFilter
 
     public Guid? CounterpartyId { get; init; }
 
+    public Guid? SourceId { get; init; }
+
     public string? DocumentNumber { get; init; }
 
     public DateOnly? IssueFrom { get; init; }

@@ -844,6 +844,7 @@ public static class DevelopmentDataSeeder
     {
         var order = await dbContext.Orders
             .AsNoTracking()
+            .Include(entity => entity.Items)
             .FirstOrDefaultAsync(entity => entity.OrderNumber == orderNumber, cancellationToken);
 
         if (order is null)
@@ -868,7 +869,10 @@ public static class DevelopmentDataSeeder
 
         if (progress is not ShipmentSeedProgress.Preparing)
         {
-            shipment.Dispatch("Seed dispatch.", changedByUserId: null);
+            shipment.Dispatch(
+                "Seed dispatch.",
+                changedByUserId: null,
+                order.Items.Select(item => new Domain.Events.ShipmentDispatchedItem(item.ProductId, item.Quantity)).ToList());
         }
 
         if (progress is ShipmentSeedProgress.InTransit or ShipmentSeedProgress.Delivered)
