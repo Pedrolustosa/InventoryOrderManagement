@@ -106,6 +106,11 @@ Same pattern as Categories.
 
 With an active shipment, legacy `ship`/`deliver` may return **409** — use the `/shipments` flow.
 
+**Cancel** (`POST /{id}/cancel`): only `Draft` and `Confirmed` orders; any other status returns **409** ProblemDetails
+(shipped or delivered goods go through a return). In the same transaction a confirmed order releases exactly the
+stock reserved for it (`OrderReservationRelease`), a legacy order confirmed before reservations existed gets the
+stock issued at confirmation back (`OrderCancellationReturn`), and a shipment still `Preparing` becomes `Cancelled`.
+
 ### Order timeline — `GET /orders/{id}/timeline`
 
 Read-only, chronological history of a sales order across **Order, Stock, Shipment, Finance and Return**.
@@ -131,7 +136,7 @@ Read-only, chronological history of a sales order across **Order, Stock, Shipmen
 |--------|-------------|----------------------|
 | Order | `order.created`, `order.confirmed`, `order.shipped`, `order.delivered`, `order.cancelled` | Order status |
 | Stock | `stock.reserved`, `stock.reservation_released`, `stock.issued`, `stock.cancellation_returned` (legacy), `stock.return_restocked`, `stock.return_quarantined`, `stock.return_lost`, `stock.exchange_issued` | — |
-| Shipment | `shipment.created`, `shipment.dispatched`, `shipment.in_transit`, `shipment.failed`, `shipment.resumed`, `shipment.delivered` | Shipment status |
+| Shipment | `shipment.created`, `shipment.dispatched`, `shipment.in_transit`, `shipment.failed`, `shipment.resumed`, `shipment.delivered`, `shipment.cancelled` (order cancelled before dispatch) | Shipment status |
 | Finance | `finance.receivable_created`, `finance.refund_created` (payable to the customer from a return), `finance.difference_created` (exchange price difference receivable), `finance.settled` (cash settlement), `finance.abated` (return credit), `finance.title_cancelled` | Title status after the event (`PartiallyPaid`/`Paid` on settlements) |
 | Return | `return.requested` (`summary.returnType` tells an exchange), `return.received`, `return.completed`, `return.rejected`, `return.cancelled` | Return status |
 

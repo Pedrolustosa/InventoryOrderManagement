@@ -27,6 +27,7 @@ public static class OrderTimelineEventTypes
     public const string ShipmentFailed = "shipment.failed";
     public const string ShipmentResumed = "shipment.resumed";
     public const string ShipmentDelivered = "shipment.delivered";
+    public const string ShipmentCancelled = "shipment.cancelled";
 
     public const string FinanceReceivableCreated = "finance.receivable_created";
     public const string FinanceRefundCreated = "finance.refund_created";
@@ -72,6 +73,7 @@ public static class OrderTimelineEventTypes
         FinanceTitleCancelled,
         ReturnCancelled,
         OrderCancelled,
+        ShipmentCancelled,
         StockReservationReleased,
         StockCancellationReturned
     ];

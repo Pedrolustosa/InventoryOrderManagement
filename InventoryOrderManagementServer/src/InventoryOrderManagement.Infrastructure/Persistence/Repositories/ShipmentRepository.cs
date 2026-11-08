@@ -33,6 +33,13 @@ public class ShipmentRepository : IShipmentRepository
             .FirstOrDefaultAsync(entity => entity.Id == id, cancellationToken);
     }
 
+    public Task<Shipment?> GetTrackedByOrderIdAsync(Guid orderId, CancellationToken cancellationToken = default)
+    {
+        return _dbContext.Shipments
+            .Include(entity => entity.History)
+            .FirstOrDefaultAsync(entity => entity.OrderId == orderId, cancellationToken);
+    }
+
     public Task<Shipment?> GetByOrderIdAsync(Guid orderId, CancellationToken cancellationToken = default)
     {
         return _dbContext.Shipments

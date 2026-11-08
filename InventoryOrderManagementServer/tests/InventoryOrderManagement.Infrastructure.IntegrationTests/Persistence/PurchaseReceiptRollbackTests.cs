@@ -135,6 +135,9 @@ public class PurchaseReceiptRollbackTests : IDisposable
         public Task<IReadOnlyDictionary<Guid, int>> GetNetReservedByProductAsync(Guid orderId, CancellationToken cancellationToken = default)
             => _inner.GetNetReservedByProductAsync(orderId, cancellationToken);
 
+        public Task<IReadOnlyDictionary<Guid, int>> GetNetLegacyExitByProductAsync(Guid orderId, CancellationToken cancellationToken = default)
+            => _inner.GetNetLegacyExitByProductAsync(orderId, cancellationToken);
+
         public Task<IReadOnlyList<StockMovementDetails>> GetMovementsAsync(StockMovementQuery query, CancellationToken cancellationToken = default)
             => _inner.GetMovementsAsync(query, cancellationToken);
     }

@@ -46,6 +46,14 @@ public interface IInventoryRepository
         Guid orderId,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Per product, stock issued at confirmation by the pre-reservation flow (OrderExit without a shipment) that
+    /// was not returned yet (minus OrderCancellationReturn).
+    /// </summary>
+    Task<IReadOnlyDictionary<Guid, int>> GetNetLegacyExitByProductAsync(
+        Guid orderId,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<StockMovementDetails>> GetMovementsAsync(
         StockMovementQuery query,
         CancellationToken cancellationToken = default);
