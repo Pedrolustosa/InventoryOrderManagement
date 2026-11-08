@@ -1,0 +1,24 @@
+<section aria-labelledby="order-status-progress-title">
+  <h2 id="order-status-progress-title" class="text-lg font-semibold text-ink">{{ 'ORDERS.DETAILS.TIMELINE_TITLE' | translate }}</h2>
+  <ol class="mt-4 space-y-3">
+    @for (step of steps(); track step.label) {
+      <li class="flex gap-3">
+        <span
+          class="mt-1 size-3 shrink-0 rounded-full"
+          [class.bg-accent]="step.state === 'completed' || step.state === 'current'"
+          [class.bg-line]="step.state === 'upcoming'"
+          [attr.aria-hidden]="true"
+        ></span>
+        <div>
+          <p class="text-sm font-medium text-ink">
+            {{ step.label | translate }}
+            <span class="ml-2 text-xs font-semibold uppercase tracking-wide text-muted">{{ ('ORDERS.DETAILS.TIMELINE_STATE_' + step.state.toUpperCase()) | translate }}</span>
+          </p>
+          @if (step.occurredAtUtc) {
+            <p class="text-sm text-muted">{{ step.occurredAtUtc | date: 'dd/MM/yyyy HH:mm' }}</p>
+          }
+        </div>
+      </li>
+    }
+  </ol>
+</section>

@@ -234,9 +234,15 @@
         </section>
 
         <section class="rounded-xl border border-line bg-panel p-5 shadow-sm">
-          <app-order-timeline [order]="current" />
+          <app-order-status-progress [order]="current" />
         </section>
       </div>
     </div>
+
+    <app-order-timeline
+      *hasPermission="'Orders.View'"
+      [orderId]="current.id"
+      [revision]="current.status + (current.updatedAtUtc ?? '')"
+    />
   }
 </section>

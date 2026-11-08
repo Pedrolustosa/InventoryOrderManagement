@@ -1,24 +1,107 @@
-<section aria-labelledby="order-timeline-title">
-  <h2 id="order-timeline-title" class="text-lg font-semibold text-ink">{{ 'ORDERS.DETAILS.TIMELINE_TITLE' | translate }}</h2>
-  <ol class="mt-4 space-y-3">
-    @for (step of steps(); track step.label) {
-      <li class="flex gap-3">
-        <span
-          class="mt-1 size-3 shrink-0 rounded-full"
-          [class.bg-accent]="step.state === 'completed' || step.state === 'current'"
-          [class.bg-line]="step.state === 'upcoming'"
-          [attr.aria-hidden]="true"
-        ></span>
-        <div>
-          <p class="text-sm font-medium text-ink">
-            {{ step.label | translate }}
-            <span class="ml-2 text-xs font-semibold uppercase tracking-wide text-muted">{{ ('ORDERS.DETAILS.TIMELINE_STATE_' + step.state.toUpperCase()) | translate }}</span>
-          </p>
-          @if (step.occurredAtUtc) {
-            <p class="text-sm text-muted">{{ step.occurredAtUtc | date: 'dd/MM/yyyy HH:mm' }}</p>
+<section class="rounded-xl border border-line bg-panel p-5 shadow-sm" aria-labelledby="order-timeline-title">
+  <div class="flex flex-wrap items-start justify-between gap-3">
+    <div class="min-w-0">
+      <h2 id="order-timeline-title" class="text-lg font-semibold text-ink">{{ 'ORDERS.TIMELINE.TITLE' | translate }}</h2>
+      <p class="mt-1 text-sm text-muted">{{ 'ORDERS.TIMELINE.SUBTITLE' | translate }}</p>
+    </div>
+    @if (timeline(); as current) {
+      <div class="flex flex-wrap items-center gap-2 text-sm" data-testid="timeline-header">
+        <span class="font-medium text-ink">{{ current.orderNumber }}</span>
+        <span [class]="statusClass(current.currentStatus)">{{ statusLabel(current.currentStatus) | translate }}</span>
+      </div>
+    }
+  </div>
+
+  <div aria-live="polite">
+    @switch (state()) {
+      @case ('loading') {
+        <div class="mt-5 space-y-4" aria-busy="true" data-testid="timeline-loading">
+          <span class="sr-only">{{ 'ORDERS.TIMELINE.LOADING' | translate }}</span>
+          @for (row of [1, 2, 3]; track row) {
+            <div class="flex animate-pulse items-start gap-3" aria-hidden="true">
+              <span class="size-8 shrink-0 rounded-full bg-line"></span>
+              <div class="flex-1 space-y-2 pt-1">
+                <div class="h-3 w-2/3 rounded bg-line"></div>
+                <div class="h-3 w-1/4 rounded bg-line"></div>
+              </div>
+            </div>
           }
         </div>
-      </li>
+      }
+      @case ('not-found') {
+        <div class="mt-5 rounded-md border border-line bg-surface px-4 py-4 text-sm" role="alert" data-testid="timeline-not-found">
+          <p class="text-ink">{{ 'ORDERS.TIMELINE.NOT_FOUND' | translate }}</p>
+          <a routerLink="/orders" class="btn-secondary mt-3 inline-flex">{{ 'ORDERS.TIMELINE.BACK_TO_LIST' | translate }}</a>
+        </div>
+      }
+      @case ('error') {
+        <div class="mt-5 rounded-md border border-danger/30 bg-danger/10 px-4 py-4 text-sm text-danger" role="alert" data-testid="timeline-error">
+          <p>{{ 'ORDERS.TIMELINE.ERROR' | translate }}</p>
+          @if (errorMessage(); as message) {
+            <p class="mt-1 text-xs opacity-80">{{ message }}</p>
+          }
+          <button type="button" class="btn-secondary mt-3" (click)="retry()">{{ 'ORDERS.TIMELINE.RETRY' | translate }}</button>
+        </div>
+      }
+      @case ('loaded') {
+        @if (availableModules().length > 1) {
+          <div class="mt-4 flex flex-wrap gap-2" role="group" [attr.aria-label]="'ORDERS.TIMELINE.FILTER_LABEL' | translate">
+            <button
+              type="button"
+              class="rounded-full border px-3 py-1 text-xs font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              [class.border-accent]="moduleFilter() === 'all'"
+              [class.bg-accent]="moduleFilter() === 'all'"
+              [class.text-white]="moduleFilter() === 'all'"
+              [class.border-line]="moduleFilter() !== 'all'"
+              [class.text-ink]="moduleFilter() !== 'all'"
+              [attr.aria-pressed]="moduleFilter() === 'all'"
+              data-filter="all"
+              (click)="setFilter('all')"
+            >
+              {{ 'ORDERS.TIMELINE.FILTER_ALL' | translate }}
+            </button>
+            @for (module of availableModules(); track module) {
+              <button
+                type="button"
+                class="rounded-full border px-3 py-1 text-xs font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                [class.border-accent]="moduleFilter() === module"
+                [class.bg-accent]="moduleFilter() === module"
+                [class.text-white]="moduleFilter() === module"
+                [class.border-line]="moduleFilter() !== module"
+                [class.text-ink]="moduleFilter() !== module"
+                [attr.aria-pressed]="moduleFilter() === module"
+                [attr.data-filter]="module"
+                (click)="setFilter(module)"
+              >
+                {{ moduleLabel(module) | translate }}
+              </button>
+            }
+          </div>
+        }
+
+        @if (groupedByDay().length === 0) {
+          <p class="mt-5 rounded-md border border-line bg-surface px-4 py-3 text-sm text-muted" role="status" data-testid="timeline-empty">
+            {{ (moduleFilter() === 'all' ? 'ORDERS.TIMELINE.EMPTY' : 'ORDERS.TIMELINE.EMPTY_FILTER') | translate }}
+          </p>
+        } @else {
+          <div class="mt-5 space-y-6">
+            @for (day of groupedByDay(); track day.key) {
+              <div data-testid="timeline-day">
+                <h3 class="text-xs font-semibold uppercase tracking-wide text-muted">
+                  <time [attr.datetime]="day.key">{{ day.date | date: 'dd MMM y' : undefined : localeId() }}</time>
+                </h3>
+                <ol class="relative mt-3 ml-4 space-y-4 border-l border-line">
+                  @for (entry of day.entries; track entry.eventType + entry.referenceId + entry.occurredAtUtc) {
+                    <li class="-ml-4 min-w-0">
+                      <app-timeline-step [entry]="entry" />
+                    </li>
+                  }
+                </ol>
+              </div>
+            }
+          </div>
+        }
+      }
     }
-  </ol>
+  </div>
 </section>

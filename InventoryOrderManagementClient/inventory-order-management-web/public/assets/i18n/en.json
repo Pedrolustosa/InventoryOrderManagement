@@ -893,6 +893,94 @@
       "ORDER_NUMBER_PLACEHOLDER": "Full order number",
       "CUSTOMER": "Customer",
       "ALL_CUSTOMERS": "All customers"
+    },
+    "TIMELINE": {
+      "TITLE": "Activity timeline",
+      "SUBTITLE": "Everything that happened to this order across stock, shipping, finance and returns.",
+      "FILTER_LABEL": "Filter by module",
+      "FILTER_ALL": "All",
+      "LOADING": "Loading the order timeline…",
+      "NOT_FOUND": "Order not found. It may have been removed or the link is wrong.",
+      "BACK_TO_LIST": "Back to orders",
+      "ERROR": "We could not load the order timeline.",
+      "RETRY": "Try again",
+      "EMPTY": "No activity recorded for this order yet.",
+      "EMPTY_FILTER": "No activity for the selected module.",
+      "MODULES": {
+        "Order": "Order",
+        "Stock": "Stock",
+        "Shipment": "Shipment",
+        "Finance": "Finance",
+        "Return": "Return"
+      },
+      "EVENTS": {
+        "order": {
+          "created": "Order created",
+          "confirmed": "Order confirmed",
+          "shipped": "Order shipped",
+          "delivered": "Order delivered",
+          "cancelled": "Order cancelled"
+        },
+        "stock": {
+          "reserved": "Stock reserved",
+          "reservation_released": "Stock reservation released",
+          "issued": "Stock issued",
+          "cancellation_returned": "Stock returned after cancellation",
+          "return_restocked": "Returned items restocked",
+          "return_quarantined": "Returned items quarantined",
+          "return_lost": "Returned items written off",
+          "exchange_issued": "Exchange items issued"
+        },
+        "shipment": {
+          "created": "Shipment created",
+          "dispatched": "Shipment dispatched",
+          "in_transit": "Shipment in transit",
+          "failed": "Delivery failed",
+          "resumed": "Delivery resumed",
+          "delivered": "Shipment delivered"
+        },
+        "finance": {
+          "receivable_created": "Receivable created",
+          "refund_created": "Customer refund created",
+          "difference_created": "Exchange difference to receive",
+          "settled": "Payment received",
+          "abated": "Amount credited by return",
+          "title_cancelled": "Financial title cancelled"
+        },
+        "return": {
+          "requested": "Return requested",
+          "received": "Return received",
+          "completed": "Return completed",
+          "rejected": "Return rejected",
+          "cancelled": "Return cancelled"
+        }
+      },
+      "STATUS": {
+        "Shipment": {
+          "Preparing": "Preparing",
+          "Shipped": "Shipped",
+          "InTransit": "In transit",
+          "Delivered": "Delivered",
+          "Failed": "Failed"
+        },
+        "Finance": {
+          "Pending": "Pending",
+          "PartiallyPaid": "Partially paid",
+          "Paid": "Paid",
+          "Overdue": "Overdue",
+          "Cancelled": "Cancelled"
+        },
+        "Return": {
+          "Draft": "Requested",
+          "Authorized": "Authorized",
+          "Received": "Received",
+          "UnderInspection": "Under inspection",
+          "Completed": "Completed",
+          "Dispatched": "Dispatched",
+          "Rejected": "Rejected",
+          "Cancelled": "Cancelled"
+        }
+      }
     }
   },
   "PURCHASES": {

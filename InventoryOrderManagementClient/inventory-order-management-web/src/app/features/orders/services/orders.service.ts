@@ -7,7 +7,18 @@ import { CancelOrderRequest } from '../models/cancel-order-request.model';
 import { CreateOrderRequest } from '../models/create-order-request.model';
 import { OrderFilters } from '../models/order-filters.model';
 import { Order, OrderCreated, OrderSummary } from '../models/order.model';
+import { OrderTimeline } from '../models/order-timeline.model';
 import { UpdateDraftOrderRequest } from '../models/update-draft-order-request.model';
+
+/** Error raised by OrdersService; keeps the HTTP status (0 when the API is unreachable). */
+export class OrdersRequestError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message);
+  }
+}
 
 @Injectable({
   providedIn: 'root',
@@ -31,6 +42,13 @@ export class OrdersService {
   getOrderById(id: string): Observable<Order> {
     return this.http
       .get<Order>(`${this.ordersUrl}/${id}`)
+      .pipe(catchError((error) => this.handleError(error)));
+  }
+
+  /** Chronological history of the order across modules; finance/return entries depend on the user's permissions. */
+  getTimeline(orderId: string): Observable<OrderTimeline> {
+    return this.http
+      .get<OrderTimeline>(`${this.ordersUrl}/${orderId}/timeline`)
       .pipe(catchError((error) => this.handleError(error)));
   }
 
@@ -94,7 +112,7 @@ export class OrdersService {
 
   private handleError(error: HttpErrorResponse): Observable<never> {
     if (error.status === 0) {
-      return throwError(() => new Error('Unable to reach the API. Check if the server is running.'));
+      return throwError(() => new OrdersRequestError('Unable to reach the API. Check if the server is running.', 0));
     }
 
     const problem = error.error as ProblemDetails | { error?: string } | string | null;
@@ -107,21 +125,21 @@ export class OrdersService {
           'An unexpected error occurred.';
 
     if (error.status === 400) {
-      return throwError(() => new Error(detail));
+      return throwError(() => new OrdersRequestError(detail, error.status));
     }
 
     if (error.status === 404) {
-      return throwError(() => new Error(detail || 'Order was not found.'));
+      return throwError(() => new OrdersRequestError(detail || 'Order was not found.', 404));
     }
 
     if (error.status === 409) {
-      return throwError(() => new Error(detail));
+      return throwError(() => new OrdersRequestError(detail, error.status));
     }
 
     if (error.status >= 500) {
-      return throwError(() => new Error('An internal server error occurred. Please try again later.'));
+      return throwError(() => new OrdersRequestError('An internal server error occurred. Please try again later.', error.status));
     }
 
-    return throwError(() => new Error(detail));
+    return throwError(() => new OrdersRequestError(detail, error.status));
   }
 }

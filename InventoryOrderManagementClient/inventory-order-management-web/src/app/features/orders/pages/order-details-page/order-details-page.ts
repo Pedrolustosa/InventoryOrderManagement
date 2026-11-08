@@ -12,6 +12,7 @@ import { InventoryService } from '../../../inventory/services/inventory.service'
 import { ShipmentSummary } from '../../../shipping/models/shipment.model';
 import { ShipmentsService } from '../../../shipping/services/shipments.service';
 import { OrderActionDialog, OrderLifecycleAction } from '../../components/order-action-dialog/order-action-dialog';
+import { OrderStatusProgress } from '../../components/order-status-progress/order-status-progress';
 import { OrderTimeline } from '../../components/order-timeline/order-timeline';
 import { canCancel, canConfirm, canDeliver, canEdit, canShip } from '../../models/order-actions';
 import { Order } from '../../models/order.model';
@@ -24,6 +25,7 @@ import { OrdersService } from '../../services/orders.service';
     RouterLink,
     CurrencyPipe,
     DatePipe,
+    OrderStatusProgress,
     OrderTimeline,
     OrderActionDialog,
     HasPermissionDirective,
