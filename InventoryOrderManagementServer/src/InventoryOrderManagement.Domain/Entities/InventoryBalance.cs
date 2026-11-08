@@ -1,6 +1,8 @@
 using InventoryOrderManagement.Domain.Abstractions;
 using InventoryOrderManagement.Domain.Enums;
+using InventoryOrderManagement.Domain.Events;
 using InventoryOrderManagement.Domain.Exceptions;
+using InventoryOrderManagement.Domain.Inventory;
 
 namespace InventoryOrderManagement.Domain.Entities;
 
@@ -22,7 +24,8 @@ public class InventoryBalance : AggregateRoot
 
     public int AvailableQuantity => QuantityOnHand - ReservedQuantity;
 
-    public bool IsLowStock => QuantityOnHand <= MinimumStockLevel;
+    /// <summary>Available quantity below a configured minimum (see <see cref="StockLevels"/>).</summary>
+    public bool IsLowStock => StockLevels.IsBelowMinimum(AvailableQuantity, MinimumStockLevel);
 
     public static InventoryBalance Create(Guid productId)
     {
@@ -46,8 +49,7 @@ public class InventoryBalance : AggregateRoot
         EnsurePositiveQuantity(quantity);
         EnsureNoOverflow(quantity);
 
-        QuantityOnHand += quantity;
-        IncrementVersion();
+        ApplyChange(() => QuantityOnHand += quantity);
     }
 
     public void Issue(int quantity)
@@ -59,8 +61,7 @@ public class InventoryBalance : AggregateRoot
             throw new InsufficientStockException(QuantityOnHand, quantity);
         }
 
-        QuantityOnHand -= quantity;
-        IncrementVersion();
+        ApplyChange(() => QuantityOnHand -= quantity);
     }
 
     public void Reserve(int quantity)
@@ -72,8 +73,7 @@ public class InventoryBalance : AggregateRoot
             throw new InsufficientStockException(AvailableQuantity, quantity);
         }
 
-        ReservedQuantity += quantity;
-        IncrementVersion();
+        ApplyChange(() => ReservedQuantity += quantity);
     }
 
     public void Release(int quantity)
@@ -86,8 +86,7 @@ public class InventoryBalance : AggregateRoot
                 $"Cannot release {quantity} units. Only {ReservedQuantity} are reserved.");
         }
 
-        ReservedQuantity -= quantity;
-        IncrementVersion();
+        ApplyChange(() => ReservedQuantity -= quantity);
     }
 
     public void ConsumeReservation(int quantity)
@@ -105,9 +104,11 @@ public class InventoryBalance : AggregateRoot
             throw new InsufficientStockException(QuantityOnHand, quantity);
         }
 
-        QuantityOnHand -= quantity;
-        ReservedQuantity -= quantity;
-        IncrementVersion();
+        ApplyChange(() =>
+        {
+            QuantityOnHand -= quantity;
+            ReservedQuantity -= quantity;
+        });
     }
 
     public StockQuantityChange? AdjustTo(int newQuantity)
@@ -130,8 +131,7 @@ public class InventoryBalance : AggregateRoot
 
         var previousQuantity = QuantityOnHand;
         var difference = newQuantity - previousQuantity;
-        QuantityOnHand = newQuantity;
-        IncrementVersion();
+        ApplyChange(() => QuantityOnHand = newQuantity);
 
         return new StockQuantityChange(
             difference > 0 ? StockMovementType.AdjustmentIncrease : StockMovementType.AdjustmentDecrease,
@@ -152,8 +152,30 @@ public class InventoryBalance : AggregateRoot
             return;
         }
 
-        MinimumStockLevel = minimumStockLevel;
-        IncrementVersion();
+        ApplyChange(() => MinimumStockLevel = minimumStockLevel);
+    }
+
+    /// <summary>
+    /// Single entry point for every balance change (receipt, issue, reservation, release, consumption,
+    /// adjustment and minimum update): applies the change, bumps the optimistic concurrency version and raises
+    /// <see cref="StockBelowMinimumDomainEvent"/> only when the change crosses the minimum downwards. Coming
+    /// back to or above the minimum re-arms the alert, so a later drop raises it again.
+    /// </summary>
+    private void ApplyChange(Action change)
+    {
+        var wasBelowMinimum = IsLowStock;
+
+        change();
+        Version++;
+
+        if (!wasBelowMinimum && IsLowStock)
+        {
+            RaiseDomainEvent(new StockBelowMinimumDomainEvent(
+                ProductId,
+                AvailableQuantity,
+                MinimumStockLevel,
+                DateTime.UtcNow));
+        }
     }
 
     private void EnsureNoOverflow(int quantity)
@@ -170,10 +192,5 @@ public class InventoryBalance : AggregateRoot
         {
             throw new DomainException("Quantity must be a positive integer.");
         }
-    }
-
-    private void IncrementVersion()
-    {
-        Version++;
     }
 }
