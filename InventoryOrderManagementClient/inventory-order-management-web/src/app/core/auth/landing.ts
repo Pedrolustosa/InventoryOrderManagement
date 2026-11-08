@@ -10,6 +10,7 @@ export const APP_MODULES = [
   { path: '/purchases', permission: 'Purchases.View' },
   { path: '/shipping', permission: 'Shipments.View' },
   { path: '/returns', permission: 'Returns.View' },
+  { path: '/dashboard', permission: 'Reports.View' },
   { path: '/reports', permission: 'Reports.View' },
   { path: '/users', permission: 'Users.View' },
   { path: '/roles', permission: 'Roles.View' },

@@ -97,6 +97,12 @@ export const routes: Routes = [
         loadChildren: () => import('./features/finance/finance.routes').then((m) => m.FINANCE_ROUTES),
       },
       {
+        path: 'dashboard',
+        canActivate: [permissionGuard('Reports.View')],
+        data: { title: 'ROUTES.DASHBOARD', breadcrumb: 'ROUTES.DASHBOARD' },
+        loadChildren: () => import('./features/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
+      },
+      {
         path: 'reports',
         canActivate: [permissionGuard('Reports.View')],
         data: { title: 'ROUTES.REPORTS', breadcrumb: 'ROUTES.REPORTS' },

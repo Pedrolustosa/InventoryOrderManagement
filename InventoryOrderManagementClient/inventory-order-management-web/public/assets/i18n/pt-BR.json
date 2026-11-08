@@ -137,6 +137,7 @@
     "CASH_MOVEMENTS": "Movimentações de caixa",
     "SETTLEMENTS": "Baixas",
     "AGING": "Aging",
+    "DASHBOARD": "Painel",
     "REPORTS": "Relatórios",
     "USERS": "Usuários",
     "ROLES": "Perfis",
@@ -258,6 +259,7 @@
     "FINANCE_CASH_MOVEMENTS": "Movimentações de caixa",
     "FINANCE_SETTLEMENTS": "Baixas",
     "FINANCE_AGING": "Aging",
+    "DASHBOARD": "Painel",
     "REPORTS": "Relatórios",
     "REPORTS_OVERVIEW": "Visão geral",
     "REPORTS_INVENTORY": "Estoque",
@@ -1705,6 +1707,94 @@
       "NOT_FOUND_DASHBOARD": "Painel não encontrado.",
       "NOT_FOUND_CASH_FLOW": "Fluxo de caixa não encontrado.",
       "NOT_FOUND_AGING": "Relatório de aging não encontrado."
+    }
+  },
+  "DASHBOARD": {
+    "TITLE": "Painel operacional",
+    "SUBTITLE": "Vendas e compras no período, com snapshots de estoque, expedição e financeiro.",
+    "UPDATED_AT": "Gerado em",
+    "ACTIONS": {
+      "REFRESH": "Atualizar",
+      "RETRY": "Tentar novamente",
+      "OPEN_INVENTORY": "Abrir estoque",
+      "OPEN_ORDERS": "Abrir pedidos",
+      "OPEN_NOTIFICATIONS": "Abrir notificações"
+    },
+    "STATES": {
+      "LOADING": "Carregando painel…",
+      "NO_LOW_STOCK": "Nenhum produto com estoque baixo.",
+      "NO_RECENT_ORDERS": "Nenhum pedido recente."
+    },
+    "NOTES": {
+      "PERIOD_SCOPE": "Vendas, compras e tendências seguem o período selecionado. Estoque, cadastros, expedição e devoluções são snapshots atuais.",
+      "CONFIRMED_VALUE": "Valor de pedidos confirmados no período selecionado.",
+      "STOCK_SNAPSHOT": "Os contadores de estoque são um snapshot atual, não filtrados por período."
+    },
+    "SECTIONS": {
+      "CATALOG": "Catálogo",
+      "SALES": "Vendas",
+      "PURCHASES": "Compras",
+      "STOCK": "Estoque",
+      "OPERATIONS": "Operações",
+      "FINANCE": "Financeiro",
+      "CHARTS": "Gráficos",
+      "LOW_STOCK": "Estoque baixo",
+      "RECENT_ORDERS": "Pedidos recentes",
+      "ALERTS": "Alertas"
+    },
+    "KPIS": {
+      "ACTIVE_PRODUCTS": "Produtos ativos",
+      "ACTIVE_CUSTOMERS": "Clientes ativos",
+      "ACTIVE_SUPPLIERS": "Fornecedores ativos",
+      "CONFIRMED_ORDERS": "Pedidos confirmados",
+      "CONFIRMED_VALUE": "Valor confirmado",
+      "PURCHASES_SENT": "Compras enviadas",
+      "PURCHASES_PENDING": "Compras pendentes",
+      "PURCHASES_COMPLETED": "Compras concluídas",
+      "PURCHASES_VALUE": "Valor comercial de compras",
+      "LOW_STOCK": "Estoque baixo",
+      "OUT_OF_STOCK": "Sem estoque",
+      "SHIPMENTS_PENDING": "Expedições pendentes",
+      "RETURNS_PENDING": "Devoluções pendentes",
+      "RETURNS_INSPECTION": "Aguardando inspeção",
+      "PAYABLES_PENDING": "Contas a pagar pendentes",
+      "OVERDUE_PAYABLES": "Contas a pagar vencidas",
+      "RECEIVABLES_PENDING": "Contas a receber pendentes",
+      "OVERDUE_RECEIVABLES": "Contas a receber vencidas"
+    },
+    "CHARTS": {
+      "SALES_PURCHASES": "Vendas vs compras",
+      "SALES": "Vendas",
+      "PURCHASES": "Compras",
+      "ORDERS_BY_STATUS": "Pedidos por status",
+      "STOCK_MIX": "Composição de estoque",
+      "STOCK_NORMAL": "Normal",
+      "STOCK_LOW": "Baixo",
+      "STOCK_OUT": "Sem estoque",
+      "FINANCE_OPEN": "Valores financeiros em aberto",
+      "AXIS_PERIOD": "Período",
+      "AXIS_VALUE_BRL": "Valor (BRL)",
+      "AXIS_STATUS": "Status",
+      "AXIS_ORDERS": "Pedidos",
+      "AXIS_PRODUCTS": "Produtos"
+    },
+    "TABLE": {
+      "PRODUCT": "Produto",
+      "SKU": "SKU",
+      "ON_HAND": "Em mãos",
+      "MINIMUM": "Mínimo",
+      "STATUS": "Status",
+      "ORDER": "Pedido",
+      "CUSTOMER": "Cliente",
+      "CREATED": "Criado",
+      "AMOUNT": "Valor"
+    },
+    "STOCK": {
+      "LOW": "Baixo",
+      "OUT": "Zerado"
+    },
+    "ALERTS": {
+      "UNREAD": "Notificações não lidas"
     }
   },
   "REPORTS": {

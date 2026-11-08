@@ -1,6 +1,7 @@
 using InventoryOrderManagement.Application.Finance;
 using InventoryOrderManagement.Application.Categories;
 using InventoryOrderManagement.Application.Customers;
+using InventoryOrderManagement.Application.Dashboard;
 using InventoryOrderManagement.Application.Identity;
 using InventoryOrderManagement.Application.Inventory;
 using InventoryOrderManagement.Application.Notifications;
@@ -53,6 +54,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<DeliverOrderUseCase>();
         services.AddScoped<CancelOrderUseCase>();
         services.AddScoped<GetDashboardSummaryUseCase>();
+        services.AddScoped<GetOperationalDashboardSummaryUseCase>();
+        services.AddScoped<GetDashboardTrendsUseCase>();
+        services.AddScoped<GetDashboardRecentOrdersUseCase>();
         services.AddScoped<GetInventoryReportUseCase>();
         services.AddScoped<GetLowStockReportUseCase>();
         services.AddScoped<GetStockMovementsReportUseCase>();

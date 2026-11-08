@@ -101,6 +101,7 @@ describe('Sidebar', () => {
       'Cash movements',
       'Settlements',
       'Aging',
+      'Dashboard',
       'Reports',
       'Users',
       'Roles',
@@ -163,7 +164,7 @@ describe('Sidebar', () => {
   it('hides a group when none of its items are allowed', async () => {
     const root = await render(['Reports.View']);
 
-    expect(labels(root)).toEqual(['Reports']);
+    expect(labels(root)).toEqual(['Dashboard', 'Reports']);
     expect(groups(root)).toEqual(['Analysis']);
   });
 });

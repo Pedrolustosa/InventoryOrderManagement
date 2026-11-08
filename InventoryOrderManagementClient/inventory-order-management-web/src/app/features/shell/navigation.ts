@@ -114,7 +114,10 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
   },
   {
     labelKey: 'NAVIGATION.ANALYSIS',
-    items: [{ labelKey: 'NAVIGATION.REPORTS', route: '/reports', icon: 'chart', permission: 'Reports.View' }],
+    items: [
+      { labelKey: 'NAVIGATION.DASHBOARD', route: '/dashboard', icon: 'chart', permission: 'Reports.View' },
+      { labelKey: 'NAVIGATION.REPORTS', route: '/reports', icon: 'chart', permission: 'Reports.View' },
+    ],
   },
   {
     labelKey: 'NAVIGATION.ADMINISTRATION',
