@@ -46,6 +46,33 @@ public class FinancialTitleRepository : IFinancialTitleRepository
             cancellationToken);
     }
 
+    public async Task<FinancialTitle?> FindActiveSourceTitleAsync(
+        FinancialTitleType type,
+        FinancialSourceType sourceType,
+        Guid sourceId,
+        CancellationToken cancellationToken = default)
+    {
+        var titles = await Query()
+            .Where(title => title.Type == type
+                && title.SourceType == sourceType
+                && title.SourceId == sourceId
+                && title.CancelledAtUtc == null)
+            .OrderBy(title => title.CreatedAtUtc)
+            .ToListAsync(cancellationToken);
+
+        return titles.FirstOrDefault(title => title.OutstandingBalance > 0) ?? titles.FirstOrDefault();
+    }
+
+    public Task<bool> ExistsForSourceAsync(
+        FinancialSourceType sourceType,
+        Guid sourceId,
+        CancellationToken cancellationToken = default)
+    {
+        return _dbContext.FinancialTitles.AnyAsync(
+            title => title.SourceType == sourceType && title.SourceId == sourceId,
+            cancellationToken);
+    }
+
     public Task<bool> DocumentExistsAsync(FinancialTitle title, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(title.DocumentNumber))

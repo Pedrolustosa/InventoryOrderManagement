@@ -54,6 +54,7 @@ public sealed class PayablesController : ControllerBase
     public Task<PagedResult<FinancialTitleSummaryResponse>> GetAll(
         [FromQuery] FinancialTitleStatus? status,
         [FromQuery] Guid? supplierId,
+        [FromQuery] Guid? sourceId,
         [FromQuery] string? documentNumber,
         [FromQuery] DateOnly? issueFrom,
         [FromQuery] DateOnly? issueTo,
@@ -67,6 +68,7 @@ public sealed class PayablesController : ControllerBase
             {
                 Status = status,
                 CounterpartyId = supplierId,
+                SourceId = sourceId,
                 DocumentNumber = documentNumber,
                 IssueFrom = issueFrom,
                 IssueTo = issueTo,

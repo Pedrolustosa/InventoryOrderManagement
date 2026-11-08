@@ -127,7 +127,6 @@ public sealed class StartReturnInspectionUseCase
 public sealed class CompleteCustomerReturnInspectionUseCase
 {
     private readonly IReturnRequestRepository _returnRepository;
-    private readonly IOrderRepository _orderRepository;
     private readonly IInventoryRepository _inventoryRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISecurityAuditWriter _auditWriter;
@@ -137,7 +136,6 @@ public sealed class CompleteCustomerReturnInspectionUseCase
 
     public CompleteCustomerReturnInspectionUseCase(
         IReturnRequestRepository returnRepository,
-        IOrderRepository orderRepository,
         IInventoryRepository inventoryRepository,
         IUnitOfWork unitOfWork,
         ISecurityAuditWriter auditWriter,
@@ -146,7 +144,6 @@ public sealed class CompleteCustomerReturnInspectionUseCase
         ILogger<CompleteCustomerReturnInspectionUseCase> logger)
     {
         _returnRepository = returnRepository;
-        _orderRepository = orderRepository;
         _inventoryRepository = inventoryRepository;
         _unitOfWork = unitOfWork;
         _auditWriter = auditWriter;
@@ -162,14 +159,14 @@ public sealed class CompleteCustomerReturnInspectionUseCase
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var lowStockChanges = new List<LowStockChange>();
-
+        // Stock, order return quantities and finance are applied by ReturnCompletedHandler in this same
+        // transaction when the inspection completes the return.
         await _unitOfWork.ExecuteAsync(async ct =>
         {
             var entity = await _returnRepository.GetTrackedByIdAsync(returnRequestId, ct)
                 ?? throw new ReturnNotFoundException(returnRequestId);
 
-            if (entity.Type != ReturnType.CustomerReturn)
+            if (!entity.IsCustomerSide)
             {
                 throw new DomainException("This operation applies only to customer returns.");
             }
@@ -186,48 +183,12 @@ public sealed class CompleteCustomerReturnInspectionUseCase
                 .ToList();
 
             entity.CompleteInspection(lines, request.Notes, _currentUser.UserId);
-
-            var acceptedLines = entity.Items
-                .Where(item => item.AcceptedQuantity > 0)
-                .Select(item => (item.OrderItemId!.Value, item.AcceptedQuantity))
-                .ToList();
-
-            if (acceptedLines.Count > 0)
-            {
-                var order = await _orderRepository.GetTrackedByIdAsync(entity.OrderId!.Value, ct)
-                    ?? throw new OrderNotFoundException(entity.OrderId!.Value);
-
-                order.RegisterCustomerReturn(acceptedLines);
-            }
-
-            foreach (var item in entity.Items.Where(item => item.RestockedQuantity > 0).OrderBy(item => item.ProductId))
-            {
-                var balance = await _inventoryRepository.GetTrackedByProductIdAsync(item.ProductId, ct)
-                    ?? throw new InventoryBalanceNotFoundException(item.ProductId);
-
-                var previous = balance.QuantityOnHand;
-                balance.Receive(item.RestockedQuantity);
-                var movement = StockMovement.CreateForCustomerReturn(
-                    item.ProductId,
-                    entity.OrderId!.Value,
-                    entity.Id,
-                    item.Id,
-                    item.RestockedQuantity,
-                    previous,
-                    balance.QuantityOnHand,
-                    $"Customer return {entity.ReturnNumber}");
-
-                await _inventoryRepository.AddMovementAsync(movement, ct);
-                lowStockChanges.Add(new LowStockChange(
-                    item.ProductId,
-                    item.ProductName,
-                    item.ProductSku,
-                    previous,
-                    balance.QuantityOnHand,
-                    balance.MinimumStockLevel,
-                    movement.Id));
-            }
         }, cancellationToken);
+
+        var lowStockChanges = await ReturnLowStockChanges.CollectAsync(
+            _inventoryRepository,
+            returnRequestId,
+            cancellationToken);
 
         var updated = await _returnRepository.GetByIdAsync(returnRequestId, cancellationToken)
             ?? throw new ReturnNotFoundException(returnRequestId);

@@ -87,6 +87,15 @@ public class InventoryRepository : IInventoryRepository
         await _dbContext.StockMovements.AddAsync(movement, cancellationToken);
     }
 
+    public Task<bool> ExistsReturnMovementAsync(
+        Guid returnRequestId,
+        CancellationToken cancellationToken = default)
+    {
+        return _dbContext.StockMovements.AnyAsync(
+            movement => movement.ReturnRequestId == returnRequestId,
+            cancellationToken);
+    }
+
     public Task<bool> ExistsShipmentExitAsync(
         Guid shipmentId,
         CancellationToken cancellationToken = default)

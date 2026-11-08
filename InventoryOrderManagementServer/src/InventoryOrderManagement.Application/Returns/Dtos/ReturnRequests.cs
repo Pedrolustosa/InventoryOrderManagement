@@ -26,6 +26,33 @@ public sealed class CreateCustomerReturnItemRequest
     public int RequestedQuantity { get; init; }
 }
 
+public sealed class CreateExchangeReturnRequest
+{
+    public Guid OrderId { get; init; }
+
+    public ReturnReason Reason { get; init; }
+
+    public string? ReasonDescription { get; init; }
+
+    public string? Notes { get; init; }
+
+    /// <summary>Used only when the replacements cost less than the returned items (refund or credit).</summary>
+    public ReturnFinancialTreatment FinancialTreatment { get; init; } = ReturnFinancialTreatment.CustomerRefund;
+
+    public string? FinancialNotes { get; init; }
+
+    public IReadOnlyList<CreateCustomerReturnItemRequest> Items { get; init; } = [];
+
+    public IReadOnlyList<CreateReplacementItemRequest> ReplacementItems { get; init; } = [];
+}
+
+public sealed class CreateReplacementItemRequest
+{
+    public Guid ProductId { get; init; }
+
+    public int Quantity { get; init; }
+}
+
 public sealed class CreateSupplierReturnRequest
 {
     public Guid PurchaseOrderId { get; init; }

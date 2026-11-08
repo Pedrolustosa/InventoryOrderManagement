@@ -126,6 +126,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<GetFinancialAgingReportUseCase>();
         services.AddScoped<CreateCustomerReturnUseCase>();
         services.AddScoped<CreateSupplierReturnUseCase>();
+        services.AddScoped<CreateExchangeReturnUseCase>();
         services.AddScoped<GetAllReturnsUseCase>();
         services.AddScoped<GetReturnByIdUseCase>();
         services.AddScoped<UpdateReturnUseCase>();

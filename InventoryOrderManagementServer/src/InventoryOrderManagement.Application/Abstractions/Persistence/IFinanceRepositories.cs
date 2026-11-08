@@ -22,6 +22,21 @@ public interface IFinancialTitleRepository
         FinancialTitle title,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// The tracked, non-cancelled title of the given type that a source document originated, preferring one
+    /// that still has an outstanding balance; null when none exists.
+    /// </summary>
+    Task<FinancialTitle?> FindActiveSourceTitleAsync(
+        FinancialTitleType type,
+        FinancialSourceType sourceType,
+        Guid sourceId,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsForSourceAsync(
+        FinancialSourceType sourceType,
+        Guid sourceId,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<FinancialTitle>> ListAsync(
         FinancialTitleListFilter filter,
         CancellationToken cancellationToken = default);

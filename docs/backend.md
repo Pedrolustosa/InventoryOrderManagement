@@ -143,6 +143,31 @@ Preparing → Shipped → InTransit → Delivered
   - Idempotency: filtered unique indexes on `StockMovements (ShipmentId, ProductId)` and
     `FinancialTitles (Type, SourceType, SourceId)` for sales-order receivables, plus existence checks in the handler.
   - Any failure (stock, receivable, concurrency) rolls everything back and returns 409 ProblemDetails.
+- Return completion (`ReturnCompletedDomainEvent` → `ReturnCompletedHandler`, transactional, same transaction
+  as the return status change). Raised once, on the physical step only: customer returns and exchanges when
+  the inspection completes with accepted units (Rejected raises nothing), supplier returns on dispatch.
+  - Quantities: `Order.RegisterCustomerReturn` / `PurchaseOrder.RegisterSupplierReturn` reject more than
+    sold/received minus earlier returns.
+  - Stock: Restocked → `Receive` + `CustomerReturnEntry`; Quarantined → `CustomerReturnQuarantine` and
+    Discarded → `CustomerReturnLoss`, both record only (on-hand/available unchanged); Rejected goes back to the
+    customer. Supplier returns → `SupplierReturnExit` validating `AvailableQuantity`.
+  - Exchange (`ReturnType.Exchange`, `POST /api/returns/exchange`): customer return plus `ReplacementItems`
+    (price snapshot); on completion the returned units enter as above and replacements leave as
+    `ExchangeReplacementExit`, validating `AvailableQuantity`.
+  - Finance, proportional to accepted (customer) or dispatched (supplier) quantity × unit value snapshot:
+    the original title (sales-order receivable / purchase-order payable) is abated with cash-less
+    `ReturnCredit` settlements, oldest installment first; a title with no settlements whose whole balance is
+    reversed is cancelled instead. The part already paid, or the whole amount without an open original,
+    becomes a new title with `SourceType = Return`: payable refund/credit to the customer, receivable from
+    the supplier, due `Finance:DefaultReturnTitleDays` (default 30). Exchanges settle only the difference
+    (none when equal, receivable when replacements cost more, refund rule when less). Treatment `None` skips
+    finance (except exchanges). Financial records are never deleted.
+  - `ReturnCredit` and `SourceType = Return` are system-only (rejected on manual settlements/titles).
+  - Idempotency: stock runs only when the return has no movement (unique index
+    `StockMovements (ReturnRequestId, ProductId, MovementType)`); finance only while
+    `FinancialStatus = Pending` → `Processed` (unique `FinancialTitles (SourceType, SourceId)` for returns and
+    unique settlement keys `return:{returnId}:{installmentId}`).
+  - Any failure rolls back stock, order/purchase return quantities, finance and status (409 ProblemDetails).
 - Financial title: derived status; settle creates a settlement and possibly cash movement.
 
 Key files: `Domain/Entities/*.cs`, enums in `Domain/Enums/`.

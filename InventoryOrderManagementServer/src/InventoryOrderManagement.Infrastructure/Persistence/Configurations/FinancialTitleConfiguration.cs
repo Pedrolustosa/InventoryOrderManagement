@@ -47,6 +47,11 @@ public class FinancialTitleConfiguration : IEntityTypeConfiguration<FinancialTit
             .HasFilter(
                 "\"Type\" = 'Receivable' AND \"SourceType\" = 'SalesOrder' AND \"SourceId\" IS NOT NULL");
 
+        // A completed return generates at most one financial title.
+        builder.HasIndex(title => new { title.SourceType, title.SourceId })
+            .IsUnique()
+            .HasFilter("\"SourceType\" = 'Return' AND \"SourceId\" IS NOT NULL");
+
         builder.Property(title => title.SourceReference)
             .HasMaxLength(FinancialTitle.SourceReferenceMaxLength);
 

@@ -23,6 +23,11 @@ public interface IInventoryRepository
 
     Task AddMovementAsync(StockMovement movement, CancellationToken cancellationToken = default);
 
+    /// <summary>True when the return already moved (or recorded) stock.</summary>
+    Task<bool> ExistsReturnMovementAsync(
+        Guid returnRequestId,
+        CancellationToken cancellationToken = default);
+
     /// <summary>True when the shipment already issued stock (an OrderExit linked to it exists).</summary>
     Task<bool> ExistsShipmentExitAsync(
         Guid shipmentId,

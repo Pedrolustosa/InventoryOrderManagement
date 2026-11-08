@@ -415,6 +415,10 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("Type");
 
+                    b.HasIndex("SourceType", "SourceId")
+                        .IsUnique()
+                        .HasFilter("\"SourceType\" = 'Return' AND \"SourceId\" IS NOT NULL");
+
                     b.HasIndex("Type", "CounterpartyId", "DocumentNumber")
                         .IsUnique()
                         .HasFilter("\"DocumentNumber\" IS NOT NULL AND \"CounterpartyId\" IS NOT NULL");
@@ -947,10 +951,63 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.ReturnReplacementItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("LineAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ProductSku")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("ReturnRequestId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("UnitPriceSnapshot")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("ReturnRequestId", "ProductId")
+                        .IsUnique();
+
+                    b.ToTable("ReturnReplacementItems", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ReturnReplacementItems_LineAmount", "\"LineAmount\" >= 0");
+
+                            t.HasCheckConstraint("CK_ReturnReplacementItems_Quantity", "\"Quantity\" > 0");
+
+                            t.HasCheckConstraint("CK_ReturnReplacementItems_UnitPriceSnapshot", "\"UnitPriceSnapshot\" >= 0");
+                        });
+                });
+
             modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.ReturnRequest", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("AdjustedFinancialTitleId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("AuthorizationReference")
@@ -995,6 +1052,10 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<decimal>("EstimatedFinancialAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("FinancialAdjustedAmount")
                         .HasPrecision(18, 2)
                         .HasColumnType("TEXT");
 
@@ -1075,9 +1136,13 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AdjustedFinancialTitleId");
+
                     b.HasIndex("CreatedAtUtc");
 
                     b.HasIndex("CustomerId");
+
+                    b.HasIndex("FinancialTitleId");
 
                     b.HasIndex("OrderId");
 
@@ -1280,6 +1345,10 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                     b.HasIndex("ShipmentId", "ProductId")
                         .IsUnique()
                         .HasFilter("\"ShipmentId\" IS NOT NULL");
+
+                    b.HasIndex("ReturnRequestId", "ProductId", "MovementType")
+                        .IsUnique()
+                        .HasFilter("\"ReturnRequestId\" IS NOT NULL");
 
                     b.ToTable("StockMovements", null, t =>
                         {
@@ -1970,11 +2039,36 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.ReturnReplacementItem", b =>
+                {
+                    b.HasOne("InventoryOrderManagement.Domain.Entities.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("InventoryOrderManagement.Domain.Entities.ReturnRequest", null)
+                        .WithMany("ReplacementItems")
+                        .HasForeignKey("ReturnRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.ReturnRequest", b =>
                 {
+                    b.HasOne("InventoryOrderManagement.Domain.Entities.FinancialTitle", null)
+                        .WithMany()
+                        .HasForeignKey("AdjustedFinancialTitleId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("InventoryOrderManagement.Domain.Entities.Customer", null)
                         .WithMany()
                         .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("InventoryOrderManagement.Domain.Entities.FinancialTitle", null)
+                        .WithMany()
+                        .HasForeignKey("FinancialTitleId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("InventoryOrderManagement.Domain.Entities.Order", null)
@@ -2146,6 +2240,8 @@ namespace InventoryOrderManagement.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.ReturnRequest", b =>
                 {
                     b.Navigation("Items");
+
+                    b.Navigation("ReplacementItems");
                 });
 
             modelBuilder.Entity("InventoryOrderManagement.Domain.Entities.Shipment", b =>
