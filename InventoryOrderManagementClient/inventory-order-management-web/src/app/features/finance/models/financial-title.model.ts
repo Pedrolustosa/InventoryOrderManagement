@@ -31,6 +31,7 @@ export interface FinancialTitleSummary {
   outstandingBalance: number;
   status: FinancialTitleStatus;
   installmentCount: number;
+  dueDate?: string | null;
 }
 
 export interface FinancialTitle extends FinancialTitleSummary {

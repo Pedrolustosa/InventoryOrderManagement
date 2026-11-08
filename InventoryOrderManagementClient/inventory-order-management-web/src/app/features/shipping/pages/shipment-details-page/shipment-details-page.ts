@@ -6,6 +6,9 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ToastService } from '../../../../core/notifications/toast.service';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
+import { FinancialStatus } from '../../../finance/components/financial-status/financial-status';
+import { FinancialTitleSummary } from '../../../finance/models/financial-title.model';
+import { FinanceService } from '../../../finance/services/finance.service';
 import { Order } from '../../../orders/models/order.model';
 import { OrdersService } from '../../../orders/services/orders.service';
 import {
@@ -39,7 +42,10 @@ import { ShipmentsRequestError, ShipmentsService } from '../../services/shipment
     ReactiveFormsModule,
     ShipmentTimeline,
     ShipmentActionDialog,
-    HasPermissionDirective, TranslatePipe],
+    HasPermissionDirective,
+    TranslatePipe,
+    FinancialStatus,
+  ],
   templateUrl: './shipment-details-page.html',
 })
 export class ShipmentDetailsPage implements OnInit {
@@ -50,10 +56,12 @@ export class ShipmentDetailsPage implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly shipmentsService = inject(ShipmentsService);
   private readonly ordersService = inject(OrdersService);
+  private readonly financeService = inject(FinanceService);
 
   readonly shipment = signal<Shipment | null>(null);
   readonly history = signal<ShipmentStatusHistory[]>([]);
   readonly order = signal<Order | null>(null);
+  readonly receivable = signal<FinancialTitleSummary | null>(null);
   readonly isLoading = signal(true);
   readonly isActing = signal(false);
   readonly isEditing = signal(false);
@@ -261,6 +269,7 @@ export class ShipmentDetailsPage implements OnInit {
         this.loadHistory(updated.id);
         if (action === 'dispatch' || action === 'deliver') {
           this.loadOrder(updated.orderId);
+          this.loadReceivable(updated.orderId);
         }
       },
       error: (error: ShipmentsRequestError | Error) => {
@@ -289,6 +298,7 @@ export class ShipmentDetailsPage implements OnInit {
         this.isLoading.set(false);
         this.loadHistory(shipment.id);
         this.loadOrder(shipment.orderId);
+        this.loadReceivable(shipment.orderId);
       },
       error: (error: Error) => {
         this.isLoading.set(false);
@@ -309,6 +319,26 @@ export class ShipmentDetailsPage implements OnInit {
       next: (order) => this.order.set(order),
       error: () => this.order.set(null),
     });
+  }
+
+  private loadReceivable(orderId: string): void {
+    this.financeService
+      .getTitles('receivable', {
+        status: null,
+        counterpartyId: null,
+        sourceId: orderId,
+        documentNumber: null,
+        issueFrom: null,
+        issueTo: null,
+        dueFrom: null,
+        dueTo: null,
+        page: 1,
+        pageSize: 1,
+      })
+      .subscribe({
+        next: (page) => this.receivable.set(page.items[0] ?? null),
+        error: () => this.receivable.set(null),
+      });
   }
 
   private applyShipment(shipment: Shipment): void {

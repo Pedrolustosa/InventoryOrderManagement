@@ -5,6 +5,9 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ToastService } from '../../../../core/notifications/toast.service';
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
+import { FinancialStatus } from '../../../finance/components/financial-status/financial-status';
+import { FinancialTitleSummary } from '../../../finance/models/financial-title.model';
+import { FinanceService } from '../../../finance/services/finance.service';
 import { InventoryService } from '../../../inventory/services/inventory.service';
 import { ShipmentSummary } from '../../../shipping/models/shipment.model';
 import { ShipmentsService } from '../../../shipping/services/shipments.service';
@@ -17,7 +20,16 @@ import { OrdersService } from '../../services/orders.service';
 
 @Component({
   selector: 'app-order-details-page',
-  imports: [RouterLink, CurrencyPipe, DatePipe, OrderTimeline, OrderActionDialog, HasPermissionDirective, TranslatePipe],
+  imports: [
+    RouterLink,
+    CurrencyPipe,
+    DatePipe,
+    OrderTimeline,
+    OrderActionDialog,
+    HasPermissionDirective,
+    TranslatePipe,
+    FinancialStatus,
+  ],
   templateUrl: './order-details-page.html',
 })
 export class OrderDetailsPage implements OnInit {
@@ -28,9 +40,11 @@ export class OrderDetailsPage implements OnInit {
   private readonly ordersService = inject(OrdersService);
   private readonly inventoryService = inject(InventoryService);
   private readonly shipmentsService = inject(ShipmentsService);
+  private readonly financeService = inject(FinanceService);
 
   readonly order = signal<Order | null>(null);
   readonly linkedShipment = signal<ShipmentSummary | null>(null);
+  readonly receivable = signal<FinancialTitleSummary | null>(null);
   readonly availability = signal<ReadonlyMap<string, number>>(new Map());
   readonly isLoading = signal(true);
   readonly isActing = signal(false);
@@ -135,6 +149,7 @@ export class OrderDetailsPage implements OnInit {
         this.isLoading.set(false);
         this.loadAvailability(order);
         this.loadLinkedShipment(order.id);
+        this.loadReceivable(order.id);
       },
       error: (error: Error) => {
         this.loadError.set(error.message);
@@ -148,6 +163,26 @@ export class OrderDetailsPage implements OnInit {
       next: (shipment) => this.linkedShipment.set(shipment),
       error: () => this.linkedShipment.set(null),
     });
+  }
+
+  private loadReceivable(orderId: string): void {
+    this.financeService
+      .getTitles('receivable', {
+        status: null,
+        counterpartyId: null,
+        sourceId: orderId,
+        documentNumber: null,
+        issueFrom: null,
+        issueTo: null,
+        dueFrom: null,
+        dueTo: null,
+        page: 1,
+        pageSize: 1,
+      })
+      .subscribe({
+        next: (page) => this.receivable.set(page.items[0] ?? null),
+        error: () => this.receivable.set(null),
+      });
   }
 
   private loadAvailability(order: Order): void {

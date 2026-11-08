@@ -170,6 +170,7 @@ export class FinanceService {
       [
         ['status', filters.status],
         [party, filters.counterpartyId],
+        ['sourceId', filters.sourceId],
         ['documentNumber', filters.documentNumber],
         ['issueFrom', filters.issueFrom],
         ['issueTo', filters.issueTo],

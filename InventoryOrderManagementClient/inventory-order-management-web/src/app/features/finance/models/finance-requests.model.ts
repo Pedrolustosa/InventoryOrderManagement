@@ -82,6 +82,7 @@ export interface SettleInstallmentRequest {
 export interface FinancialTitleFilters {
   status: FinancialTitleStatus | null;
   counterpartyId: string | null;
+  sourceId?: string | null;
   documentNumber: string | null;
   issueFrom: string | null;
   issueTo: string | null;
