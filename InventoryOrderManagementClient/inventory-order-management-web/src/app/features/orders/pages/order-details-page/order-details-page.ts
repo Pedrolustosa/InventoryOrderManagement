@@ -116,6 +116,7 @@ export class OrderDetailsPage implements OnInit {
       error: (error: Error) => {
         this.isActing.set(false);
         this.actionError.set(error.message);
+        this.toast.error(error.message);
       },
     });
   }
@@ -157,7 +158,7 @@ export class OrderDetailsPage implements OnInit {
           new Map(
             balances
               .filter((balance) => productIds.has(balance.productId))
-              .map((balance) => [balance.productId, balance.quantityOnHand]),
+              .map((balance) => [balance.productId, balance.availableQuantity]),
           ),
         );
       },

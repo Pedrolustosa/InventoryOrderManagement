@@ -366,7 +366,9 @@
       "OrderCancellationReturn": "Devolução por cancelamento de pedido",
       "PurchaseEntry": "Entrada por compra",
       "CustomerReturnEntry": "Entrada por devolução de cliente",
-      "SupplierReturnExit": "Saída por devolução a fornecedor"
+      "SupplierReturnExit": "Saída por devolução a fornecedor",
+      "OrderReservation": "Reserva por pedido",
+      "OrderReservationRelease": "Liberação de reserva por pedido"
     },
     "FINANCE_TITLE": {
       "Pending": "Pendente",
@@ -647,7 +649,9 @@
       "EMPTY_FILTERED": "Nenhum produto corresponde aos filtros atuais.",
       "COL_SKU": "SKU",
       "COL_PRODUCT": "Produto",
-      "COL_QTY": "Quantidade disponível",
+      "COL_QTY": "Quantidade física",
+      "COL_RESERVED": "Reservado",
+      "COL_AVAILABLE": "Disponível",
       "COL_MIN": "Estoque mínimo",
       "COL_STATUS": "Status do estoque",
       "COL_ACTIONS": "Ações",

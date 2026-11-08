@@ -79,6 +79,8 @@ describe('OrderForm', () => {
       sku: mouse.sku,
       productName: mouse.name,
       quantityOnHand: 4,
+      reservedQuantity: 0,
+      availableQuantity: 4,
       minimumStockLevel: 1,
       isLowStock: false,
     },

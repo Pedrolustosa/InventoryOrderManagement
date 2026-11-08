@@ -159,12 +159,17 @@ public static class ServiceCollectionExtensions
 
     private static void RegisterDomainEventHandlers(IServiceCollection services)
     {
-        var handlerInterface = typeof(IDomainEventHandler<>);
+        RegisterHandlers(services, typeof(IDomainEventHandler<>));
+        RegisterHandlers(services, typeof(ITransactionalDomainEventHandler<>));
+    }
+
+    private static void RegisterHandlers(IServiceCollection services, Type openHandlerInterface)
+    {
         var handlerTypes = typeof(ServiceCollectionExtensions).Assembly
             .GetTypes()
             .Where(type => type is { IsAbstract: false, IsInterface: false })
             .SelectMany(type => type.GetInterfaces()
-                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerInterface)
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == openHandlerInterface)
                 .Select(i => (Implementation: type, Service: i)));
 
         foreach (var (implementation, service) in handlerTypes)

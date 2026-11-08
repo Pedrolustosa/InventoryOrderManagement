@@ -12,6 +12,10 @@ public sealed class InventoryBalanceResponse
 
     public required int QuantityOnHand { get; init; }
 
+    public required int ReservedQuantity { get; init; }
+
+    public required int AvailableQuantity { get; init; }
+
     public required int MinimumStockLevel { get; init; }
 
     public required bool IsLowStock { get; init; }
@@ -24,6 +28,8 @@ public sealed class InventoryBalanceResponse
             Sku = details.Sku,
             ProductName = details.ProductName,
             QuantityOnHand = details.QuantityOnHand,
+            ReservedQuantity = details.ReservedQuantity,
+            AvailableQuantity = details.AvailableQuantity,
             MinimumStockLevel = details.MinimumStockLevel,
             IsLowStock = details.IsLowStock
         };
@@ -34,7 +40,8 @@ public sealed class InventoryBalanceResponse
         string sku,
         string productName,
         int quantityOnHand,
-        int minimumStockLevel)
+        int minimumStockLevel,
+        int reservedQuantity = 0)
     {
         return new InventoryBalanceResponse
         {
@@ -42,6 +49,8 @@ public sealed class InventoryBalanceResponse
             Sku = sku,
             ProductName = productName,
             QuantityOnHand = quantityOnHand,
+            ReservedQuantity = reservedQuantity,
+            AvailableQuantity = quantityOnHand - reservedQuantity,
             MinimumStockLevel = minimumStockLevel,
             IsLowStock = quantityOnHand <= minimumStockLevel
         };

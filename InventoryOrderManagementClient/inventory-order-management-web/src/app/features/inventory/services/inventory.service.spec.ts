@@ -18,6 +18,8 @@ describe('InventoryService', () => {
     sku: 'KB-001',
     productName: 'Mechanical Keyboard',
     quantityOnHand: 25,
+      reservedQuantity: 0,
+      availableQuantity: 25,
     minimumStockLevel: 10,
     isLowStock: false,
   };

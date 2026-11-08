@@ -13,15 +13,26 @@ public sealed class DomainEventDispatcher : IDomainEventDispatcher
         _serviceProvider = serviceProvider;
     }
 
-    public async Task DispatchAsync(
+    public Task DispatchTransactionalAsync(
         IEnumerable<IDomainEvent> domainEvents,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        DispatchCoreAsync(typeof(ITransactionalDomainEventHandler<>), domainEvents, cancellationToken);
+
+    public Task DispatchAsync(
+        IEnumerable<IDomainEvent> domainEvents,
+        CancellationToken cancellationToken = default) =>
+        DispatchCoreAsync(typeof(IDomainEventHandler<>), domainEvents, cancellationToken);
+
+    private async Task DispatchCoreAsync(
+        Type openHandlerType,
+        IEnumerable<IDomainEvent> domainEvents,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(domainEvents);
 
         foreach (var domainEvent in domainEvents)
         {
-            var handlerType = typeof(IDomainEventHandler<>).MakeGenericType(domainEvent.GetType());
+            var handlerType = openHandlerType.MakeGenericType(domainEvent.GetType());
             var handlers = _serviceProvider.GetServices(handlerType);
 
             foreach (var handler in handlers)
@@ -32,7 +43,7 @@ public sealed class DomainEventDispatcher : IDomainEventDispatcher
                 }
 
                 var handleMethod = handlerType.GetMethod(
-                    nameof(IDomainEventHandler<IDomainEvent>.HandleAsync),
+                    "HandleAsync",
                     [domainEvent.GetType(), typeof(CancellationToken)]);
 
                 if (handleMethod is null)

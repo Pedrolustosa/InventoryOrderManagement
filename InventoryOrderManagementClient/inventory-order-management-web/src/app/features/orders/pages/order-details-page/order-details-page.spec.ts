@@ -165,7 +165,7 @@ describe('OrderDetailsPage', () => {
   });
 
   it('should keep the current status when confirmation reports insufficient stock', async () => {
-    await setup(buildOrder('Draft'));
+    const toast = await setup(buildOrder('Draft'));
     ordersService.confirmOrder.mockReturnValue(
       throwError(() => new Error("Insufficient stock for 'Historical Mouse'. Available: 1. Requested: 2.")),
     );
@@ -176,6 +176,9 @@ describe('OrderDetailsPage', () => {
 
     expect(component.order()?.status).toBe('Draft');
     expect(fixture.nativeElement.textContent).toContain('Available: 1');
+    expect(toast.error).toHaveBeenCalledWith(
+      "Insufficient stock for 'Historical Mouse'. Available: 1. Requested: 2.",
+    );
     expect(ordersService.shipOrder).not.toHaveBeenCalled();
   });
 

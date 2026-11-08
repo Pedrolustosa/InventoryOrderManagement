@@ -14,7 +14,6 @@ public class ConfirmOrderNotificationTests
     private readonly IOrderRepository _orders = Substitute.For<IOrderRepository>();
     private readonly ICustomerRepository _customers = Substitute.For<ICustomerRepository>();
     private readonly IProductRepository _products = Substitute.For<IProductRepository>();
-    private readonly IInventoryRepository _inventory = Substitute.For<IInventoryRepository>();
     private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
     private readonly INotificationDispatcher _dispatcher = Substitute.For<INotificationDispatcher>();
     private readonly ILogger<ConfirmOrderUseCase> _logger = Substitute.For<ILogger<ConfirmOrderUseCase>>();
@@ -38,20 +37,14 @@ public class ConfirmOrderNotificationTests
             OrderShippingAddress.Create("00000-000", "Street", "1", null, null, "City", "ST", "BR"),
             [OrderItem.Create(product.Id, product.Sku, product.Name, 2, 10m)]);
 
-        var balance = InventoryBalance.Create(product.Id);
-        balance.Receive(20);
-        balance.SetMinimumStockLevel(5);
-
         _orders.GetTrackedByIdAsync(order.Id, Arg.Any<CancellationToken>()).Returns(order);
         _customers.GetByIdAsync(customer.Id, Arg.Any<CancellationToken>()).Returns(customer);
         _products.GetByIdAsync(product.Id, Arg.Any<CancellationToken>()).Returns(product);
-        _inventory.GetTrackedByProductIdAsync(product.Id, Arg.Any<CancellationToken>()).Returns(balance);
 
         var useCase = new ConfirmOrderUseCase(
             _orders,
             _customers,
             _products,
-            _inventory,
             _unitOfWork,
             _dispatcher,
             _logger);

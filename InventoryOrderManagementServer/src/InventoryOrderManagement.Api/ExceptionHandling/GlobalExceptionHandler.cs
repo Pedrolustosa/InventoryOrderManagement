@@ -38,6 +38,13 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
             Instance = httpContext.Request.Path
         };
 
+        if (exception is OrderInsufficientStockException orderInsufficientStockException)
+        {
+            problemDetails.Extensions["productName"] = orderInsufficientStockException.ProductName;
+            problemDetails.Extensions["requestedQuantity"] = orderInsufficientStockException.RequestedQuantity;
+            problemDetails.Extensions["availableQuantity"] = orderInsufficientStockException.AvailableQuantity;
+        }
+
         httpContext.Response.StatusCode = statusCode;
         await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
 

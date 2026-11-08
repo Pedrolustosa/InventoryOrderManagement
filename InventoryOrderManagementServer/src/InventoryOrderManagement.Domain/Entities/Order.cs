@@ -1,5 +1,6 @@
 using InventoryOrderManagement.Domain.Abstractions;
 using InventoryOrderManagement.Domain.Enums;
+using InventoryOrderManagement.Domain.Events;
 using InventoryOrderManagement.Domain.Exceptions;
 using InventoryOrderManagement.Domain.ValueObjects;
 
@@ -112,6 +113,11 @@ public class Order : AggregateRoot
         Status = OrderStatus.Confirmed;
         ConfirmedAtUtc = DateTime.UtcNow;
         Touch();
+
+        RaiseDomainEvent(new OrderConfirmedDomainEvent(
+            Id,
+            _items.Select(item => new OrderConfirmedItem(item.ProductId, item.Quantity)).ToList(),
+            ConfirmedAtUtc.Value));
     }
 
     public void Ship()

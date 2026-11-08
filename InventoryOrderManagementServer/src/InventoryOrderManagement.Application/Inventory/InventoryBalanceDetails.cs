@@ -12,6 +12,10 @@ public sealed class InventoryBalanceDetails
 
     public required int QuantityOnHand { get; init; }
 
+    public required int ReservedQuantity { get; init; }
+
+    public int AvailableQuantity => QuantityOnHand - ReservedQuantity;
+
     public required int MinimumStockLevel { get; init; }
 
     public bool IsLowStock => QuantityOnHand <= MinimumStockLevel;

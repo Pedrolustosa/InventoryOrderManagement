@@ -19,6 +19,8 @@
             <th class="px-4 py-3 font-semibold">{{ 'INVENTORY.LIST.COL_SKU' | translate }}</th>
             <th class="px-4 py-3 font-semibold">{{ 'INVENTORY.LIST.COL_PRODUCT' | translate }}</th>
             <th class="px-4 py-3 font-semibold">{{ 'INVENTORY.LIST.COL_QTY' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'INVENTORY.LIST.COL_RESERVED' | translate }}</th>
+            <th class="px-4 py-3 font-semibold">{{ 'INVENTORY.LIST.COL_AVAILABLE' | translate }}</th>
             <th class="px-4 py-3 font-semibold">{{ 'INVENTORY.LIST.COL_MIN' | translate }}</th>
             <th class="px-4 py-3 font-semibold">{{ 'INVENTORY.LIST.COL_STATUS' | translate }}</th>
             <th class="px-4 py-3 font-semibold">{{ 'INVENTORY.LIST.COL_ACTIONS' | translate }}</th>
@@ -30,6 +32,8 @@
               <td class="whitespace-nowrap px-4 py-3 font-medium text-ink">{{ balance.sku }}</td>
               <td class="px-4 py-3 text-ink">{{ balance.productName }}</td>
               <td class="px-4 py-3 text-ink">{{ balance.quantityOnHand }}</td>
+              <td class="px-4 py-3 text-ink">{{ balance.reservedQuantity }}</td>
+              <td class="px-4 py-3 text-ink">{{ balance.availableQuantity }}</td>
               <td class="px-4 py-3 text-muted">{{ balance.minimumStockLevel }}</td>
               <td class="px-4 py-3">
                 @switch (statusOf(balance)) {
