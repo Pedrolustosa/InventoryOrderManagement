@@ -40,7 +40,7 @@ public class ReturnReversalEndpointsTests : IClassFixture<ProductsApiFactory>
     public async Task CustomerReturn_FullFlow_RestocksQuarantinesAndAbatesTheReceivable()
     {
         // 4 units at 50.00 dispatched through a shipment, so the order has a 200.00 receivable.
-        var sale = await _api.SeedDeliveredSaleAsync("rev-flow", quantity: 4, throughShipment: true);
+        var sale = await _api.SeedDeliveredSaleAsync("rev-flow", quantity: 4);
         var receivables = await _api.GetTitlesAsync("receivables", sale.Order.Id);
         var receivable = Assert.Single(receivables.Items);
         Assert.Equal(200m, receivable.TotalAmount);
@@ -99,8 +99,10 @@ public class ReturnReversalRollbackTests : IClassFixture<FailingReturnFinanceApi
     [Fact]
     public async Task CustomerReturn_WhenFinanceFails_RollsBackStockOrderAndStatus()
     {
-        // Legacy ship/deliver: no receivable, so the refund needs a new payable, whose creation fails.
-        var sale = await _api.SeedDeliveredSaleAsync("rev-rollback", quantity: 4, throughShipment: false);
+        // The receivable is already paid, so nothing is left to abate: the refund needs a new payable,
+        // whose creation fails.
+        var sale = await _api.SeedDeliveredSaleAsync("rev-rollback", quantity: 4);
+        await _api.SettleReceivableAsync(sale.Order.Id);
         var created = await _api.CreateCustomerReturnAsync(sale.Order, quantity: 2, ReturnFinancialTreatment.CustomerRefund);
         var itemId = created.Items.Single().Id;
         await _api.ReceiveAndStartInspectionAsync(created.Id, itemId, 2);
@@ -203,7 +205,7 @@ internal sealed class ReturnFlowApi(HttpClient client)
 
     public sealed record Sale(OrderResponse Order, Guid ProductId);
 
-    public async Task<Sale> SeedDeliveredSaleAsync(string sku, int quantity, bool throughShipment)
+    public async Task<Sale> SeedDeliveredSaleAsync(string sku, int quantity)
     {
         var supplier = await PostAsync<SupplierResponse>("/api/suppliers", new CreateSupplierRequest { Name = $"Supplier {sku}" });
         var product = await PostAsync<ProductResponse>("/api/products", new CreateProductRequest
@@ -247,23 +249,16 @@ internal sealed class ReturnFlowApi(HttpClient client)
         });
         (await client.PostAsync($"/api/orders/{order.Id}/confirm", null)).EnsureSuccessStatusCode();
 
-        if (throughShipment)
+        // Orders ship and deliver only through their shipment.
+        var shipment = await PostAsync<ShipmentResponse>("/api/shipments", new CreateShipmentRequest
         {
-            var shipment = await PostAsync<ShipmentResponse>("/api/shipments", new CreateShipmentRequest
-            {
-                OrderId = order.Id,
-                CarrierName = "Acme"
-            });
-            foreach (var step in new[] { "dispatch", "in-transit", "deliver" })
-            {
-                (await client.PostAsJsonAsync($"/api/shipments/{shipment.Id}/{step}", new ShipmentNotesRequest()))
-                    .EnsureSuccessStatusCode();
-            }
-        }
-        else
+            OrderId = order.Id,
+            CarrierName = "Acme"
+        });
+        foreach (var step in new[] { "dispatch", "in-transit", "deliver" })
         {
-            (await client.PostAsync($"/api/orders/{order.Id}/ship", null)).EnsureSuccessStatusCode();
-            (await client.PostAsync($"/api/orders/{order.Id}/deliver", null)).EnsureSuccessStatusCode();
+            (await client.PostAsJsonAsync($"/api/shipments/{shipment.Id}/{step}", new ShipmentNotesRequest()))
+                .EnsureSuccessStatusCode();
         }
 
         var delivered = (await client.GetFromJsonAsync<OrderResponse>($"/api/orders/{order.Id}", JsonOptions))!;
@@ -326,6 +321,33 @@ internal sealed class ReturnFlowApi(HttpClient client)
         (await client.GetFromJsonAsync<PagedResult<FinancialTitleSummaryResponse>>(
             $"/api/finance/{kind}?sourceId={sourceId}&page=1&pageSize=10",
             JsonOptions))!;
+
+    /// <summary>Pays the order's receivable in full.</summary>
+    public async Task SettleReceivableAsync(Guid orderId)
+    {
+        var summary = (await GetTitlesAsync("receivables", orderId)).Items.Single();
+        var receivable = await GetTitleAsync("receivables", summary.Id);
+        var account = await PostAsync<CashAccountResponse>("/api/finance/cash-accounts", new CreateCashAccountRequest
+        {
+            Name = $"Cash {orderId:N}",
+            AccountType = CashAccountType.Cash,
+            OpeningBalance = 0m,
+            OpeningBalanceDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-1))
+        });
+
+        foreach (var installment in receivable.Installments)
+        {
+            (await client.PostAsJsonAsync(
+                $"/api/finance/receivables/{receivable.Id}/installments/{installment.Id}/settlements",
+                new SettleInstallmentRequest
+                {
+                    CashAccountId = account.Id,
+                    PaymentMethod = FinancialPaymentMethod.Pix,
+                    SettledPrincipalAmount = installment.OutstandingBalance,
+                    OccurredAtUtc = DateTime.UtcNow
+                })).EnsureSuccessStatusCode();
+        }
+    }
 
     public async Task<FinancialTitleResponse> GetTitleAsync(string kind, Guid id) =>
         (await client.GetFromJsonAsync<FinancialTitleResponse>($"/api/finance/{kind}/{id}", JsonOptions))!;

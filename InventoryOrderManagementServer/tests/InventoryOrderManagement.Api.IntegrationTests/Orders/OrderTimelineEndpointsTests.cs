@@ -42,7 +42,7 @@ public class OrderTimelineEndpointsTests : IClassFixture<ProductsApiFactory>
     public async Task Timeline_ForAFullFlow_ReturnsTheExpectedContractInOrder()
     {
         // Confirm → ship (shipment) → deliver; receivable of 4 × 50.00 = 200.00.
-        var sale = await _flow.SeedDeliveredSaleAsync("timeline-flow", quantity: 4, throughShipment: true);
+        var sale = await _flow.SeedDeliveredSaleAsync("timeline-flow", quantity: 4);
         var receivable = Assert.Single((await _flow.GetTitlesAsync("receivables", sale.Order.Id)).Items);
         await SettleAsync(receivable.Id, 80m);
 
@@ -184,7 +184,7 @@ public class OrderTimelineWithoutFinanceViewTests : IClassFixture<WithoutFinance
     public async Task Timeline_WithoutFinanceView_OmitsFinanceEntries()
     {
         // Dispatch creates a receivable, so finance data exists for this order.
-        var sale = await _flow.SeedDeliveredSaleAsync("timeline-nofin", quantity: 2, throughShipment: true);
+        var sale = await _flow.SeedDeliveredSaleAsync("timeline-nofin", quantity: 2);
 
         var timeline = await _client.GetFromJsonAsync<OrderTimelineDto>(
             $"/api/orders/{sale.Order.Id}/timeline",

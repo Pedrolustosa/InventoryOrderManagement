@@ -5,6 +5,7 @@ using InventoryOrderManagement.Application.Shipments;
 using InventoryOrderManagement.Application.Shipments.Dtos;
 using InventoryOrderManagement.Domain.Entities;
 using InventoryOrderManagement.Domain.Enums;
+using InventoryOrderManagement.Domain.Fulfillment;
 using InventoryOrderManagement.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -39,7 +40,6 @@ public class MarkShipmentFailedNotificationTests
             OrderShippingAddress.Create("00000-000", "Street", "1", null, null, "City", "ST", "BR"),
             [OrderItem.Create(Guid.NewGuid(), "SKU", "Name", 1, 10m)]);
         order.Confirm();
-        order.Ship();
 
         var shipment = Shipment.Create(
             order.Id,
@@ -50,7 +50,7 @@ public class MarkShipmentFailedNotificationTests
             "TRK-1",
             null,
             Guid.NewGuid());
-        shipment.Dispatch(null, null, []);
+        OrderFulfillment.Dispatch(order, shipment, null, null);
 
         _shipments.GetTrackedByIdAsync(shipment.Id, Arg.Any<CancellationToken>()).Returns(shipment);
         _orders.GetByIdAsync(order.Id, Arg.Any<CancellationToken>()).Returns(order);

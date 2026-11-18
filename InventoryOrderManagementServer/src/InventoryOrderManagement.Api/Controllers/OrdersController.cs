@@ -18,8 +18,6 @@ public sealed class OrdersController : ControllerBase
     private readonly GetOrderByIdUseCase _getOrderByIdUseCase;
     private readonly UpdateDraftOrderUseCase _updateDraftOrderUseCase;
     private readonly ConfirmOrderUseCase _confirmOrderUseCase;
-    private readonly ShipOrderUseCase _shipOrderUseCase;
-    private readonly DeliverOrderUseCase _deliverOrderUseCase;
     private readonly CancelOrderUseCase _cancelOrderUseCase;
     private readonly GetOrderTimelineUseCase _getOrderTimelineUseCase;
 
@@ -29,8 +27,6 @@ public sealed class OrdersController : ControllerBase
         GetOrderByIdUseCase getOrderByIdUseCase,
         UpdateDraftOrderUseCase updateDraftOrderUseCase,
         ConfirmOrderUseCase confirmOrderUseCase,
-        ShipOrderUseCase shipOrderUseCase,
-        DeliverOrderUseCase deliverOrderUseCase,
         CancelOrderUseCase cancelOrderUseCase,
         GetOrderTimelineUseCase getOrderTimelineUseCase)
     {
@@ -39,8 +35,6 @@ public sealed class OrdersController : ControllerBase
         _getOrderByIdUseCase = getOrderByIdUseCase;
         _updateDraftOrderUseCase = updateDraftOrderUseCase;
         _confirmOrderUseCase = confirmOrderUseCase;
-        _shipOrderUseCase = shipOrderUseCase;
-        _deliverOrderUseCase = deliverOrderUseCase;
         _cancelOrderUseCase = cancelOrderUseCase;
         _getOrderTimelineUseCase = getOrderTimelineUseCase;
     }
@@ -137,27 +131,26 @@ public sealed class OrdersController : ControllerBase
         return Ok(order);
     }
 
-    [Authorize(Policy = Permissions.Orders.Ship)]
+    /// <summary>
+    /// Removed: an order is shipped by dispatching its shipment (POST /api/shipments/{id}/dispatch).
+    /// Kept for one version as 410 Gone so old clients get an actionable error instead of a 404.
+    /// </summary>
+    [Obsolete(LegacyShippingRemoval)]
+    [Authorize]
     [HttpPost("{id:guid}/ship")]
-    [ProducesResponseType(typeof(OrderResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<OrderResponse>> Ship(Guid id, CancellationToken cancellationToken)
-    {
-        var order = await _shipOrderUseCase.ExecuteAsync(id, cancellationToken);
-        return Ok(order);
-    }
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status410Gone)]
+    public IActionResult Ship(Guid id) =>
+        LegacyShippingGone("POST /api/shipments to create the shipment, then POST /api/shipments/{shipmentId}/dispatch");
 
-    [Authorize(Policy = Permissions.Orders.Deliver)]
+    /// <summary>
+    /// Removed: an order is delivered by confirming its shipment delivery (POST /api/shipments/{id}/deliver).
+    /// </summary>
+    [Obsolete(LegacyShippingRemoval)]
+    [Authorize]
     [HttpPost("{id:guid}/deliver")]
-    [ProducesResponseType(typeof(OrderResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<OrderResponse>> Deliver(Guid id, CancellationToken cancellationToken)
-    {
-        var order = await _deliverOrderUseCase.ExecuteAsync(id, cancellationToken);
-        return Ok(order);
-    }
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status410Gone)]
+    public IActionResult Deliver(Guid id) =>
+        LegacyShippingGone("POST /api/shipments/{shipmentId}/deliver");
 
     [Authorize(Policy = Permissions.Orders.Cancel)]
     [HttpPost("{id:guid}/cancel")]
@@ -172,5 +165,21 @@ public sealed class OrdersController : ControllerBase
     {
         var order = await _cancelOrderUseCase.ExecuteAsync(id, request, cancellationToken);
         return Ok(order);
+    }
+
+    private const string LegacyShippingRemoval =
+        "Legacy order ship/deliver was removed; remove these 410 endpoints in the next major version.";
+
+    private ObjectResult LegacyShippingGone(string replacement)
+    {
+        var problem = new ProblemDetails
+        {
+            Status = StatusCodes.Status410Gone,
+            Title = "Endpoint removed",
+            Detail = $"Orders are shipped and delivered only through their shipment. Use {replacement}.",
+            Instance = HttpContext.Request.Path
+        };
+        problem.Extensions["replacement"] = "/api/shipments";
+        return new ObjectResult(problem) { StatusCode = StatusCodes.Status410Gone };
     }
 }

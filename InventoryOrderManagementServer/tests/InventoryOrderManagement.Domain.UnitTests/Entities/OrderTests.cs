@@ -1,5 +1,6 @@
 using InventoryOrderManagement.Domain.Entities;
 using InventoryOrderManagement.Domain.Enums;
+using InventoryOrderManagement.Domain.Fulfillment;
 using InventoryOrderManagement.Domain.Events;
 using InventoryOrderManagement.Domain.Exceptions;
 using InventoryOrderManagement.Domain.ValueObjects;
@@ -35,13 +36,14 @@ public class OrderTests
     }
 
     [Fact]
-    public void Ship_DoesNotRaiseOrderConfirmedDomainEvent()
+    public void DispatchThroughShipment_DoesNotRaiseOrderConfirmedDomainEvent()
     {
         var order = CreateDraftOrder();
         order.Confirm();
         order.ClearDomainEvents();
+        var shipment = Shipment.Create(order.Id, order.OrderNumber, order.CustomerId, order.CustomerName, "Acme", null, null, null);
 
-        order.Ship();
+        OrderFulfillment.Dispatch(order, shipment, null, null);
 
         Assert.Empty(order.DomainEvents);
         Assert.Equal(OrderStatus.Shipped, order.Status);

@@ -2,6 +2,7 @@ using InventoryOrderManagement.Domain.Entities;
 using InventoryOrderManagement.Domain.Enums;
 using InventoryOrderManagement.Domain.Events;
 using InventoryOrderManagement.Domain.Exceptions;
+using InventoryOrderManagement.Domain.Fulfillment;
 using InventoryOrderManagement.Domain.ValueObjects;
 
 namespace InventoryOrderManagement.Domain.UnitTests.Entities;
@@ -141,14 +142,15 @@ public class OrderCancellationTests
             order.Confirm();
         }
 
+        var shipment = Shipment.Create(order.Id, order.OrderNumber, order.CustomerId, order.CustomerName, "Acme", null, null, null);
         if (status is OrderStatus.Shipped or OrderStatus.Delivered)
         {
-            order.Ship();
+            OrderFulfillment.Dispatch(order, shipment, null, null);
         }
 
         if (status == OrderStatus.Delivered)
         {
-            order.Deliver();
+            OrderFulfillment.Deliver(order, shipment, null, null);
         }
 
         order.ClearDomainEvents();

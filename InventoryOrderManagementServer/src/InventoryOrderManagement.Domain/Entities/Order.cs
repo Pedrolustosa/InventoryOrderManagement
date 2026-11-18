@@ -120,19 +120,28 @@ public class Order : AggregateRoot
             ConfirmedAtUtc.Value));
     }
 
-    public void Ship()
+    /// <summary>
+    /// Shipping is driven only by the order's shipment: call <see cref="Fulfillment.OrderFulfillment.Dispatch"/>.
+    /// An order can only become Shipped together with a dispatched shipment of its own.
+    /// </summary>
+    internal void MarkShipped(Shipment shipment)
     {
+        EnsureOwnShipment(shipment, ShipmentStatus.Shipped);
         EnsureStatus(OrderStatus.Confirmed);
         Status = OrderStatus.Shipped;
-        ShippedAtUtc = DateTime.UtcNow;
+        ShippedAtUtc = shipment.ShippedAtUtc ?? DateTime.UtcNow;
         Touch();
     }
 
-    public void Deliver()
+    /// <summary>
+    /// Delivery is driven only by the order's shipment: call <see cref="Fulfillment.OrderFulfillment.Deliver"/>.
+    /// </summary>
+    internal void MarkDelivered(Shipment shipment)
     {
+        EnsureOwnShipment(shipment, ShipmentStatus.Delivered);
         EnsureStatus(OrderStatus.Shipped);
         Status = OrderStatus.Delivered;
-        DeliveredAtUtc = DateTime.UtcNow;
+        DeliveredAtUtc = shipment.DeliveredAtUtc ?? DateTime.UtcNow;
         Touch();
     }
 
@@ -209,6 +218,22 @@ public class Order : AggregateRoot
         }
 
         Subtotal = _items.Sum(item => item.LineTotal);
+    }
+
+    private void EnsureOwnShipment(Shipment shipment, ShipmentStatus expected)
+    {
+        ArgumentNullException.ThrowIfNull(shipment);
+
+        if (shipment.OrderId != Id)
+        {
+            throw new ShipmentConflictException("The shipment does not belong to this order.");
+        }
+
+        if (shipment.Status != expected)
+        {
+            throw new ShipmentConflictException(
+                $"The order cannot follow a shipment that is {shipment.Status}; expected {expected}.");
+        }
     }
 
     private void EnsureStatus(OrderStatus expected)
