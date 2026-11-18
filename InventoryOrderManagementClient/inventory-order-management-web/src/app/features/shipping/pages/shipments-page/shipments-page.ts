@@ -54,6 +54,7 @@ export class ShipmentsPage implements OnInit {
     InTransit: 0,
     Delivered: 0,
     Failed: 0,
+    Cancelled: 0,
   });
 
   readonly emptyMessage = computed(() =>

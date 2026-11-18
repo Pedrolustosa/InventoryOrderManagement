@@ -240,16 +240,6 @@ public class ShipmentsEndpointsTests : IClassFixture<ProductsApiFactory>
     }
 
     [Fact]
-    public async Task OrderShip_WhenShipmentExists_ReturnsConflict()
-    {
-        var order = await SeedConfirmedOrderAsync("ship-gate");
-        await CreateShipmentAsync(order.Id, "Acme");
-
-        var response = await _client.PostAsync($"/api/orders/{order.Id}/ship", null);
-        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
-    }
-
-    [Fact]
     public async Task Dispatch_WithoutCarrier_ReturnsBadRequest()
     {
         var order = await SeedConfirmedOrderAsync("ship-nocarrier");

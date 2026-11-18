@@ -1,24 +1,21 @@
 using InventoryOrderManagement.Application.Abstractions.Persistence;
 using InventoryOrderManagement.Application.Exceptions;
 using InventoryOrderManagement.Application.Orders.Dtos;
-using InventoryOrderManagement.Domain.Entities;
-using InventoryOrderManagement.Domain.Enums;
 
 namespace InventoryOrderManagement.Application.Orders;
 
+/// <summary>
+/// Cancels a Draft or Confirmed order. Releasing the reservation (or returning legacy stock) and cancelling a
+/// pending shipment happen in <see cref="OrderCancelledHandler"/>, inside this same transaction.
+/// </summary>
 public sealed class CancelOrderUseCase
 {
     private readonly IOrderRepository _orderRepository;
-    private readonly IInventoryRepository _inventoryRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public CancelOrderUseCase(
-        IOrderRepository orderRepository,
-        IInventoryRepository inventoryRepository,
-        IUnitOfWork unitOfWork)
+    public CancelOrderUseCase(IOrderRepository orderRepository, IUnitOfWork unitOfWork)
     {
         _orderRepository = orderRepository;
-        _inventoryRepository = inventoryRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -35,30 +32,6 @@ public sealed class CancelOrderUseCase
         {
             var order = await _orderRepository.GetTrackedByIdAsync(orderId, ct)
                 ?? throw new OrderNotFoundException(orderId);
-
-            // TODO: move reservation release to a domain-event handler when cancellation events are introduced.
-            if (order.Status == OrderStatus.Confirmed)
-            {
-                foreach (var item in order.Items.OrderBy(line => line.ProductId))
-                {
-                    var balance = await _inventoryRepository.GetTrackedByProductIdAsync(item.ProductId, ct)
-                        ?? throw new InventoryBalanceNotFoundException(item.ProductId);
-
-                    var previousReserved = balance.ReservedQuantity;
-                    balance.Release(item.Quantity);
-
-                    var movement = StockMovement.CreateForOrder(
-                        item.ProductId,
-                        order.Id,
-                        StockMovementType.OrderReservationRelease,
-                        item.Quantity,
-                        previousReserved,
-                        balance.ReservedQuantity,
-                        $"Stock reservation released for cancelled order {order.OrderNumber}.");
-
-                    await _inventoryRepository.AddMovementAsync(movement, ct);
-                }
-            }
 
             order.Cancel(request.Reason);
             response = OrderResponse.FromOrder(order);

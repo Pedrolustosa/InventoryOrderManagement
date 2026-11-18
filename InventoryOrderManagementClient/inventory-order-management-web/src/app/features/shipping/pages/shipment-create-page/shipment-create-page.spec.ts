@@ -2,7 +2,7 @@ import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
 import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { permittedAuth } from '../../../../core/auth/testing/permitted-auth';
@@ -115,5 +115,24 @@ describe('ShipmentCreatePage', () => {
 
     expect(component.hasExistingShipment()).toBe(true);
     expect(fixture.nativeElement.textContent).toContain('already has a shipment');
+  });
+
+  it('preselects the order passed in the query string ("Create shipment" from the order)', async () => {
+    await TestBed.inject(Router).navigateByUrl(`/?orderId=${summary.id}`);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(ordersService.getOrderById).toHaveBeenCalledWith(summary.id);
+    expect(component.selectedOrderId()).toBe(summary.id);
+    expect(component.selectedOrder()?.orderNumber).toBe('ORD-1');
+  });
+
+  it('ignores a query string order that is not a confirmed order', async () => {
+    await TestBed.inject(Router).navigateByUrl('/?orderId=shipped-order');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(ordersService.getOrderById).not.toHaveBeenCalled();
+    expect(component.selectedOrderId()).toBe('');
   });
 });

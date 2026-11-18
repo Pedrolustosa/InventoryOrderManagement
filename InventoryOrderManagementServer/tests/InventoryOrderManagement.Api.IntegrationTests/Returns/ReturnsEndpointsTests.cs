@@ -11,6 +11,7 @@ using InventoryOrderManagement.Application.Orders.Dtos;
 using InventoryOrderManagement.Application.Products.Dtos;
 using InventoryOrderManagement.Application.Purchases.Dtos;
 using InventoryOrderManagement.Application.Returns.Dtos;
+using InventoryOrderManagement.Application.Shipments.Dtos;
 using InventoryOrderManagement.Application.Security;
 using InventoryOrderManagement.Application.Suppliers.Dtos;
 using InventoryOrderManagement.Domain.Enums;
@@ -371,8 +372,19 @@ public class ReturnsEndpointsTests : IClassFixture<ProductsApiFactory>
         var created = await orderResponse.Content.ReadFromJsonAsync<OrderCreatedResponse>(JsonOptions);
 
         (await _client.PostAsync($"/api/orders/{created!.Id}/confirm", null)).EnsureSuccessStatusCode();
-        (await _client.PostAsync($"/api/orders/{created.Id}/ship", null)).EnsureSuccessStatusCode();
-        (await _client.PostAsync($"/api/orders/{created.Id}/deliver", null)).EnsureSuccessStatusCode();
+        // Orders ship and deliver only through their shipment.
+        var shipmentResponse = await _client.PostAsJsonAsync("/api/shipments", new CreateShipmentRequest
+        {
+            OrderId = created.Id,
+            CarrierName = "Acme"
+        });
+        shipmentResponse.EnsureSuccessStatusCode();
+        var shipment = await shipmentResponse.Content.ReadFromJsonAsync<ShipmentResponse>(JsonOptions);
+        foreach (var step in new[] { "dispatch", "deliver" })
+        {
+            (await _client.PostAsJsonAsync($"/api/shipments/{shipment!.Id}/{step}", new ShipmentNotesRequest()))
+                .EnsureSuccessStatusCode();
+        }
 
         return (customer.Id, productId);
     }

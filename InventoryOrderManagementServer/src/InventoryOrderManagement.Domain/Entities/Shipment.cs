@@ -187,6 +187,21 @@ public class Shipment : AggregateRoot
         Touch();
     }
 
+    /// <summary>
+    /// Cancels a shipment that has not left yet because its order was cancelled. A dispatched shipment cannot
+    /// be cancelled; that case is a delivery failure or a return.
+    /// </summary>
+    public void Cancel(string? notes, Guid? changedByUserId)
+    {
+        EnsureStatus(ShipmentStatus.Preparing);
+
+        var previous = Status;
+        Status = ShipmentStatus.Cancelled;
+        Notes = NormalizeOptional(notes, NotesMaxLength, "Notes") ?? Notes;
+        AppendHistory(previous, Status, notes, changedByUserId);
+        Touch();
+    }
+
     private void AppendHistory(
         ShipmentStatus? previousStatus,
         ShipmentStatus newStatus,

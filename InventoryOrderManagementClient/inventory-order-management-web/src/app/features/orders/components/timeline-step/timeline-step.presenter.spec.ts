@@ -94,6 +94,11 @@ describe('presentTimelineStep', () => {
     expect(presentTimelineStep(entry({ module: 'Shipment', eventType: 'shipment.delivered', status: 'Delivered' })).tone).toBe('success');
   });
 
+  it('shipment.cancelled: danger; stock.reservation_released: info', () => {
+    expect(presentTimelineStep(entry({ module: 'Shipment', eventType: 'shipment.cancelled', status: 'Cancelled' })).tone).toBe('danger');
+    expect(presentTimelineStep(entry({ module: 'Stock', eventType: 'stock.reservation_released', status: null })).tone).toBe('info');
+  });
+
   it('finance.receivable_created: number, type, amount and due date, link to the receivable', () => {
     const view = presentTimelineStep(
       entry({

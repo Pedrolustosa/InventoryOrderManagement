@@ -5,7 +5,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CANCELLATION_REASON_MAX_LENGTH } from '../../models/cancel-order-request.model';
 import { OrderStatus } from '../../models/order-status.model';
 
-export type OrderLifecycleAction = 'confirm' | 'ship' | 'deliver' | 'cancel';
+export type OrderLifecycleAction = 'confirm' | 'cancel';
 
 @Component({
   selector: 'app-order-action-dialog',
@@ -35,10 +35,6 @@ export class OrderActionDialog {
     switch (this.action()) {
       case 'confirm':
         return 'ORDERS.DIALOGS.CONFIRM_TITLE';
-      case 'ship':
-        return 'ORDERS.DIALOGS.SHIP_TITLE';
-      case 'deliver':
-        return 'ORDERS.DIALOGS.DELIVER_TITLE';
       case 'cancel':
         return 'ORDERS.DIALOGS.CANCEL_TITLE';
     }
@@ -48,10 +44,6 @@ export class OrderActionDialog {
     switch (this.action()) {
       case 'confirm':
         return 'ORDERS.DIALOGS.CONFIRM_MSG';
-      case 'ship':
-        return 'ORDERS.DIALOGS.SHIP_MSG';
-      case 'deliver':
-        return 'ORDERS.DIALOGS.DELIVER_MSG';
       case 'cancel':
         return this.status() === 'Confirmed'
           ? 'ORDERS.DIALOGS.CANCEL_CONFIRMED_MSG'

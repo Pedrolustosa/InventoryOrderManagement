@@ -76,7 +76,11 @@ public class InventoryBalance : AggregateRoot
         ApplyChange(() => ReservedQuantity += quantity);
     }
 
-    public void Release(int quantity)
+    /// <summary>
+    /// Returns reserved units to the available quantity without touching on-hand stock. Never releases more
+    /// than is reserved.
+    /// </summary>
+    public void ReleaseReservation(int quantity)
     {
         EnsurePositiveQuantity(quantity);
 

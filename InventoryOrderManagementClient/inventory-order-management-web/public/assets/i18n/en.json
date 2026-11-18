@@ -301,7 +301,8 @@
       "Shipped": "Shipped",
       "InTransit": "In transit",
       "Delivered": "Delivered",
-      "Failed": "Failed"
+      "Failed": "Failed",
+      "Cancelled": "Cancelled"
     },
     "RETURN": {
       "Draft": "Draft",
@@ -833,6 +834,7 @@
       "DELIVERED_AT": "Delivered At",
       "CANCELLED_AT": "Cancelled At",
       "OPEN_SHIPMENT": "Open shipment",
+      "CREATE_SHIPMENT": "Create shipment",
       "SECTION_CUSTOMER": "Customer Information",
       "CUSTOMER_NAME": "Customer Name",
       "CUSTOMER_ID": "Customer ID",
@@ -855,21 +857,15 @@
       "TIMELINE_STATE_UPCOMING": "upcoming",
       "NOT_FOUND": "Order was not found.",
       "SUCCESS_CONFIRMED": "Order {{orderNumber}} was confirmed. Stock was issued by the server.",
-      "SUCCESS_SHIPPED": "Order {{orderNumber}} was shipped.",
-      "SUCCESS_DELIVERED": "Order {{orderNumber}} was delivered.",
       "SUCCESS_CANCELLED": "Order {{orderNumber}} was cancelled.",
       "SUCCESS_SAVED": "Order {{orderNumber}} was saved as {{status}}.",
       "SUCCESS_UPDATED": "Order {{orderNumber}} was updated."
     },
     "DIALOGS": {
       "CONFIRM_TITLE": "Confirm Order",
-      "SHIP_TITLE": "Ship Order",
-      "DELIVER_TITLE": "Deliver Order",
       "CANCEL_TITLE": "Cancel Order",
       "INTRO": "Order {{orderNumber}}. {{message}}",
       "CONFIRM_MSG": "This will issue stock for the order. Items and prices will be locked for editing.",
-      "SHIP_MSG": "The order will move to Shipped. Stock was already issued and will not change again.",
-      "DELIVER_MSG": "The order will be marked as Delivered. Stock will not change.",
       "CANCEL_CONFIRMED_MSG": "Cancelling a confirmed order returns the issued stock. A reason is required.",
       "CANCEL_DRAFT_MSG": "The draft will be cancelled. Stock will not change. A reason is required.",
       "REASON_REQUIRED": "A cancellation reason is required.",
@@ -879,12 +875,8 @@
     },
     "ACTIONS": {
       "CONFIRM": "Confirm",
-      "SHIP": "Ship",
-      "DELIVER": "Deliver",
       "CANCEL": "Cancel",
       "CONFIRM_ORDER": "Confirm Order",
-      "SHIP_ORDER": "Ship Order",
-      "DELIVER_ORDER": "Deliver Order",
       "CANCEL_ORDER": "Cancel Order"
     },
     "FILTERS": {
@@ -937,7 +929,8 @@
           "in_transit": "Shipment in transit",
           "failed": "Delivery failed",
           "resumed": "Delivery resumed",
-          "delivered": "Shipment delivered"
+          "delivered": "Shipment delivered",
+          "cancelled": "Shipment cancelled"
         },
         "finance": {
           "receivable_created": "Receivable created",
@@ -961,7 +954,8 @@
           "Shipped": "Shipped",
           "InTransit": "In transit",
           "Delivered": "Delivered",
-          "Failed": "Failed"
+          "Failed": "Failed",
+          "Cancelled": "Cancelled"
         },
         "Finance": {
           "Pending": "Pending",

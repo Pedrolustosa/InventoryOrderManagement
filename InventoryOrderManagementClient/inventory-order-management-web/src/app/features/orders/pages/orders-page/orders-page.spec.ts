@@ -24,8 +24,6 @@ describe('OrdersPage', () => {
   let ordersService: {
     getOrders: ReturnType<typeof vi.fn>;
     confirmOrder: ReturnType<typeof vi.fn>;
-    shipOrder: ReturnType<typeof vi.fn>;
-    deliverOrder: ReturnType<typeof vi.fn>;
     cancelOrder: ReturnType<typeof vi.fn>;
   };
 
@@ -59,10 +57,7 @@ describe('OrdersPage', () => {
 
         return of(orders.filter((order) => order.status === filters.status));
       }),
-      confirmOrder: vi.fn(),
-      shipOrder: vi.fn(),
-      deliverOrder: vi.fn(),
-      cancelOrder: vi.fn(),
+      confirmOrder: vi.fn(),      cancelOrder: vi.fn(),
     };
 
     await TestBed.configureTestingModule({

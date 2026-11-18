@@ -32,7 +32,7 @@ Categories.View | Categories.Create | Categories.Update | Categories.Deactivate
 Suppliers.View | Suppliers.Create | Suppliers.Update | Suppliers.Deactivate
 Customers.View | Customers.Create | Customers.Update | Customers.Deactivate
 Inventory.View | Inventory.Receive | Inventory.Exit | Inventory.Adjust | Inventory.MinimumStock.Update
-Orders.View | Orders.Create | Orders.UpdateDraft | Orders.Confirm | Orders.Ship | Orders.Deliver | Orders.Cancel
+Orders.View | Orders.Create | Orders.UpdateDraft | Orders.Confirm | Orders.Cancel
 Purchases.View | Purchases.Create | Purchases.UpdateDraft | Purchases.Send | Purchases.Receive | Purchases.Cancel
 Shipments.View | Shipments.Create | Shipments.Update | Shipments.Dispatch | Shipments.Advance
 Returns.View | Returns.Customer.Create | Returns.Customer.Receive | Returns.Customer.Inspect
@@ -99,12 +99,27 @@ Same pattern as Categories.
 | GET | `/{id}` | Orders.View |
 | PUT | `/{id}` | Orders.UpdateDraft |
 | POST | `/{id}/confirm` | Orders.Confirm |
-| POST | `/{id}/ship` | Orders.Ship |
-| POST | `/{id}/deliver` | Orders.Deliver |
+| POST | `/{id}/ship` | **410 Gone** (removed — see below) |
+| POST | `/{id}/deliver` | **410 Gone** (removed — see below) |
 | POST | `/{id}/cancel` | Orders.Cancel |
 | GET | `/{id}/timeline` | Orders.View (+ Finance.View / Returns.View per module) |
 
-With an active shipment, legacy `ship`/`deliver` may return **409** — use the `/shipments` flow.
+**Shipping and delivery happen only through the order's shipment** (`/shipments`): create it with
+`POST /shipments`, then `POST /shipments/{id}/dispatch` (order → `Shipped`, stock issued, receivable created) and
+`POST /shipments/{id}/deliver` (order → `Delivered`). An order never becomes `Shipped`/`Delivered` without a shipment.
+
+The old `POST /orders/{id}/ship` and `POST /orders/{id}/deliver` were removed. For one version they answer **410 Gone**
+(any authenticated user, nothing changes) with a ProblemDetails whose `detail` names the replacement call and whose
+`replacement` extension is `/api/shipments`; they will then be deleted. The `Orders.Ship` and `Orders.Deliver`
+permissions no longer exist and were removed from stored roles by a migration.
+
+Orders shipped or delivered by the removed endpoints have no shipment. They are kept as they are: the details and the
+timeline load normally (`order.shipped`/`order.delivered` come from the order dates) and no shipping action is offered.
+
+**Cancel** (`POST /{id}/cancel`): only `Draft` and `Confirmed` orders; any other status returns **409** ProblemDetails
+(shipped or delivered goods go through a return). In the same transaction a confirmed order releases exactly the
+stock reserved for it (`OrderReservationRelease`), a legacy order confirmed before reservations existed gets the
+stock issued at confirmation back (`OrderCancellationReturn`), and a shipment still `Preparing` becomes `Cancelled`.
 
 ### Order timeline — `GET /orders/{id}/timeline`
 
@@ -131,7 +146,7 @@ Read-only, chronological history of a sales order across **Order, Stock, Shipmen
 |--------|-------------|----------------------|
 | Order | `order.created`, `order.confirmed`, `order.shipped`, `order.delivered`, `order.cancelled` | Order status |
 | Stock | `stock.reserved`, `stock.reservation_released`, `stock.issued`, `stock.cancellation_returned` (legacy), `stock.return_restocked`, `stock.return_quarantined`, `stock.return_lost`, `stock.exchange_issued` | — |
-| Shipment | `shipment.created`, `shipment.dispatched`, `shipment.in_transit`, `shipment.failed`, `shipment.resumed`, `shipment.delivered` | Shipment status |
+| Shipment | `shipment.created`, `shipment.dispatched`, `shipment.in_transit`, `shipment.failed`, `shipment.resumed`, `shipment.delivered`, `shipment.cancelled` (order cancelled before dispatch) | Shipment status |
 | Finance | `finance.receivable_created`, `finance.refund_created` (payable to the customer from a return), `finance.difference_created` (exchange price difference receivable), `finance.settled` (cash settlement), `finance.abated` (return credit), `finance.title_cancelled` | Title status after the event (`PartiallyPaid`/`Paid` on settlements) |
 | Return | `return.requested` (`summary.returnType` tells an exchange), `return.received`, `return.completed`, `return.rejected`, `return.cancelled` | Return status |
 

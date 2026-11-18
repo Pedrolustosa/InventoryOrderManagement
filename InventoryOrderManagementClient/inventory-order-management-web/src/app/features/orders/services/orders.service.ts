@@ -65,18 +65,6 @@ export class OrdersService {
       .pipe(catchError((error) => this.handleError(error)));
   }
 
-  shipOrder(id: string): Observable<Order> {
-    return this.http
-      .post<Order>(`${this.ordersUrl}/${id}/ship`, null)
-      .pipe(catchError((error) => this.handleError(error)));
-  }
-
-  deliverOrder(id: string): Observable<Order> {
-    return this.http
-      .post<Order>(`${this.ordersUrl}/${id}/deliver`, null)
-      .pipe(catchError((error) => this.handleError(error)));
-  }
-
   cancelOrder(id: string, request: CancelOrderRequest): Observable<Order> {
     return this.http
       .post<Order>(`${this.ordersUrl}/${id}/cancel`, request)

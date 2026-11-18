@@ -13,6 +13,8 @@ public interface IShipmentRepository
 
     Task<Shipment?> GetByOrderIdAsync(Guid orderId, CancellationToken cancellationToken = default);
 
+    Task<Shipment?> GetTrackedByOrderIdAsync(Guid orderId, CancellationToken cancellationToken = default);
+
     Task<bool> ExistsForOrderAsync(Guid orderId, CancellationToken cancellationToken = default);
 
     Task<(IReadOnlyList<Shipment> Items, int TotalItems)> GetPageAsync(

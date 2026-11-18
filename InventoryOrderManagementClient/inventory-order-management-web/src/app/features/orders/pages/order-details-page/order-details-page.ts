@@ -14,7 +14,7 @@ import { ShipmentsService } from '../../../shipping/services/shipments.service';
 import { OrderActionDialog, OrderLifecycleAction } from '../../components/order-action-dialog/order-action-dialog';
 import { OrderStatusProgress } from '../../components/order-status-progress/order-status-progress';
 import { OrderTimeline } from '../../components/order-timeline/order-timeline';
-import { canCancel, canConfirm, canDeliver, canEdit, canShip } from '../../models/order-actions';
+import { canCancel, canConfirm, canCreateShipment, canEdit } from '../../models/order-actions';
 import { Order } from '../../models/order.model';
 import { orderStatusLabel } from '../../models/order-status.model';
 import { OrdersService } from '../../services/orders.service';
@@ -46,6 +46,8 @@ export class OrderDetailsPage implements OnInit {
 
   readonly order = signal<Order | null>(null);
   readonly linkedShipment = signal<ShipmentSummary | null>(null);
+  /** False until the shipment lookup answers, so "Create shipment" never flashes for an order that has one. */
+  readonly shipmentLookupDone = signal(false);
   readonly receivable = signal<FinancialTitleSummary | null>(null);
   readonly availability = signal<ReadonlyMap<string, number>>(new Map());
   readonly isLoading = signal(true);
@@ -63,13 +65,10 @@ export class OrderDetailsPage implements OnInit {
     const order = this.order();
     return order ? canConfirm(order.status) : false;
   });
-  readonly canShip = computed(() => {
+  /** Orders are shipped and delivered only through their shipment. */
+  readonly canCreateShipment = computed(() => {
     const order = this.order();
-    return order ? canShip(order.status) && !this.linkedShipment() : false;
-  });
-  readonly canDeliver = computed(() => {
-    const order = this.order();
-    return order ? canDeliver(order.status) && !this.linkedShipment() : false;
+    return order && this.shipmentLookupDone() ? canCreateShipment(order.status, this.linkedShipment() !== null) : false;
   });
   readonly canCancel = computed(() => {
     const order = this.order();
@@ -128,6 +127,10 @@ export class OrderDetailsPage implements OnInit {
         if (action === 'confirm' || action === 'cancel') {
           this.loadAvailability(updated);
         }
+        if (action === 'cancel') {
+          // A shipment still being prepared is cancelled together with the order.
+          this.loadLinkedShipment(updated.id);
+        }
       },
       error: (error: Error) => {
         this.isActing.set(false);
@@ -162,8 +165,14 @@ export class OrderDetailsPage implements OnInit {
 
   private loadLinkedShipment(orderId: string): void {
     this.shipmentsService.getByOrderId(orderId).subscribe({
-      next: (shipment) => this.linkedShipment.set(shipment),
-      error: () => this.linkedShipment.set(null),
+      next: (shipment) => {
+        this.linkedShipment.set(shipment);
+        this.shipmentLookupDone.set(true);
+      },
+      error: () => {
+        this.linkedShipment.set(null);
+        this.shipmentLookupDone.set(true);
+      },
     });
   }
 
@@ -207,10 +216,6 @@ export class OrderDetailsPage implements OnInit {
     switch (action) {
       case 'confirm':
         return this.ordersService.confirmOrder(id);
-      case 'ship':
-        return this.ordersService.shipOrder(id);
-      case 'deliver':
-        return this.ordersService.deliverOrder(id);
       case 'cancel':
         return this.ordersService.cancelOrder(id, { reason: reason ?? '' });
     }
@@ -220,10 +225,6 @@ export class OrderDetailsPage implements OnInit {
     switch (action) {
       case 'confirm':
         return this.translate.instant('ORDERS.DETAILS.SUCCESS_CONFIRMED', { orderNumber });
-      case 'ship':
-        return this.translate.instant('ORDERS.DETAILS.SUCCESS_SHIPPED', { orderNumber });
-      case 'deliver':
-        return this.translate.instant('ORDERS.DETAILS.SUCCESS_DELIVERED', { orderNumber });
       case 'cancel':
         return this.translate.instant('ORDERS.DETAILS.SUCCESS_CANCELLED', { orderNumber });
     }

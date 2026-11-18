@@ -73,8 +73,6 @@ public static class Permissions
         public const string Create = "Orders.Create";
         public const string UpdateDraft = "Orders.UpdateDraft";
         public const string Confirm = "Orders.Confirm";
-        public const string Ship = "Orders.Ship";
-        public const string Deliver = "Orders.Deliver";
         public const string Cancel = "Orders.Cancel";
     }
 
@@ -179,8 +177,6 @@ public static class Permissions
         Orders.Create,
         Orders.UpdateDraft,
         Orders.Confirm,
-        Orders.Ship,
-        Orders.Deliver,
         Orders.Cancel,
         Reports.View,
         Purchases.View,

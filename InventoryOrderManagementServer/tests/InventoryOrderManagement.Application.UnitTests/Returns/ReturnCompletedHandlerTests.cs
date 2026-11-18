@@ -4,6 +4,7 @@ using InventoryOrderManagement.Application.Finance;
 using InventoryOrderManagement.Application.Returns;
 using InventoryOrderManagement.Domain.Entities;
 using InventoryOrderManagement.Domain.Enums;
+using InventoryOrderManagement.Domain.Fulfillment;
 using InventoryOrderManagement.Domain.Events;
 using InventoryOrderManagement.Domain.ValueObjects;
 using Microsoft.Extensions.Options;
@@ -283,8 +284,9 @@ public class ReturnCompletedHandlerTests
             OrderShippingAddress.Create("00000-000", "Street", "1", null, null, "City", "ST", "BR"),
             [OrderItem.Create(_productA, "SKU-A", "Product A", quantity, 50m)]);
         order.Confirm();
-        order.Ship();
-        order.Deliver();
+        var shipment = Shipment.Create(order.Id, order.OrderNumber, order.CustomerId, order.CustomerName, "Acme", null, null, null);
+        OrderFulfillment.Dispatch(order, shipment, null, null);
+        OrderFulfillment.Deliver(order, shipment, null, null);
         order.ClearDomainEvents();
         _orders.GetTrackedByIdAsync(order.Id, Arg.Any<CancellationToken>()).Returns(order);
         return order;

@@ -25,6 +25,7 @@ export const ORDER_TIMELINE_EVENT_TYPES = [
   'shipment.failed',
   'shipment.resumed',
   'shipment.delivered',
+  'shipment.cancelled',
   'finance.receivable_created',
   'finance.refund_created',
   'finance.difference_created',

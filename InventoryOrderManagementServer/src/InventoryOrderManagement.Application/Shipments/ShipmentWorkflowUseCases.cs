@@ -7,6 +7,7 @@ using InventoryOrderManagement.Application.Security;
 using InventoryOrderManagement.Application.Shipments.Dtos;
 using InventoryOrderManagement.Domain.Entities;
 using InventoryOrderManagement.Domain.Exceptions;
+using InventoryOrderManagement.Domain.Fulfillment;
 using Microsoft.Extensions.Logging;
 
 namespace InventoryOrderManagement.Application.Shipments;
@@ -53,12 +54,7 @@ public sealed class DispatchShipmentUseCase
 
             EnsureOrderCompatibleWithDispatch(order);
 
-            var dispatchedItems = order.Items
-                .Select(item => new Domain.Events.ShipmentDispatchedItem(item.ProductId, item.Quantity))
-                .ToList();
-
-            shipment.Dispatch(request.Notes, _currentUser.UserId, dispatchedItems);
-            order.Ship();
+            OrderFulfillment.Dispatch(order, shipment, request.Notes, _currentUser.UserId);
             updated = shipment;
         }, cancellationToken);
 
@@ -195,8 +191,7 @@ public sealed class MarkShipmentDeliveredUseCase
                     $"The sales order status '{order.Status}' is incompatible with delivery confirmation.");
             }
 
-            shipment.MarkAsDelivered(request.Notes, _currentUser.UserId);
-            order.Deliver();
+            OrderFulfillment.Deliver(order, shipment, request.Notes, _currentUser.UserId);
             updated = shipment;
         }, cancellationToken);
 

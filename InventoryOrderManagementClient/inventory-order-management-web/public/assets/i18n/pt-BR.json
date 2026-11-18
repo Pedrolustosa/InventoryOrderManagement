@@ -301,7 +301,8 @@
       "Shipped": "Despachado",
       "InTransit": "Em trânsito",
       "Delivered": "Entregue",
-      "Failed": "Falhou"
+      "Failed": "Falhou",
+      "Cancelled": "Cancelada"
     },
     "RETURN": {
       "Draft": "Rascunho",
@@ -833,6 +834,7 @@
       "DELIVERED_AT": "Entregue em",
       "CANCELLED_AT": "Cancelado em",
       "OPEN_SHIPMENT": "Abrir expedição",
+      "CREATE_SHIPMENT": "Criar expedição",
       "SECTION_CUSTOMER": "Informações do cliente",
       "CUSTOMER_NAME": "Nome do cliente",
       "CUSTOMER_ID": "ID do cliente",
@@ -855,21 +857,15 @@
       "TIMELINE_STATE_UPCOMING": "próximo",
       "NOT_FOUND": "Pedido não encontrado.",
       "SUCCESS_CONFIRMED": "Pedido {{orderNumber}} confirmado. O estoque foi baixado pelo servidor.",
-      "SUCCESS_SHIPPED": "Pedido {{orderNumber}} enviado.",
-      "SUCCESS_DELIVERED": "Pedido {{orderNumber}} entregue.",
       "SUCCESS_CANCELLED": "Pedido {{orderNumber}} cancelado.",
       "SUCCESS_SAVED": "Pedido {{orderNumber}} salvo como {{status}}.",
       "SUCCESS_UPDATED": "Pedido {{orderNumber}} atualizado."
     },
     "DIALOGS": {
       "CONFIRM_TITLE": "Confirmar pedido",
-      "SHIP_TITLE": "Enviar pedido",
-      "DELIVER_TITLE": "Entregar pedido",
       "CANCEL_TITLE": "Cancelar pedido",
       "INTRO": "Pedido {{orderNumber}}. {{message}}",
       "CONFIRM_MSG": "Isso baixará o estoque do pedido. Itens e preços ficarão bloqueados para edição.",
-      "SHIP_MSG": "O pedido passará para Enviado. O estoque já foi baixado e não mudará novamente.",
-      "DELIVER_MSG": "O pedido será marcado como Entregue. O estoque não mudará.",
       "CANCEL_CONFIRMED_MSG": "Cancelar um pedido confirmado devolve o estoque baixado. Um motivo é obrigatório.",
       "CANCEL_DRAFT_MSG": "O rascunho será cancelado. O estoque não mudará. Um motivo é obrigatório.",
       "REASON_REQUIRED": "O motivo do cancelamento é obrigatório.",
@@ -879,12 +875,8 @@
     },
     "ACTIONS": {
       "CONFIRM": "Confirmar",
-      "SHIP": "Enviar",
-      "DELIVER": "Entregar",
       "CANCEL": "Cancelar",
       "CONFIRM_ORDER": "Confirmar pedido",
-      "SHIP_ORDER": "Enviar pedido",
-      "DELIVER_ORDER": "Entregar pedido",
       "CANCEL_ORDER": "Cancelar pedido"
     },
     "FILTERS": {
@@ -937,7 +929,8 @@
           "in_transit": "Remessa em trânsito",
           "failed": "Falha na entrega",
           "resumed": "Entrega retomada",
-          "delivered": "Remessa entregue"
+          "delivered": "Remessa entregue",
+          "cancelled": "Remessa cancelada"
         },
         "finance": {
           "receivable_created": "Título a receber criado",
@@ -961,7 +954,8 @@
           "Shipped": "Despachada",
           "InTransit": "Em trânsito",
           "Delivered": "Entregue",
-          "Failed": "Falhou"
+          "Failed": "Falhou",
+          "Cancelled": "Cancelada"
         },
         "Finance": {
           "Pending": "Pendente",

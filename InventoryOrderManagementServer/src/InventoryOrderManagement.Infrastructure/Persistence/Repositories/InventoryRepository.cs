@@ -141,6 +141,28 @@ public class InventoryRepository : IInventoryRepository
         return rows.ToDictionary(row => row.ProductId, row => Math.Max(0, row.Net));
     }
 
+    public async Task<IReadOnlyDictionary<Guid, int>> GetNetLegacyExitByProductAsync(
+        Guid orderId,
+        CancellationToken cancellationToken = default)
+    {
+        var rows = await _dbContext.StockMovements
+            .AsNoTracking()
+            .Where(movement => movement.OrderId == orderId
+                && ((movement.MovementType == StockMovementType.OrderExit && movement.ShipmentId == null)
+                    || movement.MovementType == StockMovementType.OrderCancellationReturn))
+            .GroupBy(movement => movement.ProductId)
+            .Select(group => new
+            {
+                ProductId = group.Key,
+                Net = group.Sum(movement => movement.MovementType == StockMovementType.OrderExit
+                    ? movement.Quantity
+                    : -movement.Quantity)
+            })
+            .ToListAsync(cancellationToken);
+
+        return rows.ToDictionary(row => row.ProductId, row => Math.Max(0, row.Net));
+    }
+
     public async Task<IReadOnlyList<StockMovementDetails>> GetMovementsAsync(
         StockMovementQuery query,
         CancellationToken cancellationToken = default)

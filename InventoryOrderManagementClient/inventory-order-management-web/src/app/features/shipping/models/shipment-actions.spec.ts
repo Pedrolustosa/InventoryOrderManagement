@@ -37,6 +37,15 @@ describe('shipment-actions', () => {
     expect(canFailShipment('Delivered')).toBe(false);
   });
 
+  it('allows nothing on a cancelled shipment', () => {
+    expect(canUpdateShipment('Cancelled')).toBe(false);
+    expect(canDispatchShipment('Cancelled', 'Acme')).toBe(false);
+    expect(canSetShipmentInTransit('Cancelled')).toBe(false);
+    expect(canDeliverShipment('Cancelled')).toBe(false);
+    expect(canFailShipment('Cancelled')).toBe(false);
+    expect(canResumeShipment('Cancelled')).toBe(false);
+  });
+
   it('allows resume only from Failed', () => {
     expect(canResumeShipment('Failed')).toBe(true);
     expect(canResumeShipment('InTransit')).toBe(false);

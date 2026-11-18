@@ -154,6 +154,7 @@ internal static class OrderTimelineBuilder
             ShipmentStatus.InTransit => ShipmentInTransit,
             ShipmentStatus.Failed => ShipmentFailed,
             ShipmentStatus.Delivered => ShipmentDelivered,
+            ShipmentStatus.Cancelled => ShipmentCancelled,
             _ => ShipmentCreated
         };
 

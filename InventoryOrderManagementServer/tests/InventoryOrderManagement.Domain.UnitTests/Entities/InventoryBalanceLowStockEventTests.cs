@@ -113,7 +113,7 @@ public class InventoryBalanceLowStockEventTests
     {
         var balance = Balance(onHand: 10, minimum: 5);
         balance.Reserve(6);
-        balance.Release(6);
+        balance.ReleaseReservation(6);
         balance.ClearDomainEvents();
 
         balance.Reserve(7);
@@ -128,7 +128,7 @@ public class InventoryBalanceLowStockEventTests
         var version = balance.Version;
 
         balance.Reserve(1);
-        balance.Release(1);
+        balance.ReleaseReservation(1);
         balance.Issue(1);
 
         Assert.Equal(version + 3, balance.Version);

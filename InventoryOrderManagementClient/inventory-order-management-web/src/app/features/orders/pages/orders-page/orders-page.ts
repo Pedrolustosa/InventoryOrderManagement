@@ -188,10 +188,6 @@ export class OrdersPage implements OnInit {
     switch (action) {
       case 'confirm':
         return this.ordersService.confirmOrder(id);
-      case 'ship':
-        return this.ordersService.shipOrder(id);
-      case 'deliver':
-        return this.ordersService.deliverOrder(id);
       case 'cancel':
         return this.ordersService.cancelOrder(id, { reason: reason ?? '' });
     }
@@ -201,10 +197,6 @@ export class OrdersPage implements OnInit {
     switch (action) {
       case 'confirm':
         return this.translate.instant('ORDERS.DETAILS.SUCCESS_CONFIRMED', { orderNumber });
-      case 'ship':
-        return this.translate.instant('ORDERS.DETAILS.SUCCESS_SHIPPED', { orderNumber });
-      case 'deliver':
-        return this.translate.instant('ORDERS.DETAILS.SUCCESS_DELIVERED', { orderNumber });
       case 'cancel':
         return this.translate.instant('ORDERS.DETAILS.SUCCESS_CANCELLED', { orderNumber });
     }

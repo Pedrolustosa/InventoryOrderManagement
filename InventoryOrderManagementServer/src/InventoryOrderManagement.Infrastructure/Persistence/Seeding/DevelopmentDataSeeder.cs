@@ -1,6 +1,7 @@
 using InventoryOrderManagement.Application.Security;
 using InventoryOrderManagement.Domain.Entities;
 using InventoryOrderManagement.Domain.Enums;
+using InventoryOrderManagement.Domain.Fulfillment;
 using InventoryOrderManagement.Domain.ValueObjects;
 using InventoryOrderManagement.Infrastructure.Identity;
 using InventoryOrderManagement.Infrastructure.Identity.Entities;
@@ -505,7 +506,7 @@ public static class DevelopmentDataSeeder
             customer: acmeRetail,
             product: keyboard,
             quantity: 1,
-            progress: SalesProgress.Shipped,
+            progress: SalesProgress.Confirmed,
             cancelReason: null,
             cancellationToken);
 
@@ -515,7 +516,7 @@ public static class DevelopmentDataSeeder
             customer: johnSmith,
             product: notebook,
             quantity: 3,
-            progress: SalesProgress.Delivered,
+            progress: SalesProgress.Confirmed,
             cancelReason: null,
             cancellationToken);
 
@@ -556,7 +557,7 @@ public static class DevelopmentDataSeeder
             customer: acmeRetail,
             product: notebook,
             quantity: 2,
-            progress: SalesProgress.Shipped,
+            progress: SalesProgress.Confirmed,
             cancelReason: null,
             cancellationToken);
 
@@ -566,7 +567,7 @@ public static class DevelopmentDataSeeder
             customer: johnSmith,
             product: keyboard,
             quantity: 1,
-            progress: SalesProgress.Shipped,
+            progress: SalesProgress.Confirmed,
             cancelReason: null,
             cancellationToken);
 
@@ -779,15 +780,6 @@ public static class DevelopmentDataSeeder
             return;
         }
 
-        if (progress is SalesProgress.Shipped or SalesProgress.Delivered)
-        {
-            order.Ship();
-        }
-
-        if (progress == SalesProgress.Delivered)
-        {
-            order.Deliver();
-        }
     }
 
     private static async Task IssueForOrderAsync(
@@ -842,12 +834,14 @@ public static class DevelopmentDataSeeder
         string? failureReason,
         CancellationToken cancellationToken)
     {
-        var order = await dbContext.Orders
-            .AsNoTracking()
-            .Include(entity => entity.Items)
-            .FirstOrDefaultAsync(entity => entity.OrderNumber == orderNumber, cancellationToken);
+        // Orders added earlier in this run are not saved yet, so look at the change tracker first.
+        var order = dbContext.Orders.Local.FirstOrDefault(entity => entity.OrderNumber == orderNumber)
+            ?? await dbContext.Orders
+                .Include(entity => entity.Items)
+                .FirstOrDefaultAsync(entity => entity.OrderNumber == orderNumber, cancellationToken);
 
-        if (order is null)
+        // Only a confirmed order gets a shipment. Historical shipped orders without one are left as they are.
+        if (order is null || order.Status != OrderStatus.Confirmed)
         {
             return;
         }
@@ -869,10 +863,7 @@ public static class DevelopmentDataSeeder
 
         if (progress is not ShipmentSeedProgress.Preparing)
         {
-            shipment.Dispatch(
-                "Seed dispatch.",
-                changedByUserId: null,
-                order.Items.Select(item => new Domain.Events.ShipmentDispatchedItem(item.ProductId, item.Quantity)).ToList());
+            OrderFulfillment.Dispatch(order, shipment, "Seed dispatch.", changedByUserId: null);
         }
 
         if (progress is ShipmentSeedProgress.InTransit or ShipmentSeedProgress.Delivered)
@@ -890,7 +881,7 @@ public static class DevelopmentDataSeeder
 
         if (progress == ShipmentSeedProgress.Delivered)
         {
-            shipment.MarkAsDelivered("Seed delivery confirmation.", changedByUserId: null);
+            OrderFulfillment.Deliver(order, shipment, "Seed delivery confirmation.", changedByUserId: null);
         }
 
         dbContext.Shipments.Add(shipment);
@@ -1192,8 +1183,6 @@ public static class DevelopmentDataSeeder
     {
         Draft,
         Confirmed,
-        Shipped,
-        Delivered,
         CancelledDraft,
         CancelledConfirmed
     }

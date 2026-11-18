@@ -51,7 +51,7 @@ public class InventoryBalanceTests
         balance.Receive(8);
         balance.Reserve(5);
 
-        balance.Release(3);
+        balance.ReleaseReservation(3);
 
         Assert.Equal(2, balance.ReservedQuantity);
         Assert.Equal(6, balance.AvailableQuantity);

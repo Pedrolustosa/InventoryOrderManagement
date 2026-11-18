@@ -1,5 +1,6 @@
 using InventoryOrderManagement.Domain.Entities;
 using InventoryOrderManagement.Domain.Enums;
+using InventoryOrderManagement.Domain.Fulfillment;
 using InventoryOrderManagement.Domain.Exceptions;
 
 namespace InventoryOrderManagement.Domain.UnitTests.Entities;
@@ -249,8 +250,9 @@ public class ReturnRequestTests
                 "BR"),
             [OrderItem.Create(Guid.NewGuid(), "SKU", "Name", quantity, 10m)]);
         order.Confirm();
-        order.Ship();
-        order.Deliver();
+        var shipment = Shipment.Create(order.Id, order.OrderNumber, order.CustomerId, order.CustomerName, "Acme", null, null, null);
+        OrderFulfillment.Dispatch(order, shipment, null, null);
+        OrderFulfillment.Deliver(order, shipment, null, null);
         return order;
     }
 
