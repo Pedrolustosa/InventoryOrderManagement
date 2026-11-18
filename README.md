@@ -262,7 +262,7 @@ Legend: **Implemented** means Backend and Frontend exist and can be used togethe
 | Supplier Management | Implemented | Suppliers and deactivation |
 | Customer Management | Implemented | Individual and company customers |
 | Inventory Management | Implemented | Balances, movements, minimum stock |
-| Order Management | Implemented | Sales orders (Draft → Confirmed → Shipped → Delivered / Cancelled) |
+| Order Management | Implemented | Sales orders (Draft → Confirmed → Shipped → Delivered / Cancelled); shipping and delivery only through the order's shipment |
 | Purchase Management | Implemented | Purchase orders, send, receive, cancel |
 | Operational Dashboard | Implemented | Home KPIs, sales/purchases trends, low stock, recent orders (`/dashboard` + `/api/dashboard/*`) |
 | Stock / Sales Reports | Implemented | Stock/sales report module via API + Angular feature (separate from the operational dashboard) |
@@ -535,6 +535,25 @@ Official captures are not versioned yet. When available, place them under `docs/
 
 ---
 
+## Sales order flow
+
+```text
+Draft ──confirm──► Confirmed ──(shipment dispatched)──► Shipped ──(shipment delivered)──► Delivered
+  │                    │
+  └──────cancel────────┴──► Cancelled   (shipped/delivered goods go through a return)
+```
+
+1. **Confirm** (`POST /api/orders/{id}/confirm`) reserves the stock.
+2. **Create the shipment** (`POST /api/shipments`; in the UI, *Create shipment* on the order page).
+3. **Dispatch** (`POST /api/shipments/{id}/dispatch`) moves the order to *Shipped*, issues the reserved stock and
+   creates the receivable.
+4. **Deliver** (`POST /api/shipments/{id}/deliver`) moves the order to *Delivered*.
+
+The order status follows its shipment and never moves on its own: the former `POST /api/orders/{id}/ship|deliver`
+endpoints answer `410 Gone` (see [CHANGELOG.md](CHANGELOG.md)).
+
+---
+
 ## Architectural decisions
 
 - **Layer separation**: business rules in Domain; orchestration in Application; EF/Identity details in Infrastructure.
@@ -546,7 +565,7 @@ Official captures are not versioned yet. When available, place them under `docs/
 - **Idempotent seeding**: `DevelopmentDataSeeder` is safe to re-run in Development.
 - **Feature-based frontend**: typed HTTP services, lazy routes, reactive forms, inline status banners.
 - **Operational dashboard vs reports**: `/dashboard` is the home KPI surface; `/reports` remains the stock/sales reports module. Finance has its own `/finance/dashboard`.
-- **Order × Shipment consistency**: when a shipment exists, legacy order ship/deliver returns 409 and the UI routes to the shipping workflow.
+- **Order × Shipment consistency**: `Order` has no public ship/deliver transition; the `OrderFulfillment` domain service moves the order together with its own shipment, so an order is never Shipped/Delivered without one.
 
 ---
 
