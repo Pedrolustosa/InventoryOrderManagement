@@ -8,12 +8,12 @@ export function canConfirm(status: OrderStatus): boolean {
   return status === 'Draft';
 }
 
-export function canShip(status: OrderStatus): boolean {
-  return status === 'Confirmed';
-}
-
-export function canDeliver(status: OrderStatus): boolean {
-  return status === 'Shipped';
+/**
+ * Orders are shipped and delivered only through their shipment: a confirmed order without one can get one.
+ * Shipped or delivered orders without a shipment (from the removed legacy flow) offer no shipping action.
+ */
+export function canCreateShipment(status: OrderStatus, hasShipment: boolean): boolean {
+  return status === 'Confirmed' && !hasShipment;
 }
 
 export function canCancel(status: OrderStatus): boolean {

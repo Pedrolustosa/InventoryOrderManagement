@@ -162,24 +162,21 @@ describe('OrdersService', () => {
     expect(completed).toBe(true);
   });
 
-  it('should confirm, ship, and deliver an order', () => {
+  it('should confirm an order', () => {
     const confirmed = { ...order, status: 'Confirmed' as const };
-    const shipped = { ...confirmed, status: 'Shipped' as const };
-    const delivered = { ...shipped, status: 'Delivered' as const };
+    let result: unknown;
 
-    service.confirmOrder(orderId).subscribe();
-    service.shipOrder(orderId).subscribe();
-    service.deliverOrder(orderId).subscribe();
+    service.confirmOrder(orderId).subscribe((value) => (result = value));
 
     const confirm = httpMock.expectOne(`${ordersUrl}/${orderId}/confirm`);
-    const ship = httpMock.expectOne(`${ordersUrl}/${orderId}/ship`);
-    const deliver = httpMock.expectOne(`${ordersUrl}/${orderId}/deliver`);
     expect(confirm.request.method).toBe('POST');
-    expect(ship.request.method).toBe('POST');
-    expect(deliver.request.method).toBe('POST');
     confirm.flush(confirmed);
-    ship.flush(shipped);
-    deliver.flush(delivered);
+    expect(result).toEqual(confirmed);
+  });
+
+  it('no longer exposes the removed order ship/deliver calls (shipping goes through shipments)', () => {
+    expect('shipOrder' in service).toBe(false);
+    expect('deliverOrder' in service).toBe(false);
   });
 
   it('should cancel an order with a reason', () => {

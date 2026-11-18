@@ -1,4 +1,4 @@
-import { canCancel, canConfirm, canDeliver, canEdit, canShip } from './order-actions';
+import { canCancel, canConfirm, canCreateShipment, canEdit } from './order-actions';
 import { estimateLineTotal, estimateSubtotal } from './order-estimate';
 import { buildOrderTimeline } from './order-status-progress';
 
@@ -7,30 +7,30 @@ describe('order actions', () => {
     expect(canEdit('Draft')).toBe(true);
     expect(canConfirm('Draft')).toBe(true);
     expect(canCancel('Draft')).toBe(true);
-    expect(canShip('Draft')).toBe(false);
-    expect(canDeliver('Draft')).toBe(false);
+    expect(canCreateShipment('Draft', false)).toBe(false);
   });
 
-  it('allows ship and cancel for confirmed orders', () => {
+  it('allows a shipment and cancel for confirmed orders', () => {
     expect(canEdit('Confirmed')).toBe(false);
     expect(canConfirm('Confirmed')).toBe(false);
-    expect(canShip('Confirmed')).toBe(true);
-    expect(canDeliver('Confirmed')).toBe(false);
+    expect(canCreateShipment('Confirmed', false)).toBe(true);
     expect(canCancel('Confirmed')).toBe(true);
   });
 
-  it('allows delivery only after shipping', () => {
-    expect(canDeliver('Shipped')).toBe(true);
+  it('does not offer a second shipment', () => {
+    expect(canCreateShipment('Confirmed', true)).toBe(false);
+  });
+
+  it('offers no shipping action once shipped, even without a shipment (legacy history)', () => {
+    expect(canCreateShipment('Shipped', false)).toBe(false);
     expect(canCancel('Shipped')).toBe(false);
-    expect(canShip('Shipped')).toBe(false);
   });
 
   it('blocks every mutation after delivery or cancellation', () => {
     for (const status of ['Delivered', 'Cancelled'] as const) {
       expect(canEdit(status)).toBe(false);
       expect(canConfirm(status)).toBe(false);
-      expect(canShip(status)).toBe(false);
-      expect(canDeliver(status)).toBe(false);
+      expect(canCreateShipment(status, false)).toBe(false);
       expect(canCancel(status)).toBe(false);
     }
   });

@@ -74,14 +74,19 @@
           @if (canConfirm()) {
             <button *hasPermission="'Orders.Confirm'" type="button" class="btn-primary" (click)="openAction('confirm')">{{ 'ORDERS.DIALOGS.CONFIRM_TITLE' | translate }}</button>
           }
-          @if (canShip()) {
-            <button *hasPermission="'Orders.Ship'" type="button" class="btn-primary" (click)="openAction('ship')">{{ 'ORDERS.DIALOGS.SHIP_TITLE' | translate }}</button>
-          }
-          @if (canDeliver()) {
-            <button *hasPermission="'Orders.Deliver'" type="button" class="btn-primary" (click)="openAction('deliver')">{{ 'ORDERS.DIALOGS.DELIVER_TITLE' | translate }}</button>
+          @if (canCreateShipment()) {
+            <a
+              *hasPermission="'Shipments.Create'"
+              class="btn-primary"
+              data-testid="create-shipment"
+              [routerLink]="['/shipping', 'new']"
+              [queryParams]="{ orderId: current.id }"
+            >
+              {{ 'ORDERS.DETAILS.CREATE_SHIPMENT' | translate }}
+            </a>
           }
           @if (linkedShipment(); as shipment) {
-            <a *hasPermission="'Shipments.View'" class="btn-secondary" [routerLink]="['/shipping', shipment.id]">
+            <a *hasPermission="'Shipments.View'" class="btn-secondary" data-testid="open-shipment" [routerLink]="['/shipping', shipment.id]">
               {{ 'ORDERS.DETAILS.OPEN_SHIPMENT' | translate }}
             </a>
           }

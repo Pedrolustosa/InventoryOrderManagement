@@ -59,21 +59,6 @@
                       {{ 'ORDERS.ACTIONS.CONFIRM' | translate }}
                     </button>
                   }
-                  @if (canShip(order.status)) {
-                    <button *hasPermission="'Orders.Ship'" type="button" class="btn-secondary !px-2.5 !py-1 text-xs" (click)="shipRequested.emit(order)">
-                      {{ 'ORDERS.ACTIONS.SHIP' | translate }}
-                    </button>
-                  }
-                  @if (canDeliver(order.status)) {
-                    <button
-                      *hasPermission="'Orders.Deliver'"
-                      type="button"
-                      class="btn-secondary !px-2.5 !py-1 text-xs"
-                      (click)="deliverRequested.emit(order)"
-                    >
-                      {{ 'ORDERS.ACTIONS.DELIVER' | translate }}
-                    </button>
-                  }
                   @if (canCancel(order.status)) {
                     <button
                       *hasPermission="'Orders.Cancel'"

@@ -11,7 +11,7 @@ import { ShipmentsService } from '../../../shipping/services/shipments.service';
 import { Order } from '../../models/order.model';
 import { OrderStatus } from '../../models/order-status.model';
 import { AuthService } from '../../../../core/auth/services/auth.service';
-import { permittedAuth } from '../../../../core/auth/testing/permitted-auth';
+import { permittedAuth, permittedUser } from '../../../../core/auth/testing/permitted-auth';
 import { ToastService } from '../../../../core/notifications/toast.service';
 import { createToastServiceSpy } from '../../../../core/notifications/testing/toast-testing';
 import { OrdersService } from '../../services/orders.service';
@@ -27,8 +27,6 @@ describe('OrderDetailsPage', () => {
   let ordersService: {
     getOrderById: ReturnType<typeof vi.fn>;
     confirmOrder: ReturnType<typeof vi.fn>;
-    shipOrder: ReturnType<typeof vi.fn>;
-    deliverOrder: ReturnType<typeof vi.fn>;
     cancelOrder: ReturnType<typeof vi.fn>;
     getTimeline: ReturnType<typeof vi.fn>;
   };
@@ -87,6 +85,7 @@ describe('OrderDetailsPage', () => {
     order: Order,
     linkedShipment: { id: string; orderId: string } | null = null,
     receivable: FinancialTitleSummary | null = null,
+    auth: AuthService = permittedAuth(),
   ): Promise<ReturnType<typeof createToastServiceSpy>> {
     financeService = {
       getTitles: vi.fn().mockReturnValue(
@@ -96,8 +95,6 @@ describe('OrderDetailsPage', () => {
     ordersService = {
       getOrderById: vi.fn().mockReturnValue(of(order)),
       confirmOrder: vi.fn(),
-      shipOrder: vi.fn(),
-      deliverOrder: vi.fn(),
       cancelOrder: vi.fn(),
       getTimeline: vi.fn().mockReturnValue(
         of({ orderId: order.id, orderNumber: order.orderNumber, currentStatus: order.status, entries: [] }),
@@ -125,7 +122,7 @@ describe('OrderDetailsPage', () => {
         },
         { provide: ToastService, useValue: toast },
         { provide: LOCALE_ID, useValue: 'pt-BR' },
-        { provide: AuthService, useValue: permittedAuth() },
+        { provide: AuthService, useValue: auth },
       ],
     }).compileComponents();
 
@@ -225,22 +222,36 @@ describe('OrderDetailsPage', () => {
     expect(toast.error).toHaveBeenCalledWith(
       "Insufficient stock for 'Historical Mouse'. Available: 1. Requested: 2.",
     );
-    expect(ordersService.shipOrder).not.toHaveBeenCalled();
   });
 
-  it('should ship a confirmed order and deliver a shipped order', async () => {
+  it('offers "Create shipment" for a confirmed order without one, linking to the shipment form with the order', async () => {
     await setup(buildOrder('Confirmed'));
-    ordersService.shipOrder.mockReturnValue(of(buildOrder('Shipped')));
-    component.openAction('ship');
-    component.confirmAction(null);
-    expect(component.order()?.status).toBe('Shipped');
+    const link = fixture.nativeElement.querySelector('[data-testid="create-shipment"]') as HTMLAnchorElement | null;
 
-    ordersService.deliverOrder.mockReturnValue(of(buildOrder('Delivered')));
-    component.openAction('deliver');
-    component.confirmAction(null);
-    expect(component.order()?.status).toBe('Delivered');
-    expect(component.canCancel()).toBe(false);
-    expect(component.canEdit()).toBe(false);
+    expect(component.canCreateShipment()).toBe(true);
+    expect(link?.textContent).toContain('Create shipment');
+    expect(link?.getAttribute('href')).toBe('/shipping/new?orderId=order-1');
+    expect(fixture.nativeElement.querySelector('[data-testid="open-shipment"]')).toBeNull();
+  });
+
+  it('hides "Create shipment" without the Shipments.Create permission', async () => {
+    const user = permittedUser();
+    await setup(buildOrder('Confirmed'), null, null, permittedAuth({ ...user, permissions: user.permissions.filter((p) => p !== 'Shipments.Create') }));
+
+    expect(fixture.nativeElement.querySelector('[data-testid="create-shipment"]')).toBeNull();
+  });
+
+  it('never shows the removed legacy ship/deliver actions', async () => {
+    for (const status of ['Confirmed', 'Shipped'] as const) {
+      await setup(buildOrder(status));
+      const text = fixture.nativeElement.textContent as string;
+
+      expect(text).not.toContain('Ship Order');
+      expect(text).not.toContain('Deliver Order');
+      expect('canShip' in component).toBe(false);
+      expect('canDeliver' in component).toBe(false);
+      TestBed.resetTestingModule();
+    }
   });
 
   it('should cancel a draft without treating it as a stock return', async () => {
@@ -272,23 +283,36 @@ describe('OrderDetailsPage', () => {
     await setup(buildOrder('Shipped'));
     const text = fixture.nativeElement.textContent as string;
 
-    expect(text).toContain('Deliver Order');
     expect(text).not.toContain('Cancel Order');
     expect(text).not.toContain('Edit');
     expect(component.canCancel()).toBe(false);
   });
 
-  it('should hide ship and deliver when a shipment already exists', async () => {
-    await setup(buildOrder('Confirmed'), {
-      id: 'shipment-1',
-      orderId: 'order-1',
-    });
-    const text = fixture.nativeElement.textContent as string;
+  it('shows "Open shipment" instead of "Create shipment" when the order has one', async () => {
+    await setup(buildOrder('Shipped'), { id: 'shipment-1', orderId: 'order-1' });
+    const open = fixture.nativeElement.querySelector('[data-testid="open-shipment"]') as HTMLAnchorElement | null;
 
-    expect(component.canShip()).toBe(false);
-    expect(component.canDeliver()).toBe(false);
-    expect(text).not.toContain('Ship Order');
-    expect(text).toContain('Open shipment');
+    expect(component.canCreateShipment()).toBe(false);
+    expect(fixture.nativeElement.querySelector('[data-testid="create-shipment"]')).toBeNull();
+    expect(open?.textContent).toContain('Open shipment');
+    expect(open?.getAttribute('href')).toBe('/shipping/shipment-1');
+  });
+
+  it('hides "Open shipment" without the Shipments.View permission', async () => {
+    const user = permittedUser();
+    await setup(buildOrder('Shipped'), { id: 'shipment-1', orderId: 'order-1' }, null, permittedAuth({ ...user, permissions: user.permissions.filter((p) => p !== 'Shipments.View') }));
+
+    expect(fixture.nativeElement.querySelector('[data-testid="open-shipment"]')).toBeNull();
+  });
+
+  it('a historical shipped order without a shipment loads with no shipping action', async () => {
+    await setup(buildOrder('Shipped', { shippedAtUtc: '2026-10-01T10:00:00Z' }));
+
+    expect(component.order()?.status).toBe('Shipped');
+    expect(component.loadError()).toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="create-shipment"]')).toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="open-shipment"]')).toBeNull();
+    expect(ordersService.getTimeline).toHaveBeenCalledWith('order-1');
   });
 
   it('should hide editing and cancellation after delivery', async () => {

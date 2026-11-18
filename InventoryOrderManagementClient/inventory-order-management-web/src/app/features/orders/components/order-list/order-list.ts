@@ -3,7 +3,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 
 import { HasPermissionDirective } from '../../../../shared/directives/has-permission.directive';
 import { Component, input, output } from '@angular/core';
-import { canCancel, canConfirm, canDeliver, canEdit, canShip } from '../../models/order-actions';
+import { canCancel, canConfirm, canEdit } from '../../models/order-actions';
 import { OrderSummary } from '../../models/order.model';
 import { OrderStatus, orderStatusClass, orderStatusLabel } from '../../models/order-status.model';
 
@@ -22,15 +22,11 @@ export class OrderList {
   readonly viewRequested = output<OrderSummary>();
   readonly editRequested = output<OrderSummary>();
   readonly confirmRequested = output<OrderSummary>();
-  readonly shipRequested = output<OrderSummary>();
-  readonly deliverRequested = output<OrderSummary>();
   readonly cancelRequested = output<OrderSummary>();
   readonly createRequested = output<void>();
 
   readonly canEdit = canEdit;
   readonly canConfirm = canConfirm;
-  readonly canShip = canShip;
-  readonly canDeliver = canDeliver;
   readonly canCancel = canCancel;
 
   statusLabel(status: OrderStatus): string {

@@ -3,7 +3,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { Order, OrderSummary } from '../../../orders/models/order.model';
 import { OrdersService } from '../../../orders/services/orders.service';
@@ -23,6 +23,7 @@ export class ShipmentCreatePage implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly ordersService = inject(OrdersService);
   private readonly shipmentsService = inject(ShipmentsService);
   private readonly auth = inject(AuthService);
@@ -82,6 +83,7 @@ export class ShipmentCreatePage implements OnInit {
         next: (orders) => {
           this.orders.set(orders);
           this.isLoadingOrders.set(false);
+          this.preselectOrder(orders);
         },
         error: (error: Error) => {
           this.isLoadingOrders.set(false);
@@ -165,6 +167,14 @@ export class ShipmentCreatePage implements OnInit {
           }
         },
       });
+  }
+
+  /** Opened from an order ("Create shipment"): select it when it is still a confirmed order. */
+  private preselectOrder(orders: OrderSummary[]): void {
+    const orderId = this.route.snapshot.queryParamMap.get('orderId');
+    if (orderId && orders.some((order) => order.id === orderId)) {
+      this.selectOrder(orderId);
+    }
   }
 
   private checkExistingShipment(orderId: string): void {
