@@ -34,12 +34,16 @@ public class FinanceEndpointsTests : IClassFixture<ProductsApiFactory>
     [Fact]
     public async Task CreatePayable_ThenPartialPayment_ReducesTheBalanceWithoutASecondMovement()
     {
+        // The API derives Pending/Overdue from the real clock, so the dates follow today instead of a fixed day.
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var issueDate = today.AddDays(-14);
+
         var accountResponse = await _client.PostAsJsonAsync("/api/finance/cash-accounts", new CreateCashAccountRequest
         {
             Name = "Operating cash",
             AccountType = CashAccountType.Cash,
             OpeningBalance = 1000m,
-            OpeningBalanceDate = new DateOnly(2026, 11, 1)
+            OpeningBalanceDate = issueDate
         });
         accountResponse.EnsureSuccessStatusCode();
         var account = await accountResponse.Content.ReadFromJsonAsync<CashAccountResponse>(JsonOptions);
@@ -49,12 +53,12 @@ public class FinanceEndpointsTests : IClassFixture<ProductsApiFactory>
             Description = "Goods",
             CounterpartyName = "Neighborhood Hardware",
             SourceType = FinancialSourceType.Manual,
-            IssueDate = new DateOnly(2026, 11, 1),
+            IssueDate = issueDate,
             TotalAmount = 1500m,
             Installments =
             [
-                new FinancialInstallmentRequest { InstallmentNumber = 1, DueDate = new DateOnly(2026, 11, 15), Amount = 750m },
-                new FinancialInstallmentRequest { InstallmentNumber = 2, DueDate = new DateOnly(2026, 12, 15), Amount = 750m }
+                new FinancialInstallmentRequest { InstallmentNumber = 1, DueDate = today.AddDays(14), Amount = 750m },
+                new FinancialInstallmentRequest { InstallmentNumber = 2, DueDate = today.AddDays(44), Amount = 750m }
             ]
         });
         createdResponse.EnsureSuccessStatusCode();
@@ -69,7 +73,7 @@ public class FinanceEndpointsTests : IClassFixture<ProductsApiFactory>
                 CashAccountId = account!.Id,
                 PaymentMethod = FinancialPaymentMethod.Pix,
                 SettledPrincipalAmount = 400m,
-                OccurredAtUtc = new DateTime(2026, 11, 2, 12, 0, 0, DateTimeKind.Utc)
+                OccurredAtUtc = issueDate.AddDays(1).ToDateTime(new TimeOnly(12, 0), DateTimeKind.Utc)
             });
         settlementResponse.EnsureSuccessStatusCode();
         var settlement = await settlementResponse.Content.ReadFromJsonAsync<FinancialSettlementResponse>(JsonOptions);
